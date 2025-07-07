@@ -336,7 +336,11 @@ class GameLogic extends ChangeNotifier {
     trailBlocks.clear();
 
     // Create trail blocks for each position the piece passed through
-    for (int y = startY; y < endY; y++) {
+    // Only create trail for the last few positions to make it more visible
+    int trailLength = (endY - startY).clamp(3, 8); // Limit trail length
+    int trailStart = (endY - trailLength).clamp(startY, endY);
+
+    for (int y = trailStart; y < endY; y++) {
       for (int row = 0; row < currentPiece!.shape.length; row++) {
         for (int col = 0; col < currentPiece!.shape[row].length; col++) {
           if (currentPiece!.shape[row][col] == 1) {
@@ -347,11 +351,12 @@ class GameLogic extends ChangeNotifier {
                 newY < GameConstants.boardHeight + GameConstants.previewRows &&
                 newX >= 0 &&
                 newX < GameConstants.boardWidth) {
+              double intensity = (y - trailStart) / trailLength; // 0.0 to 1.0
               trailBlocks.add({
                 'x': newX,
                 'y': newY,
                 'color': currentPiece!.color,
-                'delay': (y - startY) * 20.0, // Stagger the animation
+                'intensity': intensity, // How bright this trail block should be
               });
             }
           }

@@ -208,29 +208,41 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                 );
               }
 
-              // Trail effect for hard drop - quick and snappy
+              // Trail effect for hard drop - subtle light trail
               if (trailBlock != null && cellColor == null) {
                 Color trailColor = trailBlock['color'] as Color;
-                double trailOpacity = _trailOpacityAnimation.value;
+                double intensity =
+                    trailBlock['intensity'] as double; // 0.0 to 1.0
+                double animationProgress =
+                    1.0 - _trailOpacityAnimation.value; // 0.0 to 1.0
 
-                // Create a bright, streaky trail effect
-                return Opacity(
-                  opacity: trailOpacity * 0.8,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: trailColor.withOpacity(0.3),
-                      border: Border.all(
-                        color: trailColor.withOpacity(trailOpacity),
-                        width: 1.0,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: trailColor.withOpacity(trailOpacity * 0.5),
-                          blurRadius: 4.0,
-                          spreadRadius: 1.0,
-                        ),
-                      ],
+                // Combine intensity with animation progress for a subtle effect
+                double finalOpacity =
+                    intensity *
+                    animationProgress *
+                    0.4; // Reduced overall opacity
+
+                // Create a subtle, light trail effect
+                return Container(
+                  decoration: BoxDecoration(
+                    // Light, translucent color trail
+                    color: trailColor.withOpacity(finalOpacity * 0.3),
+                    border: Border.all(
+                      color: trailColor.withOpacity(finalOpacity * 0.5),
+                      width: 0.5,
                     ),
+                    boxShadow:
+                        finalOpacity > 0.1
+                            ? [
+                              BoxShadow(
+                                color: trailColor.withOpacity(
+                                  finalOpacity * 0.2,
+                                ),
+                                blurRadius: 2.0 * finalOpacity,
+                                spreadRadius: 0.5 * finalOpacity,
+                              ),
+                            ]
+                            : null,
                   ),
                 );
               }
