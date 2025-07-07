@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import '../models/tetromino.dart';
 
-class NextPieceDisplay extends StatelessWidget {
-  final Tetromino piece;
+class HoldPieceDisplay extends StatelessWidget {
+  final Tetromino? piece;
 
-  const NextPieceDisplay({super.key, required this.piece});
+  const HoldPieceDisplay({super.key, this.piece});
 
   @override
   Widget build(BuildContext context) {
+    if (piece == null) {
+      return Container(decoration: BoxDecoration(color: Colors.transparent));
+    }
+
     // Calculate the bounds of the piece to center it
-    int minRow = piece.shape.length;
+    int minRow = piece!.shape.length;
     int maxRow = -1;
-    int minCol = piece.shape[0].length;
+    int minCol = piece!.shape[0].length;
     int maxCol = -1;
 
-    for (int row = 0; row < piece.shape.length; row++) {
-      for (int col = 0; col < piece.shape[row].length; col++) {
-        if (piece.shape[row][col] == 1) {
+    for (int row = 0; row < piece!.shape.length; row++) {
+      for (int col = 0; col < piece!.shape[row].length; col++) {
+        if (piece!.shape[row][col] == 1) {
           minRow = minRow < row ? minRow : row;
           maxRow = maxRow > row ? maxRow : row;
           minCol = minCol < col ? minCol : col;
@@ -48,11 +52,11 @@ class NextPieceDisplay extends StatelessWidget {
 
         Color? cellColor;
         if (pieceRow >= 0 &&
-            pieceRow < piece.shape.length &&
+            pieceRow < piece!.shape.length &&
             pieceCol >= 0 &&
-            pieceCol < piece.shape[pieceRow].length &&
-            piece.shape[pieceRow][pieceCol] == 1) {
-          cellColor = piece.color;
+            pieceCol < piece!.shape[pieceRow].length &&
+            piece!.shape[pieceRow][pieceCol] == 1) {
+          cellColor = piece!.color;
         }
 
         return Container(

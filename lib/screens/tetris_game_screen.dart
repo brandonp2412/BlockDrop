@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../game/game_logic.dart';
 import '../widgets/game_board.dart';
 import '../widgets/next_piece_display.dart';
+import '../widgets/hold_piece_display.dart';
 import '../constants/game_constants.dart';
 
 class TetrisGameScreen extends StatefulWidget {
@@ -64,6 +65,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                   return KeyEventResult.handled;
                 case LogicalKeyboardKey.space:
                   gameLogic.dropPiece();
+                  return KeyEventResult.handled;
+                case LogicalKeyboardKey.keyC:
+                  gameLogic.holdPiece();
                   return KeyEventResult.handled;
               }
             }
@@ -150,31 +154,60 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                         ),
                       ),
 
-                      // Next piece
+                      // Hold and Next pieces
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            const Text(
-                              'Next:',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
+                            // Hold piece
+                            Column(
+                              children: [
+                                const Text(
+                                  'Hold:',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white),
+                                  ),
+                                  child: HoldPieceDisplay(
+                                    piece: gameLogic.heldPiece,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.white),
-                              ),
-                              child:
-                                  gameLogic.nextPiece != null
-                                      ? NextPieceDisplay(
-                                        piece: gameLogic.nextPiece!,
-                                      )
-                                      : null,
+                            // Next piece
+                            Column(
+                              children: [
+                                const Text(
+                                  'Next:',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white),
+                                  ),
+                                  child:
+                                      gameLogic.nextPiece != null
+                                          ? NextPieceDisplay(
+                                            piece: gameLogic.nextPiece!,
+                                          )
+                                          : null,
+                                ),
+                              ],
                             ),
                           ],
                         ),

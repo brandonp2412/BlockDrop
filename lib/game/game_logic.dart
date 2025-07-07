@@ -16,6 +16,10 @@ class GameLogic extends ChangeNotifier {
   // Next piece
   Tetromino? nextPiece;
 
+  // Hold piece
+  Tetromino? heldPiece;
+  bool canHold = true; // Prevents holding multiple times per piece
+
   // Game state
   bool isGameRunning = false;
   bool isGameOver = false;
@@ -42,6 +46,8 @@ class GameLogic extends ChangeNotifier {
     level = 1;
     linesCleared = 0;
     dropSpeed = GameConstants.initialDropSpeed;
+    heldPiece = null;
+    canHold = true;
 
     initializeBoard();
     spawnNewPiece();
@@ -116,6 +122,7 @@ class GameLogic extends ChangeNotifier {
     }
 
     clearLines();
+    canHold = true; // Allow holding the next piece
     spawnNewPiece();
   }
 
@@ -218,6 +225,36 @@ class GameLogic extends ChangeNotifier {
     }
     notifyListeners();
     placePiece();
+  }
+
+  void holdPiece() {
+    if (!canHold || currentPiece == null) return;
+
+    if (heldPiece == null) {
+      // First time holding - store current piece and spawn next
+      heldPiece = currentPiece;
+      spawnNewPiece();
+    } else {
+      // Swap current piece with held piece
+      Tetromino temp = currentPiece!;
+      currentPiece = heldPiece;
+      heldPiece = temp;
+
+      // Reset position for the swapped piece
+      currentX = GameConstants.boardWidth ~/ 2 - 1;
+      currentY = GameConstants.previewRows;
+
+      // Check if the swapped piece can be placed
+      if (!canPlacePiece(currentX, currentY, currentPiece!)) {
+        // If it can't be placed, game over
+        isGameOver = true;
+        isGameRunning = false;
+        gameTimer.cancel();
+      }
+    }
+
+    canHold = false; // Prevent holding again until next piece
+    notifyListeners();
   }
 
   int calculateGhostPieceY() {
