@@ -206,6 +206,16 @@ class GameLogic extends ChangeNotifier {
     placePiece();
   }
 
+  int calculateGhostPieceY() {
+    if (currentPiece == null) return currentY;
+
+    int ghostY = currentY;
+    while (canPlacePiece(currentX, ghostY + 1, currentPiece!)) {
+      ghostY++;
+    }
+    return ghostY;
+  }
+
   List<List<Color?>> getBoardWithCurrentPiece() {
     List<List<Color?>> displayBoard = List.generate(
       GameConstants.boardHeight + GameConstants.previewRows,
@@ -214,6 +224,31 @@ class GameLogic extends ChangeNotifier {
     );
 
     if (currentPiece != null) {
+      // First, draw the ghost piece (shadow)
+      int ghostY = calculateGhostPieceY();
+      if (ghostY != currentY) {
+        // Only show ghost if it's different from current position
+        for (int row = 0; row < currentPiece!.shape.length; row++) {
+          for (int col = 0; col < currentPiece!.shape[row].length; col++) {
+            if (currentPiece!.shape[row][col] == 1) {
+              int newX = currentX + col;
+              int newY = ghostY + row;
+
+              if (newY >= 0 &&
+                  newY <
+                      GameConstants.boardHeight + GameConstants.previewRows &&
+                  newX >= 0 &&
+                  newX < GameConstants.boardWidth &&
+                  displayBoard[newY][newX] == null) {
+                // Use a semi-transparent version of the piece color for ghost
+                displayBoard[newY][newX] = currentPiece!.color.withOpacity(0.3);
+              }
+            }
+          }
+        }
+      }
+
+      // Then, draw the current piece (on top of ghost)
       for (int row = 0; row < currentPiece!.shape.length; row++) {
         for (int col = 0; col < currentPiece!.shape[row].length; col++) {
           if (currentPiece!.shape[row][col] == 1) {
