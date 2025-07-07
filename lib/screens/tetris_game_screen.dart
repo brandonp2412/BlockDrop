@@ -175,27 +175,32 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             // Hold piece
-                            Column(
-                              children: [
-                                const Text(
-                                  'Hold:',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
+                            GestureDetector(
+                              child: Column(
+                                children: [
+                                  const Text(
+                                    'Hold:',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.white),
+                                    ),
+                                    child: HoldPieceDisplay(
+                                      piece: gameLogic.heldPiece,
+                                    ),
                                   ),
-                                  child: HoldPieceDisplay(
-                                    piece: gameLogic.heldPiece,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
+                              onTap: () {
+                                gameLogic.holdPiece();
+                              },
                             ),
                             // Next piece
                             Column(
