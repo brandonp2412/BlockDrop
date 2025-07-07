@@ -28,6 +28,11 @@ class GameLogic extends ChangeNotifier {
   int linesCleared = 0;
   int dropSpeed = GameConstants.initialDropSpeed;
 
+  // Line clearing animation
+  List<int> clearingLines = [];
+  bool isAnimatingClear = false;
+  Timer? clearAnimationTimer;
+
   GameLogic() {
     initializeBoard();
   }
@@ -127,8 +132,11 @@ class GameLogic extends ChangeNotifier {
   }
 
   void clearLines() {
-    int clearedLines = 0;
+    if (isAnimatingClear) return; // Don't clear lines while animating
 
+    List<int> fullLines = [];
+
+    // Find all full lines
     for (
       int row = GameConstants.boardHeight + GameConstants.previewRows - 1;
       row >= GameConstants.previewRows;
@@ -143,33 +151,66 @@ class GameLogic extends ChangeNotifier {
       }
 
       if (isLineFull) {
-        // Remove the full line
-        board.removeAt(row);
-        // Add empty line at the top
-        board.insert(
-          GameConstants.previewRows,
-          List.generate(GameConstants.boardWidth, (index) => null),
-        );
-        clearedLines++;
-        row++; // Check the same row again
+        fullLines.add(row);
       }
     }
 
-    if (clearedLines > 0) {
-      linesCleared += clearedLines;
-      score += clearedLines * GameConstants.pointsPerLine * level;
-      level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
-      dropSpeed = max(
-        GameConstants.minDropSpeed,
-        GameConstants.initialDropSpeed -
-            (level - 1) * GameConstants.speedIncrement,
-      );
+    if (fullLines.isNotEmpty) {
+      // Start the clearing animation
+      clearingLines = fullLines;
+      isAnimatingClear = true;
 
-      // Restart timer with new speed
+      // Pause the game timer during animation
       gameTimer.cancel();
-      startGameTimer();
-      notifyListeners();
+
+      // Start the glow and disappear animation
+      _startClearAnimation();
     }
+  }
+
+  void _startClearAnimation() {
+    // Single animation duration to match the widget animation
+    clearAnimationTimer = Timer(const Duration(milliseconds: 350), () {
+      // Animation complete - actually remove the lines
+      _completeClearAnimation();
+    });
+
+    // Trigger immediate update to start the animation
+    notifyListeners();
+  }
+
+  void _completeClearAnimation() {
+    int clearedLinesCount = clearingLines.length;
+
+    // Remove the cleared lines from the board
+    for (int row in clearingLines.reversed) {
+      board.removeAt(row);
+      // Add empty line at the top
+      board.insert(
+        GameConstants.previewRows,
+        List.generate(GameConstants.boardWidth, (index) => null),
+      );
+    }
+
+    // Update game state
+    linesCleared += clearedLinesCount;
+    score += clearedLinesCount * GameConstants.pointsPerLine * level;
+    level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
+    dropSpeed = max(
+      GameConstants.minDropSpeed,
+      GameConstants.initialDropSpeed -
+          (level - 1) * GameConstants.speedIncrement,
+    );
+
+    // Reset animation state
+    clearingLines.clear();
+    isAnimatingClear = false;
+    clearAnimationTimer?.cancel();
+    clearAnimationTimer = null;
+
+    // Restart game timer with new speed
+    startGameTimer();
+    notifyListeners();
   }
 
   void movePieceDown() {
@@ -364,9 +405,14 @@ class GameLogic extends ChangeNotifier {
     return displayBoard;
   }
 
+  bool isLineClearingAnimation(int row) {
+    return clearingLines.contains(row);
+  }
+
   @override
   void dispose() {
     gameTimer.cancel();
+    clearAnimationTimer?.cancel();
     super.dispose();
   }
 }

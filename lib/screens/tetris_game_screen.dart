@@ -239,6 +239,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                         child: GameBoard(
                           board: gameLogic.getBoardWithCurrentPiece(),
                           previewRows: GameConstants.previewRows,
+                          gameLogic: gameLogic,
                           onLeftTap: () {
                             if (gameLogic.isGameRunning &&
                                 !gameLogic.isGameOver) {
