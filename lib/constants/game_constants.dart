@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class GameConstants {
   static const int boardWidth = 10;
   static const int boardHeight = 20;
@@ -7,4 +9,7 @@ class GameConstants {
   static const int speedIncrement = 50;
   static const int pointsPerLine = 100;
   static const int linesPerLevel = 10;
+
+  // Ghost piece color for outline rendering
+  static const Color ghostPieceColor = Color(0xFF87CEEB); // Light blue
 }

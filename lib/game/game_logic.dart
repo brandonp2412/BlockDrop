@@ -291,8 +291,8 @@ class GameLogic extends ChangeNotifier {
                   newX >= 0 &&
                   newX < GameConstants.boardWidth &&
                   displayBoard[newY][newX] == null) {
-                // Use a semi-transparent version of the piece color for ghost
-                displayBoard[newY][newX] = currentPiece!.color.withOpacity(0.3);
+                // Use light blue color for ghost piece
+                displayBoard[newY][newX] = GameConstants.ghostPieceColor;
               }
             }
           }

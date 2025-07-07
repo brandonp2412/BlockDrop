@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/game_constants.dart';
 
 class GameBoard extends StatelessWidget {
   final List<List<Color?>> board;
@@ -45,11 +46,21 @@ class GameBoard extends StatelessWidget {
           int col = index % board[0].length;
 
           Color? cellColor = board[row][col];
+          bool isGhostPiece = cellColor == GameConstants.ghostPieceColor;
 
           return Container(
             decoration: BoxDecoration(
-              color: cellColor ?? Colors.grey[900],
-              border: Border.all(color: Colors.grey[800]!, width: 0.5),
+              color:
+                  isGhostPiece
+                      ? Colors.grey[900]
+                      : (cellColor ?? Colors.grey[900]),
+              border: Border.all(
+                color:
+                    isGhostPiece
+                        ? GameConstants.ghostPieceColor
+                        : Colors.grey[800]!,
+                width: isGhostPiece ? 2.0 : 0.5,
+              ),
             ),
           );
         },
