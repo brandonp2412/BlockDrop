@@ -75,16 +75,24 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
             fastSwipeVelocity: _fastSwipeVelocity,
             child: LayoutBuilder(
               builder: (context, constraints) {
+                // Calculate space needed for UI elements
+                double scoreHeight = 58; // Score section height
+                double nextPieceHeight = 127; // Next piece section height
+                double spacingHeight = 32; // SizedBox spacing
+                double gameOverHeight =
+                    gameLogic.isGameOver ? 80 : 0; // Game over section
+                double totalUIHeight =
+                    scoreHeight +
+                    nextPieceHeight +
+                    spacingHeight +
+                    gameOverHeight;
+
                 // Calculate the maximum height available for the game board
-                double availableHeight = (constraints.maxHeight - 16).clamp(
-                  100.0,
-                  double.infinity,
-                ); // Account for margins
-                double availableWidth = ((constraints.maxWidth * 2 / 3) - 16)
-                    .clamp(
-                      100.0,
-                      double.infinity,
-                    ); // 2/3 for game board, minus margins
+                double availableHeight = (constraints.maxHeight -
+                        totalUIHeight -
+                        32)
+                    .clamp(100.0, double.infinity); // Extra padding for safety
+                double availableWidth = constraints.maxWidth - 32;
 
                 // Calculate the ideal size based on aspect ratio
                 double idealWidth =
@@ -107,145 +115,117 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                   gameboardHeight = idealHeight.clamp(100.0, double.infinity);
                 }
 
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Game board
-                    Container(
-                      width: (constraints.maxWidth * 2 / 3),
-                      height: constraints.maxHeight,
-                      padding: const EdgeInsets.all(8),
-                      child: Center(
-                        child: Container(
-                          width: gameboardWidth,
-                          height: gameboardHeight,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: GameBoard(
-                            board: gameLogic.getBoardWithCurrentPiece(),
-                            previewRows: GameConstants.previewRows,
-                            onLeftTap: () {
-                              if (gameLogic.isGameRunning &&
-                                  !gameLogic.isGameOver) {
-                                gameLogic.rotatePieceLeft();
-                              }
-                            },
-                            onRightTap: () {
-                              if (gameLogic.isGameRunning &&
-                                  !gameLogic.isGameOver) {
-                                gameLogic.rotatePieceRight();
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Side panel
-                    Expanded(
-                      child: Container(
-                        height: constraints.maxHeight,
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Score section
+                      Container(
                         padding: const EdgeInsets.all(16),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Score
-                              Text(
-                                'Score: ${gameLogic.score}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              'Score: ${gameLogic.score}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Level: ${gameLogic.level}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
+                            ),
+                            Text(
+                              'Level: ${gameLogic.level}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Lines: ${gameLogic.linesCleared}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
+                            ),
+                            Text(
+                              'Lines: ${gameLogic.linesCleared}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
                               ),
-                              const SizedBox(height: 24),
-
-                              // Next piece
-                              const Text(
-                                'Next:',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.white),
-                                ),
-                                child:
-                                    gameLogic.nextPiece != null
-                                        ? NextPieceDisplay(
-                                          piece: gameLogic.nextPiece!,
-                                        )
-                                        : null,
-                              ),
-
-                              const SizedBox(height: 24),
-
-                              // Controls
-                              const Text(
-                                'Controls:',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                '← → Move\n↓ Soft drop\n↑ Rotate\nSpace Hard drop\n\nSwipe ← → Move\nSwipe ↓ Soft drop\nFast swipe ↓ Hard drop\n\nTap left side: Rotate left\nTap right side: Rotate right',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
-
-                              const SizedBox(height: 24),
-
-                              // Game over / restart
-                              if (gameLogic.isGameOver)
-                                Column(
-                                  children: [
-                                    const Text(
-                                      'Game Over!',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    ElevatedButton(
-                                      onPressed: gameLogic.startGame,
-                                      child: const Text('Restart'),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+
+                      // Next piece
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Next:',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white),
+                              ),
+                              child:
+                                  gameLogic.nextPiece != null
+                                      ? NextPieceDisplay(
+                                        piece: gameLogic.nextPiece!,
+                                      )
+                                      : null,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Game board
+                      Container(
+                        width: gameboardWidth,
+                        height: gameboardHeight,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: GameBoard(
+                          board: gameLogic.getBoardWithCurrentPiece(),
+                          previewRows: GameConstants.previewRows,
+                          onLeftTap: () {
+                            if (gameLogic.isGameRunning &&
+                                !gameLogic.isGameOver) {
+                              gameLogic.rotatePieceLeft();
+                            }
+                          },
+                          onRightTap: () {
+                            if (gameLogic.isGameRunning &&
+                                !gameLogic.isGameOver) {
+                              gameLogic.rotatePieceRight();
+                            }
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Game over / restart
+                      if (gameLogic.isGameOver)
+                        Column(
+                          children: [
+                            const Text(
+                              'Game Over!',
+                              style: TextStyle(color: Colors.red, fontSize: 20),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: gameLogic.startGame,
+                              child: const Text('Restart'),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 );
               },
             ),
