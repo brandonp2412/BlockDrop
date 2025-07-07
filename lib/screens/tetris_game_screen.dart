@@ -70,6 +70,20 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                   gameLogic.holdPiece();
                   return KeyEventResult.handled;
               }
+            } else if (event is KeyRepeatEvent &&
+                gameLogic.isGameRunning &&
+                !gameLogic.isGameOver) {
+              switch (event.logicalKey) {
+                case LogicalKeyboardKey.arrowLeft:
+                  gameLogic.movePieceLeft();
+                  return KeyEventResult.handled;
+                case LogicalKeyboardKey.arrowRight:
+                  gameLogic.movePieceRight();
+                  return KeyEventResult.handled;
+                case LogicalKeyboardKey.arrowDown:
+                  gameLogic.movePieceDown();
+                  return KeyEventResult.handled;
+              }
             }
             return KeyEventResult.ignored;
           },
