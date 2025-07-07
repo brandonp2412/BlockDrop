@@ -33,6 +33,11 @@ class GameLogic extends ChangeNotifier {
   bool isAnimatingClear = false;
   Timer? clearAnimationTimer;
 
+  // Trail animation for hard drop
+  List<Map<String, dynamic>> trailBlocks = [];
+  bool isAnimatingTrail = false;
+  Timer? trailAnimationTimer;
+
   GameLogic() {
     initializeBoard();
   }
@@ -305,11 +310,75 @@ class GameLogic extends ChangeNotifier {
   }
 
   void dropPiece() {
+    if (currentPiece == null) return;
+
+    // Store the starting position for trail animation
+    int startY = currentY;
+
+    // Calculate the final position
     while (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
     }
+
+    // Create trail animation if the piece moved more than 1 row
+    if (currentY > startY + 1) {
+      _createTrailAnimation(startY, currentY);
+    }
+
     notifyListeners();
     placePiece();
+  }
+
+  void _createTrailAnimation(int startY, int endY) {
+    if (currentPiece == null) return;
+
+    // Clear any existing trail
+    trailBlocks.clear();
+
+    // Create trail blocks for each position the piece passed through
+    for (int y = startY; y < endY; y++) {
+      for (int row = 0; row < currentPiece!.shape.length; row++) {
+        for (int col = 0; col < currentPiece!.shape[row].length; col++) {
+          if (currentPiece!.shape[row][col] == 1) {
+            int newX = currentX + col;
+            int newY = y + row;
+
+            if (newY >= GameConstants.previewRows &&
+                newY < GameConstants.boardHeight + GameConstants.previewRows &&
+                newX >= 0 &&
+                newX < GameConstants.boardWidth) {
+              trailBlocks.add({
+                'x': newX,
+                'y': newY,
+                'color': currentPiece!.color,
+                'delay': (y - startY) * 20.0, // Stagger the animation
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Start trail animation
+    if (trailBlocks.isNotEmpty) {
+      isAnimatingTrail = true;
+      _startTrailAnimation();
+    }
+  }
+
+  void _startTrailAnimation() {
+    // Trail animation duration - quick and snappy
+    trailAnimationTimer = Timer(const Duration(milliseconds: 200), () {
+      // Animation complete - clear the trail
+      trailBlocks.clear();
+      isAnimatingTrail = false;
+      trailAnimationTimer?.cancel();
+      trailAnimationTimer = null;
+      notifyListeners();
+    });
+
+    // Trigger immediate update to start the animation
+    notifyListeners();
   }
 
   void holdPiece() {
@@ -409,10 +478,22 @@ class GameLogic extends ChangeNotifier {
     return clearingLines.contains(row);
   }
 
+  Map<String, dynamic>? getTrailBlock(int x, int y) {
+    if (!isAnimatingTrail) return null;
+
+    for (var block in trailBlocks) {
+      if (block['x'] == x && block['y'] == y) {
+        return block;
+      }
+    }
+    return null;
+  }
+
   @override
   void dispose() {
     gameTimer.cancel();
     clearAnimationTimer?.cancel();
+    trailAnimationTimer?.cancel();
     super.dispose();
   }
 }

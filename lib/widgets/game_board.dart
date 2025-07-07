@@ -28,6 +28,9 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
   late Animation<double> _opacityAnimation;
   late Animation<double> _glowAnimation;
 
+  late AnimationController _trailController;
+  late Animation<double> _trailOpacityAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +60,17 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
       ),
     );
 
+    // Trail animation controller
+    _trailController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _trailOpacityAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _trailController, curve: Curves.easeOut));
+
     // Listen to game logic changes to trigger animations
     widget.gameLogic.addListener(_onGameStateChanged);
   }
@@ -67,19 +81,26 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
     } else {
       _clearController.reset();
     }
+
+    if (widget.gameLogic.isAnimatingTrail) {
+      _trailController.forward();
+    } else {
+      _trailController.reset();
+    }
   }
 
   @override
   void dispose() {
     widget.gameLogic.removeListener(_onGameStateChanged);
     _clearController.dispose();
+    _trailController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _clearController,
+      animation: Listenable.merge([_clearController, _trailController]),
       builder: (context, child) {
         return GestureDetector(
           onTapDown: (TapDownDetails details) {
@@ -114,6 +135,12 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
               Color? cellColor = widget.board[row][col];
               bool isGhostPiece = cellColor == GameConstants.ghostPieceColor;
               bool isClearingLine = widget.gameLogic.isLineClearingAnimation(
+                row,
+              );
+
+              // Check for trail animation
+              Map<String, dynamic>? trailBlock = widget.gameLogic.getTrailBlock(
+                col,
                 row,
               );
 
@@ -176,6 +203,33 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
+                    ),
+                  ),
+                );
+              }
+
+              // Trail effect for hard drop - quick and snappy
+              if (trailBlock != null && cellColor == null) {
+                Color trailColor = trailBlock['color'] as Color;
+                double trailOpacity = _trailOpacityAnimation.value;
+
+                // Create a bright, streaky trail effect
+                return Opacity(
+                  opacity: trailOpacity * 0.8,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: trailColor.withOpacity(0.3),
+                      border: Border.all(
+                        color: trailColor.withOpacity(trailOpacity),
+                        width: 1.0,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: trailColor.withOpacity(trailOpacity * 0.5),
+                          blurRadius: 4.0,
+                          spreadRadius: 1.0,
+                        ),
+                      ],
                     ),
                   ),
                 );
