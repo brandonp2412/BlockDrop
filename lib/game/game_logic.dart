@@ -203,20 +203,64 @@ class GameLogic extends ChangeNotifier {
     if (currentPiece == null) return;
 
     Tetromino rotatedPiece = currentPiece!.rotateRight();
-    if (canPlacePiece(currentX, currentY, rotatedPiece)) {
-      currentPiece = rotatedPiece;
-      notifyListeners();
+
+    // Try wall kicks - test different positions to see if rotation is possible
+    List<List<int>> wallKickOffsets = [
+      [0, 0], // Try current position first
+      [-1, 0], // Try one left
+      [1, 0], // Try one right
+      [-2, 0], // Try two left
+      [2, 0], // Try two right
+      [0, -1], // Try one up
+      [-1, -1], // Try one left and up
+      [1, -1], // Try one right and up
+    ];
+
+    for (List<int> offset in wallKickOffsets) {
+      int testX = currentX + offset[0];
+      int testY = currentY + offset[1];
+
+      if (canPlacePiece(testX, testY, rotatedPiece)) {
+        currentPiece = rotatedPiece;
+        currentX = testX;
+        currentY = testY;
+        notifyListeners();
+        return;
+      }
     }
+    // If no wall kick worked, rotation fails silently
   }
 
   void rotatePieceLeft() {
     if (currentPiece == null) return;
 
     Tetromino rotatedPiece = currentPiece!.rotateLeft();
-    if (canPlacePiece(currentX, currentY, rotatedPiece)) {
-      currentPiece = rotatedPiece;
-      notifyListeners();
+
+    // Try wall kicks - test different positions to see if rotation is possible
+    List<List<int>> wallKickOffsets = [
+      [0, 0], // Try current position first
+      [-1, 0], // Try one left
+      [1, 0], // Try one right
+      [-2, 0], // Try two left
+      [2, 0], // Try two right
+      [0, -1], // Try one up
+      [-1, -1], // Try one left and up
+      [1, -1], // Try one right and up
+    ];
+
+    for (List<int> offset in wallKickOffsets) {
+      int testX = currentX + offset[0];
+      int testY = currentY + offset[1];
+
+      if (canPlacePiece(testX, testY, rotatedPiece)) {
+        currentPiece = rotatedPiece;
+        currentX = testX;
+        currentY = testY;
+        notifyListeners();
+        return;
+      }
     }
+    // If no wall kick worked, rotation fails silently
   }
 
   void dropPiece() {
