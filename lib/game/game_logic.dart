@@ -189,9 +189,23 @@ class GameLogic extends ChangeNotifier {
   }
 
   void rotatePiece() {
+    rotatePieceRight();
+  }
+
+  void rotatePieceRight() {
     if (currentPiece == null) return;
 
-    Tetromino rotatedPiece = currentPiece!.rotate();
+    Tetromino rotatedPiece = currentPiece!.rotateRight();
+    if (canPlacePiece(currentX, currentY, rotatedPiece)) {
+      currentPiece = rotatedPiece;
+      notifyListeners();
+    }
+  }
+
+  void rotatePieceLeft() {
+    if (currentPiece == null) return;
+
+    Tetromino rotatedPiece = currentPiece!.rotateLeft();
     if (canPlacePiece(currentX, currentY, rotatedPiece)) {
       currentPiece = rotatedPiece;
       notifyListeners();

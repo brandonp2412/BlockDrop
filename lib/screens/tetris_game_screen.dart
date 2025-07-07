@@ -15,6 +15,11 @@ class TetrisGameScreen extends StatefulWidget {
 class _TetrisGameScreenState extends State<TetrisGameScreen> {
   late GameLogic gameLogic;
 
+  // Gesture tracking constants
+  static const double _moveThreshold = 30.0; // Distance threshold for movement
+  static const double _fastSwipeVelocity =
+      800.0; // Velocity threshold for hard drop
+
   @override
   void initState() {
     super.initState();
@@ -64,165 +69,285 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
             }
             return KeyEventResult.ignored;
           },
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Calculate the maximum height available for the game board
-              double availableHeight =
-                  constraints.maxHeight - 16; // Account for margins
-              double availableWidth =
-                  (constraints.maxWidth * 2 / 3) -
-                  16; // 2/3 for game board, minus margins
+          child: _SwipeDetector(
+            gameLogic: gameLogic,
+            moveThreshold: _moveThreshold,
+            fastSwipeVelocity: _fastSwipeVelocity,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Calculate the maximum height available for the game board
+                double availableHeight = (constraints.maxHeight - 16).clamp(
+                  100.0,
+                  double.infinity,
+                ); // Account for margins
+                double availableWidth = ((constraints.maxWidth * 2 / 3) - 16)
+                    .clamp(
+                      100.0,
+                      double.infinity,
+                    ); // 2/3 for game board, minus margins
 
-              // Calculate the ideal size based on aspect ratio
-              double idealWidth =
-                  availableHeight *
-                  (GameConstants.boardWidth / GameConstants.boardHeight);
-              double idealHeight =
-                  availableWidth *
-                  (GameConstants.boardHeight / GameConstants.boardWidth);
+                // Calculate the ideal size based on aspect ratio
+                double idealWidth =
+                    availableHeight *
+                    (GameConstants.boardWidth / GameConstants.boardHeight);
+                double idealHeight =
+                    availableWidth *
+                    (GameConstants.boardHeight / GameConstants.boardWidth);
 
-              // Use the smaller dimension to ensure it fits
-              double gameboardWidth, gameboardHeight;
-              if (idealWidth <= availableWidth) {
-                gameboardWidth = idealWidth;
-                gameboardHeight = availableHeight;
-              } else {
-                gameboardWidth = availableWidth;
-                gameboardHeight = idealHeight;
-              }
+                // Use the smaller dimension to ensure it fits
+                double gameboardWidth, gameboardHeight;
+                if (idealWidth <= availableWidth) {
+                  gameboardWidth = idealWidth.clamp(100.0, double.infinity);
+                  gameboardHeight = availableHeight.clamp(
+                    100.0,
+                    double.infinity,
+                  );
+                } else {
+                  gameboardWidth = availableWidth.clamp(100.0, double.infinity);
+                  gameboardHeight = idealHeight.clamp(100.0, double.infinity);
+                }
 
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Game board
-                  Container(
-                    width: (constraints.maxWidth * 2 / 3),
-                    height: constraints.maxHeight,
-                    padding: const EdgeInsets.all(8),
-                    child: Center(
-                      child: Container(
-                        width: gameboardWidth,
-                        height: gameboardHeight,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: GameBoard(
-                          board: gameLogic.getBoardWithCurrentPiece(),
-                          previewRows: GameConstants.previewRows,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Side panel
-                  Expanded(
-                    child: Container(
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Game board
+                    Container(
+                      width: (constraints.maxWidth * 2 / 3),
                       height: constraints.maxHeight,
-                      padding: const EdgeInsets.all(16),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Score
-                            Text(
-                              'Score: ${gameLogic.score}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Level: ${gameLogic.level}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Lines: ${gameLogic.linesCleared}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-
-                            // Next piece
-                            const Text(
-                              'Next:',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.white),
-                              ),
-                              child:
-                                  gameLogic.nextPiece != null
-                                      ? NextPieceDisplay(
-                                        piece: gameLogic.nextPiece!,
-                                      )
-                                      : null,
-                            ),
-
-                            const SizedBox(height: 24),
-
-                            // Controls
-                            const Text(
-                              'Controls:',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              '← → Move\n↓ Soft drop\n↑ Rotate\nSpace Hard drop',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-
-                            const SizedBox(height: 24),
-
-                            // Game over / restart
-                            if (gameLogic.isGameOver)
-                              Column(
-                                children: [
-                                  const Text(
-                                    'Game Over!',
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  ElevatedButton(
-                                    onPressed: gameLogic.startGame,
-                                    child: const Text('Restart'),
-                                  ),
-                                ],
-                              ),
-                          ],
+                      padding: const EdgeInsets.all(8),
+                      child: Center(
+                        child: Container(
+                          width: gameboardWidth,
+                          height: gameboardHeight,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: GameBoard(
+                            board: gameLogic.getBoardWithCurrentPiece(),
+                            previewRows: GameConstants.previewRows,
+                            onLeftTap: () {
+                              if (gameLogic.isGameRunning &&
+                                  !gameLogic.isGameOver) {
+                                gameLogic.rotatePieceLeft();
+                              }
+                            },
+                            onRightTap: () {
+                              if (gameLogic.isGameRunning &&
+                                  !gameLogic.isGameOver) {
+                                gameLogic.rotatePieceRight();
+                              }
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              );
-            },
+
+                    // Side panel
+                    Expanded(
+                      child: Container(
+                        height: constraints.maxHeight,
+                        padding: const EdgeInsets.all(16),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Score
+                              Text(
+                                'Score: ${gameLogic.score}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Level: ${gameLogic.level}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Lines: ${gameLogic.linesCleared}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Next piece
+                              const Text(
+                                'Next:',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white),
+                                ),
+                                child:
+                                    gameLogic.nextPiece != null
+                                        ? NextPieceDisplay(
+                                          piece: gameLogic.nextPiece!,
+                                        )
+                                        : null,
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Controls
+                              const Text(
+                                'Controls:',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                '← → Move\n↓ Soft drop\n↑ Rotate\nSpace Hard drop\n\nSwipe ← → Move\nSwipe ↓ Soft drop\nFast swipe ↓ Hard drop\n\nTap left side: Rotate left\nTap right side: Rotate right',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Game over / restart
+                              if (gameLogic.isGameOver)
+                                Column(
+                                  children: [
+                                    const Text(
+                                      'Game Over!',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    ElevatedButton(
+                                      onPressed: gameLogic.startGame,
+                                      child: const Text('Restart'),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SwipeDetector extends StatefulWidget {
+  final GameLogic gameLogic;
+  final double moveThreshold;
+  final double fastSwipeVelocity;
+  final Widget child;
+
+  const _SwipeDetector({
+    required this.gameLogic,
+    required this.moveThreshold,
+    required this.fastSwipeVelocity,
+    required this.child,
+  });
+
+  @override
+  State<_SwipeDetector> createState() => _SwipeDetectorState();
+}
+
+class _SwipeDetectorState extends State<_SwipeDetector> {
+  double _totalDx = 0.0;
+  double _totalDy = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTapDown: (TapDownDetails details) {
+        if (!widget.gameLogic.isGameRunning || widget.gameLogic.isGameOver) {
+          return;
+        }
+
+        // Get the screen width to determine left vs right tap
+        final RenderBox renderBox = context.findRenderObject() as RenderBox;
+        final Size size = renderBox.size;
+        final Offset localPosition = details.localPosition;
+
+        // Determine if tap was on left or right side of screen
+        if (localPosition.dx < size.width / 2) {
+          // Left side tap - rotate left
+          widget.gameLogic.rotatePieceLeft();
+        } else {
+          // Right side tap - rotate right
+          widget.gameLogic.rotatePieceRight();
+        }
+      },
+      onPanStart: (details) {
+        // Reset tracking variables at start of gesture
+        _totalDx = 0.0;
+        _totalDy = 0.0;
+      },
+      onPanUpdate: (details) {
+        if (!widget.gameLogic.isGameRunning || widget.gameLogic.isGameOver) {
+          return;
+        }
+
+        // Accumulate total movement
+        _totalDx += details.delta.dx;
+        _totalDy += details.delta.dy;
+
+        // Check for horizontal movement threshold
+        if (_totalDx.abs() >= widget.moveThreshold) {
+          if (_totalDx > 0) {
+            // Move right
+            widget.gameLogic.movePieceRight();
+          } else {
+            // Move left
+            widget.gameLogic.movePieceLeft();
+          }
+          _totalDx = 0.0; // Reset horizontal tracking
+        }
+
+        // Check for vertical movement threshold
+        if (_totalDy >= widget.moveThreshold) {
+          // Move down
+          widget.gameLogic.movePieceDown();
+          _totalDy = 0.0; // Reset vertical tracking
+        }
+      },
+      onPanEnd: (details) {
+        if (!widget.gameLogic.isGameRunning || widget.gameLogic.isGameOver) {
+          return;
+        }
+
+        // Handle fast downward swipe for instant drop
+        if (details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity) {
+          widget.gameLogic.dropPiece();
+        }
+
+        // Reset tracking variables
+        _totalDx = 0.0;
+        _totalDy = 0.0;
+      },
+      child: widget.child,
     );
   }
 }

@@ -77,9 +77,23 @@ class Tetromino {
   }
 
   Tetromino rotate() {
+    return rotateRight();
+  }
+
+  Tetromino rotateRight() {
     List<List<int>> rotated = List.generate(
       shape[0].length,
       (i) => List.generate(shape.length, (j) => shape[shape.length - 1 - j][i]),
+    );
+
+    return Tetromino(shape: rotated, color: color);
+  }
+
+  Tetromino rotateLeft() {
+    List<List<int>> rotated = List.generate(
+      shape[0].length,
+      (i) =>
+          List.generate(shape.length, (j) => shape[j][shape[0].length - 1 - i]),
     );
 
     return Tetromino(shape: rotated, color: color);
