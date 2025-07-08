@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
@@ -103,22 +104,10 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
       animation: Listenable.merge([_clearController, _trailController]),
       builder: (context, child) {
         return GestureDetector(
-          onTapDown: (TapDownDetails details) {
-            if (widget.onLeftTap == null && widget.onRightTap == null) return;
-
-            // Get the render box to determine the tap position
-            final RenderBox renderBox = context.findRenderObject() as RenderBox;
-            final Size size = renderBox.size;
-            final Offset localPosition = details.localPosition;
-
-            // Determine if tap was on left or right side
-            if (localPosition.dx < size.width / 2) {
-              // Left side tap
-              widget.onLeftTap?.call();
-            } else {
-              // Right side tap
-              widget.onRightTap?.call();
-            }
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            // Simple tap for rotation - should work reliably
+            widget.onRightTap?.call();
           },
           child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),

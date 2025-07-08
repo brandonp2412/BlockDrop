@@ -16,10 +16,15 @@ class TetrisGameScreen extends StatefulWidget {
 class _TetrisGameScreenState extends State<TetrisGameScreen> {
   late GameLogic gameLogic;
 
-  // Gesture tracking constants
-  static const double _moveThreshold = 30.0; // Distance threshold for movement
+  // Gesture tracking constants - made less sensitive to prevent accidental actions
+  static const double _moveThreshold =
+      25.0; // Distance threshold for movement (increased)
   static const double _fastSwipeVelocity =
-      800.0; // Velocity threshold for hard drop
+      1000.0; // Velocity threshold for hard drop (increased significantly)
+  static const double _continuousSwipeVelocity =
+      500.0; // Velocity for continuous movement (increased)
+  static const double _rotationThreshold =
+      20.0; // Separate threshold for rotation detection
 
   @override
   void initState() {
@@ -309,34 +314,27 @@ class _SwipeDetector extends StatefulWidget {
 class _SwipeDetectorState extends State<_SwipeDetector> {
   double _totalDx = 0.0;
   double _totalDy = 0.0;
+  DateTime _lastMoveTime = DateTime.now();
+  final DateTime _gestureStartTime = DateTime.now();
+  static const Duration _moveDelay = Duration(
+    milliseconds: 150,
+  ); // Increased delay
+  static const Duration _minGestureDuration = Duration(
+    milliseconds: 50,
+  ); // Minimum time before registering movement
+  final bool _hasMovedHorizontally = false;
+  final bool _hasMovedVertically = false;
+  final bool _isIntentionalGesture = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTapDown: (TapDownDetails details) {
-        if (!widget.gameLogic.isGameRunning || widget.gameLogic.isGameOver) {
-          return;
-        }
-
-        // Get the screen width to determine left vs right tap
-        final RenderBox renderBox = context.findRenderObject() as RenderBox;
-        final Size size = renderBox.size;
-        final Offset localPosition = details.localPosition;
-
-        // Determine if tap was on left or right side of screen
-        if (localPosition.dx < size.width / 2) {
-          // Left side tap - rotate left
-          widget.gameLogic.rotatePieceLeft();
-        } else {
-          // Right side tap - rotate right
-          widget.gameLogic.rotatePieceRight();
-        }
-      },
       onPanStart: (details) {
         // Reset tracking variables at start of gesture
         _totalDx = 0.0;
         _totalDy = 0.0;
+        _lastMoveTime = DateTime.now();
       },
       onPanUpdate: (details) {
         if (!widget.gameLogic.isGameRunning || widget.gameLogic.isGameOver) {
@@ -347,23 +345,57 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         _totalDx += details.delta.dx;
         _totalDy += details.delta.dy;
 
-        // Check for horizontal movement threshold
-        if (_totalDx.abs() >= widget.moveThreshold) {
-          if (_totalDx > 0) {
-            // Move right
-            widget.gameLogic.movePieceRight();
-          } else {
-            // Move left
-            widget.gameLogic.movePieceLeft();
-          }
-          _totalDx = 0.0; // Reset horizontal tracking
-        }
+        final now = DateTime.now();
+        final timeSinceLastMove = now.difference(_lastMoveTime);
 
-        // Check for vertical movement threshold
-        if (_totalDy >= widget.moveThreshold) {
-          // Move down
-          widget.gameLogic.movePieceDown();
-          _totalDy = 0.0; // Reset vertical tracking
+        // Determine if this is primarily a horizontal or vertical gesture
+        final isHorizontalGesture = _totalDx.abs() > _totalDy.abs();
+        final isPrimaryDirection =
+            isHorizontalGesture
+                ? _totalDx.abs() > _totalDy.abs() * 1.5
+                : _totalDy.abs() > _totalDx.abs() * 1.5;
+
+        // Only process movement if we have a clear directional intent
+        if (isPrimaryDirection) {
+          // Horizontal movement - more restrictive to prevent accidental moves
+          if (isHorizontalGesture && _totalDx.abs() >= widget.moveThreshold) {
+            if (_totalDx > 0) {
+              widget.gameLogic.movePieceRight();
+            } else {
+              widget.gameLogic.movePieceLeft();
+            }
+            _totalDx = 0.0;
+            _lastMoveTime = now;
+          }
+          // Continuous horizontal movement - even more restrictive
+          else if (isHorizontalGesture &&
+              _totalDx.abs() >= widget.moveThreshold * 0.7 &&
+              timeSinceLastMove >= _moveDelay &&
+              details.delta.dx.abs() > 3.0) {
+            if (_totalDx > 0) {
+              widget.gameLogic.movePieceRight();
+            } else {
+              widget.gameLogic.movePieceLeft();
+            }
+            _totalDx = 0.0;
+            _lastMoveTime = now;
+          }
+
+          // Vertical movement - only downward
+          if (!isHorizontalGesture && _totalDy >= widget.moveThreshold) {
+            widget.gameLogic.movePieceDown();
+            _totalDy = 0.0;
+            _lastMoveTime = now;
+          }
+          // Continuous downward movement
+          else if (!isHorizontalGesture &&
+              _totalDy >= widget.moveThreshold * 0.7 &&
+              timeSinceLastMove >= _moveDelay &&
+              details.delta.dy > 3.0) {
+            widget.gameLogic.movePieceDown();
+            _totalDy = 0.0;
+            _lastMoveTime = now;
+          }
         }
       },
       onPanEnd: (details) {
@@ -371,9 +403,29 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
           return;
         }
 
-        // Handle fast downward swipe for instant drop
-        if (details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity) {
+        // Handle fast downward swipe for instant drop - much higher threshold
+        if (details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity &&
+            details.velocity.pixelsPerSecond.dy >
+                details.velocity.pixelsPerSecond.dx.abs() * 2) {
           widget.gameLogic.dropPiece();
+        }
+        // Handle fast horizontal swipes - higher threshold and more restrictive
+        else if (details.velocity.pixelsPerSecond.dx.abs() > 600.0 &&
+            details.velocity.pixelsPerSecond.dx.abs() >
+                details.velocity.pixelsPerSecond.dy.abs() * 2) {
+          final direction = details.velocity.pixelsPerSecond.dx > 0 ? 1 : -1;
+          // Reduced extra moves to prevent over-movement
+          final extraMoves =
+              (details.velocity.pixelsPerSecond.dx.abs() / 1200.0)
+                  .clamp(0.0, 2.0)
+                  .round();
+          for (int i = 0; i < extraMoves; i++) {
+            if (direction > 0) {
+              widget.gameLogic.movePieceRight();
+            } else {
+              widget.gameLogic.movePieceLeft();
+            }
+          }
         }
 
         // Reset tracking variables
