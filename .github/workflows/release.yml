@@ -56,12 +56,14 @@ jobs:
         run: flutter build appbundle --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
 
       - name: Upload APK artifact
+        if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload AAB artifact
+        if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: android-aab
@@ -92,6 +94,7 @@ jobs:
           zip -r ../../../block_drop_ios_${{ needs.version.outputs.version }}.zip Runner.app
 
       - name: Upload iOS artifact
+        if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: ios-app
@@ -121,6 +124,7 @@ jobs:
           zip -r ../../../../../block_drop_macos_${{ needs.version.outputs.version }}.zip block_drop.app
 
       - name: Upload macOS artifact
+        if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: macos-app
@@ -150,6 +154,7 @@ jobs:
           7z a ../../../../../block_drop_windows_${{ needs.version.outputs.version }}.zip *
 
       - name: Upload Windows artifact
+        if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: windows-app
@@ -184,6 +189,7 @@ jobs:
           tar -czf ../../../../../block_drop_linux_${{ needs.version.outputs.version }}.tar.gz *
 
       - name: Upload Linux artifact
+        if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: linux-app
@@ -213,6 +219,7 @@ jobs:
           zip -r ../../block_drop_web_${{ needs.version.outputs.version }}.zip *
 
       - name: Upload Web artifact
+        if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: web-app
