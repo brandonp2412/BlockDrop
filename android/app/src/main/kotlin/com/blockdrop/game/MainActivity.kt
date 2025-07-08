@@ -1,4 +1,4 @@
-package com.example.block_drop
+package com.blockdrop.game
 
 import io.flutter.embedding.android.FlutterActivity
 
