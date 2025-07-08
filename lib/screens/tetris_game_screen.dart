@@ -16,9 +16,9 @@ class TetrisGameScreen extends StatefulWidget {
 class _TetrisGameScreenState extends State<TetrisGameScreen> {
   late GameLogic gameLogic;
 
-  // Gesture tracking constants - made less sensitive to prevent accidental actions
+  // Gesture tracking constants - made more sensitive for better horizontal movement
   static const double _moveThreshold =
-      25.0; // Distance threshold for movement (increased)
+      18.0; // Distance threshold for movement (reduced for more sensitivity)
   static const double _fastSwipeVelocity =
       1000.0; // Velocity threshold for hard drop (increased significantly)
   static const double _continuousSwipeVelocity =
@@ -367,11 +367,11 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
             _totalDx = 0.0;
             _lastMoveTime = now;
           }
-          // Continuous horizontal movement - even more restrictive
+          // Continuous horizontal movement - made more sensitive
           else if (isHorizontalGesture &&
-              _totalDx.abs() >= widget.moveThreshold * 0.7 &&
+              _totalDx.abs() >= widget.moveThreshold * 0.6 &&
               timeSinceLastMove >= _moveDelay &&
-              details.delta.dx.abs() > 3.0) {
+              details.delta.dx.abs() > 2.5) {
             if (_totalDx > 0) {
               widget.gameLogic.movePieceRight();
             } else {
