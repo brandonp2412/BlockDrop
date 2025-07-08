@@ -1,0 +1,338 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: "3.24.3"
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build_number: ${{ steps.version.outputs.build_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from pubspec.yaml
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          BUILD_NUMBER=$(grep '^version:' pubspec.yaml | sed 's/.*+//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION, Build: $BUILD_NUMBER"
+
+  build-android:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+
+      - name: Build App Bundle
+        run: flutter build appbundle --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+
+  build-ios:
+    needs: version
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build iOS (no signing)
+        run: |
+          flutter build ios --release --no-codesign --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+
+      - name: Create iOS archive
+        run: |
+          cd build/ios/iphoneos
+          zip -r ../../../block_drop_ios_${{ needs.version.outputs.version }}.zip Runner.app
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-app
+          path: block_drop_ios_${{ needs.version.outputs.version }}.zip
+
+  build-macos:
+    needs: version
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build macOS
+        run: flutter build macos --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+
+      - name: Create macOS archive
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r ../../../../../block_drop_macos_${{ needs.version.outputs.version }}.zip block_drop.app
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: block_drop_macos_${{ needs.version.outputs.version }}.zip
+
+  build-windows:
+    needs: version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+
+      - name: Create Windows archive
+        run: |
+          cd build/windows/x64/runner/Release
+          7z a ../../../../../block_drop_windows_${{ needs.version.outputs.version }}.zip *
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: block_drop_windows_${{ needs.version.outputs.version }}.zip
+
+  build-linux:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Linux
+        run: flutter build linux --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+
+      - name: Create Linux archive
+        run: |
+          cd build/linux/x64/release/bundle
+          tar -czf ../../../../../block_drop_linux_${{ needs.version.outputs.version }}.tar.gz *
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-app
+          path: block_drop_linux_${{ needs.version.outputs.version }}.tar.gz
+
+  build-web:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: flutter build web --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+
+      - name: Create Web archive
+        run: |
+          cd build/web
+          zip -r ../../block_drop_web_${{ needs.version.outputs.version }}.zip *
+
+      - name: Upload Web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-app
+          path: block_drop_web_${{ needs.version.outputs.version }}.zip
+
+  create-release:
+    needs:
+      [
+        version,
+        build-android,
+        build-ios,
+        build-macos,
+        build-windows,
+        build-linux,
+        build-web,
+      ]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.version.outputs.version }}
+          release_name: Block Drop v${{ needs.version.outputs.version }}
+          body: |
+            ## Block Drop v${{ needs.version.outputs.version }}
+
+            ### Downloads
+            - **Android APK**: For sideloading on Android devices
+            - **Android AAB**: For Google Play Store distribution
+            - **iOS**: For iOS devices (requires signing for installation)
+            - **macOS**: For macOS computers
+            - **Windows**: For Windows computers
+            - **Linux**: For Linux computers
+            - **Web**: Web version (extract and serve)
+
+            ### Changes
+            - Automated release build
+            - Multi-platform support
+
+            Built with Flutter ${{ env.FLUTTER_VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Android APK
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/android-apk/app-release.apk
+          asset_name: block_drop_android_${{ needs.version.outputs.version }}.apk
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload Android AAB
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/android-aab/app-release.aab
+          asset_name: block_drop_android_${{ needs.version.outputs.version }}.aab
+          asset_content_type: application/octet-stream
+
+      - name: Upload iOS
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/ios-app/block_drop_ios_${{ needs.version.outputs.version }}.zip
+          asset_name: block_drop_ios_${{ needs.version.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/macos-app/block_drop_macos_${{ needs.version.outputs.version }}.zip
+          asset_name: block_drop_macos_${{ needs.version.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/windows-app/block_drop_windows_${{ needs.version.outputs.version }}.zip
+          asset_name: block_drop_windows_${{ needs.version.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Linux
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/linux-app/block_drop_linux_${{ needs.version.outputs.version }}.tar.gz
+          asset_name: block_drop_linux_${{ needs.version.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Web
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/web-app/block_drop_web_${{ needs.version.outputs.version }}.zip
+          asset_name: block_drop_web_${{ needs.version.outputs.version }}.zip
+          asset_content_type: application/zip
