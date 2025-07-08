@@ -2,6 +2,8 @@
 
 A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.
 
+![Block drop](block-drop.png)
+
 ## Features
 
 - Classic Tetris gameplay with all 7 tetromino pieces
