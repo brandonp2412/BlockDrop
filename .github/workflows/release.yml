@@ -231,6 +231,8 @@ jobs:
       ]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -240,13 +242,10 @@ jobs:
           path: artifacts
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.version.outputs.version }}
-          release_name: Block Drop v${{ needs.version.outputs.version }}
+          name: Block Drop v${{ needs.version.outputs.version }}
           body: |
             ## Block Drop v${{ needs.version.outputs.version }}
 
@@ -266,73 +265,11 @@ jobs:
             Built with Flutter ${{ env.FLUTTER_VERSION }}
           draft: false
           prerelease: false
-
-      - name: Upload Android APK
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/android-apk/app-release.apk
-          asset_name: block_drop_android_${{ needs.version.outputs.version }}.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload Android AAB
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/android-aab/app-release.aab
-          asset_name: block_drop_android_${{ needs.version.outputs.version }}.aab
-          asset_content_type: application/octet-stream
-
-      - name: Upload iOS
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/ios-app/block_drop_ios_${{ needs.version.outputs.version }}.zip
-          asset_name: block_drop_ios_${{ needs.version.outputs.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Upload macOS
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/macos-app/block_drop_macos_${{ needs.version.outputs.version }}.zip
-          asset_name: block_drop_macos_${{ needs.version.outputs.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Upload Windows
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/windows-app/block_drop_windows_${{ needs.version.outputs.version }}.zip
-          asset_name: block_drop_windows_${{ needs.version.outputs.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Upload Linux
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/linux-app/block_drop_linux_${{ needs.version.outputs.version }}.tar.gz
-          asset_name: block_drop_linux_${{ needs.version.outputs.version }}.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Upload Web
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/web-app/block_drop_web_${{ needs.version.outputs.version }}.zip
-          asset_name: block_drop_web_${{ needs.version.outputs.version }}.zip
-          asset_content_type: application/zip
+          files: |
+            artifacts/android-apk/app-release.apk
+            artifacts/android-aab/app-release.aab
+            artifacts/ios-app/block_drop_ios_${{ needs.version.outputs.version }}.zip
+            artifacts/macos-app/block_drop_macos_${{ needs.version.outputs.version }}.zip
+            artifacts/windows-app/block_drop_windows_${{ needs.version.outputs.version }}.zip
+            artifacts/linux-app/block_drop_linux_${{ needs.version.outputs.version }}.tar.gz
+            artifacts/web-app/block_drop_web_${{ needs.version.outputs.version }}.zip
