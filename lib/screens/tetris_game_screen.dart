@@ -21,10 +21,6 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
       18.0; // Distance threshold for movement (reduced for more sensitivity)
   static const double _fastSwipeVelocity =
       1000.0; // Velocity threshold for hard drop (increased significantly)
-  static const double _continuousSwipeVelocity =
-      500.0; // Velocity for continuous movement (increased)
-  static const double _rotationThreshold =
-      20.0; // Separate threshold for rotation detection
 
   @override
   void initState() {
@@ -315,16 +311,9 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
   double _totalDx = 0.0;
   double _totalDy = 0.0;
   DateTime _lastMoveTime = DateTime.now();
-  final DateTime _gestureStartTime = DateTime.now();
   static const Duration _moveDelay = Duration(
     milliseconds: 150,
   ); // Increased delay
-  static const Duration _minGestureDuration = Duration(
-    milliseconds: 50,
-  ); // Minimum time before registering movement
-  final bool _hasMovedHorizontally = false;
-  final bool _hasMovedVertically = false;
-  final bool _isIntentionalGesture = false;
 
   @override
   Widget build(BuildContext context) {
