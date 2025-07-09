@@ -100,8 +100,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                 double spacingHeight = 32; // SizedBox spacing
                 double gameOverHeight =
                     gameLogic.isGameOver ? 80 : 0; // Game over section
-                double totalUIHeight =
-                    scoreHeight +
+                double totalUIHeight = scoreHeight +
                     nextPieceHeight +
                     spacingHeight +
                     gameOverHeight;
@@ -114,11 +113,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                 double availableWidth = constraints.maxWidth - 32;
 
                 // Calculate the ideal size based on aspect ratio
-                double idealWidth =
-                    availableHeight *
+                double idealWidth = availableHeight *
                     (GameConstants.boardWidth / GameConstants.boardHeight);
-                double idealHeight =
-                    availableWidth *
+                double idealHeight = availableWidth *
                     (GameConstants.boardHeight / GameConstants.boardWidth);
 
                 // Use the smaller dimension to ensure it fits
@@ -220,12 +217,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Colors.white),
                                   ),
-                                  child:
-                                      gameLogic.nextPiece != null
-                                          ? NextPieceDisplay(
-                                            piece: gameLogic.nextPiece!,
-                                          )
-                                          : null,
+                                  child: gameLogic.nextPiece != null
+                                      ? NextPieceDisplay(
+                                          piece: gameLogic.nextPiece!,
+                                        )
+                                      : null,
                                 ),
                               ],
                             ),
@@ -339,10 +335,9 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
 
         // Determine if this is primarily a horizontal or vertical gesture
         final isHorizontalGesture = _totalDx.abs() > _totalDy.abs();
-        final isPrimaryDirection =
-            isHorizontalGesture
-                ? _totalDx.abs() > _totalDy.abs() * 1.5
-                : _totalDy.abs() > _totalDx.abs() * 1.5;
+        final isPrimaryDirection = isHorizontalGesture
+            ? _totalDx.abs() > _totalDy.abs() * 1.5
+            : _totalDy.abs() > _totalDx.abs() * 1.5;
 
         // Only process movement if we have a clear directional intent
         if (isPrimaryDirection) {

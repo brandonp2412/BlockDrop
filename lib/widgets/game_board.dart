@@ -114,8 +114,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: widget.board[0].length,
             ),
-            itemCount:
-                (widget.board.length - widget.previewRows) *
+            itemCount: (widget.board.length - widget.previewRows) *
                 widget.board[0].length,
             itemBuilder: (context, index) {
               int row = (index ~/ widget.board[0].length) + widget.previewRows;
@@ -136,15 +135,13 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
               // Normal cell widget
               Widget cellWidget = Container(
                 decoration: BoxDecoration(
-                  color:
-                      isGhostPiece
-                          ? Colors.grey[900]
-                          : (cellColor ?? Colors.grey[900]),
+                  color: isGhostPiece
+                      ? Colors.grey[900]
+                      : (cellColor ?? Colors.grey[900]),
                   border: Border.all(
-                    color:
-                        isGhostPiece
-                            ? GameConstants.ghostPieceColor
-                            : Colors.grey[800]!,
+                    color: isGhostPiece
+                        ? GameConstants.ghostPieceColor
+                        : Colors.grey[800]!,
                     width: isGhostPiece ? 2.0 : 0.5,
                   ),
                 ),
@@ -172,16 +169,15 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                     scale: scale,
                     child: Container(
                       decoration: BoxDecoration(
-                        boxShadow:
-                            glow > 0
-                                ? [
-                                  BoxShadow(
-                                    color: glowColor.withOpacity(glow * 0.6),
-                                    blurRadius: 8.0 * glow,
-                                    spreadRadius: 3.0 * glow,
-                                  ),
-                                ]
-                                : null,
+                        boxShadow: glow > 0
+                            ? [
+                                BoxShadow(
+                                  color: glowColor.withOpacity(glow * 0.6),
+                                  blurRadius: 8.0 * glow,
+                                  spreadRadius: 3.0 * glow,
+                                ),
+                              ]
+                            : null,
                       ),
                       child: Container(
                         decoration: BoxDecoration(
@@ -206,8 +202,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                     1.0 - _trailOpacityAnimation.value; // 0.0 to 1.0
 
                 // Combine intensity with animation progress for a subtle effect
-                double finalOpacity =
-                    intensity *
+                double finalOpacity = intensity *
                     animationProgress *
                     0.4; // Reduced overall opacity
 
@@ -220,18 +215,17 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                       color: trailColor.withOpacity(finalOpacity * 0.5),
                       width: 0.5,
                     ),
-                    boxShadow:
-                        finalOpacity > 0.1
-                            ? [
-                              BoxShadow(
-                                color: trailColor.withOpacity(
-                                  finalOpacity * 0.2,
-                                ),
-                                blurRadius: 2.0 * finalOpacity,
-                                spreadRadius: 0.5 * finalOpacity,
+                    boxShadow: finalOpacity > 0.1
+                        ? [
+                            BoxShadow(
+                              color: trailColor.withOpacity(
+                                finalOpacity * 0.2,
                               ),
-                            ]
-                            : null,
+                              blurRadius: 2.0 * finalOpacity,
+                              spreadRadius: 0.5 * finalOpacity,
+                            ),
+                          ]
+                        : null,
                   ),
                 );
               }

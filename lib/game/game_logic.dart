@@ -142,11 +142,9 @@ class GameLogic extends ChangeNotifier {
     List<int> fullLines = [];
 
     // Find all full lines
-    for (
-      int row = GameConstants.boardHeight + GameConstants.previewRows - 1;
-      row >= GameConstants.previewRows;
-      row--
-    ) {
+    for (int row = GameConstants.boardHeight + GameConstants.previewRows - 1;
+        row >= GameConstants.previewRows;
+        row--) {
       bool isLineFull = true;
       for (int col = 0; col < GameConstants.boardWidth; col++) {
         if (board[row][col] == null) {

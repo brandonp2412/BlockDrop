@@ -62,10 +62,9 @@ class HoldPieceDisplay extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             color: cellColor ?? Colors.transparent,
-            border:
-                cellColor != null
-                    ? Border.all(color: Colors.grey[600]!, width: 0.5)
-                    : null,
+            border: cellColor != null
+                ? Border.all(color: Colors.grey[600]!, width: 0.5)
+                : null,
           ),
         );
       },
