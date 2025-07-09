@@ -9,7 +9,31 @@ env:
   FLUTTER_VERSION: "3.24.3"
 
 jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
   version:
+    needs: quality-checks
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
