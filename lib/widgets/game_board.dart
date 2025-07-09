@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
@@ -149,11 +148,6 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
 
               // ZOOP effect for clearing lines - clean and satisfying
               if (isClearingLine && cellColor != null) {
-                // Stagger animation based on column position for smooth wave
-                double staggerDelay = col * 0.05;
-                double adjustedProgress =
-                    (_clearController.value + staggerDelay).clamp(0.0, 1.0);
-
                 // Calculate individual animation values
                 double scale = _scaleAnimation.value;
                 double opacity = _opacityAnimation.value;
@@ -172,7 +166,8 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                         boxShadow: glow > 0
                             ? [
                                 BoxShadow(
-                                  color: glowColor.withOpacity(glow * 0.6),
+                                  color:
+                                      glowColor.withValues(alpha: glow * 0.6),
                                   blurRadius: 8.0 * glow,
                                   spreadRadius: 3.0 * glow,
                                 ),
@@ -183,7 +178,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                         decoration: BoxDecoration(
                           color: glowColor,
                           border: Border.all(
-                            color: Colors.white.withOpacity(glow * 0.8),
+                            color: Colors.white.withValues(alpha: glow * 0.8),
                             width: 0.5 + (glow * 1.5),
                           ),
                         ),
@@ -210,16 +205,16 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                 return Container(
                   decoration: BoxDecoration(
                     // Light, translucent color trail
-                    color: trailColor.withOpacity(finalOpacity * 0.3),
+                    color: trailColor.withValues(alpha: finalOpacity * 0.3),
                     border: Border.all(
-                      color: trailColor.withOpacity(finalOpacity * 0.5),
+                      color: trailColor.withValues(alpha: finalOpacity * 0.5),
                       width: 0.5,
                     ),
                     boxShadow: finalOpacity > 0.1
                         ? [
                             BoxShadow(
-                              color: trailColor.withOpacity(
-                                finalOpacity * 0.2,
+                              color: trailColor.withValues(
+                                alpha: finalOpacity * 0.2,
                               ),
                               blurRadius: 2.0 * finalOpacity,
                               spreadRadius: 0.5 * finalOpacity,

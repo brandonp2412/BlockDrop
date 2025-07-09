@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:block_drop/game/game_logic.dart';
-import 'package:block_drop/models/tetromino.dart';
 import 'package:block_drop/constants/game_constants.dart';
 
 void main() {
@@ -65,7 +64,6 @@ void main() {
       // Get initial piece
       final piece = gameLogic.currentPiece!;
       final initialX = gameLogic.currentX;
-      final initialY = gameLogic.currentY;
 
       // Move piece to bottom
       while (gameLogic.canPlacePiece(initialX, gameLogic.currentY + 1, piece)) {
@@ -286,20 +284,13 @@ void main() {
       // Fill bottom row except one column
       for (int col = 0; col < GameConstants.boardWidth - 1; col++) {
         gameLogic.board[GameConstants.boardHeight +
-                GameConstants.previewRows -
-                1][col] =
-            Colors.red;
+            GameConstants.previewRows -
+            1][col] = Colors.red;
       }
 
       // Place a piece to complete the line
-      gameLogic.board[GameConstants.boardHeight +
-              GameConstants.previewRows -
-              1][GameConstants.boardWidth - 1] =
-          Colors.blue;
-
-      final initialScore = gameLogic.score;
-      final initialLevel = gameLogic.level;
-      final initialLinesCleared = gameLogic.linesCleared;
+      gameLogic.board[GameConstants.boardHeight + GameConstants.previewRows - 1]
+          [GameConstants.boardWidth - 1] = Colors.blue;
 
       gameLogic.clearLines();
 
@@ -312,11 +303,9 @@ void main() {
       gameLogic.startGame();
 
       // Fill the board up to the spawn area
-      for (
-        int row = GameConstants.previewRows;
-        row < GameConstants.boardHeight + GameConstants.previewRows;
-        row++
-      ) {
+      for (int row = GameConstants.previewRows;
+          row < GameConstants.boardHeight + GameConstants.previewRows;
+          row++) {
         for (int col = 0; col < GameConstants.boardWidth; col++) {
           gameLogic.board[row][col] = Colors.red;
         }
