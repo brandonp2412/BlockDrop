@@ -23,6 +23,7 @@ class GameLogic extends ChangeNotifier {
   // Game state
   bool isGameRunning = false;
   bool isGameOver = false;
+  bool isPaused = false;
   bool isSlamming = false; // Track if piece is currently slamming down
   bool isNewPieceGracePeriod =
       false; // Prevent immediate input after new piece spawns
@@ -71,10 +72,51 @@ class GameLogic extends ChangeNotifier {
 
   void startGameTimer() {
     gameTimer = Timer.periodic(Duration(milliseconds: dropSpeed), (timer) {
-      if (isGameRunning && !isGameOver) {
+      if (isGameRunning && !isGameOver && !isPaused) {
         movePieceDown();
       }
     });
+  }
+
+  void pauseGame() {
+    if (isGameRunning && !isGameOver && !isPaused) {
+      isPaused = true;
+      gameTimer.cancel();
+
+      // Pause all animation timers
+      clearAnimationTimer?.cancel();
+      trailAnimationTimer?.cancel();
+      gracePeriodTimer?.cancel();
+
+      notifyListeners();
+    }
+  }
+
+  void resumeGame() {
+    if (isGameRunning && !isGameOver && isPaused) {
+      isPaused = false;
+
+      // Restart the main game timer
+      startGameTimer();
+
+      // Resume animation timers if they were active
+      if (isAnimatingClear && clearAnimationTimer == null) {
+        // Resume clear animation - calculate remaining time
+        _startClearAnimation();
+      }
+
+      if (isAnimatingTrail && trailAnimationTimer == null) {
+        // Resume trail animation
+        _startTrailAnimation();
+      }
+
+      if (isNewPieceGracePeriod && gracePeriodTimer == null) {
+        // Resume grace period
+        _startNewPieceGracePeriod();
+      }
+
+      notifyListeners();
+    }
   }
 
   void spawnNewPiece() {

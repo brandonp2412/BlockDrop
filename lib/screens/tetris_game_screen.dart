@@ -13,7 +13,8 @@ class TetrisGameScreen extends StatefulWidget {
   State<TetrisGameScreen> createState() => _TetrisGameScreenState();
 }
 
-class _TetrisGameScreenState extends State<TetrisGameScreen> {
+class _TetrisGameScreenState extends State<TetrisGameScreen>
+    with WidgetsBindingObserver {
   late GameLogic gameLogic;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
@@ -28,6 +29,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
     gameLogic = GameLogic();
     gameLogic.addListener(_onGameStateChanged);
     gameLogic.startGame();
+
+    // Add lifecycle observer to detect app state changes
+    WidgetsBinding.instance.addObserver(this);
   }
 
   void _onGameStateChanged() {
@@ -124,9 +128,45 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
 
   @override
   void dispose() {
+    // Remove lifecycle observer
+    WidgetsBinding.instance.removeObserver(this);
     gameLogic.removeListener(_onGameStateChanged);
     gameLogic.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        // App is going to background or being minimized - pause the game
+        if (gameLogic.isGameRunning &&
+            !gameLogic.isGameOver &&
+            !gameLogic.isPaused) {
+          gameLogic.pauseGame();
+        }
+        break;
+      case AppLifecycleState.resumed:
+        // App is coming back to foreground - resume the game
+        if (gameLogic.isGameRunning &&
+            !gameLogic.isGameOver &&
+            gameLogic.isPaused) {
+          gameLogic.resumeGame();
+        }
+        break;
+      case AppLifecycleState.hidden:
+        // App is hidden but still running - pause the game
+        if (gameLogic.isGameRunning &&
+            !gameLogic.isGameOver &&
+            !gameLogic.isPaused) {
+          gameLogic.pauseGame();
+        }
+        break;
+    }
   }
 
   @override
@@ -138,7 +178,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
           onKeyEvent: (node, event) {
             if (event is KeyDownEvent &&
                 gameLogic.isGameRunning &&
-                !gameLogic.isGameOver) {
+                !gameLogic.isGameOver &&
+                !gameLogic.isPaused) {
               switch (event.logicalKey) {
                 case LogicalKeyboardKey.arrowLeft:
                   gameLogic.movePieceLeft();
@@ -161,7 +202,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
               }
             } else if (event is KeyRepeatEvent &&
                 gameLogic.isGameRunning &&
-                !gameLogic.isGameOver) {
+                !gameLogic.isGameOver &&
+                !gameLogic.isPaused) {
               switch (event.logicalKey) {
                 case LogicalKeyboardKey.arrowLeft:
                   gameLogic.movePieceLeft();
@@ -281,7 +323,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                                 ],
                               ),
                               onTap: () {
-                                gameLogic.holdPiece();
+                                if (gameLogic.isGameRunning &&
+                                    !gameLogic.isGameOver &&
+                                    !gameLogic.isPaused) {
+                                  gameLogic.holdPiece();
+                                }
                               },
                             ),
                             // Next piece
@@ -328,13 +374,15 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                           gameLogic: gameLogic,
                           onLeftTap: () {
                             if (gameLogic.isGameRunning &&
-                                !gameLogic.isGameOver) {
+                                !gameLogic.isGameOver &&
+                                !gameLogic.isPaused) {
                               gameLogic.rotatePieceLeft();
                             }
                           },
                           onRightTap: () {
                             if (gameLogic.isGameRunning &&
-                                !gameLogic.isGameOver) {
+                                !gameLogic.isGameOver &&
+                                !gameLogic.isPaused) {
                               gameLogic.rotatePieceRight();
                             }
                           },
@@ -390,7 +438,9 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         _lastMoveTime = DateTime.now();
       },
       onPanUpdate: (details) {
-        if (!widget.gameLogic.isGameRunning || widget.gameLogic.isGameOver) {
+        if (!widget.gameLogic.isGameRunning ||
+            widget.gameLogic.isGameOver ||
+            widget.gameLogic.isPaused) {
           return;
         }
 
@@ -461,7 +511,9 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         }
       },
       onPanEnd: (details) {
-        if (!widget.gameLogic.isGameRunning || widget.gameLogic.isGameOver) {
+        if (!widget.gameLogic.isGameRunning ||
+            widget.gameLogic.isGameOver ||
+            widget.gameLogic.isPaused) {
           return;
         }
 
