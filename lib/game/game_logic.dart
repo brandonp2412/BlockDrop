@@ -23,6 +23,7 @@ class GameLogic extends ChangeNotifier {
   // Game state
   bool isGameRunning = false;
   bool isGameOver = false;
+  bool isSlamming = false; // Track if piece is currently slamming down
   int score = 0;
   int level = 1;
   int linesCleared = 0;
@@ -80,6 +81,9 @@ class GameLogic extends ChangeNotifier {
     nextPiece = Tetromino.random();
     currentX = GameConstants.boardWidth ~/ 2 - 1;
     currentY = GameConstants.previewRows;
+
+    // Reset slamming flag for new piece
+    isSlamming = false;
 
     // Check for game over
     if (!canPlacePiece(currentX, currentY, currentPiece!)) {
@@ -226,6 +230,9 @@ class GameLogic extends ChangeNotifier {
   }
 
   void movePieceLeft() {
+    // Prevent horizontal movement during slam
+    if (isSlamming) return;
+
     if (canPlacePiece(currentX - 1, currentY, currentPiece!)) {
       currentX--;
       notifyListeners();
@@ -233,6 +240,9 @@ class GameLogic extends ChangeNotifier {
   }
 
   void movePieceRight() {
+    // Prevent horizontal movement during slam
+    if (isSlamming) return;
+
     if (canPlacePiece(currentX + 1, currentY, currentPiece!)) {
       currentX++;
       notifyListeners();
@@ -309,6 +319,9 @@ class GameLogic extends ChangeNotifier {
 
   void dropPiece() {
     if (currentPiece == null) return;
+
+    // Set slamming flag to lock horizontal position
+    isSlamming = true;
 
     // Store the starting position for trail animation
     int startY = currentY;

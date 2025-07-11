@@ -342,7 +342,10 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         // Only process movement if we have a clear directional intent
         if (isPrimaryDirection) {
           // Horizontal movement - more restrictive to prevent accidental moves
-          if (isHorizontalGesture && _totalDx.abs() >= widget.moveThreshold) {
+          // Also prevent horizontal movement during slam
+          if (isHorizontalGesture &&
+              _totalDx.abs() >= widget.moveThreshold &&
+              !widget.gameLogic.isSlamming) {
             if (_totalDx > 0) {
               widget.gameLogic.movePieceRight();
             } else {
@@ -352,10 +355,12 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
             _lastMoveTime = now;
           }
           // Continuous horizontal movement - made more sensitive
+          // Also prevent horizontal movement during slam
           else if (isHorizontalGesture &&
               _totalDx.abs() >= widget.moveThreshold * 0.6 &&
               timeSinceLastMove >= _moveDelay &&
-              details.delta.dx.abs() > 2.5) {
+              details.delta.dx.abs() > 2.5 &&
+              !widget.gameLogic.isSlamming) {
             if (_totalDx > 0) {
               widget.gameLogic.movePieceRight();
             } else {
@@ -394,9 +399,11 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
           widget.gameLogic.dropPiece();
         }
         // Handle fast horizontal swipes - higher threshold and more restrictive
+        // Also prevent horizontal movement during slam
         else if (details.velocity.pixelsPerSecond.dx.abs() > 600.0 &&
             details.velocity.pixelsPerSecond.dx.abs() >
-                details.velocity.pixelsPerSecond.dy.abs() * 2) {
+                details.velocity.pixelsPerSecond.dy.abs() * 2 &&
+            !widget.gameLogic.isSlamming) {
           final direction = details.velocity.pixelsPerSecond.dx > 0 ? 1 : -1;
           // Reduced extra moves to prevent over-movement
           final extraMoves =
