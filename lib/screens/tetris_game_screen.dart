@@ -439,16 +439,21 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
           }
 
           // Vertical movement - only downward
-          if (!isHorizontalGesture && _totalDy >= widget.moveThreshold) {
+          // Also prevent downward movement during grace period
+          if (!isHorizontalGesture &&
+              _totalDy >= widget.moveThreshold &&
+              !widget.gameLogic.isNewPieceGracePeriod) {
             widget.gameLogic.movePieceDown();
             _totalDy = 0.0;
             _lastMoveTime = now;
           }
           // Continuous downward movement
+          // Also prevent downward movement during grace period
           else if (!isHorizontalGesture &&
               _totalDy >= widget.moveThreshold * 0.7 &&
               timeSinceLastMove >= _moveDelay &&
-              details.delta.dy > 3.0) {
+              details.delta.dy > 3.0 &&
+              !widget.gameLogic.isNewPieceGracePeriod) {
             widget.gameLogic.movePieceDown();
             _totalDy = 0.0;
             _lastMoveTime = now;
@@ -461,9 +466,11 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         }
 
         // Handle fast downward swipe for instant drop - much higher threshold
+        // Also prevent hard drop during grace period
         if (details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity &&
             details.velocity.pixelsPerSecond.dy >
-                details.velocity.pixelsPerSecond.dx.abs() * 2) {
+                details.velocity.pixelsPerSecond.dx.abs() * 2 &&
+            !widget.gameLogic.isNewPieceGracePeriod) {
           widget.gameLogic.dropPiece();
         }
         // Handle fast horizontal swipes - higher threshold and more restrictive

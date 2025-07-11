@@ -24,6 +24,9 @@ class GameLogic extends ChangeNotifier {
   bool isGameRunning = false;
   bool isGameOver = false;
   bool isSlamming = false; // Track if piece is currently slamming down
+  bool isNewPieceGracePeriod =
+      false; // Prevent immediate input after new piece spawns
+  Timer? gracePeriodTimer;
   int score = 0;
   int level = 1;
   int linesCleared = 0;
@@ -84,6 +87,9 @@ class GameLogic extends ChangeNotifier {
 
     // Reset slamming flag for new piece
     isSlamming = false;
+
+    // Start grace period to prevent immediate input
+    _startNewPieceGracePeriod();
 
     // Check for game over
     if (!canPlacePiece(currentX, currentY, currentPiece!)) {
@@ -221,6 +227,9 @@ class GameLogic extends ChangeNotifier {
   }
 
   void movePieceDown() {
+    // Prevent downward movement during grace period
+    if (isNewPieceGracePeriod) return;
+
     if (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
       notifyListeners();
@@ -320,6 +329,9 @@ class GameLogic extends ChangeNotifier {
   void dropPiece() {
     if (currentPiece == null) return;
 
+    // Prevent hard drop during grace period
+    if (isNewPieceGracePeriod) return;
+
     // Set slamming flag to lock horizontal position
     isSlamming = true;
 
@@ -395,6 +407,20 @@ class GameLogic extends ChangeNotifier {
 
     // Trigger immediate update to start the animation
     notifyListeners();
+  }
+
+  void _startNewPieceGracePeriod() {
+    // Cancel any existing grace period timer
+    gracePeriodTimer?.cancel();
+
+    // Set grace period flag
+    isNewPieceGracePeriod = true;
+
+    // Start grace period timer - short delay to prevent accidental input
+    gracePeriodTimer = Timer(const Duration(milliseconds: 200), () {
+      isNewPieceGracePeriod = false;
+      gracePeriodTimer = null;
+    });
   }
 
   void holdPiece() {
@@ -510,6 +536,7 @@ class GameLogic extends ChangeNotifier {
     gameTimer.cancel();
     clearAnimationTimer?.cancel();
     trailAnimationTimer?.cancel();
+    gracePeriodTimer?.cancel();
     super.dispose();
   }
 }
