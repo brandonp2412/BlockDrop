@@ -32,6 +32,94 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
 
   void _onGameStateChanged() {
     setState(() {});
+
+    // Show game over modal when game ends
+    if (gameLogic.isGameOver && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showGameOverModal();
+      });
+    }
+  }
+
+  void _showGameOverModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(color: Colors.red, width: 2),
+          ),
+          title: const Text(
+            'Game Over!',
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Final Score: ${gameLogic.score}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Level: ${gameLogic.level}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Lines Cleared: ${gameLogic.linesCleared}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  gameLogic.startGame();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Play Again',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -98,12 +186,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                 double scoreHeight = 58; // Score section height
                 double nextPieceHeight = 127; // Next piece section height
                 double spacingHeight = 32; // SizedBox spacing
-                double gameOverHeight =
-                    gameLogic.isGameOver ? 80 : 0; // Game over section
-                double totalUIHeight = scoreHeight +
-                    nextPieceHeight +
-                    spacingHeight +
-                    gameOverHeight;
+                double totalUIHeight =
+                    scoreHeight + nextPieceHeight + spacingHeight;
 
                 // Calculate the maximum height available for the game board
                 double availableHeight = (constraints.maxHeight -
@@ -258,22 +342,6 @@ class _TetrisGameScreenState extends State<TetrisGameScreen> {
                       ),
 
                       const SizedBox(height: 16),
-
-                      // Game over / restart
-                      if (gameLogic.isGameOver)
-                        Column(
-                          children: [
-                            const Text(
-                              'Game Over!',
-                              style: TextStyle(color: Colors.red, fontSize: 20),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: gameLogic.startGame,
-                              child: const Text('Restart'),
-                            ),
-                          ],
-                        ),
                     ],
                   ),
                 );
