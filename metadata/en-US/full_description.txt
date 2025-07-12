@@ -1,0 +1,13 @@
+Block Drop is a modern Tetris clone built with Flutter, bringing the classic puzzle game experience to your Android device.
+
+Features:
+• Classic Tetris gameplay with smooth controls
+• Clean, modern interface designed with Flutter
+• Responsive touch controls optimized for mobile
+• Score tracking and line clearing mechanics
+• Multiple tetromino pieces with rotation mechanics
+• Progressive difficulty as you advance
+
+Drop, rotate, and clear lines in this timeless puzzle game. Test your spatial reasoning and quick thinking as you arrange falling blocks to create complete horizontal lines.
+
+This is a free and open-source implementation of the classic Tetris game, perfect for puzzle game enthusiasts who want a clean, ad-free gaming experience.
