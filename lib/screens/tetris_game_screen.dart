@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../game/game_logic.dart';
@@ -423,9 +424,42 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
   double _totalDx = 0.0;
   double _totalDy = 0.0;
   DateTime _lastMoveTime = DateTime.now();
+  DateTime _lastDownMoveTime = DateTime.now();
+  bool _isContinuousDown = false;
+  Timer? _continuousDownTimer;
   static const Duration _moveDelay = Duration(
     milliseconds: 150,
-  ); // Increased delay
+  ); // Delay for horizontal movement
+  static const Duration _downMoveDelay = Duration(
+    milliseconds: 50,
+  ); // Much faster delay for continuous down movement
+
+  @override
+  void dispose() {
+    _continuousDownTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startContinuousDown() {
+    if (_continuousDownTimer?.isActive == true) return;
+
+    _isContinuousDown = true;
+    _continuousDownTimer = Timer.periodic(_downMoveDelay, (timer) {
+      if (!widget.gameLogic.isGameRunning ||
+          widget.gameLogic.isGameOver ||
+          widget.gameLogic.isPaused ||
+          widget.gameLogic.isNewPieceGracePeriod) {
+        return;
+      }
+      widget.gameLogic.movePieceDown();
+    });
+  }
+
+  void _stopContinuousDown() {
+    _continuousDownTimer?.cancel();
+    _continuousDownTimer = null;
+    _isContinuousDown = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -436,6 +470,8 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         _totalDx = 0.0;
         _totalDy = 0.0;
         _lastMoveTime = DateTime.now();
+        _lastDownMoveTime = DateTime.now();
+        _isContinuousDown = false;
       },
       onPanUpdate: (details) {
         if (!widget.gameLogic.isGameRunning ||
@@ -450,6 +486,7 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
 
         final now = DateTime.now();
         final timeSinceLastMove = now.difference(_lastMoveTime);
+        now.difference(_lastDownMoveTime);
 
         // Determine if this is primarily a horizontal or vertical gesture
         final isHorizontalGesture = _totalDx.abs() > _totalDy.abs();
@@ -457,8 +494,8 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
             ? _totalDx.abs() > _totalDy.abs() * 1.5
             : _totalDy.abs() > _totalDx.abs() * 1.5;
 
-        // Only process movement if we have a clear directional intent
-        if (isPrimaryDirection) {
+        // Only process movement if we have a clear directional intent and not in continuous down
+        if (isPrimaryDirection && !_isContinuousDown) {
           // Horizontal movement - more restrictive to prevent accidental moves
           // Also prevent horizontal movement during slam
           if (isHorizontalGesture &&
@@ -488,25 +525,16 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
             _lastMoveTime = now;
           }
 
-          // Vertical movement - only downward
+          // Vertical movement - only downward (initial trigger)
           // Also prevent downward movement during grace period
-          if (!isHorizontalGesture &&
+          else if (!isHorizontalGesture &&
               _totalDy >= widget.moveThreshold &&
               !widget.gameLogic.isNewPieceGracePeriod) {
             widget.gameLogic.movePieceDown();
             _totalDy = 0.0;
             _lastMoveTime = now;
-          }
-          // Continuous downward movement
-          // Also prevent downward movement during grace period
-          else if (!isHorizontalGesture &&
-              _totalDy >= widget.moveThreshold * 0.7 &&
-              timeSinceLastMove >= _moveDelay &&
-              details.delta.dy > 3.0 &&
-              !widget.gameLogic.isNewPieceGracePeriod) {
-            widget.gameLogic.movePieceDown();
-            _totalDy = 0.0;
-            _lastMoveTime = now;
+            _lastDownMoveTime = now;
+            _startContinuousDown();
           }
         }
       },
@@ -546,7 +574,8 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
           }
         }
 
-        // Reset tracking variables
+        // Stop continuous down movement and reset tracking variables
+        _stopContinuousDown();
         _totalDx = 0.0;
         _totalDy = 0.0;
       },
