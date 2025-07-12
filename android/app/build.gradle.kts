@@ -27,6 +27,21 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Enable APK splitting for different architectures
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
+        }
+    }
+
+    // APK splitting configuration
+    splits {
+        abi {
+            enable true
+            reset()
+            include "arm64-v8a", "armeabi-v7a", "x86_64"
+            universalApk false
+        }
     }
 
     buildTypes {
@@ -34,6 +49,27 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            
+            // Reproducible builds configuration
+            vcsInfo.include false
+        }
+    }
+
+    // Reproducible builds: disable PNG crunching
+    aaptOptions {
+        cruncherEnabled = false
+    }
+
+    // Reproducible builds: disable vector drawable generation
+    defaultConfig {
+        vectorDrawables.generatedDensities = []
+    }
+
+    // Packaging options for reproducible builds
+    packagingOptions {
+        // Ensure deterministic ZIP ordering
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
 }
