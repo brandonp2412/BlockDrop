@@ -28,19 +28,19 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         
-        // Enable APK splitting for different architectures
-        ndk {
-            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
+        // Reproducible builds: disable vector drawable generation
+        vectorDrawables {
+            generatedDensities?.clear()
         }
     }
 
     // APK splitting configuration
     splits {
         abi {
-            enable true
+            isEnable = true
             reset()
-            include "arm64-v8a", "armeabi-v7a", "x86_64"
-            universalApk false
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
+            isUniversalApk = false
         }
     }
 
@@ -51,23 +51,19 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             
             // Reproducible builds configuration
-            vcsInfo.include false
+            vcsInfo {
+                include = false
+            }
         }
     }
 
     // Reproducible builds: disable PNG crunching
-    aaptOptions {
-        cruncherEnabled = false
-    }
-
-    // Reproducible builds: disable vector drawable generation
-    defaultConfig {
-        vectorDrawables.generatedDensities = []
+    androidResources {
+        noCompress += listOf()
     }
 
     // Packaging options for reproducible builds
-    packagingOptions {
-        // Ensure deterministic ZIP ordering
+    packaging {
         jniLibs {
             useLegacyPackaging = false
         }
