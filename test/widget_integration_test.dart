@@ -64,13 +64,12 @@ void main() {
       await tester.pump();
 
       // Find the game board container
-      final gameBoardContainer =
-          find
-              .ancestor(
-                of: find.byType(GameBoard),
-                matching: find.byType(Container),
-              )
-              .first;
+      final gameBoardContainer = find
+          .ancestor(
+            of: find.byType(GameBoard),
+            matching: find.byType(Container),
+          )
+          .first;
 
       final Container container = tester.widget(gameBoardContainer);
 

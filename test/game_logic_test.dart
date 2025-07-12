@@ -145,6 +145,9 @@ void main() {
 
       final initialY = gameLogic.currentY;
 
+      // Wait for grace period to end
+      gameLogic.isNewPieceGracePeriod = false;
+
       gameLogic.movePieceDown();
       expect(gameLogic.currentY, initialY + 1);
     });
