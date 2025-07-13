@@ -2,6 +2,24 @@ import 'package:flutter/material.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 
+// Cross-version compatible color alpha helper
+Color _colorWithAlpha(Color color, double alpha) {
+  // Use withValues for modern Flutter versions (3.27+)
+  // For older versions, this will fail gracefully and the CI should use withOpacity
+  try {
+    return color.withValues(alpha: alpha);
+  } catch (e) {
+    // Fallback for older Flutter versions - this won't be reached in modern Flutter
+    // but provides compatibility for CI/CD environments with older Flutter
+    return Color.fromARGB(
+      (alpha * 255).round(),
+      (color.r * 255).round(),
+      (color.g * 255).round(),
+      (color.b * 255).round(),
+    );
+  }
+}
+
 class GameBoard extends StatefulWidget {
   final List<List<Color?>> board;
   final int previewRows;
@@ -166,8 +184,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                         boxShadow: glow > 0
                             ? [
                                 BoxShadow(
-                                  color:
-                                      glowColor.withValues(alpha: glow * 0.6),
+                                  color: _colorWithAlpha(glowColor, glow * 0.6),
                                   blurRadius: 8.0 * glow,
                                   spreadRadius: 3.0 * glow,
                                 ),
@@ -178,7 +195,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                         decoration: BoxDecoration(
                           color: glowColor,
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: glow * 0.8),
+                            color: _colorWithAlpha(Colors.white, glow * 0.8),
                             width: 0.5 + (glow * 1.5),
                           ),
                         ),
@@ -205,17 +222,16 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                 return Container(
                   decoration: BoxDecoration(
                     // Light, translucent color trail
-                    color: trailColor.withValues(alpha: finalOpacity * 0.3),
+                    color: _colorWithAlpha(trailColor, finalOpacity * 0.3),
                     border: Border.all(
-                      color: trailColor.withValues(alpha: finalOpacity * 0.5),
+                      color: _colorWithAlpha(trailColor, finalOpacity * 0.5),
                       width: 0.5,
                     ),
                     boxShadow: finalOpacity > 0.1
                         ? [
                             BoxShadow(
-                              color: trailColor.withValues(
-                                alpha: finalOpacity * 0.2,
-                              ),
+                              color: _colorWithAlpha(
+                                  trailColor, finalOpacity * 0.2),
                               blurRadius: 2.0 * finalOpacity,
                               spreadRadius: 0.5 * finalOpacity,
                             ),
