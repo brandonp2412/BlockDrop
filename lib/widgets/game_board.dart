@@ -2,22 +2,10 @@ import 'package:flutter/material.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 
-// Cross-version compatible color alpha helper
+// Modern Flutter color alpha helper
 Color _colorWithAlpha(Color color, double alpha) {
-  // Use withValues for modern Flutter versions (3.27+)
-  // For older versions, this will fail gracefully and the CI should use withOpacity
-  try {
-    return color.withValues(alpha: alpha);
-  } catch (e) {
-    // Fallback for older Flutter versions - this won't be reached in modern Flutter
-    // but provides compatibility for CI/CD environments with older Flutter
-    return Color.fromARGB(
-      (alpha * 255).round(),
-      (color.r * 255).round(),
-      (color.g * 255).round(),
-      (color.b * 255).round(),
-    );
-  }
+  // Use withValues for Flutter 3.27+
+  return color.withValues(alpha: alpha);
 }
 
 class GameBoard extends StatefulWidget {
