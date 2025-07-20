@@ -9,6 +9,7 @@ android {
     namespace = "com.blockdrop.game"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+    flavorDimensions.addAll(listOf("default"))
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -32,6 +33,10 @@ android {
         vectorDrawables {
             generatedDensities?.clear()
         }
+    }
+    
+    productFlavors {
+        create("defaults") {}
     }
 
     // APK splitting configuration
