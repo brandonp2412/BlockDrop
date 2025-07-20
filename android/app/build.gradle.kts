@@ -55,6 +55,11 @@ android {
                 include = false
             }
         }
+        
+        getByName("debug") {
+            isDebuggable = true
+            splits.abi.isEnable = false
+        }
     }
 
     // Reproducible builds: disable PNG crunching
