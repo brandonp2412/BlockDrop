@@ -58,7 +58,6 @@ android {
         
         getByName("debug") {
             isDebuggable = true
-            splits.abi.isEnable = false
         }
     }
 
