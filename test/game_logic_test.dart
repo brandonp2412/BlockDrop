@@ -1,3 +1,4 @@
+import 'package:block_drop/models/tetromino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:block_drop/game/game_logic.dart';
@@ -12,9 +13,7 @@ void main() {
     });
 
     tearDown(() {
-      if (gameLogic.isGameRunning) {
-        gameLogic.dispose();
-      }
+      gameLogic.dispose();
     });
 
     test('should initialize with correct default values', () {
@@ -58,19 +57,28 @@ void main() {
       expect(gameLogic.canHold, true);
     });
 
-    test('should place piece correctly on board', () {
-      gameLogic.startGame();
+    testWidgets('should place piece correctly on board',
+        (WidgetTester tester) async {
+      late final Tetromino piece;
+      await tester.runAsync(() async {
+        gameLogic.startGame();
+        gameLogic.gameTimer
+            ?.cancel(); // Disable game timer for deterministic test
 
-      // Get initial piece
-      final piece = gameLogic.currentPiece!;
-      final initialX = gameLogic.currentX;
+        // Get initial piece
+        piece = gameLogic.currentPiece!;
 
-      // Move piece to bottom
-      while (gameLogic.canPlacePiece(initialX, gameLogic.currentY + 1, piece)) {
-        gameLogic.currentY++;
-      }
+        // Move piece to bottom
+        while (gameLogic.canPlacePiece(
+            gameLogic.currentX, gameLogic.currentY + 1, piece)) {
+          gameLogic.currentY++;
+        }
 
-      gameLogic.placePiece();
+        gameLogic.placePiece();
+
+        // Wait for all timers to complete
+        await Future.delayed(const Duration(milliseconds: 351));
+      });
 
       // Check that piece was placed on board
       bool pieceFound = false;

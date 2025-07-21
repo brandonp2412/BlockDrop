@@ -6,7 +6,7 @@ import '../constants/game_constants.dart';
 
 class GameLogic extends ChangeNotifier {
   late List<List<Color?>> board;
-  late Timer gameTimer;
+  Timer? gameTimer;
 
   // Current piece
   Tetromino? currentPiece;
@@ -81,7 +81,7 @@ class GameLogic extends ChangeNotifier {
   void pauseGame() {
     if (isGameRunning && !isGameOver && !isPaused) {
       isPaused = true;
-      gameTimer.cancel();
+      gameTimer?.cancel();
 
       // Pause all animation timers
       clearAnimationTimer?.cancel();
@@ -137,7 +137,7 @@ class GameLogic extends ChangeNotifier {
     if (!canPlacePiece(currentX, currentY, currentPiece!)) {
       isGameOver = true;
       isGameRunning = false;
-      gameTimer.cancel();
+      gameTimer?.cancel();
       notifyListeners();
     }
   }
@@ -186,6 +186,7 @@ class GameLogic extends ChangeNotifier {
     clearLines();
     canHold = true; // Allow holding the next piece
     spawnNewPiece();
+    notifyListeners();
   }
 
   void clearLines() {
@@ -216,7 +217,7 @@ class GameLogic extends ChangeNotifier {
       isAnimatingClear = true;
 
       // Pause the game timer during animation
-      gameTimer.cancel();
+      gameTimer?.cancel();
 
       // Start the glow and disappear animation
       _startClearAnimation();
@@ -390,8 +391,8 @@ class GameLogic extends ChangeNotifier {
       _createTrailAnimation(startY, currentY);
     }
 
-    notifyListeners();
     placePiece();
+    notifyListeners();
   }
 
   void _createTrailAnimation(int startY, int endY) {
@@ -487,7 +488,7 @@ class GameLogic extends ChangeNotifier {
         // If it can't be placed, game over
         isGameOver = true;
         isGameRunning = false;
-        gameTimer.cancel();
+        gameTimer?.cancel();
       }
     }
 
@@ -575,7 +576,7 @@ class GameLogic extends ChangeNotifier {
 
   @override
   void dispose() {
-    gameTimer.cancel();
+    gameTimer?.cancel();
     clearAnimationTimer?.cancel();
     trailAnimationTimer?.cancel();
     gracePeriodTimer?.cancel();
