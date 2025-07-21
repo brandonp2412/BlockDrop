@@ -136,6 +136,7 @@ jobs:
         with:
           ref: main
           submodules: recursive
+          fetch-depth: 0
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -182,6 +183,7 @@ jobs:
         with:
           ref: main
           submodules: recursive
+          fetch-depth: 0
 
       - name: Setup Flutter from submodule
         run: |
@@ -218,6 +220,7 @@ jobs:
         with:
           ref: main
           submodules: recursive
+          fetch-depth: 0
 
       - name: Setup Flutter from submodule
         run: |
@@ -253,6 +256,7 @@ jobs:
         with:
           ref: main
           submodules: recursive
+          fetch-depth: 0
 
       - name: Setup Flutter from submodule
         run: |
@@ -288,6 +292,7 @@ jobs:
         with:
           ref: main
           submodules: recursive
+          fetch-depth: 0
 
       - name: Install Linux dependencies
         run: |
@@ -328,6 +333,7 @@ jobs:
         with:
           ref: main
           submodules: recursive
+          fetch-depth: 0
 
       - name: Setup Flutter from submodule
         run: |
@@ -374,6 +380,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get Flutter version from submodule
         id: flutter_version
