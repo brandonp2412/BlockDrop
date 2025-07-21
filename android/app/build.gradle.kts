@@ -9,7 +9,6 @@ android {
     namespace = "com.blockdrop.game"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-    flavorDimensions.addAll(listOf("default"))
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -28,25 +27,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        
-        // Reproducible builds: disable vector drawable generation
-        vectorDrawables {
-            generatedDensities?.clear()
-        }
-    }
-    
-    productFlavors {
-        create("defaults") {}
-    }
-
-    // APK splitting configuration
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("arm64-v8a", "armeabi-v7a", "x86_64")
-            isUniversalApk = false
-        }
     }
 
     buildTypes {
@@ -54,27 +34,6 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
-            
-            // Reproducible builds configuration
-            vcsInfo {
-                include = false
-            }
-        }
-        
-        getByName("debug") {
-            isDebuggable = true
-        }
-    }
-
-    // Reproducible builds: disable PNG crunching
-    androidResources {
-        noCompress += listOf()
-    }
-
-    // Packaging options for reproducible builds
-    packaging {
-        jniLibs {
-            useLegacyPackaging = false
         }
     }
 }
