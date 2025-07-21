@@ -152,7 +152,7 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }} --split-per-abi
 
       - name: Build App Bundle
         run: flutter build appbundle --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
@@ -162,7 +162,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-*-release.apk
 
       - name: Upload AAB artifact
         if: github.actor != 'nektos/act'
@@ -392,13 +392,14 @@ jobs:
             ## Block Drop v${{ needs.version-bump.outputs.version }}
 
             ### Downloads
-            - **Android APK**: For sideloading on Android devices
-            - **Android AAB**: For Google Play Store distribution
-            - **iOS**: For iOS devices (requires signing for installation)
-            - **macOS**: For macOS computers
-            - **Windows**: For Windows computers
-            - **Linux**: For Linux computers
-            - **Web**: Web version (extract and serve)
+            - **Android APKs**: Multiple APKs are provided for different CPU architectures:
+              - `arm64-v8a`: Most common for modern Android phones and tablets
+              - `armeabi-v7a`: For older devices with 32-bit ARM processors
+              - `x86_64`: For emulators or some rare x86 Android devices
+            - **Android AAB**: Optimized for Google Play — lets the Play Store deliver architecture-specific APKs automatically.
+            - **iOS**: iOS builds require signing before installation (not publicly distributed here).
+            - **macOS** / **Windows** / **Linux**: Native desktop builds.
+            - **Web**: Web version for browser access. Unzip and serve with a local web server.
 
             ### Changes
             - Automated release build with version v${{ needs.version-bump.outputs.version }}
@@ -408,7 +409,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            artifacts/android-apk/app-release.apk
+            artifacts/android-apk/app-*-release.apk
             artifacts/android-aab/app-release.aab
             artifacts/ios-app/block_drop_ios_${{ needs.version-bump.outputs.version }}.zip
             artifacts/macos-app/block_drop_macos_${{ needs.version-bump.outputs.version }}.zip
