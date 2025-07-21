@@ -3,6 +3,9 @@ name: Build and Release
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'pubspec.yaml'
+      - 'CHANGELOG.md'
   workflow_dispatch:
 
 env:
@@ -32,31 +35,100 @@ jobs:
       - name: Run tests
         run: flutter test
 
-  version:
+  version-bump:
     needs: quality-checks
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
+      tag_exists: ${{ steps.check_tag.outputs.tag_exists }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get version from pubspec.yaml
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Get current version from pubspec.yaml
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          CURRENT_BUILD_NUMBER=$(grep '^version:' pubspec.yaml | sed 's/.*+//')
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "current_build_number=$CURRENT_BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION+$CURRENT_BUILD_NUMBER"
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          CURRENT_VERSION=${{ steps.current_version.outputs.current_version }}
+          if git tag -l | grep -q "^v$CURRENT_VERSION$"; then
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+            echo "Tag v$CURRENT_VERSION already exists"
+          else
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+            echo "Tag v$CURRENT_VERSION does not exist"
+          fi
+
+      - name: Bump minor version
         id: version
         run: |
-          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
-          BUILD_NUMBER=$(grep '^version:' pubspec.yaml | sed 's/.*+//')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION, Build: $BUILD_NUMBER"
+          CURRENT_VERSION=${{ steps.current_version.outputs.current_version }}
+          CURRENT_BUILD_NUMBER=${{ steps.current_version.outputs.current_build_number }}
+          
+          # Parse version components
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
+          
+          # Check if we need to bump the version
+          if [ "${{ steps.check_tag.outputs.tag_exists }}" = "true" ]; then
+            # Bump minor version and reset patch to 0
+            NEW_MINOR=$((MINOR + 1))
+            NEW_VERSION="$MAJOR.$NEW_MINOR.0"
+            NEW_BUILD_NUMBER=1
+          else
+            # Use current version if tag doesn't exist yet
+            NEW_VERSION="$CURRENT_VERSION"
+            NEW_BUILD_NUMBER=$CURRENT_BUILD_NUMBER
+          fi
+          
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION+$NEW_BUILD_NUMBER"
+          
+          # Update pubspec.yaml only if version changed
+          if [ "$NEW_VERSION" != "$CURRENT_VERSION" ]; then
+            sed -i "s/^version: .*/version: $NEW_VERSION+$NEW_BUILD_NUMBER/" pubspec.yaml
+            echo "Updated pubspec.yaml with new version"
+          fi
+
+      - name: Commit and push version bump
+        if: steps.check_tag.outputs.tag_exists == 'true'
+        run: |
+          NEW_VERSION=${{ steps.version.outputs.version }}
+          git add pubspec.yaml
+          git commit -m "Bump version to $NEW_VERSION [skip ci]"
+          git push origin main
+
+      - name: Create and push tag
+        run: |
+          NEW_VERSION=${{ steps.version.outputs.version }}
+          git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+          git push origin "v$NEW_VERSION"
 
   build-android:
-    needs: version
+    needs: version-bump
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -74,10 +146,10 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Build App Bundle
-        run: flutter build appbundle --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+        run: flutter build appbundle --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Upload APK artifact
         if: github.actor != 'nektos/act'
@@ -94,10 +166,12 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
 
   build-ios:
-    needs: version
+    needs: version-bump
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -110,25 +184,27 @@ jobs:
 
       - name: Build iOS (no signing)
         run: |
-          flutter build ios --release --no-codesign --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+          flutter build ios --release --no-codesign --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create iOS archive
         run: |
           cd build/ios/iphoneos
-          zip -r ../../../block_drop_ios_${{ needs.version.outputs.version }}.zip Runner.app
+          zip -r ../../../block_drop_ios_${{ needs.version-bump.outputs.version }}.zip Runner.app
 
       - name: Upload iOS artifact
         if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: ios-app
-          path: block_drop_ios_${{ needs.version.outputs.version }}.zip
+          path: block_drop_ios_${{ needs.version-bump.outputs.version }}.zip
 
   build-macos:
-    needs: version
+    needs: version-bump
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -140,25 +216,27 @@ jobs:
         run: flutter pub get
 
       - name: Build macOS
-        run: flutter build macos --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+        run: flutter build macos --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create macOS archive
         run: |
           cd build/macos/Build/Products/Release
-          zip -r ../../../../../block_drop_macos_${{ needs.version.outputs.version }}.zip block_drop.app
+          zip -r ../../../../../block_drop_macos_${{ needs.version-bump.outputs.version }}.zip block_drop.app
 
       - name: Upload macOS artifact
         if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: macos-app
-          path: block_drop_macos_${{ needs.version.outputs.version }}.zip
+          path: block_drop_macos_${{ needs.version-bump.outputs.version }}.zip
 
   build-windows:
-    needs: version
+    needs: version-bump
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -170,25 +248,27 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows
-        run: flutter build windows --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+        run: flutter build windows --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create Windows archive
         run: |
           cd build/windows/x64/runner/Release
-          7z a ../../../../../block_drop_windows_${{ needs.version.outputs.version }}.zip *
+          7z a ../../../../../block_drop_windows_${{ needs.version-bump.outputs.version }}.zip *
 
       - name: Upload Windows artifact
         if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: windows-app
-          path: block_drop_windows_${{ needs.version.outputs.version }}.zip
+          path: block_drop_windows_${{ needs.version-bump.outputs.version }}.zip
 
   build-linux:
-    needs: version
+    needs: version-bump
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -205,25 +285,27 @@ jobs:
         run: flutter pub get
 
       - name: Build Linux
-        run: flutter build linux --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+        run: flutter build linux --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create Linux archive
         run: |
           cd build/linux/x64/release/bundle
-          tar -czf ../../../../../block_drop_linux_${{ needs.version.outputs.version }}.tar.gz *
+          tar -czf ../../../../../block_drop_linux_${{ needs.version-bump.outputs.version }}.tar.gz *
 
       - name: Upload Linux artifact
         if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: linux-app
-          path: block_drop_linux_${{ needs.version.outputs.version }}.tar.gz
+          path: block_drop_linux_${{ needs.version-bump.outputs.version }}.tar.gz
 
   build-web:
-    needs: version
+    needs: version-bump
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -235,24 +317,24 @@ jobs:
         run: flutter pub get
 
       - name: Build Web
-        run: flutter build web --release --build-name=${{ needs.version.outputs.version }} --build-number=${{ github.run_number }}
+        run: flutter build web --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create Web archive
         run: |
           cd build/web
-          zip -r ../../block_drop_web_${{ needs.version.outputs.version }}.zip *
+          zip -r ../../block_drop_web_${{ needs.version-bump.outputs.version }}.zip *
 
       - name: Upload Web artifact
         if: github.actor != 'nektos/act'
         uses: actions/upload-artifact@v4
         with:
           name: web-app
-          path: block_drop_web_${{ needs.version.outputs.version }}.zip
+          path: block_drop_web_${{ needs.version-bump.outputs.version }}.zip
 
   create-release:
     needs:
       [
-        version,
+        version-bump,
         build-android,
         build-ios,
         build-macos,
@@ -275,10 +357,10 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.version.outputs.version }}
-          name: Block Drop v${{ needs.version.outputs.version }}
+          tag_name: v${{ needs.version-bump.outputs.version }}
+          name: Block Drop v${{ needs.version-bump.outputs.version }}
           body: |
-            ## Block Drop v${{ needs.version.outputs.version }}
+            ## Block Drop v${{ needs.version-bump.outputs.version }}
 
             ### Downloads
             - **Android APK**: For sideloading on Android devices
@@ -290,7 +372,7 @@ jobs:
             - **Web**: Web version (extract and serve)
 
             ### Changes
-            - Automated release build
+            - Automated release build with version v${{ needs.version-bump.outputs.version }}
             - Multi-platform support
 
             Built with Flutter ${{ env.FLUTTER_VERSION }}
@@ -299,8 +381,8 @@ jobs:
           files: |
             artifacts/android-apk/app-release.apk
             artifacts/android-aab/app-release.aab
-            artifacts/ios-app/block_drop_ios_${{ needs.version.outputs.version }}.zip
-            artifacts/macos-app/block_drop_macos_${{ needs.version.outputs.version }}.zip
-            artifacts/windows-app/block_drop_windows_${{ needs.version.outputs.version }}.zip
-            artifacts/linux-app/block_drop_linux_${{ needs.version.outputs.version }}.tar.gz
-            artifacts/web-app/block_drop_web_${{ needs.version.outputs.version }}.zip
+            artifacts/ios-app/block_drop_ios_${{ needs.version-bump.outputs.version }}.zip
+            artifacts/macos-app/block_drop_macos_${{ needs.version-bump.outputs.version }}.zip
+            artifacts/windows-app/block_drop_windows_${{ needs.version-bump.outputs.version }}.zip
+            artifacts/linux-app/block_drop_linux_${{ needs.version-bump.outputs.version }}.tar.gz
+            artifacts/web-app/block_drop_web_${{ needs.version-bump.outputs.version }}.zip
