@@ -41,6 +41,8 @@ jobs:
   version-bump:
     needs: quality-checks
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
@@ -78,7 +80,7 @@ jobs:
             echo "Tag v$CURRENT_VERSION does not exist"
           fi
 
-      - name: Bump minor version
+      - name: Bump patch version
         id: version
         run: |
           CURRENT_VERSION=${{ steps.current_version.outputs.current_version }}
@@ -92,9 +94,9 @@ jobs:
           
           # Check if we need to bump the version
           if [ "${{ steps.check_tag.outputs.tag_exists }}" = "true" ]; then
-            # Bump minor version and reset patch to 0
-            NEW_MINOR=$((MINOR + 1))
-            NEW_VERSION="$MAJOR.$NEW_MINOR.0"
+            # Bump patch version
+            NEW_PATCH=$((PATCH + 1))
+            NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
             NEW_BUILD_NUMBER=1
           else
             # Use current version if tag doesn't exist yet
