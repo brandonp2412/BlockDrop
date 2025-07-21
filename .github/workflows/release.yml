@@ -400,9 +400,6 @@ jobs:
           tag_name: v${{ needs.version-bump.outputs.version }}
           name: Block Drop v${{ needs.version-bump.outputs.version }}
           body: |
-            ## Block Drop v${{ needs.version-bump.outputs.version }}
-
-            ### Downloads
             - **Android APKs**: Multiple APKs are provided for different CPU architectures:
               - `arm64-v8a`: Most common for modern Android phones and tablets
               - `armeabi-v7a`: For older devices with 32-bit ARM processors
@@ -411,10 +408,6 @@ jobs:
             - **iOS**: iOS builds require signing before installation (not publicly distributed here).
             - **macOS** / **Windows** / **Linux**: Native desktop builds.
             - **Web**: Web version for browser access. Unzip and serve with a local web server.
-
-            ### Changes
-            - Automated release build with version v${{ needs.version-bump.outputs.version }}
-            - Multi-platform support
 
             Built with Flutter ${{ steps.flutter_version.outputs.flutter_version }}
           draft: false
