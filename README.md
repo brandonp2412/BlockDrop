@@ -2,7 +2,7 @@
 
 A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.
 
-![Block drop](block-drop.png)
+![Block drop](block-drop.jpg)
 
 ## Features
 
