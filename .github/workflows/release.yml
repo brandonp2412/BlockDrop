@@ -77,7 +77,9 @@ jobs:
           MAJOR=${VERSION_PARTS[0]}
           MINOR=${VERSION_PARTS[1]}
           PATCH=${VERSION_PARTS[2]}
-          NEW_VERSION="$CURRENT_VERSION"
+          PATCH=$((PATCH + 1))
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           NEW_BUILD_NUMBER=$((CURRENT_BUILD_NUMBER + 1))
           
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
