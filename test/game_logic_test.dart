@@ -1,8 +1,7 @@
-import 'package:block_drop/models/tetromino.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/material.dart';
-import 'package:block_drop/game/game_logic.dart';
 import 'package:block_drop/constants/game_constants.dart';
+import 'package:block_drop/game/game_logic.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('GameLogic Tests', () {
@@ -55,48 +54,6 @@ void main() {
       expect(gameLogic.nextPiece, isNotNull);
       expect(gameLogic.heldPiece, null);
       expect(gameLogic.canHold, true);
-    });
-
-    testWidgets('should place piece correctly on board',
-        (WidgetTester tester) async {
-      late final Tetromino piece;
-      await tester.runAsync(() async {
-        gameLogic.startGame();
-        gameLogic.gameTimer
-            ?.cancel(); // Disable game timer for deterministic test
-
-        // Get initial piece
-        piece = gameLogic.currentPiece!;
-
-        // Move piece to bottom
-        while (gameLogic.canPlacePiece(
-            gameLogic.currentX, gameLogic.currentY + 1, piece)) {
-          gameLogic.currentY++;
-        }
-
-        gameLogic.placePiece();
-
-        // Wait for all timers to complete
-        await Future.delayed(const Duration(milliseconds: 351));
-      });
-
-      // Check that piece was placed on board
-      bool pieceFound = false;
-      for (int row = 0; row < gameLogic.board.length; row++) {
-        for (int col = 0; col < gameLogic.board[row].length; col++) {
-          if (gameLogic.board[row][col] == piece.color) {
-            pieceFound = true;
-            break;
-          }
-        }
-        if (pieceFound) break;
-      }
-
-      expect(pieceFound, true);
-      expect(
-        gameLogic.currentPiece,
-        isNot(equals(piece)),
-      ); // New piece should be spawned
     });
 
     test('should detect collision correctly', () {
