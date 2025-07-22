@@ -36,6 +36,15 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
+    packagingOptions {
+        doNotStrip("**/*.so")
+    }
 }
 
 flutter {
