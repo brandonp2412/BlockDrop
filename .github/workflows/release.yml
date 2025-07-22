@@ -154,8 +154,14 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }} --split-per-abi
+      - name: Build APK for arm64-v8a
+        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ expr(needs.version-bump.outputs.build_number * 10 + 1) }} --target-platform android-arm64 --split-per-abi
+
+      - name: Build APK for armeabi-v7a
+        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ expr(needs.version-bump.outputs.build_number * 10 + 2) }} --target-platform android-arm --split-per-abi
+
+      - name: Build APK for x86_64
+        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ expr(needs.version-bump.outputs.build_number * 10 + 3) }} --target-platform android-x64 --split-per-abi
 
       - name: Build App Bundle
         run: flutter build appbundle --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
