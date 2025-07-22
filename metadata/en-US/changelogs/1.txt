@@ -1,9 +1,1 @@
-Initial release of Block Drop - A modern Tetris clone built with Flutter.
-
-Features:
-• Classic Tetris gameplay with smooth controls
-• Clean, modern interface
-• Touch controls optimized for mobile
-• Score tracking and line clearing
-• Multiple tetromino pieces with rotation
-• Progressive difficulty
+Initial release of Block Drop.

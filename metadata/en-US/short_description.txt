@@ -1,1 +1,1 @@
-A modern Tetris clone built with Flutter
+A modern Tetris clone built with Flutter.
