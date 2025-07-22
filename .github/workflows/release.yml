@@ -45,7 +45,6 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
-      tag_exists: ${{ steps.check_tag.outputs.tag_exists }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,18 +66,6 @@ jobs:
           echo "current_build_number=$CURRENT_BUILD_NUMBER" >> $GITHUB_OUTPUT
           echo "Current version: $CURRENT_VERSION+$CURRENT_BUILD_NUMBER"
 
-      - name: Check if tag already exists
-        id: check_tag
-        run: |
-          CURRENT_VERSION=${{ steps.current_version.outputs.current_version }}
-          if git tag -l | grep -q "^v$CURRENT_VERSION$"; then
-            echo "tag_exists=true" >> $GITHUB_OUTPUT
-            echo "Tag v$CURRENT_VERSION already exists"
-          else
-            echo "tag_exists=false" >> $GITHUB_OUTPUT
-            echo "Tag v$CURRENT_VERSION does not exist"
-          fi
-
       - name: Bump version
         id: version
         run: |
@@ -90,18 +77,8 @@ jobs:
           MAJOR=${VERSION_PARTS[0]}
           MINOR=${VERSION_PARTS[1]}
           PATCH=${VERSION_PARTS[2]}
-          
-          # Check if we need to bump the version
-          if [ "${{ steps.check_tag.outputs.tag_exists }}" = "true" ]; then
-            # Bump patch version and reset build number
-            NEW_PATCH=$((PATCH + 1))
-            NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
-            NEW_BUILD_NUMBER=1
-          else
-            # Increment build number
-            NEW_VERSION="$CURRENT_VERSION"
-            NEW_BUILD_NUMBER=$((CURRENT_BUILD_NUMBER + 1))
-          fi
+          NEW_VERSION="$CURRENT_VERSION"
+          NEW_BUILD_NUMBER=$((CURRENT_BUILD_NUMBER + 1))
           
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
@@ -114,12 +91,8 @@ jobs:
       - name: Commit and push version bump
         run: |
           git add pubspec.yaml
-          if git diff --staged --quiet; then
-            echo "No changes to pubspec.yaml to commit."
-          else
-            git commit -m "Bump version to ${{ steps.version.outputs.version }}+${{ steps.version.outputs.build_number }} [skip ci]"
-            git push origin main
-          fi
+          git commit -m "Bump version to ${{ steps.version.outputs.version }}+${{ steps.version.outputs.build_number }} [skip ci]"
+          git push origin main
 
       - name: Create and push tag
         run: |
