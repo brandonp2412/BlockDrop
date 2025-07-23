@@ -2,7 +2,7 @@
 
 A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.
 
-![Block drop](fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.jpg)
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.jpg" height="700" >
 
 ## Features
 
@@ -26,16 +26,15 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 
 ### Prerequisites
 
-- Flutter SDK (3.7.2 or higher)
-- Dart SDK
-- Platform-specific development tools (Android Studio, Xcode, etc.)
+- [Flutter](https://docs.flutter.dev/get-started/install)
+- An editor e.g. [VSCode](https://code.visualstudio.com/download)
 
 ### Installation
 
 1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/brandonp2412/BlockDrop block_drop
    cd block_drop
    ```
 
@@ -45,13 +44,7 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
    flutter pub get
    ```
 
-3. Generate launcher icons:
-
-   ```bash
-   flutter pub run flutter_launcher_icons:main
-   ```
-
-4. Run the app:
+3. Run the app:
    ```bash
    flutter run
    ```
@@ -83,33 +76,6 @@ flutter build windows --release  # Windows
 flutter build macos --release    # macOS
 flutter build linux --release    # Linux
 ```
-
-## Project Structure
-
-```
-lib/
-├── main.dart                    # App entry point
-├── constants/
-│   └── game_constants.dart      # Game configuration constants
-├── game/
-│   └── game_logic.dart          # Core game logic
-├── models/
-│   └── tetromino.dart           # Tetromino piece definitions
-├── screens/
-│   └── tetris_game_screen.dart  # Main game screen
-└── widgets/
-    ├── game_board.dart          # Game board widget
-    ├── hold_piece_display.dart  # Hold piece display
-    └── next_piece_display.dart  # Next piece preview
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
 
 ## License
 
