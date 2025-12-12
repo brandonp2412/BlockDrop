@@ -186,7 +186,6 @@ class GameLogic extends ChangeNotifier {
     clearLines();
     canHold = true; // Allow holding the next piece
     spawnNewPiece();
-    notifyListeners();
   }
 
   void clearLines() {
