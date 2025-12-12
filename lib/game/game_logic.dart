@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import '../models/tetromino.dart';
+
 import '../constants/game_constants.dart';
+import '../models/tetromino.dart';
 
 class GameLogic extends ChangeNotifier {
   late List<List<Color?>> board;
@@ -64,6 +66,7 @@ class GameLogic extends ChangeNotifier {
     heldPiece = null;
     canHold = true;
 
+    Tetromino.resetBag();
     initializeBoard();
     spawnNewPiece();
     startGameTimer();

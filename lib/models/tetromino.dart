@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
 
 class Tetromino {
   final List<List<int>> shape;
@@ -15,7 +16,6 @@ class Tetromino {
       ],
       color: Colors.cyan,
     ),
-
     // O piece
     Tetromino(
       shape: [
@@ -24,7 +24,6 @@ class Tetromino {
       ],
       color: Colors.yellow,
     ),
-
     // T piece
     Tetromino(
       shape: [
@@ -33,7 +32,6 @@ class Tetromino {
       ],
       color: Colors.purple,
     ),
-
     // S piece
     Tetromino(
       shape: [
@@ -42,7 +40,6 @@ class Tetromino {
       ],
       color: Colors.green,
     ),
-
     // Z piece
     Tetromino(
       shape: [
@@ -51,7 +48,6 @@ class Tetromino {
       ],
       color: Colors.red,
     ),
-
     // J piece
     Tetromino(
       shape: [
@@ -60,7 +56,6 @@ class Tetromino {
       ],
       color: Colors.blue,
     ),
-
     // L piece
     Tetromino(
       shape: [
@@ -71,9 +66,24 @@ class Tetromino {
     ),
   ];
 
+  // 7-bag algorithm implementation
+  static List<Tetromino> _bag = [];
+  static final Random _random = Random();
+
   static Tetromino random() {
-    final random = Random();
-    return pieces[random.nextInt(pieces.length)];
+    // If bag is empty, refill it with a shuffled set of all 7 pieces
+    if (_bag.isEmpty) {
+      _bag = List.from(pieces);
+      _bag.shuffle(_random);
+    }
+
+    // Take the next piece from the bag
+    return _bag.removeLast();
+  }
+
+  // Optional: Reset the bag (useful when starting a new game)
+  static void resetBag() {
+    _bag.clear();
   }
 
   Tetromino rotate() {
@@ -85,7 +95,6 @@ class Tetromino {
       shape[0].length,
       (i) => List.generate(shape.length, (j) => shape[shape.length - 1 - j][i]),
     );
-
     return Tetromino(shape: rotated, color: color);
   }
 
@@ -95,7 +104,6 @@ class Tetromino {
       (i) =>
           List.generate(shape.length, (j) => shape[j][shape[0].length - 1 - i]),
     );
-
     return Tetromino(shape: rotated, color: color);
   }
 }
