@@ -140,20 +140,20 @@ jobs:
       - name: Build APK for x86_64
         run: |
           BUILD_NUMBER=$(( ${{ needs.version-bump.outputs.build_number }} * 10 + 1 ))
-          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=$BUILD_NUMBER --target-platform android-x64 --split-per-abi
+          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --target-platform android-x64 --split-per-abi
 
       - name: Build APK for armeabi-v7a
         run: |
           BUILD_NUMBER=$(( ${{ needs.version-bump.outputs.build_number }} * 10 + 2 ))
-          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=$BUILD_NUMBER --target-platform android-arm --split-per-abi
+          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --target-platform android-arm --split-per-abi
 
       - name: Build APK for arm64
         run: |
           BUILD_NUMBER=$(( ${{ needs.version-bump.outputs.build_number }} * 10 + 3 ))
-          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=$BUILD_NUMBER --target-platform android-arm64 --split-per-abi
+          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --target-platform android-arm64 --split-per-abi
 
       - name: Build App Bundle
-        run: flutter build appbundle --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        run: flutter build appbundle --release --build-name=${{ needs.version-bump.outputs.version }} 
 
       - name: Upload APK artifact
         if: github.actor != 'nektos/act'
@@ -192,7 +192,7 @@ jobs:
 
       - name: Build iOS (no signing)
         run: |
-          flutter build ios --release --no-codesign --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+          flutter build ios --release --no-codesign --build-name=${{ needs.version-bump.outputs.version }}
 
       - name: Create iOS archive
         run: |
@@ -228,7 +228,7 @@ jobs:
         run: flutter pub get
 
       - name: Build macOS
-        run: flutter build macos --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        run: flutter build macos --release --build-name=${{ needs.version-bump.outputs.version }}
 
       - name: Create macOS archive
         run: |
@@ -264,7 +264,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows
-        run: flutter build windows --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        run: flutter build windows --release --build-name=${{ needs.version-bump.outputs.version }}
 
       - name: Create Windows archive
         run: |
@@ -305,7 +305,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Linux
-        run: flutter build linux --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        run: flutter build linux --release --build-name=${{ needs.version-bump.outputs.version }}
 
       - name: Create Linux archive
         run: |
@@ -341,7 +341,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Web
-        run: flutter build web --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        run: flutter build web --release --build-name=${{ needs.version-bump.outputs.version }}
 
       - name: Create Web archive
         run: |
