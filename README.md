@@ -2,7 +2,10 @@
 
 A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.
 
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.jpg" height="700" >
+<p float="left">
+    <a href="https://github.com/brandonp2412/BlockDrop/releases/latest"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/brandonp2412/blockdrop?style=for-the-badge&logoColor=00f0f0&labelColor=1a1a2e&color=0e7490"></a>
+    <a href="https://shields.io/badges/git-hub-downloads-all-assets-all-releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/brandonp2412/BlockDrop/total.svg?style=for-the-badge&logoColor=00f0f0&labelColor=1a1a2e&color=0e7490"></a>
+</p>
 
 ## Features
 
@@ -13,6 +16,12 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 - Next piece preview
 - Responsive controls for mobile and desktop
 - Cross-platform support (iOS, Android, Web, Windows, macOS, Linux)
+
+<a href="https://f-droid.org/packages/com.blockdrop.game"><img src="./docs/get-it-on-fdroid.png" alt="Get it on F-Droid" style="height: 80px !important"></a>
+
+# Screenshots
+
+![Block drop](block-drop.jpg)
 
 ## How to Play
 
