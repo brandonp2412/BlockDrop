@@ -188,5 +188,66 @@ void main() {
       expect(find.byType(GameBoard), findsOneWidget);
       expect(find.textContaining('Score:'), findsOneWidget);
     });
+
+    testWidgets(
+      'Downward drag with horizontal drift should not move piece sideways',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const TetrisApp());
+        // Wait for grace period to expire
+        await tester.pump(const Duration(milliseconds: 500));
+
+        final gameLogic =
+            tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+        final int startX = gameLogic.currentX;
+
+        // Simulate dragging mostly downward but with horizontal drift — the
+        // exact motion that caused the bug. Total: dy=120, dx=25 (primarily down).
+        final center = tester.getCenter(find.byType(GameBoard));
+        final gesture = await tester.startGesture(center);
+        // Send incremental updates: mostly down, slight left drift
+        for (int i = 0; i < 10; i++) {
+          await gesture.moveBy(const Offset(-2.5, 12));
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+        await gesture.up();
+        await tester.pump();
+
+        expect(
+          gameLogic.currentX,
+          startX,
+          reason:
+              'Piece should not move horizontally when gesture is primarily downward',
+        );
+      },
+    );
+
+    testWidgets(
+      'Horizontal drag with slight vertical drift should move piece sideways',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const TetrisApp());
+        await tester.pump(const Duration(milliseconds: 500));
+
+        final gameLogic =
+            tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+        final int startX = gameLogic.currentX;
+
+        // Simulate dragging mostly rightward — should move piece right.
+        // Total: dx=100, dy=10 (primarily horizontal).
+        final center = tester.getCenter(find.byType(GameBoard));
+        final gesture = await tester.startGesture(center);
+        for (int i = 0; i < 6; i++) {
+          await gesture.moveBy(const Offset(20, 1));
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+        await gesture.up();
+        await tester.pump();
+
+        expect(
+          gameLogic.currentX,
+          greaterThan(startX),
+          reason: 'Piece should move right on a rightward horizontal drag',
+        );
+      },
+    );
   });
 }

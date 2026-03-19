@@ -423,9 +423,13 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
   double _totalDx = 0.0;
   double _totalDy = 0.0;
   DateTime _lastMoveTime = DateTime.now();
+  bool _directionLocked = false;
+  bool _lockedHorizontal = false;
   static const Duration _moveDelay = Duration(
     milliseconds: 150,
   ); // Increased delay
+  // Minimum movement to lock gesture direction
+  static const double _lockThreshold = 10.0;
 
   @override
   Widget build(BuildContext context) {
@@ -435,6 +439,8 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         // Reset tracking variables at start of gesture
         _totalDx = 0.0;
         _totalDy = 0.0;
+        _directionLocked = false;
+        _lockedHorizontal = false;
         _lastMoveTime = DateTime.now();
       },
       onPanUpdate: (details) {
@@ -451,18 +457,20 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         final now = DateTime.now();
         final timeSinceLastMove = now.difference(_lastMoveTime);
 
-        // Determine if this is primarily a horizontal or vertical gesture
-        final isHorizontalGesture = _totalDx.abs() > _totalDy.abs();
-        final isPrimaryDirection = isHorizontalGesture
-            ? _totalDx.abs() > _totalDy.abs() * 1.5
-            : _totalDy.abs() > _totalDx.abs() * 1.5;
+        // Lock gesture direction once we have enough movement, preventing
+        // accidental horizontal drift during a downward drag
+        if (!_directionLocked &&
+            (_totalDx.abs() >= _lockThreshold ||
+                _totalDy.abs() >= _lockThreshold)) {
+          _lockedHorizontal = _totalDx.abs() > _totalDy.abs();
+          _directionLocked = true;
+        }
 
-        // Only process movement if we have a clear directional intent
-        if (isPrimaryDirection) {
-          // Horizontal movement - more restrictive to prevent accidental moves
-          // Also prevent horizontal movement during slam
-          if (isHorizontalGesture &&
-              _totalDx.abs() >= widget.moveThreshold &&
+        if (!_directionLocked) return;
+
+        if (_lockedHorizontal) {
+          // Horizontal movement - prevent accidental moves during slam
+          if (_totalDx.abs() >= widget.moveThreshold &&
               !widget.gameLogic.isSlamming) {
             if (_totalDx > 0) {
               widget.gameLogic.movePieceRight();
@@ -472,10 +480,8 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
             _totalDx = 0.0;
             _lastMoveTime = now;
           }
-          // Continuous horizontal movement - made more sensitive
-          // Also prevent horizontal movement during slam
-          else if (isHorizontalGesture &&
-              _totalDx.abs() >= widget.moveThreshold * 0.6 &&
+          // Continuous horizontal movement
+          else if (_totalDx.abs() >= widget.moveThreshold * 0.6 &&
               timeSinceLastMove >= _moveDelay &&
               details.delta.dx.abs() > 2.5 &&
               !widget.gameLogic.isSlamming) {
@@ -487,20 +493,16 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
             _totalDx = 0.0;
             _lastMoveTime = now;
           }
-
-          // Vertical movement - only downward
-          // Also prevent downward movement during grace period
-          if (!isHorizontalGesture &&
-              _totalDy >= widget.moveThreshold &&
+        } else {
+          // Vertical movement - only downward, prevent during grace period
+          if (_totalDy >= widget.moveThreshold &&
               !widget.gameLogic.isNewPieceGracePeriod) {
             widget.gameLogic.movePieceDown();
             _totalDy = 0.0;
             _lastMoveTime = now;
           }
           // Continuous downward movement
-          // Also prevent downward movement during grace period
-          else if (!isHorizontalGesture &&
-              _totalDy >= widget.moveThreshold * 0.7 &&
+          else if (_totalDy >= widget.moveThreshold * 0.7 &&
               timeSinceLastMove >= _moveDelay &&
               details.delta.dy > 3.0 &&
               !widget.gameLogic.isNewPieceGracePeriod) {
@@ -549,6 +551,8 @@ class _SwipeDetectorState extends State<_SwipeDetector> {
         // Reset tracking variables
         _totalDx = 0.0;
         _totalDy = 0.0;
+        _directionLocked = false;
+        _lockedHorizontal = false;
       },
       child: widget.child,
     );
