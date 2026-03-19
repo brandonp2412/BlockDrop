@@ -258,6 +258,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 }
 
                 return SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
