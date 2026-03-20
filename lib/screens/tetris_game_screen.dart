@@ -39,24 +39,23 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   }
 
   Future<void> _openSettings() async {
-    if (gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused) {
-      gameLogic.pauseGame();
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => SettingsScreen(settings: widget.settings),
+    final wasRunning =
+        gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused;
+    if (wasRunning) gameLogic.pauseGame();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SettingsScreen(
+          settings: widget.settings,
+          onRestart: () => gameLogic.startGame(),
+          onQuit: () => gameLogic.startGame(),
         ),
-      );
-      if (mounted && gameLogic.isGameRunning && !gameLogic.isGameOver && gameLogic.isPaused) {
-        gameLogic.resumeGame();
-      }
-    } else {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => SettingsScreen(settings: widget.settings),
-        ),
-      );
+      ),
+    );
+
+    if (mounted && gameLogic.isGameRunning && !gameLogic.isGameOver && gameLogic.isPaused) {
+      gameLogic.resumeGame();
     }
   }
 

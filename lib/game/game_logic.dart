@@ -57,8 +57,25 @@ class GameLogic extends ChangeNotifier {
   }
 
   void startGame() {
+    // Cancel all running timers before resetting state
+    gameTimer?.cancel();
+    gameTimer = null;
+    clearAnimationTimer?.cancel();
+    clearAnimationTimer = null;
+    trailAnimationTimer?.cancel();
+    trailAnimationTimer = null;
+    gracePeriodTimer?.cancel();
+    gracePeriodTimer = null;
+
     isGameRunning = true;
     isGameOver = false;
+    isPaused = false;
+    isSlamming = false;
+    isAnimatingClear = false;
+    isAnimatingTrail = false;
+    isNewPieceGracePeriod = false;
+    clearingLines = [];
+    trailBlocks = [];
     score = 0;
     level = 1;
     linesCleared = 0;
