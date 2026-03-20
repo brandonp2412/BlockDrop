@@ -105,6 +105,14 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    final emptyCellColor =
+        isDark ? Colors.grey[900]! : const Color(0xFFEEEEEE);
+    final cellBorderColor =
+        isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    final ghostBorder = GameConstants.ghostBorderColor(brightness);
+
     return AnimatedBuilder(
       animation: Listenable.merge([_clearController, _trailController]),
       builder: (context, child) {
@@ -138,15 +146,16 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
               );
 
               // Normal cell widget
+              final displayColor = (cellColor != null && !isGhostPiece)
+                  ? GameConstants.adaptPieceColor(cellColor, brightness)
+                  : null;
               Widget cellWidget = Container(
                 decoration: BoxDecoration(
                   color: isGhostPiece
-                      ? Colors.grey[900]
-                      : (cellColor ?? Colors.grey[900]),
+                      ? emptyCellColor
+                      : (displayColor ?? emptyCellColor),
                   border: Border.all(
-                    color: isGhostPiece
-                        ? GameConstants.ghostPieceColor
-                        : Colors.grey[800]!,
+                    color: isGhostPiece ? ghostBorder : cellBorderColor,
                     width: isGhostPiece ? 2.0 : 0.5,
                   ),
                 ),

@@ -5,9 +5,13 @@ import '../widgets/game_board.dart';
 import '../widgets/next_piece_display.dart';
 import '../widgets/hold_piece_display.dart';
 import '../constants/game_constants.dart';
+import '../settings/settings_provider.dart';
+import 'settings_screen.dart';
 
 class TetrisGameScreen extends StatefulWidget {
-  const TetrisGameScreen({super.key});
+  final SettingsProvider settings;
+
+  const TetrisGameScreen({super.key, required this.settings});
 
   @override
   State<TetrisGameScreen> createState() => _TetrisGameScreenState();
@@ -32,6 +36,28 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
     // Add lifecycle observer to detect app state changes
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  Future<void> _openSettings() async {
+    if (gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused) {
+      gameLogic.pauseGame();
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SettingsScreen(settings: widget.settings),
+        ),
+      );
+      if (mounted && gameLogic.isGameRunning && !gameLogic.isGameOver && gameLogic.isPaused) {
+        gameLogic.resumeGame();
+      }
+    } else {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SettingsScreen(settings: widget.settings),
+        ),
+      );
+    }
   }
 
   void _onGameStateChanged() {
@@ -171,6 +197,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
         child: Focus(
@@ -263,32 +290,49 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Score section
-                      Container(
-                        padding: const EdgeInsets.all(16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                            const SizedBox(width: 8),
                             Text(
                               'Score: ${gameLogic.score}',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: cs.onSurface,
                                 fontSize: 18,
                               ),
                             ),
+                            const Spacer(),
                             Text(
                               'Level: ${gameLogic.level}',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: cs.onSurface,
                                 fontSize: 18,
                               ),
                             ),
+                            const Spacer(),
                             Text(
                               'Lines: ${gameLogic.linesCleared}',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: cs.onSurface,
                                 fontSize: 18,
                               ),
                             ),
+                            const SizedBox(width: 4),
+                            IconButton(
+                              icon: Icon(
+                                Icons.settings,
+                                color: cs.onSurfaceVariant,
+                              ),
+                              iconSize: 22,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              onPressed: _openSettings,
+                            ),
+                            const SizedBox(width: 4),
                           ],
                         ),
                       ),
@@ -303,10 +347,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             GestureDetector(
                               child: Column(
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Hold:',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: cs.onSurface,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -315,7 +359,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                     width: 80,
                                     height: 80,
                                     decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.white),
+                                      border: Border.all(color: cs.outline),
                                     ),
                                     child: HoldPieceDisplay(
                                       piece: gameLogic.heldPiece,
@@ -334,10 +378,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             // Next piece
                             Column(
                               children: [
-                                const Text(
+                                Text(
                                   'Next:',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: cs.onSurface,
                                     fontSize: 16,
                                   ),
                                 ),
@@ -346,7 +390,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                   width: 80,
                                   height: 80,
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white),
+                                    border: Border.all(color: cs.outline),
                                   ),
                                   child: gameLogic.nextPiece != null
                                       ? NextPieceDisplay(
@@ -367,7 +411,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                         width: gameboardWidth,
                         height: gameboardHeight,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: 2),
+                          border: Border.all(color: cs.outline, width: 2),
                         ),
                         child: GameBoard(
                           board: gameLogic.getBoardWithCurrentPiece(),

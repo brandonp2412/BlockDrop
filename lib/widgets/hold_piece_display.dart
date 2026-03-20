@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/tetromino.dart';
+import '../constants/game_constants.dart';
 
 class HoldPieceDisplay extends StatelessWidget {
   final Tetromino? piece;
@@ -11,6 +12,7 @@ class HoldPieceDisplay extends StatelessWidget {
     if (piece == null) {
       return Container(decoration: BoxDecoration(color: Colors.transparent));
     }
+    final brightness = Theme.of(context).brightness;
 
     // Calculate the bounds of the piece to center it
     int minRow = piece!.shape.length;
@@ -59,10 +61,13 @@ class HoldPieceDisplay extends StatelessWidget {
           cellColor = piece!.color;
         }
 
+        final displayColor = cellColor != null
+            ? GameConstants.adaptPieceColor(cellColor, brightness)
+            : null;
         return Container(
           decoration: BoxDecoration(
-            color: cellColor ?? Colors.transparent,
-            border: cellColor != null
+            color: displayColor ?? Colors.transparent,
+            border: displayColor != null
                 ? Border.all(color: Colors.grey[600]!, width: 0.5)
                 : null,
           ),
