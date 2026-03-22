@@ -8,12 +8,18 @@ enum AppStyle { classic, modern, bubbles }
 class SettingsProvider extends ChangeNotifier {
   static const _themeKey = 'theme_mode';
   static const _styleKey = 'app_style';
+  static const _musicEnabledKey = 'music_enabled';
+  static const _sfxEnabledKey = 'sfx_enabled';
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
+  bool _musicEnabled = false;
+  bool _sfxEnabled = false;
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
+  bool get musicEnabled => _musicEnabled;
+  bool get sfxEnabled => _sfxEnabled;
 
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
@@ -38,6 +44,8 @@ class SettingsProvider extends ChangeNotifier {
       AppThemeMode.values.length - 1,
     )];
     _style = AppStyle.values[styleIndex.clamp(0, AppStyle.values.length - 1)];
+    _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
+    _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
     notifyListeners();
   }
 
@@ -53,5 +61,19 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_styleKey, newStyle.index);
+  }
+
+  Future<void> setMusicEnabled(bool value) async {
+    _musicEnabled = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_musicEnabledKey, value);
+  }
+
+  Future<void> setSfxEnabled(bool value) async {
+    _sfxEnabled = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_sfxEnabledKey, value);
   }
 }

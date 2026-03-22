@@ -90,6 +90,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ],
+          _SectionHeader(label: 'Sound', colorScheme: colorScheme),
+          _SettingTile(
+            label: 'Music',
+            colorScheme: colorScheme,
+            child: Switch(
+              value: widget.settings.musicEnabled,
+              onChanged: (value) => widget.settings.setMusicEnabled(value),
+            ),
+          ),
+          _SettingTile(
+            label: 'Sound Effects',
+            colorScheme: colorScheme,
+            child: Switch(
+              value: widget.settings.sfxEnabled,
+              onChanged: (value) => widget.settings.setSfxEnabled(value),
+            ),
+          ),
           _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
           _SettingTile(
             label: 'Theme',

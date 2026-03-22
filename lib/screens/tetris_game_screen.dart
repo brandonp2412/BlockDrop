@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../game/game_logic.dart';
-import '../widgets/game_board.dart';
-import '../widgets/next_piece_display.dart';
-import '../widgets/hold_piece_display.dart';
+
+import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
+import '../game/game_logic.dart';
 import '../settings/settings_provider.dart';
+import '../widgets/game_board.dart';
+import '../widgets/hold_piece_display.dart';
+import '../widgets/next_piece_display.dart';
 import 'settings_screen.dart';
 
 class TetrisGameScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class TetrisGameScreen extends StatefulWidget {
 class _TetrisGameScreenState extends State<TetrisGameScreen>
     with WidgetsBindingObserver {
   late GameLogic gameLogic;
+  late AudioService _audioService;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
   static const double _moveThreshold =
@@ -30,32 +33,62 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   @override
   void initState() {
     super.initState();
+    _audioService = AudioService(
+      musicEnabled: widget.settings.musicEnabled,
+      sfxEnabled: widget.settings.sfxEnabled,
+    );
+    _audioService.init().then((_) => _audioService.startMusic());
+
     gameLogic = GameLogic();
+    gameLogic.audioService = _audioService;
     gameLogic.addListener(_onGameStateChanged);
     gameLogic.startGame();
 
-    // Add lifecycle observer to detect app state changes
     WidgetsBinding.instance.addObserver(this);
+    widget.settings.addListener(_onSettingsChanged);
+  }
+
+  void _onSettingsChanged() {
+    _audioService.musicEnabled = widget.settings.musicEnabled;
+    _audioService.sfxEnabled = widget.settings.sfxEnabled;
+    if (widget.settings.musicEnabled) {
+      _audioService.resumeMusic();
+    } else {
+      _audioService.pauseMusic();
+    }
   }
 
   Future<void> _openSettings() async {
     final wasRunning =
         gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused;
     if (wasRunning) gameLogic.pauseGame();
+    _audioService.pauseMusic();
 
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => SettingsScreen(
           settings: widget.settings,
-          onRestart: () => gameLogic.startGame(),
-          onQuit: () => gameLogic.startGame(),
+          onRestart: () {
+            gameLogic.startGame();
+            if (widget.settings.musicEnabled) _audioService.startMusic();
+          },
+          onQuit: () {
+            gameLogic.startGame();
+            if (widget.settings.musicEnabled) _audioService.startMusic();
+          },
         ),
       ),
     );
 
-    if (mounted && gameLogic.isGameRunning && !gameLogic.isGameOver && gameLogic.isPaused) {
+    if (mounted &&
+        gameLogic.isGameRunning &&
+        !gameLogic.isGameOver &&
+        gameLogic.isPaused) {
       gameLogic.resumeGame();
+    }
+    if (mounted && widget.settings.musicEnabled) {
+      _audioService.resumeMusic();
     }
   }
 
@@ -127,6 +160,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 onPressed: () {
                   Navigator.of(context).pop();
                   gameLogic.startGame();
+                  if (widget.settings.musicEnabled) _audioService.startMusic();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -153,10 +187,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
   @override
   void dispose() {
-    // Remove lifecycle observer
+    widget.settings.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
     gameLogic.removeListener(_onGameStateChanged);
     gameLogic.dispose();
+    _audioService.dispose();
     super.dispose();
   }
 
@@ -173,6 +208,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             !gameLogic.isGameOver &&
             !gameLogic.isPaused) {
           gameLogic.pauseGame();
+          _audioService.pauseMusic();
         }
         break;
       case AppLifecycleState.resumed:
@@ -181,6 +217,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             !gameLogic.isGameOver &&
             gameLogic.isPaused) {
           gameLogic.resumeGame();
+          _audioService.resumeMusic();
         }
         break;
       case AppLifecycleState.hidden:
@@ -189,6 +226,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             !gameLogic.isGameOver &&
             !gameLogic.isPaused) {
           gameLogic.pauseGame();
+          _audioService.pauseMusic();
         }
         break;
     }

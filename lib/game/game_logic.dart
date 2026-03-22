@@ -3,10 +3,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
 import '../models/tetromino.dart';
 
 class GameLogic extends ChangeNotifier {
+  AudioService? audioService;
   late List<List<Color?>> board;
   Timer? gameTimer;
 
@@ -158,6 +160,7 @@ class GameLogic extends ChangeNotifier {
       isGameOver = true;
       isGameRunning = false;
       gameTimer?.cancel();
+      audioService?.playGameOver();
       notifyListeners();
     }
   }
@@ -235,6 +238,8 @@ class GameLogic extends ChangeNotifier {
       clearingLines = fullLines;
       isAnimatingClear = true;
 
+      audioService?.playClear(fullLines.length);
+
       // Pause the game timer during animation
       gameTimer?.cancel();
 
@@ -270,7 +275,9 @@ class GameLogic extends ChangeNotifier {
     // Update game state
     linesCleared += clearedLinesCount;
     score += clearedLinesCount * GameConstants.pointsPerLine * level;
+    final int oldLevel = level;
     level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
+    if (level > oldLevel) audioService?.playLevelUp();
     dropSpeed = max(
       GameConstants.minDropSpeed,
       GameConstants.initialDropSpeed -
@@ -306,6 +313,7 @@ class GameLogic extends ChangeNotifier {
 
     if (canPlacePiece(currentX - 1, currentY, currentPiece!)) {
       currentX--;
+      audioService?.playMove();
       notifyListeners();
     }
   }
@@ -316,6 +324,7 @@ class GameLogic extends ChangeNotifier {
 
     if (canPlacePiece(currentX + 1, currentY, currentPiece!)) {
       currentX++;
+      audioService?.playMove();
       notifyListeners();
     }
   }
@@ -349,6 +358,7 @@ class GameLogic extends ChangeNotifier {
         currentPiece = rotatedPiece;
         currentX = testX;
         currentY = testY;
+        audioService?.playRotate();
         notifyListeners();
         return;
       }
@@ -381,6 +391,7 @@ class GameLogic extends ChangeNotifier {
         currentPiece = rotatedPiece;
         currentX = testX;
         currentY = testY;
+        audioService?.playRotate();
         notifyListeners();
         return;
       }
@@ -404,6 +415,8 @@ class GameLogic extends ChangeNotifier {
     while (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
     }
+
+    audioService?.playDrop();
 
     // Create trail animation if the piece moved more than 1 row
     if (currentY > startY + 1) {
@@ -487,6 +500,8 @@ class GameLogic extends ChangeNotifier {
 
   void holdPiece() {
     if (!canHold || currentPiece == null) return;
+
+    audioService?.playHold();
 
     if (heldPiece == null) {
       // First time holding - store current piece and spawn next
