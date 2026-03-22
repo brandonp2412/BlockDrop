@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../settings/settings_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -42,133 +43,136 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text('Settings'),
         centerTitle: true,
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        children: [
-          if (widget.onRestart != null || widget.onQuit != null) ...[
-            _SectionHeader(label: 'Game', colorScheme: colorScheme),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _ActionButton(
-                      label: 'Resume',
-                      icon: Icons.play_arrow,
-                      colorScheme: colorScheme,
-                      onPressed: () => Navigator.of(context).pop(),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          children: [
+            if (widget.onRestart != null || widget.onQuit != null) ...[
+              _SectionHeader(label: 'Game', colorScheme: colorScheme),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _ActionButton(
+                        label: 'Resume',
+                        icon: Icons.play_arrow,
+                        colorScheme: colorScheme,
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _ActionButton(
-                      label: 'Restart',
-                      icon: Icons.refresh,
-                      colorScheme: colorScheme,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        widget.onRestart?.call();
-                      },
-                    ),
-                  ),
-                  if (widget.onQuit != null) ...[
                     const SizedBox(width: 8),
                     Expanded(
                       child: _ActionButton(
-                        label: 'Quit',
-                        icon: Icons.stop,
+                        label: 'Restart',
+                        icon: Icons.refresh,
                         colorScheme: colorScheme,
-                        isDestructive: true,
                         onPressed: () {
                           Navigator.of(context).pop();
-                          widget.onQuit?.call();
+                          widget.onRestart?.call();
                         },
                       ),
                     ),
+                    if (widget.onQuit != null) ...[
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ActionButton(
+                          label: 'Quit',
+                          icon: Icons.stop,
+                          colorScheme: colorScheme,
+                          isDestructive: true,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            widget.onQuit?.call();
+                          },
+                        ),
+                      ),
+                    ],
                   ],
+                ),
+              ),
+            ],
+            _SectionHeader(label: 'Sound', colorScheme: colorScheme),
+            _SettingTile(
+              label: 'Music',
+              colorScheme: colorScheme,
+              child: Switch(
+                value: widget.settings.musicEnabled,
+                onChanged: (value) => widget.settings.setMusicEnabled(value),
+              ),
+            ),
+            _SettingTile(
+              label: 'Sound Effects',
+              colorScheme: colorScheme,
+              child: Switch(
+                value: widget.settings.sfxEnabled,
+                onChanged: (value) => widget.settings.setSfxEnabled(value),
+              ),
+            ),
+            _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
+            _SettingTile(
+              label: 'Theme',
+              colorScheme: colorScheme,
+              child: DropdownButton<AppThemeMode>(
+                value: widget.settings.themeMode,
+                isExpanded: true,
+                underline: const SizedBox.shrink(),
+                onChanged: (value) {
+                  if (value != null) widget.settings.setThemeMode(value);
+                },
+                items: const [
+                  DropdownMenuItem(
+                    value: AppThemeMode.system,
+                    child: Text('System'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppThemeMode.light,
+                    child: Text('Light'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppThemeMode.dark,
+                    child: Text('Dark'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppThemeMode.black,
+                    child: Text('Black (AMOLED)'),
+                  ),
                 ],
               ),
             ),
+            _SettingTile(
+              label: 'Style',
+              colorScheme: colorScheme,
+              badge: 'Coming soon',
+              child: DropdownButton<AppStyle>(
+                value: widget.settings.style,
+                isExpanded: true,
+                underline: const SizedBox.shrink(),
+                onChanged: (value) {
+                  if (value != null) widget.settings.setStyle(value);
+                },
+                items: const [
+                  DropdownMenuItem(
+                    value: AppStyle.classic,
+                    child: Text('Classic'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppStyle.modern,
+                    child: Text('Modern'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppStyle.bubbles,
+                    child: Text('Bubbles'),
+                  ),
+                ],
+              ),
+            ),
+            _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
+            _InstructionsCard(colorScheme: colorScheme),
+            const SizedBox(height: 8),
           ],
-          _SectionHeader(label: 'Sound', colorScheme: colorScheme),
-          _SettingTile(
-            label: 'Music',
-            colorScheme: colorScheme,
-            child: Switch(
-              value: widget.settings.musicEnabled,
-              onChanged: (value) => widget.settings.setMusicEnabled(value),
-            ),
-          ),
-          _SettingTile(
-            label: 'Sound Effects',
-            colorScheme: colorScheme,
-            child: Switch(
-              value: widget.settings.sfxEnabled,
-              onChanged: (value) => widget.settings.setSfxEnabled(value),
-            ),
-          ),
-          _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
-          _SettingTile(
-            label: 'Theme',
-            colorScheme: colorScheme,
-            child: DropdownButton<AppThemeMode>(
-              value: widget.settings.themeMode,
-              isExpanded: true,
-              underline: const SizedBox.shrink(),
-              onChanged: (value) {
-                if (value != null) widget.settings.setThemeMode(value);
-              },
-              items: const [
-                DropdownMenuItem(
-                  value: AppThemeMode.system,
-                  child: Text('System'),
-                ),
-                DropdownMenuItem(
-                  value: AppThemeMode.light,
-                  child: Text('Light'),
-                ),
-                DropdownMenuItem(
-                  value: AppThemeMode.dark,
-                  child: Text('Dark'),
-                ),
-                DropdownMenuItem(
-                  value: AppThemeMode.black,
-                  child: Text('Black (AMOLED)'),
-                ),
-              ],
-            ),
-          ),
-          _SettingTile(
-            label: 'Style',
-            colorScheme: colorScheme,
-            badge: 'Coming soon',
-            child: DropdownButton<AppStyle>(
-              value: widget.settings.style,
-              isExpanded: true,
-              underline: const SizedBox.shrink(),
-              onChanged: (value) {
-                if (value != null) widget.settings.setStyle(value);
-              },
-              items: const [
-                DropdownMenuItem(
-                  value: AppStyle.classic,
-                  child: Text('Classic'),
-                ),
-                DropdownMenuItem(
-                  value: AppStyle.modern,
-                  child: Text('Modern'),
-                ),
-                DropdownMenuItem(
-                  value: AppStyle.bubbles,
-                  child: Text('Bubbles'),
-                ),
-              ],
-            ),
-          ),
-          _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
-          _InstructionsCard(colorScheme: colorScheme),
-          const SizedBox(height: 8),
-        ],
+        ),
       ),
     );
   }
