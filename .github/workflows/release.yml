@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - 'pubspec.yaml'
+      - "pubspec.yaml"
   workflow_dispatch:
 
 jobs:
@@ -71,7 +71,7 @@ jobs:
         run: |
           CURRENT_VERSION=${{ steps.current_version.outputs.current_version }}
           CURRENT_BUILD_NUMBER=${{ steps.current_version.outputs.current_build_number }}
-          
+
           # Parse version components
           IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
           MAJOR=${VERSION_PARTS[0]}
@@ -81,11 +81,11 @@ jobs:
 
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           NEW_BUILD_NUMBER=$((CURRENT_BUILD_NUMBER + 1))
-          
+
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION+$NEW_BUILD_NUMBER"
-          
+
           # Update pubspec.yaml with new version and build number
           sed -i "s/^version: .*/version: $NEW_VERSION+$NEW_BUILD_NUMBER/" pubspec.yaml
           echo "Updated pubspec.yaml with new version"
@@ -128,7 +128,7 @@ jobs:
 
       - name: Get dependencies
         run: flutter pub get
-        
+
       - name: Decode Android keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
@@ -389,7 +389,7 @@ jobs:
           name: Block Drop v${{ needs.version-bump.outputs.version }}
           body: |
             - **Android APKs**: Multiple APKs are provided for different CPU architectures:
-              - `arm64-v8a`: Most common for modern Android phones and tablets
+              - `arm64-v8a`: Most common for modern Android phones and tablets (now supporting Android TV!)
               - `armeabi-v7a`: For older devices with 32-bit ARM processors
               - `x86_64`: For emulators or some rare x86 Android devices
             - **Android AAB**: Optimized for Google Play — lets the Play Store deliver architecture-specific APKs automatically.
