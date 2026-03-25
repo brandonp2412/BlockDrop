@@ -30,6 +30,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   late Animation<double> _popupOffset;
   String _popupLabel = '';
   int _popupDelta = 0;
+  bool _gameOverModal = false;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
   static const double _moveThreshold =
@@ -132,8 +133,12 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     }
   }
 
-  void _showGameOverModal() {
-    showDialog(
+  void _showGameOverModal() async {
+    if (_gameOverModal) return;
+    setState(() {
+      _gameOverModal = true;
+    });
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -212,6 +217,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         );
       },
     );
+    setState(() {
+      _gameOverModal = false;
+    });
   }
 
   @override
@@ -526,15 +534,20 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                             _popupLabel,
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              color: _popupLabel.startsWith('T-SPIN')
+                                              color: _popupLabel
+                                                      .startsWith('T-SPIN')
                                                   ? Colors.purple[200]
                                                   : (_popupLabel == 'TETRIS!'
                                                       ? Colors.amber
                                                       : Colors.white),
-                                              fontSize: _popupLabel == 'TETRIS!' ? 26 : 20,
+                                              fontSize: _popupLabel == 'TETRIS!'
+                                                  ? 26
+                                                  : 20,
                                               fontWeight: FontWeight.bold,
                                               shadows: const [
-                                                Shadow(blurRadius: 8, color: Colors.black),
+                                                Shadow(
+                                                    blurRadius: 8,
+                                                    color: Colors.black),
                                               ],
                                             ),
                                           ),
@@ -546,7 +559,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
                                               shadows: [
-                                                Shadow(blurRadius: 6, color: Colors.black),
+                                                Shadow(
+                                                    blurRadius: 6,
+                                                    color: Colors.black),
                                               ],
                                             ),
                                           ),
