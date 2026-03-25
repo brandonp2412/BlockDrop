@@ -20,9 +20,16 @@ class TetrisGameScreen extends StatefulWidget {
 }
 
 class _TetrisGameScreenState extends State<TetrisGameScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   late GameLogic gameLogic;
   late AudioService _audioService;
+
+  // Score popup animation
+  late AnimationController _popupController;
+  late Animation<double> _popupOpacity;
+  late Animation<double> _popupOffset;
+  String _popupLabel = '';
+  int _popupDelta = 0;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
   static const double _moveThreshold =
@@ -33,6 +40,19 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   @override
   void initState() {
     super.initState();
+    _popupController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _popupOpacity = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 15),
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 45),
+    ]).animate(_popupController);
+    _popupOffset = Tween<double>(begin: 0.0, end: -60.0).animate(
+      CurvedAnimation(parent: _popupController, curve: Curves.easeOut),
+    );
+
     _audioService = AudioService(
       musicEnabled: widget.settings.musicEnabled,
       sfxEnabled: widget.settings.sfxEnabled,
@@ -93,10 +113,19 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   }
 
   void _onGameStateChanged() {
+    // Consume score popup event before setState
+    if (gameLogic.clearBonusLabel.isNotEmpty) {
+      _popupLabel = gameLogic.clearBonusLabel;
+      _popupDelta = gameLogic.lastScoreDelta;
+      gameLogic.consumeClearBonus();
+      _popupController.forward(from: 0.0);
+    }
+
     setState(() {});
 
     // Show game over modal when game ends
     if (gameLogic.isGameOver && mounted) {
+      widget.settings.updateHighScore(gameLogic.score);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showGameOverModal();
       });
@@ -187,6 +216,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
   @override
   void dispose() {
+    _popupController.dispose();
     widget.settings.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
     gameLogic.removeListener(_onGameStateChanged);
@@ -443,31 +473,91 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
                       const SizedBox(height: 16),
 
-                      // Game board
-                      Container(
+                      // Game board with score popup overlay
+                      SizedBox(
                         width: gameboardWidth,
                         height: gameboardHeight,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: cs.outline, width: 2),
-                        ),
-                        child: GameBoard(
-                          board: gameLogic.getBoardWithCurrentPiece(),
-                          previewRows: GameConstants.previewRows,
-                          gameLogic: gameLogic,
-                          onLeftTap: () {
-                            if (gameLogic.isGameRunning &&
-                                !gameLogic.isGameOver &&
-                                !gameLogic.isPaused) {
-                              gameLogic.rotatePieceLeft();
-                            }
-                          },
-                          onRightTap: () {
-                            if (gameLogic.isGameRunning &&
-                                !gameLogic.isGameOver &&
-                                !gameLogic.isPaused) {
-                              gameLogic.rotatePieceRight();
-                            }
-                          },
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: gameboardWidth,
+                              height: gameboardHeight,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: cs.outline, width: 2),
+                              ),
+                              child: GameBoard(
+                                board: gameLogic.getBoardWithCurrentPiece(),
+                                previewRows: GameConstants.previewRows,
+                                gameLogic: gameLogic,
+                                onLeftTap: () {
+                                  if (gameLogic.isGameRunning &&
+                                      !gameLogic.isGameOver &&
+                                      !gameLogic.isPaused) {
+                                    gameLogic.rotatePieceLeft();
+                                  }
+                                },
+                                onRightTap: () {
+                                  if (gameLogic.isGameRunning &&
+                                      !gameLogic.isGameOver &&
+                                      !gameLogic.isPaused) {
+                                    gameLogic.rotatePieceRight();
+                                  }
+                                },
+                              ),
+                            ),
+                            // Score popup
+                            AnimatedBuilder(
+                              animation: _popupController,
+                              builder: (context, _) {
+                                if (_popupController.isDismissed) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  top: gameboardHeight / 2 + _popupOffset.value,
+                                  child: IgnorePointer(
+                                    child: Opacity(
+                                      opacity: _popupOpacity.value,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            _popupLabel,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: _popupLabel.startsWith('T-SPIN')
+                                                  ? Colors.purple[200]
+                                                  : (_popupLabel == 'TETRIS!'
+                                                      ? Colors.amber
+                                                      : Colors.white),
+                                              fontSize: _popupLabel == 'TETRIS!' ? 26 : 20,
+                                              fontWeight: FontWeight.bold,
+                                              shadows: const [
+                                                Shadow(blurRadius: 8, color: Colors.black),
+                                              ],
+                                            ),
+                                          ),
+                                          Text(
+                                            '+$_popupDelta',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              shadows: [
+                                                Shadow(blurRadius: 6, color: Colors.black),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
 

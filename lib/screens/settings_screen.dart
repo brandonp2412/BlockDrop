@@ -168,6 +168,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
+            _SectionHeader(label: 'Stats', colorScheme: colorScheme),
+            _SettingTile(
+              label: 'High Score',
+              colorScheme: colorScheme,
+              child: Text(
+                widget.settings.highScore.toString(),
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.primary,
+                ),
+              ),
+            ),
             _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
             _InstructionsCard(colorScheme: colorScheme),
             const SizedBox(height: 8),

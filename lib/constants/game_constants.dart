@@ -7,8 +7,15 @@ class GameConstants {
   static const int initialDropSpeed = 800; // milliseconds
   static const int minDropSpeed = 100;
   static const int speedIncrement = 50;
-  static const int pointsPerLine = 100;
   static const int linesPerLevel = 10;
+
+  // Standard Tetris guideline line-clear scores (multiplied by level)
+  static const List<int> lineClearScores = [0, 100, 300, 500, 800];
+  static const List<String> lineClearLabels = ['', 'SINGLE', 'DOUBLE', 'TRIPLE', 'TETRIS!'];
+
+  // T-Spin scores for 0–3 lines (multiplied by level)
+  static const List<int> tSpinScores = [400, 800, 1200, 1600];
+  static const List<String> tSpinLabels = ['T-SPIN', 'T-SPIN SINGLE', 'T-SPIN DOUBLE', 'T-SPIN TRIPLE'];
 
   // Ghost piece sentinel colour (used to identify ghost cells in the board)
   static const Color ghostPieceColor = Color(0xFF87CEEB);

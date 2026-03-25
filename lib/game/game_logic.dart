@@ -37,6 +37,14 @@ class GameLogic extends ChangeNotifier {
   int linesCleared = 0;
   int dropSpeed = GameConstants.initialDropSpeed;
 
+  // Score popup feedback
+  int lastScoreDelta = 0;
+  String clearBonusLabel = '';
+
+  // T-spin / rotation tracking
+  bool _lastMoveWasRotation = false;
+  bool _pendingTSpin = false;
+
   // Line clearing animation
   List<int> clearingLines = [];
   bool isAnimatingClear = false;
@@ -84,6 +92,10 @@ class GameLogic extends ChangeNotifier {
     dropSpeed = GameConstants.initialDropSpeed;
     heldPiece = null;
     canHold = true;
+    lastScoreDelta = 0;
+    clearBonusLabel = '';
+    _lastMoveWasRotation = false;
+    _pendingTSpin = false;
 
     Tetromino.resetBag();
     initializeBoard();
@@ -190,6 +202,9 @@ class GameLogic extends ChangeNotifier {
   void placePiece() {
     if (currentPiece == null) return;
 
+    // Detect T-spin before the piece is placed on the board
+    _pendingTSpin = _isTSpin();
+
     for (int row = 0; row < currentPiece!.shape.length; row++) {
       for (int col = 0; col < currentPiece!.shape[row].length; col++) {
         if (currentPiece!.shape[row][col] == 1) {
@@ -206,6 +221,7 @@ class GameLogic extends ChangeNotifier {
       }
     }
 
+    _lastMoveWasRotation = false;
     clearLines();
     canHold = true; // Allow holding the next piece
     spawnNewPiece();
@@ -260,7 +276,9 @@ class GameLogic extends ChangeNotifier {
   }
 
   void _completeClearAnimation() {
-    int clearedLinesCount = clearingLines.length;
+    final int clearedLinesCount = clearingLines.length;
+    final bool wasTSpin = _pendingTSpin;
+    _pendingTSpin = false;
 
     // Remove the cleared lines from the board
     for (int row in clearingLines.reversed) {
@@ -272,9 +290,28 @@ class GameLogic extends ChangeNotifier {
       );
     }
 
+    // Calculate score using Tetris guideline multipliers
+    final int delta;
+    final String label;
+    if (wasTSpin) {
+      final int idx = clearedLinesCount.clamp(0, GameConstants.tSpinScores.length - 1);
+      delta = GameConstants.tSpinScores[idx] * level;
+      label = GameConstants.tSpinLabels[idx];
+    } else if (clearedLinesCount > 0) {
+      final int idx = clearedLinesCount.clamp(0, GameConstants.lineClearScores.length - 1);
+      delta = GameConstants.lineClearScores[idx] * level;
+      label = GameConstants.lineClearLabels[idx];
+    } else {
+      delta = 0;
+      label = '';
+    }
+
     // Update game state
     linesCleared += clearedLinesCount;
-    score += clearedLinesCount * GameConstants.pointsPerLine * level;
+    score += delta;
+    lastScoreDelta = delta;
+    clearBonusLabel = label;
+
     final int oldLevel = level;
     level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
     if (level > oldLevel) audioService?.playLevelUp();
@@ -295,12 +332,75 @@ class GameLogic extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns true if the current placement qualifies as a T-spin.
+  bool _isTSpin() {
+    if (!_lastMoveWasRotation) return false;
+    if (currentPiece == null) return false;
+    if (!_isPieceTType()) return false;
+
+    // Find the center of the T piece (the cell with 2+ orthogonal filled neighbors).
+    final shape = currentPiece!.shape;
+    int centerRow = -1;
+    int centerCol = -1;
+    outer:
+    for (int r = 0; r < shape.length; r++) {
+      for (int c = 0; c < shape[r].length; c++) {
+        if (shape[r][c] != 1) continue;
+        int neighbors = 0;
+        if (r > 0 && shape[r - 1][c] == 1) neighbors++;
+        if (r < shape.length - 1 && shape[r + 1][c] == 1) neighbors++;
+        if (c > 0 && shape[r][c - 1] == 1) neighbors++;
+        if (c < shape[r].length - 1 && shape[r][c + 1] == 1) neighbors++;
+        if (neighbors >= 2) {
+          centerRow = r;
+          centerCol = c;
+          break outer;
+        }
+      }
+    }
+    if (centerRow == -1) return false;
+
+    final int boardRow = currentY + centerRow;
+    final int boardCol = currentX + centerCol;
+
+    // Count occupied diagonal corners (out-of-bounds counts as occupied).
+    int occupiedCorners = 0;
+    for (final dr in [-1, 1]) {
+      for (final dc in [-1, 1]) {
+        final r = boardRow + dr;
+        final c = boardCol + dc;
+        if (r < 0 ||
+            r >= GameConstants.boardHeight + GameConstants.previewRows ||
+            c < 0 ||
+            c >= GameConstants.boardWidth ||
+            board[r][c] != null) {
+          occupiedCorners++;
+        }
+      }
+    }
+    return occupiedCorners >= 3;
+  }
+
+  bool _isPieceTType() {
+    if (currentPiece == null) return false;
+    // T piece is always purple — check by color.
+    return currentPiece!.color == const Color(0xFF9C27B0) ||
+        currentPiece!.color == Colors.purple;
+  }
+
+  /// Call this from the screen after reading clearBonusLabel / lastScoreDelta.
+  void consumeClearBonus() {
+    clearBonusLabel = '';
+    lastScoreDelta = 0;
+  }
+
   void movePieceDown() {
     // Prevent downward movement during grace period
     if (isNewPieceGracePeriod) return;
 
     if (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
+      _lastMoveWasRotation = false;
       notifyListeners();
     } else {
       placePiece();
@@ -313,6 +413,7 @@ class GameLogic extends ChangeNotifier {
 
     if (canPlacePiece(currentX - 1, currentY, currentPiece!)) {
       currentX--;
+      _lastMoveWasRotation = false;
       audioService?.playMove();
       notifyListeners();
     }
@@ -324,6 +425,7 @@ class GameLogic extends ChangeNotifier {
 
     if (canPlacePiece(currentX + 1, currentY, currentPiece!)) {
       currentX++;
+      _lastMoveWasRotation = false;
       audioService?.playMove();
       notifyListeners();
     }
@@ -358,6 +460,7 @@ class GameLogic extends ChangeNotifier {
         currentPiece = rotatedPiece;
         currentX = testX;
         currentY = testY;
+        _lastMoveWasRotation = true;
         audioService?.playRotate();
         notifyListeners();
         return;
@@ -391,6 +494,7 @@ class GameLogic extends ChangeNotifier {
         currentPiece = rotatedPiece;
         currentX = testX;
         currentY = testY;
+        _lastMoveWasRotation = true;
         audioService?.playRotate();
         notifyListeners();
         return;
@@ -407,6 +511,7 @@ class GameLogic extends ChangeNotifier {
 
     // Set slamming flag to lock horizontal position
     isSlamming = true;
+    _lastMoveWasRotation = false;
 
     // Store the starting position for trail animation
     int startY = currentY;

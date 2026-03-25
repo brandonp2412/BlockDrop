@@ -10,16 +10,19 @@ class SettingsProvider extends ChangeNotifier {
   static const _styleKey = 'app_style';
   static const _musicEnabledKey = 'music_enabled';
   static const _sfxEnabledKey = 'sfx_enabled';
+  static const _highScoreKey = 'high_score';
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
   bool _musicEnabled = false;
   bool _sfxEnabled = false;
+  int _highScore = 0;
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
   bool get musicEnabled => _musicEnabled;
   bool get sfxEnabled => _sfxEnabled;
+  int get highScore => _highScore;
 
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
@@ -46,6 +49,7 @@ class SettingsProvider extends ChangeNotifier {
     _style = AppStyle.values[styleIndex.clamp(0, AppStyle.values.length - 1)];
     _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
+    _highScore = prefs.getInt(_highScoreKey) ?? 0;
     notifyListeners();
   }
 
@@ -75,5 +79,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_sfxEnabledKey, value);
+  }
+
+  Future<void> updateHighScore(int score) async {
+    if (score <= _highScore) return;
+    _highScore = score;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_highScoreKey, _highScore);
   }
 }

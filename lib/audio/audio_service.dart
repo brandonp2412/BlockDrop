@@ -1,4 +1,10 @@
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
+
+/// Returns the audio file extension supported by the current platform.
+/// Windows Media Foundation doesn't support Ogg Vorbis, so we use MP3 there.
+String get _audioExt => Platform.isWindows ? 'mp3' : 'ogg';
 
 class AudioService {
   final AudioPlayer _musicPlayer;
@@ -36,12 +42,14 @@ class AudioService {
   Future<void> init() async {
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
     await _musicPlayer.setVolume(0.5);
-    await _musicPlayer.setAudioContext(AudioContext(
-        android: AudioContextAndroid(
-            usageType: AndroidUsageType.game,
-            contentType: AndroidContentType.music,
-            audioFocus: AndroidAudioFocus.gain,
-            stayAwake: true)));
+    if (Platform.isAndroid) {
+      await _musicPlayer.setAudioContext(AudioContext(
+          android: AudioContextAndroid(
+              usageType: AndroidUsageType.game,
+              contentType: AndroidContentType.music,
+              audioFocus: AndroidAudioFocus.gain,
+              stayAwake: true)));
+    }
 
     _musicPlayer.onPlayerStateChanged.listen((state) async {
       if (state == PlayerState.playing) {
@@ -62,23 +70,22 @@ class AudioService {
     });
 
     for (final name in _sfxNames) {
-      // Low latency mode (SoundPool on Android) doesn't request audio focus,
-      // so SFX won't interrupt or pause the background music.
       final player = _sfxPlayerFactory?.call() ?? AudioPlayer();
-      await player.setAudioContext(
-        AudioContext(
-          android: AudioContextAndroid(
-            usageType: AndroidUsageType.game,
-            contentType: AndroidContentType.sonification,
-
-            // 🔑 CRITICAL
-            audioFocus: AndroidAudioFocus.none,
-            stayAwake: true,
+      if (Platform.isAndroid) {
+        await player.setAudioContext(
+          AudioContext(
+            android: AudioContextAndroid(
+              usageType: AndroidUsageType.game,
+              contentType: AndroidContentType.sonification,
+              // 🔑 CRITICAL: no audio focus so SFX won't pause background music.
+              audioFocus: AndroidAudioFocus.none,
+              stayAwake: true,
+            ),
           ),
-        ),
-      );
+        );
+      }
       await player.setVolume(_sfxVolumes[name] ?? 0.8);
-      await player.setSource(AssetSource('audio/sfx/$name.ogg'));
+      await player.setSource(AssetSource('audio/sfx/$name.$_audioExt'));
       _sfxPlayers[name] = player;
     }
   }
@@ -87,7 +94,7 @@ class AudioService {
     _musicIntentionallyPaused = false;
     if (!musicEnabled) return;
     _isIntentionallyStarting = true;
-    await _musicPlayer.play(AssetSource('audio/music/theme.ogg'));
+    await _musicPlayer.play(AssetSource('audio/music/theme.$_audioExt'));
   }
 
   Future<void> stopMusic() async {
@@ -124,13 +131,15 @@ class AudioService {
     if (!sfxEnabled) return;
     final player = _sfxPlayers[name];
     if (player == null) return;
-    player.stop().then((_) => player.play(AssetSource('audio/sfx/$name.ogg')));
+    player.stop().then((_) => player.play(AssetSource('audio/sfx/$name.$_audioExt')));
   }
 
   void playMove() {
     final now = DateTime.now();
     if (_lastMovePlayed != null &&
-        now.difference(_lastMovePlayed!).inMilliseconds < 80) return;
+        now.difference(_lastMovePlayed!).inMilliseconds < 80) {
+      return;
+    }
     _lastMovePlayed = now;
     _playSfx('move');
   }

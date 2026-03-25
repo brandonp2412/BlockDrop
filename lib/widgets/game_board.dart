@@ -111,20 +111,34 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
     final cellBorderColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
     final ghostBorder = GameConstants.ghostBorderColor(brightness);
 
-    return AnimatedBuilder(
-      animation: Listenable.merge([_clearController, _trailController]),
-      builder: (context, child) {
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            // Simple tap for rotation - should work reliably
-            widget.onRightTap?.call();
-          },
-          child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: widget.board[0].length,
-            ),
+    final int cols = widget.board[0].length;
+    final int visibleRows = widget.board.length - widget.previewRows;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Compute aspect ratio so cells fill the container exactly (no gap).
+        final double cellW = constraints.maxWidth / cols;
+        final double cellH = constraints.maxHeight / visibleRows;
+        final double aspectRatio =
+            (constraints.maxHeight > 0 && constraints.maxWidth > 0)
+                ? cellW / cellH
+                : 1.0;
+
+        return AnimatedBuilder(
+          animation: Listenable.merge([_clearController, _trailController]),
+          builder: (context, child) {
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                // Simple tap for rotation - should work reliably
+                widget.onRightTap?.call();
+              },
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: cols,
+                  childAspectRatio: aspectRatio,
+                ),
             itemCount: (widget.board.length - widget.previewRows) *
                 widget.board[0].length,
             itemBuilder: (context, index) {
@@ -240,6 +254,8 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
             },
           ),
         );
+      },
+    );
       },
     );
   }
