@@ -294,11 +294,13 @@ class GameLogic extends ChangeNotifier {
     final int delta;
     final String label;
     if (wasTSpin) {
-      final int idx = clearedLinesCount.clamp(0, GameConstants.tSpinScores.length - 1);
+      final int idx =
+          clearedLinesCount.clamp(0, GameConstants.tSpinScores.length - 1);
       delta = GameConstants.tSpinScores[idx] * level;
       label = GameConstants.tSpinLabels[idx];
     } else if (clearedLinesCount > 0) {
-      final int idx = clearedLinesCount.clamp(0, GameConstants.lineClearScores.length - 1);
+      final int idx =
+          clearedLinesCount.clamp(0, GameConstants.lineClearScores.length - 1);
       delta = GameConstants.lineClearScores[idx] * level;
       label = GameConstants.lineClearLabels[idx];
     } else {

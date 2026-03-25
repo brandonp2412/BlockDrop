@@ -57,7 +57,9 @@ class AudioService {
         return;
       }
 
-      if (_musicIntentionallyPaused || !musicEnabled || _isIntentionallyStarting) {
+      if (_musicIntentionallyPaused ||
+          !musicEnabled ||
+          _isIntentionallyStarting) {
         return;
       }
 
@@ -131,7 +133,9 @@ class AudioService {
     if (!sfxEnabled) return;
     final player = _sfxPlayers[name];
     if (player == null) return;
-    player.stop().then((_) => player.play(AssetSource('audio/sfx/$name.$_audioExt')));
+    player
+        .stop()
+        .then((_) => player.play(AssetSource('audio/sfx/$name.$_audioExt')));
   }
 
   void playMove() {

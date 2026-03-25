@@ -70,6 +70,89 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
     WidgetsBinding.instance.addObserver(this);
     widget.settings.addListener(_onSettingsChanged);
+    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+  }
+
+  bool _handleKeyEvent(KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
+
+    // Escape toggles settings
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape) {
+      if (!_gameOverModal) _openSettings();
+      return true;
+    }
+
+    // Q shows quit confirmation
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyQ) {
+      if (!_gameOverModal) _showQuitConfirmation();
+      return true;
+    }
+
+    if (!gameLogic.isGameRunning ||
+        gameLogic.isGameOver ||
+        gameLogic.isPaused) {
+      return false;
+    }
+
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.arrowLeft:
+        gameLogic.movePieceLeft();
+        return true;
+      case LogicalKeyboardKey.arrowRight:
+        gameLogic.movePieceRight();
+        return true;
+      case LogicalKeyboardKey.arrowDown:
+        gameLogic.movePieceDown();
+        return true;
+      case LogicalKeyboardKey.arrowUp:
+      case LogicalKeyboardKey.keyZ:
+        if (event is KeyDownEvent) gameLogic.rotatePiece();
+        return true;
+      case LogicalKeyboardKey.keyX:
+        if (event is KeyDownEvent) gameLogic.rotatePieceRight();
+        return true;
+      case LogicalKeyboardKey.space:
+        if (event is KeyDownEvent) gameLogic.dropPiece();
+        return true;
+      case LogicalKeyboardKey.keyC:
+        if (event is KeyDownEvent) gameLogic.holdPiece();
+        return true;
+    }
+    return false;
+  }
+
+  Future<void> _showQuitConfirmation() async {
+    final wasRunning =
+        gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused;
+    if (wasRunning) gameLogic.pauseGame();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Quit Game?'),
+        content: const Text('Your current progress will be lost.'),
+        actions: [
+          TextButton(
+            autofocus: true,
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Quit'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    if (confirmed == true) {
+      gameLogic.startGame();
+      if (widget.settings.musicEnabled) _audioService.startMusic();
+    } else if (wasRunning) {
+      gameLogic.resumeGame();
+    }
   }
 
   void _onSettingsChanged() {
@@ -80,6 +163,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     } else {
       _audioService.pauseMusic();
     }
+    setState(() {});
   }
 
   Future<void> _openSettings() async {
@@ -113,6 +197,88 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     }
     if (mounted && widget.settings.musicEnabled) {
       _audioService.resumeMusic();
+    }
+  }
+
+  BoxDecoration _pieceBoxDecoration(AppStyle style, ColorScheme cs) {
+    switch (style) {
+      case AppStyle.classic:
+        return BoxDecoration(border: Border.all(color: cs.outline));
+      case AppStyle.modern:
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: cs.outline, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withValues(alpha: 0.08),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        );
+      case AppStyle.bubbles:
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: cs.primary.withValues(alpha: 0.4),
+            width: 2,
+          ),
+        );
+      case AppStyle.neon:
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: cs.primary, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: cs.primary.withValues(alpha: 0.5),
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+          ],
+        );
+      case AppStyle.retro:
+        return BoxDecoration(border: Border.all(color: cs.outline, width: 2));
+    }
+  }
+
+  BoxDecoration _boardDecoration(AppStyle style, ColorScheme cs) {
+    switch (style) {
+      case AppStyle.classic:
+        return BoxDecoration(border: Border.all(color: cs.outline, width: 2));
+      case AppStyle.modern:
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: cs.outline, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withValues(alpha: 0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        );
+      case AppStyle.bubbles:
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: cs.primary.withValues(alpha: 0.4),
+            width: 2,
+          ),
+        );
+      case AppStyle.neon:
+        return BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: cs.primary, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: cs.primary.withValues(alpha: 0.6),
+              blurRadius: 12,
+              spreadRadius: 1,
+            ),
+          ],
+        );
+      case AppStyle.retro:
+        return BoxDecoration(border: Border.all(color: cs.outline, width: 2));
     }
   }
 
@@ -227,6 +393,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     _popupController.dispose();
     widget.settings.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
@@ -278,186 +445,110 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
-        child: Focus(
-          autofocus: true,
-          onKeyEvent: (node, event) {
-            if (event is KeyDownEvent &&
-                gameLogic.isGameRunning &&
-                !gameLogic.isGameOver &&
-                !gameLogic.isPaused) {
-              switch (event.logicalKey) {
-                case LogicalKeyboardKey.arrowLeft:
-                  gameLogic.movePieceLeft();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowRight:
-                  gameLogic.movePieceRight();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowDown:
-                  gameLogic.movePieceDown();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowUp:
-                  gameLogic.rotatePiece();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.space:
-                  gameLogic.dropPiece();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.keyC:
-                  gameLogic.holdPiece();
-                  return KeyEventResult.handled;
+        child: _SwipeDetector(
+          gameLogic: gameLogic,
+          moveThreshold: _moveThreshold,
+          fastSwipeVelocity: _fastSwipeVelocity,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Calculate space needed for UI elements
+              double scoreHeight = 58; // Score section height
+              double nextPieceHeight = 127; // Next piece section height
+              double spacingHeight = 32; // SizedBox spacing
+              double totalUIHeight =
+                  scoreHeight + nextPieceHeight + spacingHeight;
+
+              // Calculate the maximum height available for the game board
+              double availableHeight = (constraints.maxHeight -
+                      totalUIHeight -
+                      32)
+                  .clamp(100.0, double.infinity); // Extra padding for safety
+              double availableWidth = constraints.maxWidth - 32;
+
+              // Calculate the ideal size based on aspect ratio
+              double idealWidth = availableHeight *
+                  (GameConstants.boardWidth / GameConstants.boardHeight);
+              double idealHeight = availableWidth *
+                  (GameConstants.boardHeight / GameConstants.boardWidth);
+
+              // Use the smaller dimension to ensure it fits
+              double gameboardWidth, gameboardHeight;
+              if (idealWidth <= availableWidth) {
+                gameboardWidth = idealWidth.clamp(100.0, double.infinity);
+                gameboardHeight = availableHeight.clamp(
+                  100.0,
+                  double.infinity,
+                );
+              } else {
+                gameboardWidth = availableWidth.clamp(100.0, double.infinity);
+                gameboardHeight = idealHeight.clamp(100.0, double.infinity);
               }
-            } else if (event is KeyRepeatEvent &&
-                gameLogic.isGameRunning &&
-                !gameLogic.isGameOver &&
-                !gameLogic.isPaused) {
-              switch (event.logicalKey) {
-                case LogicalKeyboardKey.arrowLeft:
-                  gameLogic.movePieceLeft();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowRight:
-                  gameLogic.movePieceRight();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowDown:
-                  gameLogic.movePieceDown();
-                  return KeyEventResult.handled;
-              }
-            }
-            return KeyEventResult.ignored;
-          },
-          child: _SwipeDetector(
-            gameLogic: gameLogic,
-            moveThreshold: _moveThreshold,
-            fastSwipeVelocity: _fastSwipeVelocity,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // Calculate space needed for UI elements
-                double scoreHeight = 58; // Score section height
-                double nextPieceHeight = 127; // Next piece section height
-                double spacingHeight = 32; // SizedBox spacing
-                double totalUIHeight =
-                    scoreHeight + nextPieceHeight + spacingHeight;
 
-                // Calculate the maximum height available for the game board
-                double availableHeight = (constraints.maxHeight -
-                        totalUIHeight -
-                        32)
-                    .clamp(100.0, double.infinity); // Extra padding for safety
-                double availableWidth = constraints.maxWidth - 32;
-
-                // Calculate the ideal size based on aspect ratio
-                double idealWidth = availableHeight *
-                    (GameConstants.boardWidth / GameConstants.boardHeight);
-                double idealHeight = availableWidth *
-                    (GameConstants.boardHeight / GameConstants.boardWidth);
-
-                // Use the smaller dimension to ensure it fits
-                double gameboardWidth, gameboardHeight;
-                if (idealWidth <= availableWidth) {
-                  gameboardWidth = idealWidth.clamp(100.0, double.infinity);
-                  gameboardHeight = availableHeight.clamp(
-                    100.0,
-                    double.infinity,
-                  );
-                } else {
-                  gameboardWidth = availableWidth.clamp(100.0, double.infinity);
-                  gameboardHeight = idealHeight.clamp(100.0, double.infinity);
-                }
-
-                return SingleChildScrollView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Score section
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 8),
-                            Text(
-                              'Score: ${formatter.format(gameLogic.score)}',
-                              style: TextStyle(
-                                color: cs.onSurface,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              'Level: ${gameLogic.level}',
-                              style: TextStyle(
-                                color: cs.onSurface,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              'Lines: ${gameLogic.linesCleared}',
-                              style: TextStyle(
-                                color: cs.onSurface,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            IconButton(
-                              icon: Icon(
-                                Icons.settings,
-                                color: cs.onSurfaceVariant,
-                              ),
-                              iconSize: 22,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              onPressed: _openSettings,
-                            ),
-                            const SizedBox(width: 4),
-                          ],
-                        ),
+              return SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Score section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
                       ),
-
-                      // Hold and Next pieces
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // Hold piece
-                            GestureDetector(
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'Hold:',
-                                    style: TextStyle(
-                                      color: cs.onSurface,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: cs.outline),
-                                    ),
-                                    child: HoldPieceDisplay(
-                                      piece: gameLogic.heldPiece,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              onTap: () {
-                                if (gameLogic.isGameRunning &&
-                                    !gameLogic.isGameOver &&
-                                    !gameLogic.isPaused) {
-                                  gameLogic.holdPiece();
-                                }
-                              },
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 8),
+                          Text(
+                            'Score: ${formatter.format(gameLogic.score)}',
+                            style: TextStyle(
+                              color: cs.onSurface,
+                              fontSize: 18,
                             ),
-                            // Next piece
-                            Column(
+                          ),
+                          const Spacer(),
+                          Text(
+                            'Level: ${gameLogic.level}',
+                            style: TextStyle(
+                              color: cs.onSurface,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            'Lines: ${gameLogic.linesCleared}',
+                            style: TextStyle(
+                              color: cs.onSurface,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          IconButton(
+                            icon: Icon(
+                              Icons.settings,
+                              color: cs.onSurfaceVariant,
+                            ),
+                            iconSize: 22,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: _openSettings,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                      ),
+                    ),
+
+                    // Hold and Next pieces
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Hold piece
+                          GestureDetector(
+                            child: Column(
                               children: [
                                 Text(
-                                  'Next:',
+                                  'Hold:',
                                   style: TextStyle(
                                     color: cs.onSurface,
                                     fontSize: 16,
@@ -467,124 +558,160 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                 Container(
                                   width: 80,
                                   height: 80,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: cs.outline),
+                                  decoration: _pieceBoxDecoration(
+                                    widget.settings.style,
+                                    cs,
                                   ),
-                                  child: gameLogic.nextPiece != null
-                                      ? NextPieceDisplay(
-                                          piece: gameLogic.nextPiece!,
-                                        )
-                                      : null,
+                                  child: HoldPieceDisplay(
+                                    piece: gameLogic.heldPiece,
+                                    style: widget.settings.style,
+                                  ),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                            onTap: () {
+                              if (gameLogic.isGameRunning &&
+                                  !gameLogic.isGameOver &&
+                                  !gameLogic.isPaused) {
+                                gameLogic.holdPiece();
+                              }
+                            },
+                          ),
+                          // Next piece
+                          Column(
+                            children: [
+                              Text(
+                                'Next:',
+                                style: TextStyle(
+                                  color: cs.onSurface,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: _pieceBoxDecoration(
+                                  widget.settings.style,
+                                  cs,
+                                ),
+                                child: gameLogic.nextPiece != null
+                                    ? NextPieceDisplay(
+                                        piece: gameLogic.nextPiece!,
+                                        style: widget.settings.style,
+                                      )
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
+                    ),
 
-                      const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                      // Game board with score popup overlay
-                      SizedBox(
-                        width: gameboardWidth,
-                        height: gameboardHeight,
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: gameboardWidth,
-                              height: gameboardHeight,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: cs.outline, width: 2),
-                              ),
-                              child: GameBoard(
-                                board: gameLogic.getBoardWithCurrentPiece(),
-                                previewRows: GameConstants.previewRows,
-                                gameLogic: gameLogic,
-                                onLeftTap: () {
-                                  if (gameLogic.isGameRunning &&
-                                      !gameLogic.isGameOver &&
-                                      !gameLogic.isPaused) {
-                                    gameLogic.rotatePieceLeft();
-                                  }
-                                },
-                                onRightTap: () {
-                                  if (gameLogic.isGameRunning &&
-                                      !gameLogic.isGameOver &&
-                                      !gameLogic.isPaused) {
-                                    gameLogic.rotatePieceRight();
-                                  }
-                                },
-                              ),
+                    // Game board with score popup overlay
+                    SizedBox(
+                      width: gameboardWidth,
+                      height: gameboardHeight,
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: gameboardWidth,
+                            height: gameboardHeight,
+                            decoration: _boardDecoration(
+                              widget.settings.style,
+                              cs,
                             ),
-                            // Score popup
-                            AnimatedBuilder(
-                              animation: _popupController,
-                              builder: (context, _) {
-                                if (_popupController.isDismissed) {
-                                  return const SizedBox.shrink();
+                            child: GameBoard(
+                              board: gameLogic.getBoardWithCurrentPiece(),
+                              previewRows: GameConstants.previewRows,
+                              gameLogic: gameLogic,
+                              style: widget.settings.style,
+                              onLeftTap: () {
+                                if (gameLogic.isGameRunning &&
+                                    !gameLogic.isGameOver &&
+                                    !gameLogic.isPaused) {
+                                  gameLogic.rotatePieceLeft();
                                 }
-                                return Positioned(
-                                  left: 0,
-                                  right: 0,
-                                  top: gameboardHeight / 2 + _popupOffset.value,
-                                  child: IgnorePointer(
-                                    child: Opacity(
-                                      opacity: _popupOpacity.value,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            _popupLabel,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: _popupLabel
-                                                      .startsWith('T-SPIN')
-                                                  ? Colors.purple[200]
-                                                  : (_popupLabel == 'TETRIS!'
-                                                      ? Colors.amber
-                                                      : Colors.white),
-                                              fontSize: _popupLabel == 'TETRIS!'
-                                                  ? 26
-                                                  : 20,
-                                              fontWeight: FontWeight.bold,
-                                              shadows: const [
-                                                Shadow(
-                                                    blurRadius: 8,
-                                                    color: Colors.black),
-                                              ],
-                                            ),
-                                          ),
-                                          Text(
-                                            '+$_popupDelta',
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              shadows: [
-                                                Shadow(
-                                                    blurRadius: 6,
-                                                    color: Colors.black),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
+                              },
+                              onRightTap: () {
+                                if (gameLogic.isGameRunning &&
+                                    !gameLogic.isGameOver &&
+                                    !gameLogic.isPaused) {
+                                  gameLogic.rotatePieceRight();
+                                }
                               },
                             ),
-                          ],
-                        ),
+                          ),
+                          // Score popup
+                          AnimatedBuilder(
+                            animation: _popupController,
+                            builder: (context, _) {
+                              if (_popupController.isDismissed) {
+                                return const SizedBox.shrink();
+                              }
+                              return Positioned(
+                                left: 0,
+                                right: 0,
+                                top: gameboardHeight / 2 + _popupOffset.value,
+                                child: IgnorePointer(
+                                  child: Opacity(
+                                    opacity: _popupOpacity.value,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          _popupLabel,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color:
+                                                _popupLabel.startsWith('T-SPIN')
+                                                    ? Colors.purple[200]
+                                                    : (_popupLabel == 'TETRIS!'
+                                                        ? Colors.amber
+                                                        : Colors.white),
+                                            fontSize: _popupLabel == 'TETRIS!'
+                                                ? 26
+                                                : 20,
+                                            fontWeight: FontWeight.bold,
+                                            shadows: const [
+                                              Shadow(
+                                                  blurRadius: 8,
+                                                  color: Colors.black),
+                                            ],
+                                          ),
+                                        ),
+                                        Text(
+                                          '+$_popupDelta',
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            shadows: [
+                                              Shadow(
+                                                  blurRadius: 6,
+                                                  color: Colors.black),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
+                    ),
 
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                );
-              },
-            ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),

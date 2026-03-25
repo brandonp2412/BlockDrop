@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemeMode { system, light, dark, black }
 
-enum AppStyle { classic, modern, bubbles }
+enum AppStyle { classic, modern, bubbles, neon, retro }
 
 class SettingsProvider extends ChangeNotifier {
   static const _themeKey = 'theme_mode';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
+import '../settings/settings_provider.dart';
 
 // Modern Flutter color alpha helper
 Color _colorWithAlpha(Color color, double alpha) {
-  // Use withValues for Flutter 3.27+
   return color.withValues(alpha: alpha);
 }
 
@@ -14,12 +14,14 @@ class GameBoard extends StatefulWidget {
   final VoidCallback? onLeftTap;
   final VoidCallback? onRightTap;
   final GameLogic gameLogic;
+  final AppStyle style;
 
   const GameBoard({
     super.key,
     required this.board,
     required this.previewRows,
     required this.gameLogic,
+    required this.style,
     this.onLeftTap,
     this.onRightTap,
   });
@@ -66,7 +68,6 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
       ),
     );
 
-    // Trail animation controller
     _trailController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -77,7 +78,6 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
       end: 0.0,
     ).animate(CurvedAnimation(parent: _trailController, curve: Curves.easeOut));
 
-    // Listen to game logic changes to trigger animations
     widget.gameLogic.addListener(_onGameStateChanged);
   }
 
@@ -103,6 +103,218 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  Widget _buildCell({
+    required Color? displayColor,
+    required bool isGhostPiece,
+    required Color emptyCellColor,
+    required Color cellBorderColor,
+    required Color ghostBorder,
+    required double cellW,
+    required double cellH,
+  }) {
+    final style = widget.style;
+
+    switch (style) {
+      case AppStyle.classic:
+        return Container(
+          decoration: BoxDecoration(
+            color: isGhostPiece
+                ? emptyCellColor
+                : (displayColor ?? emptyCellColor),
+            border: Border.all(
+              color: isGhostPiece ? ghostBorder : cellBorderColor,
+              width: isGhostPiece ? 2.0 : 0.5,
+            ),
+          ),
+        );
+
+      case AppStyle.modern:
+        const margin = EdgeInsets.all(1.5);
+        const radius = 4.0;
+        if (isGhostPiece) {
+          return Container(
+            margin: margin,
+            decoration: BoxDecoration(
+              color: emptyCellColor,
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(color: ghostBorder, width: 1.5),
+            ),
+          );
+        }
+        if (displayColor == null) {
+          return Container(
+            margin: margin,
+            decoration: BoxDecoration(
+              color: emptyCellColor,
+              borderRadius: BorderRadius.circular(radius),
+            ),
+          );
+        }
+        return Container(
+          margin: margin,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.lerp(displayColor, Colors.white, 0.35)!,
+                displayColor,
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _colorWithAlpha(displayColor, 0.45),
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+        );
+
+      case AppStyle.bubbles:
+        final marginAmt = cellW * 0.1;
+        final innerSize = cellW - 2 * marginAmt;
+        final radius = innerSize / 2;
+        final margin = EdgeInsets.all(marginAmt);
+
+        if (isGhostPiece) {
+          return Container(
+            margin: margin,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(color: ghostBorder, width: 2.0),
+            ),
+          );
+        }
+        if (displayColor == null) {
+          return Container(
+            margin: margin,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(
+                color: _colorWithAlpha(cellBorderColor, 0.25),
+                width: 0.5,
+              ),
+            ),
+          );
+        }
+        return Container(
+          margin: margin,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            gradient: RadialGradient(
+              center: const Alignment(-0.35, -0.4),
+              radius: 0.9,
+              colors: [
+                Color.lerp(displayColor, Colors.white, 0.65)!,
+                displayColor,
+                Color.lerp(displayColor, Colors.black, 0.25)!,
+              ],
+              stops: const [0.0, 0.55, 1.0],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _colorWithAlpha(displayColor, 0.55),
+                blurRadius: 5,
+                spreadRadius: 0.5,
+              ),
+            ],
+          ),
+        );
+
+      case AppStyle.neon:
+        if (isGhostPiece) {
+          return Container(
+            margin: const EdgeInsets.all(1.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(
+                color: _colorWithAlpha(ghostBorder, 0.4),
+                width: 1,
+              ),
+            ),
+          );
+        }
+        if (displayColor == null) {
+          return Container(
+            color: Colors.black,
+          );
+        }
+        return Container(
+          margin: const EdgeInsets.all(1.0),
+          decoration: BoxDecoration(
+            color: _colorWithAlpha(displayColor, 0.12),
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(color: displayColor, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: _colorWithAlpha(displayColor, 0.8),
+                blurRadius: 6,
+                spreadRadius: 1,
+              ),
+              BoxShadow(
+                color: _colorWithAlpha(displayColor, 0.35),
+                blurRadius: 14,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+        );
+
+      case AppStyle.retro:
+        if (isGhostPiece) {
+          return Container(
+            decoration: BoxDecoration(
+              color: emptyCellColor,
+              border: Border.all(color: ghostBorder, width: 2.0),
+            ),
+          );
+        }
+        if (displayColor == null) {
+          return Container(color: emptyCellColor);
+        }
+        final highlight = Color.lerp(displayColor, Colors.white, 0.6)!;
+        final shadow = Color.lerp(displayColor, Colors.black, 0.5)!;
+        const bevel = 3.0;
+        return Container(
+          color: displayColor,
+          child: Stack(
+            children: [
+              // Top highlight
+              Positioned(
+                top: 0,
+                left: 0,
+                right: bevel,
+                child: Container(height: bevel, color: highlight),
+              ),
+              // Left highlight
+              Positioned(
+                top: 0,
+                left: 0,
+                bottom: bevel,
+                child: Container(width: bevel, color: highlight),
+              ),
+              // Bottom shadow
+              Positioned(
+                bottom: 0,
+                left: bevel,
+                right: 0,
+                child: Container(height: bevel, color: shadow),
+              ),
+              // Right shadow
+              Positioned(
+                top: bevel,
+                right: 0,
+                bottom: 0,
+                child: Container(width: bevel, color: shadow),
+              ),
+            ],
+          ),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
@@ -116,7 +328,6 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Compute aspect ratio so cells fill the container exactly (no gap).
         final double cellW = constraints.maxWidth / cols;
         final double cellH = constraints.maxHeight / visibleRows;
         final double aspectRatio =
@@ -130,7 +341,6 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
-                // Simple tap for rotation - should work reliably
                 widget.onRightTap?.call();
               },
               child: GridView.builder(
@@ -139,123 +349,130 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                   crossAxisCount: cols,
                   childAspectRatio: aspectRatio,
                 ),
-            itemCount: (widget.board.length - widget.previewRows) *
-                widget.board[0].length,
-            itemBuilder: (context, index) {
-              int row = (index ~/ widget.board[0].length) + widget.previewRows;
-              int col = index % widget.board[0].length;
+                itemCount: (widget.board.length - widget.previewRows) *
+                    widget.board[0].length,
+                itemBuilder: (context, index) {
+                  int row =
+                      (index ~/ widget.board[0].length) + widget.previewRows;
+                  int col = index % widget.board[0].length;
 
-              Color? cellColor = widget.board[row][col];
-              bool isGhostPiece = cellColor == GameConstants.ghostPieceColor;
-              bool isClearingLine = widget.gameLogic.isLineClearingAnimation(
-                row,
-              );
+                  Color? cellColor = widget.board[row][col];
+                  bool isGhostPiece =
+                      cellColor == GameConstants.ghostPieceColor;
+                  bool isClearingLine =
+                      widget.gameLogic.isLineClearingAnimation(row);
 
-              // Check for trail animation
-              Map<String, dynamic>? trailBlock = widget.gameLogic.getTrailBlock(
-                col,
-                row,
-              );
+                  Map<String, dynamic>? trailBlock =
+                      widget.gameLogic.getTrailBlock(col, row);
 
-              // Normal cell widget
-              final displayColor = (cellColor != null && !isGhostPiece)
-                  ? GameConstants.adaptPieceColor(cellColor, brightness)
-                  : null;
-              Widget cellWidget = Container(
-                decoration: BoxDecoration(
-                  color: isGhostPiece
-                      ? emptyCellColor
-                      : (displayColor ?? emptyCellColor),
-                  border: Border.all(
-                    color: isGhostPiece ? ghostBorder : cellBorderColor,
-                    width: isGhostPiece ? 2.0 : 0.5,
-                  ),
-                ),
-              );
+                  final displayColor = (cellColor != null && !isGhostPiece)
+                      ? GameConstants.adaptPieceColor(cellColor, brightness)
+                      : null;
 
-              // ZOOP effect for clearing lines - clean and satisfying
-              if (isClearingLine && cellColor != null) {
-                // Calculate individual animation values
-                double scale = _scaleAnimation.value;
-                double opacity = _opacityAnimation.value;
-                double glow = _glowAnimation.value;
+                  Widget cellWidget = _buildCell(
+                    displayColor: displayColor,
+                    isGhostPiece: isGhostPiece,
+                    emptyCellColor: emptyCellColor,
+                    cellBorderColor: cellBorderColor,
+                    ghostBorder: ghostBorder,
+                    cellW: cellW,
+                    cellH: cellH,
+                  );
 
-                // Create a clean, bright glow color based on original block color
-                Color glowColor =
-                    Color.lerp(cellColor, Colors.white, glow * 0.7)!;
+                  // ZOOP effect for clearing lines
+                  if (isClearingLine && cellColor != null) {
+                    double scale = _scaleAnimation.value;
+                    double opacity = _opacityAnimation.value;
+                    double glow = _glowAnimation.value;
 
-                return Opacity(
-                  opacity: opacity,
-                  child: Transform.scale(
-                    scale: scale,
-                    child: Container(
+                    Color glowColor =
+                        Color.lerp(cellColor, Colors.white, glow * 0.7)!;
+
+                    final borderRadius = widget.style == AppStyle.bubbles
+                        ? BorderRadius.circular(cellW * 0.4)
+                        : (widget.style == AppStyle.modern ||
+                                widget.style == AppStyle.neon)
+                            ? BorderRadius.circular(4)
+                            : BorderRadius.zero;
+
+                    return Opacity(
+                      opacity: opacity,
+                      child: Transform.scale(
+                        scale: scale,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: borderRadius,
+                            boxShadow: glow > 0
+                                ? [
+                                    BoxShadow(
+                                      color: _colorWithAlpha(
+                                          glowColor, glow * 0.6),
+                                      blurRadius: 8.0 * glow,
+                                      spreadRadius: 3.0 * glow,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: glowColor,
+                              borderRadius: borderRadius,
+                              border: Border.all(
+                                color:
+                                    _colorWithAlpha(Colors.white, glow * 0.8),
+                                width: 0.5 + (glow * 1.5),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  // Trail effect for hard drop
+                  if (trailBlock != null && cellColor == null) {
+                    Color trailColor = trailBlock['color'] as Color;
+                    double intensity = trailBlock['intensity'] as double;
+                    double animationProgress =
+                        1.0 - _trailOpacityAnimation.value;
+                    double finalOpacity = intensity * animationProgress * 0.4;
+
+                    final borderRadius = widget.style == AppStyle.bubbles
+                        ? BorderRadius.circular(cellW * 0.4)
+                        : (widget.style == AppStyle.modern ||
+                                widget.style == AppStyle.neon)
+                            ? BorderRadius.circular(4)
+                            : BorderRadius.zero;
+
+                    return Container(
                       decoration: BoxDecoration(
-                        boxShadow: glow > 0
+                        color: _colorWithAlpha(trailColor, finalOpacity * 0.3),
+                        borderRadius: borderRadius,
+                        border: Border.all(
+                          color:
+                              _colorWithAlpha(trailColor, finalOpacity * 0.5),
+                          width: 0.5,
+                        ),
+                        boxShadow: finalOpacity > 0.1
                             ? [
                                 BoxShadow(
-                                  color: _colorWithAlpha(glowColor, glow * 0.6),
-                                  blurRadius: 8.0 * glow,
-                                  spreadRadius: 3.0 * glow,
+                                  color: _colorWithAlpha(
+                                      trailColor, finalOpacity * 0.2),
+                                  blurRadius: 2.0 * finalOpacity,
+                                  spreadRadius: 0.5 * finalOpacity,
                                 ),
                               ]
                             : null,
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: glowColor,
-                          border: Border.all(
-                            color: _colorWithAlpha(Colors.white, glow * 0.8),
-                            width: 0.5 + (glow * 1.5),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }
+                    );
+                  }
 
-              // Trail effect for hard drop - subtle light trail
-              if (trailBlock != null && cellColor == null) {
-                Color trailColor = trailBlock['color'] as Color;
-                double intensity =
-                    trailBlock['intensity'] as double; // 0.0 to 1.0
-                double animationProgress =
-                    1.0 - _trailOpacityAnimation.value; // 0.0 to 1.0
-
-                // Combine intensity with animation progress for a subtle effect
-                double finalOpacity = intensity *
-                    animationProgress *
-                    0.4; // Reduced overall opacity
-
-                // Create a subtle, light trail effect
-                return Container(
-                  decoration: BoxDecoration(
-                    // Light, translucent color trail
-                    color: _colorWithAlpha(trailColor, finalOpacity * 0.3),
-                    border: Border.all(
-                      color: _colorWithAlpha(trailColor, finalOpacity * 0.5),
-                      width: 0.5,
-                    ),
-                    boxShadow: finalOpacity > 0.1
-                        ? [
-                            BoxShadow(
-                              color: _colorWithAlpha(
-                                  trailColor, finalOpacity * 0.2),
-                              blurRadius: 2.0 * finalOpacity,
-                              spreadRadius: 0.5 * finalOpacity,
-                            ),
-                          ]
-                        : null,
-                  ),
-                );
-              }
-
-              return cellWidget;
-            },
-          ),
+                  return cellWidget;
+                },
+              ),
+            );
+          },
         );
-      },
-    );
       },
     );
   }

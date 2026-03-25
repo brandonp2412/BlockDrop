@@ -145,7 +145,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SettingTile(
               label: 'Style',
               colorScheme: colorScheme,
-              badge: 'Coming soon',
               child: DropdownButton<AppStyle>(
                 value: widget.settings.style,
                 isExpanded: true,
@@ -165,6 +164,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   DropdownMenuItem(
                     value: AppStyle.bubbles,
                     child: Text('Bubbles'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppStyle.neon,
+                    child: Text('Neon'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppStyle.retro,
+                    child: Text('Retro'),
                   ),
                 ],
               ),
@@ -221,13 +228,11 @@ class _SettingTile extends StatelessWidget {
   final String label;
   final Widget child;
   final ColorScheme colorScheme;
-  final String? badge;
 
   const _SettingTile({
     required this.label,
     required this.child,
     required this.colorScheme,
-    this.badge,
   });
 
   @override
@@ -253,27 +258,6 @@ class _SettingTile extends StatelessWidget {
                     color: colorScheme.onSurface,
                   ),
                 ),
-                if (badge != null) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colorScheme.secondary.withAlpha(40),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      badge!,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: colorScheme.secondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
