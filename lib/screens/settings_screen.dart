@@ -119,17 +119,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: widget.settings.themeMode,
                 isExpanded: true,
                 underline: const SizedBox.shrink(),
+                disabledHint: Text("Neon style is dark mode only"),
                 onChanged: (value) {
                   if (value != null) widget.settings.setThemeMode(value);
                 },
-                items: const [
+                items: [
                   DropdownMenuItem(
                     value: AppThemeMode.system,
-                    child: Text('System'),
+                    enabled: widget.settings.style != AppStyle.neon,
+                    child: Text(
+                      'System',
+                      style: TextStyle(
+                        color: widget.settings.style == AppStyle.neon
+                            ? Theme.of(context).disabledColor
+                            : null,
+                      ),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: AppThemeMode.light,
-                    child: Text('Light'),
+                    enabled: widget.settings.style != AppStyle.neon,
+                    child: Text(
+                      'Light',
+                      style: TextStyle(
+                        color: widget.settings.style == AppStyle.neon
+                            ? Theme.of(context).disabledColor
+                            : null,
+                      ),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: AppThemeMode.dark,
@@ -137,7 +154,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   DropdownMenuItem(
                     value: AppThemeMode.black,
-                    child: Text('Black (AMOLED)'),
+                    child: Text(
+                      'Black (AMOLED)',
+                    ),
                   ),
                 ],
               ),
@@ -151,6 +170,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 underline: const SizedBox.shrink(),
                 onChanged: (value) {
                   if (value != null) widget.settings.setStyle(value);
+                  if (value == AppStyle.neon)
+                    widget.settings.setThemeMode(AppThemeMode.dark);
                 },
                 items: const [
                   DropdownMenuItem(
