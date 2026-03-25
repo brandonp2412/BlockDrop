@@ -240,12 +240,15 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       case AppStyle.neon:
         return BoxDecoration(
           borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: cs.primary, width: 1.5),
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: 0.6),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
-              color: cs.primary.withValues(alpha: 0.5),
-              blurRadius: 8,
-              spreadRadius: 1,
+              color: cs.outlineVariant.withValues(alpha: 0.2),
+              blurRadius: 6,
+              spreadRadius: 0,
             ),
           ],
         );
@@ -461,120 +464,156 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
         if (_gameOverModal || _isSettingsOpen) return;
-        if (gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused && gameLogic.canHold) {
+        if (gameLogic.isGameRunning &&
+            !gameLogic.isGameOver &&
+            !gameLogic.isPaused &&
+            gameLogic.canHold) {
           gameLogic.holdPiece();
         } else {
           _openSettings();
         }
       },
       child: Scaffold(
-      body: SafeArea(
-        child: _SwipeDetector(
-          gameLogic: gameLogic,
-          moveThreshold: _moveThreshold,
-          fastSwipeVelocity: _fastSwipeVelocity,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Calculate space needed for UI elements
-              double scoreHeight = 58; // Score section height
-              double nextPieceHeight = 127; // Next piece section height
-              double spacingHeight = 32; // SizedBox spacing
-              double totalUIHeight =
-                  scoreHeight + nextPieceHeight + spacingHeight;
+        body: SafeArea(
+          child: _SwipeDetector(
+            gameLogic: gameLogic,
+            moveThreshold: _moveThreshold,
+            fastSwipeVelocity: _fastSwipeVelocity,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Calculate space needed for UI elements
+                double scoreHeight = 58; // Score section height
+                double nextPieceHeight = 127; // Next piece section height
+                double spacingHeight = 32; // SizedBox spacing
+                double totalUIHeight =
+                    scoreHeight + nextPieceHeight + spacingHeight;
 
-              // Calculate the maximum height available for the game board
-              double availableHeight = (constraints.maxHeight -
-                      totalUIHeight -
-                      32)
-                  .clamp(100.0, double.infinity); // Extra padding for safety
-              double availableWidth = constraints.maxWidth - 32;
+                // Calculate the maximum height available for the game board
+                double availableHeight = (constraints.maxHeight -
+                        totalUIHeight -
+                        32)
+                    .clamp(100.0, double.infinity); // Extra padding for safety
+                double availableWidth = constraints.maxWidth - 32;
 
-              // Calculate the ideal size based on aspect ratio
-              double idealWidth = availableHeight *
-                  (GameConstants.boardWidth / GameConstants.boardHeight);
-              double idealHeight = availableWidth *
-                  (GameConstants.boardHeight / GameConstants.boardWidth);
+                // Calculate the ideal size based on aspect ratio
+                double idealWidth = availableHeight *
+                    (GameConstants.boardWidth / GameConstants.boardHeight);
+                double idealHeight = availableWidth *
+                    (GameConstants.boardHeight / GameConstants.boardWidth);
 
-              // Use the smaller dimension to ensure it fits
-              double gameboardWidth, gameboardHeight;
-              if (idealWidth <= availableWidth) {
-                gameboardWidth = idealWidth.clamp(100.0, double.infinity);
-                gameboardHeight = availableHeight.clamp(
-                  100.0,
-                  double.infinity,
-                );
-              } else {
-                gameboardWidth = availableWidth.clamp(100.0, double.infinity);
-                gameboardHeight = idealHeight.clamp(100.0, double.infinity);
-              }
+                // Use the smaller dimension to ensure it fits
+                double gameboardWidth, gameboardHeight;
+                if (idealWidth <= availableWidth) {
+                  gameboardWidth = idealWidth.clamp(100.0, double.infinity);
+                  gameboardHeight = availableHeight.clamp(
+                    100.0,
+                    double.infinity,
+                  );
+                } else {
+                  gameboardWidth = availableWidth.clamp(100.0, double.infinity);
+                  gameboardHeight = idealHeight.clamp(100.0, double.infinity);
+                }
 
-              return SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Score section
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 8),
-                          Text(
-                            'Score: ${formatter.format(gameLogic.score)}',
-                            style: TextStyle(
-                              color: cs.onSurface,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            'Level: ${gameLogic.level}',
-                            style: TextStyle(
-                              color: cs.onSurface,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            'Lines: ${gameLogic.linesCleared}',
-                            style: TextStyle(
-                              color: cs.onSurface,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          ExcludeFocus(
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.settings,
-                                color: cs.onSurfaceVariant,
+                return SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Score section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 8),
+                            Text(
+                              'Score: ${formatter.format(gameLogic.score)}',
+                              style: TextStyle(
+                                color: cs.onSurface,
+                                fontSize: 18,
                               ),
-                              iconSize: 22,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              onPressed: _openSettings,
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                        ],
+                            const Spacer(),
+                            Text(
+                              'Level: ${gameLogic.level}',
+                              style: TextStyle(
+                                color: cs.onSurface,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              'Lines: ${gameLogic.linesCleared}',
+                              style: TextStyle(
+                                color: cs.onSurface,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            ExcludeFocus(
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.settings,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                                iconSize: 22,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: _openSettings,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    // Hold and Next pieces
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          // Hold piece
-                          GestureDetector(
-                            child: Column(
+                      // Hold and Next pieces
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            // Hold piece
+                            GestureDetector(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'Hold:',
+                                    style: TextStyle(
+                                      color: cs.onSurface,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: _pieceBoxDecoration(
+                                      widget.settings.style,
+                                      cs,
+                                    ),
+                                    child: HoldPieceDisplay(
+                                      piece: gameLogic.heldPiece,
+                                      style: widget.settings.style,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
+                                if (gameLogic.isGameRunning &&
+                                    !gameLogic.isGameOver &&
+                                    !gameLogic.isPaused) {
+                                  gameLogic.holdPiece();
+                                }
+                              },
+                            ),
+                            // Next piece
+                            Column(
                               children: [
                                 Text(
-                                  'Hold:',
+                                  'Next:',
                                   style: TextStyle(
                                     color: cs.onSurface,
                                     fontSize: 16,
@@ -588,160 +627,127 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                     widget.settings.style,
                                     cs,
                                   ),
-                                  child: HoldPieceDisplay(
-                                    piece: gameLogic.heldPiece,
-                                    style: widget.settings.style,
-                                  ),
+                                  child: gameLogic.nextPiece != null
+                                      ? NextPieceDisplay(
+                                          piece: gameLogic.nextPiece!,
+                                          style: widget.settings.style,
+                                        )
+                                      : null,
                                 ),
                               ],
                             ),
-                            onTap: () {
-                              if (gameLogic.isGameRunning &&
-                                  !gameLogic.isGameOver &&
-                                  !gameLogic.isPaused) {
-                                gameLogic.holdPiece();
-                              }
-                            },
-                          ),
-                          // Next piece
-                          Column(
-                            children: [
-                              Text(
-                                'Next:',
-                                style: TextStyle(
-                                  color: cs.onSurface,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: _pieceBoxDecoration(
-                                  widget.settings.style,
-                                  cs,
-                                ),
-                                child: gameLogic.nextPiece != null
-                                    ? NextPieceDisplay(
-                                        piece: gameLogic.nextPiece!,
-                                        style: widget.settings.style,
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    // Game board with score popup overlay
-                    SizedBox(
-                      width: gameboardWidth,
-                      height: gameboardHeight,
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: gameboardWidth,
-                            height: gameboardHeight,
-                            decoration: _boardDecoration(
-                              widget.settings.style,
-                              cs,
+                      // Game board with score popup overlay
+                      SizedBox(
+                        width: gameboardWidth,
+                        height: gameboardHeight,
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: gameboardWidth,
+                              height: gameboardHeight,
+                              decoration: _boardDecoration(
+                                widget.settings.style,
+                                cs,
+                              ),
+                              child: GameBoard(
+                                board: gameLogic.getBoardWithCurrentPiece(),
+                                previewRows: GameConstants.previewRows,
+                                gameLogic: gameLogic,
+                                style: widget.settings.style,
+                                onLeftTap: () {
+                                  if (gameLogic.isGameRunning &&
+                                      !gameLogic.isGameOver &&
+                                      !gameLogic.isPaused) {
+                                    gameLogic.rotatePieceLeft();
+                                  }
+                                },
+                                onRightTap: () {
+                                  if (gameLogic.isGameRunning &&
+                                      !gameLogic.isGameOver &&
+                                      !gameLogic.isPaused) {
+                                    gameLogic.rotatePieceRight();
+                                  }
+                                },
+                              ),
                             ),
-                            child: GameBoard(
-                              board: gameLogic.getBoardWithCurrentPiece(),
-                              previewRows: GameConstants.previewRows,
-                              gameLogic: gameLogic,
-                              style: widget.settings.style,
-                              onLeftTap: () {
-                                if (gameLogic.isGameRunning &&
-                                    !gameLogic.isGameOver &&
-                                    !gameLogic.isPaused) {
-                                  gameLogic.rotatePieceLeft();
+                            // Score popup
+                            AnimatedBuilder(
+                              animation: _popupController,
+                              builder: (context, _) {
+                                if (_popupController.isDismissed) {
+                                  return const SizedBox.shrink();
                                 }
-                              },
-                              onRightTap: () {
-                                if (gameLogic.isGameRunning &&
-                                    !gameLogic.isGameOver &&
-                                    !gameLogic.isPaused) {
-                                  gameLogic.rotatePieceRight();
-                                }
-                              },
-                            ),
-                          ),
-                          // Score popup
-                          AnimatedBuilder(
-                            animation: _popupController,
-                            builder: (context, _) {
-                              if (_popupController.isDismissed) {
-                                return const SizedBox.shrink();
-                              }
-                              return Positioned(
-                                left: 0,
-                                right: 0,
-                                top: gameboardHeight / 2 + _popupOffset.value,
-                                child: IgnorePointer(
-                                  child: Opacity(
-                                    opacity: _popupOpacity.value,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          _popupLabel,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color:
-                                                _popupLabel.startsWith('T-SPIN')
-                                                    ? Colors.purple[200]
-                                                    : (_popupLabel == 'TETRIS!'
-                                                        ? Colors.amber
-                                                        : Colors.white),
-                                            fontSize: _popupLabel == 'TETRIS!'
-                                                ? 26
-                                                : 20,
-                                            fontWeight: FontWeight.bold,
-                                            shadows: const [
-                                              Shadow(
-                                                  blurRadius: 8,
-                                                  color: Colors.black),
-                                            ],
+                                return Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  top: gameboardHeight / 2 + _popupOffset.value,
+                                  child: IgnorePointer(
+                                    child: Opacity(
+                                      opacity: _popupOpacity.value,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            _popupLabel,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: _popupLabel
+                                                      .startsWith('T-SPIN')
+                                                  ? Colors.purple[200]
+                                                  : (_popupLabel == 'TETRIS!'
+                                                      ? Colors.amber
+                                                      : Colors.white),
+                                              fontSize: _popupLabel == 'TETRIS!'
+                                                  ? 26
+                                                  : 20,
+                                              fontWeight: FontWeight.bold,
+                                              shadows: const [
+                                                Shadow(
+                                                    blurRadius: 8,
+                                                    color: Colors.black),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          '+$_popupDelta',
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            shadows: [
-                                              Shadow(
-                                                  blurRadius: 6,
-                                                  color: Colors.black),
-                                            ],
+                                          Text(
+                                            '+$_popupDelta',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              shadows: [
+                                                Shadow(
+                                                    blurRadius: 6,
+                                                    color: Colors.black),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              );
-            },
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 }
