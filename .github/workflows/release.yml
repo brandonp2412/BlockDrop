@@ -186,7 +186,7 @@ jobs:
 
       - name: Build iOS (no signing)
         run: |
-          flutter build ios --release --no-codesign --build-name=${{ needs.version-bump.outputs.version }}
+          flutter build ios --release --no-codesign --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create iOS archive
         run: |
@@ -222,7 +222,7 @@ jobs:
         run: flutter pub get
 
       - name: Build macOS
-        run: flutter build macos --release --build-name=${{ needs.version-bump.outputs.version }}
+        run: flutter build macos --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create macOS archive
         run: |
@@ -258,7 +258,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows
-        run: flutter build windows --release --build-name=${{ needs.version-bump.outputs.version }}
+        run: flutter build windows --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create Windows archive
         run: |
@@ -299,7 +299,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Linux
-        run: flutter build linux --release --build-name=${{ needs.version-bump.outputs.version }}
+        run: flutter build linux --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create Linux archive
         run: |
@@ -335,7 +335,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Web
-        run: flutter build web --release --build-name=${{ needs.version-bump.outputs.version }}
+        run: flutter build web --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Create Web archive
         run: |
