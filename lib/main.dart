@@ -64,7 +64,10 @@ class _TetrisAppState extends State<TetrisApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Block Drop - Tetris',
-      themeMode: _settings.flutterThemeMode,
+      // Neon style requires a dark background everywhere — override theme mode
+      themeMode: _settings.style == AppStyle.neon
+          ? ThemeMode.dark
+          : _settings.flutterThemeMode,
       theme: _lightTheme,
       darkTheme: _settings.isBlackMode ? _blackTheme : _darkTheme,
       home: TetrisGameScreen(settings: _settings),

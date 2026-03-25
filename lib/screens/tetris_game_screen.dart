@@ -32,6 +32,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   String _popupLabel = '';
   int _popupDelta = 0;
   bool _gameOverModal = false;
+  bool _isSettingsOpen = false;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
   static const double _moveThreshold =
@@ -76,16 +77,21 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   bool _handleKeyEvent(KeyEvent event) {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
 
-    // Escape toggles settings
+    // Escape: open settings when none are open; otherwise let Navigator pop
     if (event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.escape) {
-      if (!_gameOverModal) _openSettings();
-      return true;
+      if (!_gameOverModal && !_isSettingsOpen) {
+        _openSettings();
+        return true;
+      } else if (!_gameOverModal && _isSettingsOpen) {
+        Navigator.of(context).pop();
+      }
+      return false; // let Navigator handle closing the open screen
     }
 
-    // Q shows quit confirmation
+    // Q shows quit confirmation (only when at the game screen)
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyQ) {
-      if (!_gameOverModal) _showQuitConfirmation();
+      if (!_gameOverModal && !_isSettingsOpen) _showQuitConfirmation();
       return true;
     }
 
@@ -167,6 +173,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   }
 
   Future<void> _openSettings() async {
+    if (_isSettingsOpen) return;
+    _isSettingsOpen = true;
+
     final wasRunning =
         gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused;
     if (wasRunning) gameLogic.pauseGame();
@@ -188,6 +197,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         ),
       ),
     );
+
+    _isSettingsOpen = false;
 
     if (mounted &&
         gameLogic.isGameRunning &&
@@ -522,15 +533,17 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             ),
                           ),
                           const SizedBox(width: 4),
-                          IconButton(
-                            icon: Icon(
-                              Icons.settings,
-                              color: cs.onSurfaceVariant,
+                          ExcludeFocus(
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.settings,
+                                color: cs.onSurfaceVariant,
+                              ),
+                              iconSize: 22,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              onPressed: _openSettings,
                             ),
-                            iconSize: 22,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: _openSettings,
                           ),
                           const SizedBox(width: 4),
                         ],

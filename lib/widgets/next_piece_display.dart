@@ -133,7 +133,7 @@ class NextPieceDisplay extends StatelessWidget {
         );
 
       case AppStyle.neon:
-        if (displayColor == null) return Container(color: Colors.black);
+        if (displayColor == null) return const SizedBox.shrink();
         return Container(
           margin: const EdgeInsets.all(1.5),
           decoration: BoxDecoration(

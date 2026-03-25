@@ -237,9 +237,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
           );
         }
         if (displayColor == null) {
-          return Container(
-            color: Colors.black,
-          );
+          return Container(color: emptyCellColor);
         }
         return Container(
           margin: const EdgeInsets.all(1.0),
@@ -406,7 +404,9 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                                 ? [
                                     BoxShadow(
                                       color: _colorWithAlpha(
-                                          glowColor, glow * 0.6),
+                                        glowColor,
+                                        glow * 0.6,
+                                      ),
                                       blurRadius: 8.0 * glow,
                                       spreadRadius: 3.0 * glow,
                                     ),
@@ -457,7 +457,9 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                             ? [
                                 BoxShadow(
                                   color: _colorWithAlpha(
-                                      trailColor, finalOpacity * 0.2),
+                                    trailColor,
+                                    finalOpacity * 0.2,
+                                  ),
                                   blurRadius: 2.0 * finalOpacity,
                                   spreadRadius: 0.5 * finalOpacity,
                                 ),
