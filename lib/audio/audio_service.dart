@@ -155,7 +155,8 @@ class AudioService {
     try {
       final player = _sfxPlayers[name];
       if (player == null) return;
-      player.play(AssetSource('audio/sfx/$name.ogg'));
+      player.seek(Duration.zero);
+      player.resume();
     } catch (_) {}
   }
 
