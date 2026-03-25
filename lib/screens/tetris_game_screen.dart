@@ -123,6 +123,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         if (event is KeyDownEvent) gameLogic.dropPiece();
         return true;
       case LogicalKeyboardKey.keyC:
+      case LogicalKeyboardKey.mediaPlayPause:
         if (event is KeyDownEvent) gameLogic.holdPiece();
         return true;
     }
@@ -455,7 +456,18 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_gameOverModal || _isSettingsOpen) return;
+        if (gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused && gameLogic.canHold) {
+          gameLogic.holdPiece();
+        } else {
+          _openSettings();
+        }
+      },
+      child: Scaffold(
       body: SafeArea(
         child: _SwipeDetector(
           gameLogic: gameLogic,
@@ -729,6 +741,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           ),
         ),
       ),
+    ),
     );
   }
 }
