@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../settings/settings_provider.dart';
 
@@ -173,7 +174,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: 'High Score',
               colorScheme: colorScheme,
               child: Text(
-                widget.settings.highScore.toString(),
+                NumberFormat.decimalPattern('en_US')
+                    .format(widget.settings.highScore),
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   fontSize: 16,

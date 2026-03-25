@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
@@ -37,6 +38,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       18.0; // Distance threshold for movement (reduced for more sensitivity)
   static const double _fastSwipeVelocity =
       1000.0; // Velocity threshold for hard drop (increased significantly)
+
+  final formatter = NumberFormat.decimalPattern('en_US');
 
   @override
   void initState() {
@@ -161,7 +164,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Final Score: ${gameLogic.score}',
+                'Final Score: ${formatter.format(gameLogic.score)}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -374,7 +377,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                           children: [
                             const SizedBox(width: 8),
                             Text(
-                              'Score: ${gameLogic.score}',
+                              'Score: ${formatter.format(gameLogic.score)}',
                               style: TextStyle(
                                 color: cs.onSurface,
                                 fontSize: 18,
