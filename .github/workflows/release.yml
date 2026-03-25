@@ -387,9 +387,12 @@ jobs:
         with:
           tag_name: v${{ needs.version-bump.outputs.version }}
           name: Block Drop v${{ needs.version-bump.outputs.version }}
+          generate_release_notes: true
           body: |
+            ## Downloads
+
             - **Android APKs**: Multiple APKs are provided for different CPU architectures:
-              - `arm64-v8a`: Most common for modern Android phones and tablets (now supporting Android TV!)
+              - `arm64-v8a`: Most common for modern Android phones and tablets (supports Android TV!)
               - `armeabi-v7a`: For older devices with 32-bit ARM processors
               - `x86_64`: For emulators or some rare x86 Android devices
             - **Android AAB**: Optimized for Google Play — lets the Play Store deliver architecture-specific APKs automatically.
