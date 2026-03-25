@@ -1,5 +1,9 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    - flutter/**        # Flutter SDK git submodule — not part of this package
+
 linter:
   rules:
     curly_braces_in_flow_control_structures: false
