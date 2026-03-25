@@ -10,6 +10,7 @@ class AudioService {
   DateTime? _lastMovePlayed;
 
   bool _musicIntentionallyPaused = true;
+  bool _isIntentionallyStarting = false;
 
   AudioService({
     this.musicEnabled = true,
@@ -44,10 +45,11 @@ class AudioService {
 
     _musicPlayer.onPlayerStateChanged.listen((state) async {
       if (state == PlayerState.playing) {
+        _isIntentionallyStarting = false;
         return;
       }
 
-      if (_musicIntentionallyPaused || !musicEnabled) {
+      if (_musicIntentionallyPaused || !musicEnabled || _isIntentionallyStarting) {
         return;
       }
 
@@ -84,6 +86,7 @@ class AudioService {
   Future<void> startMusic() async {
     _musicIntentionallyPaused = false;
     if (!musicEnabled) return;
+    _isIntentionallyStarting = true;
     await _musicPlayer.play(AssetSource('audio/music/theme.ogg'));
   }
 

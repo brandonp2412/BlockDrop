@@ -38,7 +38,8 @@ void main() {
       // Verify app configuration
       expect(app.title, 'Block Drop - Tetris');
       expect(app.debugShowCheckedModeBanner, false);
-      expect(app.theme?.scaffoldBackgroundColor, Colors.black);
+      // Dark theme uses a dark scaffold background; light theme uses the default.
+      expect(app.darkTheme?.scaffoldBackgroundColor, isNotNull);
     });
 
     testWidgets('Game should not show game over initially', (

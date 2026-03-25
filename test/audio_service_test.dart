@@ -10,17 +10,21 @@ class MockAudioPlayer extends Mock implements AudioPlayer {}
 
 class FakeSource extends Fake implements Source {}
 
+class FakeAudioContext extends Fake implements AudioContext {}
+
 void main() {
   setUpAll(() {
     registerFallbackValue(FakeSource());
     registerFallbackValue(ReleaseMode.loop);
     registerFallbackValue(PlayerMode.mediaPlayer);
+    registerFallbackValue(FakeAudioContext());
   });
 
   /// Returns a stub SFX player that accepts the calls made in AudioService.init().
   MockAudioPlayer makeSfxPlayer() {
     final mock = MockAudioPlayer();
     when(() => mock.setPlayerMode(any())).thenAnswer((_) async {});
+    when(() => mock.setAudioContext(any())).thenAnswer((_) async {});
     when(() => mock.setVolume(any())).thenAnswer((_) async {});
     when(() => mock.setSource(any())).thenAnswer((_) async {});
     when(() => mock.play(any())).thenAnswer((_) async {});
@@ -38,6 +42,7 @@ void main() {
     when(() => mock.onPlayerStateChanged)
         .thenAnswer((_) => stateController.stream);
     when(() => mock.setReleaseMode(any())).thenAnswer((_) async {});
+    when(() => mock.setAudioContext(any())).thenAnswer((_) async {});
     when(() => mock.setVolume(any())).thenAnswer((_) async {});
     when(() => mock.state).thenReturn(PlayerState.playing);
     when(() => mock.play(any())).thenAnswer((_) async {

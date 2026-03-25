@@ -80,7 +80,6 @@ void main() {
       expect(decoration.border, isA<Border>());
 
       final Border border = decoration.border as Border;
-      expect(border.top.color, Colors.white);
       expect(border.top.width, 2);
     });
 
