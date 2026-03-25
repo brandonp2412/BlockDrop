@@ -119,6 +119,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         if (event is KeyDownEvent) gameLogic.rotatePieceRight();
         return true;
       case LogicalKeyboardKey.space:
+      case LogicalKeyboardKey.select:
         if (event is KeyDownEvent) gameLogic.dropPiece();
         return true;
       case LogicalKeyboardKey.keyC:
