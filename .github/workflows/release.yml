@@ -138,22 +138,16 @@ jobs:
           echo "storeFile=keystore.jks" >> android/key.properties
 
       - name: Build APK for x86_64
-        run: |
-          BUILD_NUMBER=$(( ${{ needs.version-bump.outputs.build_number }} * 10 + 1 ))
-          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --target-platform android-x64 --split-per-abi
+        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }} --target-platform android-x64 --split-per-abi
 
       - name: Build APK for armeabi-v7a
-        run: |
-          BUILD_NUMBER=$(( ${{ needs.version-bump.outputs.build_number }} * 10 + 2 ))
-          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --target-platform android-arm --split-per-abi
+        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }} --target-platform android-arm --split-per-abi
 
       - name: Build APK for arm64
-        run: |
-          BUILD_NUMBER=$(( ${{ needs.version-bump.outputs.build_number }} * 10 + 3 ))
-          flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --target-platform android-arm64 --split-per-abi
+        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }} --target-platform android-arm64 --split-per-abi
 
       - name: Build App Bundle
-        run: flutter build appbundle --release --build-name=${{ needs.version-bump.outputs.version }} 
+        run: flutter build appbundle --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
 
       - name: Upload APK artifact
         if: github.actor != 'nektos/act'
@@ -291,7 +285,7 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev
 
       - name: Setup Flutter from submodule
         run: |
