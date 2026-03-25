@@ -14,7 +14,7 @@ class GameConstants {
   static const Color ghostPieceColor = Color(0xFF87CEEB);
 
   // Ghost border colours per theme
-  static const Color ghostBorderDark = Color(0xFF87CEEB);  // 9.25:1 on dark
+  static const Color ghostBorderDark = Color(0xFF87CEEB); // 9.25:1 on dark
   static const Color ghostBorderLight = Color(0xFF4A7282); // 4.50:1 on light
 
   // Light-mode piece colour overrides — all pass WCAG AA 4.5:1 on #EEEEEE
