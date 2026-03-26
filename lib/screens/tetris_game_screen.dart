@@ -186,7 +186,6 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     final wasRunning =
         gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused;
     if (wasRunning) gameLogic.pauseGame();
-    _audioService.pauseMusic();
 
     await Navigator.push(
       context,
@@ -195,7 +194,6 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           settings: widget.settings,
           onRestart: () {
             gameLogic.startGame();
-            if (widget.settings.musicEnabled) _audioService.startMusic();
           },
           onQuit: () {
             if (defaultTargetPlatform == TargetPlatform.android)
@@ -214,9 +212,6 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         !gameLogic.isGameOver &&
         gameLogic.isPaused) {
       gameLogic.resumeGame();
-    }
-    if (mounted && widget.settings.musicEnabled) {
-      _audioService.resumeMusic();
     }
   }
 
@@ -348,6 +343,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
+        _audioService.pauseMusic();
       case AppLifecycleState.detached:
         // App is going to background or being minimized - pause the game
         if (gameLogic.isGameRunning &&
