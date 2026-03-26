@@ -745,8 +745,8 @@ class GameLogic extends ChangeNotifier {
     // If the current piece now overlaps the pushed-up stack, move it up
     if (currentPiece != null &&
         !canPlacePiece(currentX, currentY, currentPiece!)) {
-      while (currentY > 0 &&
-          !canPlacePiece(currentX, currentY, currentPiece!)) {
+      while (
+          currentY > 0 && !canPlacePiece(currentX, currentY, currentPiece!)) {
         currentY--;
       }
       if (!canPlacePiece(currentX, currentY, currentPiece!)) {

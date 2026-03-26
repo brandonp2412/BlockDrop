@@ -124,10 +124,10 @@ class _MultiplayerDiscoveryScreenState
     await vbs.writeAsString(
       'Set sh = CreateObject("Shell.Application")\r\n'
       'sh.ShellExecute "netsh", '
-          '"advfirewall firewall add rule '
-          'name=""Block Drop"" dir=in action=allow '
-          'program=""$exe"" profile=any", '
-          '"", "runas", 1\r\n',
+      '"advfirewall firewall add rule '
+      'name=""Block Drop"" dir=in action=allow '
+      'program=""$exe"" profile=any", '
+      '"", "runas", 1\r\n',
     );
     await Process.run('wscript', [vbs.path]);
     // Give the UAC-elevated process time to complete.
@@ -529,7 +529,8 @@ class _LobbyPlayerTile extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: isYou ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                color:
+                    isYou ? colorScheme.primary : colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),

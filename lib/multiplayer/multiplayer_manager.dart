@@ -57,8 +57,7 @@ class MultiplayerManager extends ChangeNotifier {
   String? get localIp => _localIp;
   String? get broadcastAddress => _broadcastAddress;
 
-  MultiplayerManager({required this.playerName})
-      : playerId = _generateId();
+  MultiplayerManager({required this.playerName}) : playerId = _generateId();
 
   static String _generateId() {
     final r = Random.secure();
@@ -77,9 +76,8 @@ class MultiplayerManager extends ChangeNotifier {
 
     try {
       _localIp = await _getLocalIp();
-      _broadcastAddress = _localIp != null
-          ? _directedBroadcast(_localIp!)
-          : '255.255.255.255';
+      _broadcastAddress =
+          _localIp != null ? _directedBroadcast(_localIp!) : '255.255.255.255';
       await _startUdp();
       await _startTcpServer();
       _startAnnouncing();
@@ -187,8 +185,7 @@ class MultiplayerManager extends ChangeNotifier {
     // Android (EPERM); harmless since we already have the directed address.
     if (_broadcastAddress != '255.255.255.255') {
       try {
-        _udpSocket!.send(
-            data, InternetAddress('255.255.255.255'), _udpPort);
+        _udpSocket!.send(data, InternetAddress('255.255.255.255'), _udpPort);
       } catch (_) {}
     }
   }
@@ -238,8 +235,7 @@ class MultiplayerManager extends ChangeNotifier {
   }
 
   void _startPeerExpiryTimer() {
-    _peerExpiryTimer =
-        Timer.periodic(const Duration(seconds: 3), (_) {
+    _peerExpiryTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       final before = peers.length;
       final cutoff = DateTime.now().subtract(const Duration(seconds: 6));
       peers.removeWhere((p) => p.lastSeen.isBefore(cutoff));

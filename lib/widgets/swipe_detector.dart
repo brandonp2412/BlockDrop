@@ -118,8 +118,7 @@ class _SwipeDetectorState extends State<SwipeDetector> {
             details.velocity.pixelsPerSecond.dx.abs() >
                 details.velocity.pixelsPerSecond.dy.abs() * 2 &&
             !widget.gameLogic.isSlamming) {
-          final direction =
-              details.velocity.pixelsPerSecond.dx > 0 ? 1 : -1;
+          final direction = details.velocity.pixelsPerSecond.dx > 0 ? 1 : -1;
           final extraMoves =
               (details.velocity.pixelsPerSecond.dx.abs() / 1200.0)
                   .clamp(0.0, 2.0)
