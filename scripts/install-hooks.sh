@@ -16,7 +16,7 @@ HOOK_SRC="$ROOT/scripts/pre-push"
 # Ensure the shim is executable
 chmod +x "$HOOK_SRC"
 # Also make the bash implementation executable
-chmod +x "$ROOT/scripts/pre-push.sh"
+chmod +x "$ROOT/scripts/screenshots.sh"
 
 # Remove any existing hook
 rm -f "$HOOK_DST"

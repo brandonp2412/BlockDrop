@@ -243,17 +243,18 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext ctx) {
+        final cs = Theme.of(ctx).colorScheme;
         return AlertDialog(
-          backgroundColor: Colors.black87,
+          backgroundColor: cs.surfaceContainerHighest,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
-            side: const BorderSide(color: Colors.red, width: 2),
+            side: BorderSide(color: cs.error, width: 2),
           ),
-          title: const Text(
+          title: Text(
             'Game Over!',
             style: TextStyle(
-              color: Colors.red,
+              color: cs.error,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -264,55 +265,32 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             children: [
               Text(
                 'Final Score: ${formatter.format(gameLogic.score)}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
+                style: TextStyle(color: cs.onSurface, fontSize: 18),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 'Level: ${gameLogic.level}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 'Lines Cleared: ${gameLogic.linesCleared}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
             ],
           ),
           actions: [
             Center(
-              child: TextButton(
+              child: FilledButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(ctx).pop();
                   gameLogic.startGame();
                   if (widget.settings.musicEnabled) _audioService.startMusic();
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Play Again',
-                  style: TextStyle(fontSize: 16),
-                ),
+                child: const Text('Play Again'),
               ),
             ),
           ],
@@ -616,10 +594,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                             style: TextStyle(
                                               color: _popupLabel
                                                       .startsWith('T-SPIN')
-                                                  ? Colors.purple[200]
+                                                  ? cs.tertiary
                                                   : (_popupLabel == 'TETRIS!'
-                                                      ? Colors.amber
-                                                      : Colors.white),
+                                                      ? cs.secondary
+                                                      : cs.onSurface),
                                               fontSize: _popupLabel == 'TETRIS!'
                                                   ? 26
                                                   : 20,
@@ -634,11 +612,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                           Text(
                                             '+$_popupDelta',
                                             textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                                            style: TextStyle(
+                                              color: cs.onSurface,
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
-                                              shadows: [
+                                              shadows: const [
                                                 Shadow(
                                                     blurRadius: 6,
                                                     color: Colors.black),

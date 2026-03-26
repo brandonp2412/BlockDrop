@@ -18,10 +18,10 @@ case "$OSTYPE" in
   msys* | cygwin* | win32*)
     # Git for Windows / MSYS2: call PowerShell with the .ps1 script
     powershell.exe -ExecutionPolicy Bypass \
-      -File "$SCRIPT_DIR/pre-push.ps1" "$@"
+      -File "$SCRIPT_DIR/screenshots.ps1" "$@"
     ;;
   *)
     # Linux / macOS
-    bash "$SCRIPT_DIR/pre-push.sh" "$@"
+    bash "$SCRIPT_DIR/screenshots.sh" "$@"
     ;;
 esac

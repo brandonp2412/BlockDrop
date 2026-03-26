@@ -420,13 +420,13 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.red.withAlpha(200),
+                        color: cs.errorContainer,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         '⚠ +$_incomingGarbage garbage',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: cs.onErrorContainer,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -586,6 +586,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             child: _buildOverlayPieceBox(
               label: 'HOLD',
               size: overlayBoxSize,
+              cs: cs,
               onTap: () {
                 if (_gameActive &&
                     _gameLogic.isGameRunning &&
@@ -608,6 +609,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             child: _buildOverlayPieceBox(
               label: 'NEXT',
               size: overlayBoxSize,
+              cs: cs,
               child: _gameLogic.nextPiece != null
                   ? NextPieceDisplay(
                       piece: _gameLogic.nextPiece!,
@@ -631,7 +633,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.black54,
+                      color: cs.surfaceContainerHighest.withAlpha(200),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -652,7 +654,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                         width: 1,
                       ),
                       borderRadius: BorderRadius.circular(3),
-                      color: Colors.black26,
+                      color: cs.surface.withAlpha(66),
                     ),
                     child: OpponentBoard(
                       cells: widget.manager.opponentBoard,
@@ -673,7 +675,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
-                color: Colors.black54,
+                color: cs.surfaceContainerHighest.withAlpha(200),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Column(
@@ -682,17 +684,17 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                 children: [
                   Text(
                     _fmt.format(_gameLogic.score),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: cs.onSurface,
                     ),
                   ),
                   Text(
                     'Lv ${_gameLogic.level}  ·  ${_gameLogic.linesCleared} lines',
                     style: TextStyle(
                       fontSize: 10,
-                      color: Colors.white.withAlpha(180),
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -713,13 +715,13 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.red.withAlpha(200),
+                    color: cs.errorContainer,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     '⚠ +$_incomingGarbage garbage',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: cs.onErrorContainer,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
@@ -738,6 +740,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     required String label,
     required double size,
     required Widget child,
+    required ColorScheme cs,
     VoidCallback? onTap,
   }) {
     return GestureDetector(
@@ -747,11 +750,11 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.0,
-              color: Colors.white70,
+              color: cs.onSurface.withAlpha(178),
             ),
           ),
           const SizedBox(height: 2),
@@ -759,8 +762,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: Colors.black54,
-              border: Border.all(color: Colors.white24, width: 1),
+              color: cs.surfaceContainerHighest.withAlpha(180),
+              border: Border.all(color: cs.outline.withAlpha(60), width: 1),
               borderRadius: BorderRadius.circular(4),
             ),
             child: child,
@@ -773,8 +776,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
   // ── Countdown overlay ─────────────────────────────────────────────────────
 
   Widget _buildCountdownOverlay() {
+    final cs = Theme.of(context).colorScheme;
     return Container(
-      color: Colors.black54,
+      color: cs.scrim.withAlpha(140),
       alignment: Alignment.center,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -783,8 +787,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             widget.manager.opponentName != null
                 ? 'vs ${widget.manager.opponentName}'
                 : 'Get Ready',
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: cs.onSurface.withAlpha(178),
               fontSize: 18,
             ),
           ),
@@ -792,7 +796,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           Text(
             _countdown > 0 ? '$_countdown' : 'GO!',
             style: TextStyle(
-              color: _countdown > 0 ? Colors.white : Colors.green[300],
+              color: _countdown > 0 ? cs.onSurface : cs.primary,
               fontSize: 72,
               fontWeight: FontWeight.bold,
               shadows: const [Shadow(blurRadius: 12, color: Colors.black)],
@@ -808,7 +812,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
   Widget _buildResultOverlay() {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      color: Colors.black87,
+      color: cs.surface.withAlpha(222),
       alignment: Alignment.center,
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -818,7 +822,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             Text(
               _iWon ? '🎉 You Win!' : 'Game Over',
               style: TextStyle(
-                color: _iWon ? Colors.amber : Colors.red,
+                color: _iWon ? cs.primary : cs.error,
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
               ),
@@ -989,13 +993,14 @@ class _ResultRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
           child: Text(
             label,
             style: TextStyle(
-              color: Colors.white70,
+              color: cs.onSurface.withAlpha(178),
               fontSize: 14,
               fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
             ),
@@ -1004,7 +1009,7 @@ class _ResultRow extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: highlight ? Colors.amber : Colors.white54,
+            color: highlight ? cs.primary : cs.onSurfaceVariant,
             fontSize: 16,
             fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
           ),
