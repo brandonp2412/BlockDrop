@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -195,8 +197,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             if (widget.settings.musicEnabled) _audioService.startMusic();
           },
           onQuit: () {
-            gameLogic.startGame();
-            if (widget.settings.musicEnabled) _audioService.startMusic();
+            exit(0);
           },
         ),
       ),
