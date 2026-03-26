@@ -7,8 +7,10 @@ import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 import '../settings/settings_provider.dart';
 import '../widgets/game_board.dart';
+import '../widgets/game_decorations.dart';
 import '../widgets/hold_piece_display.dart';
 import '../widgets/next_piece_display.dart';
+import '../widgets/swipe_detector.dart';
 import 'settings_screen.dart';
 
 class TetrisGameScreen extends StatefulWidget {
@@ -213,91 +215,6 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     }
   }
 
-  BoxDecoration _pieceBoxDecoration(AppStyle style, ColorScheme cs) {
-    switch (style) {
-      case AppStyle.classic:
-        return BoxDecoration(border: Border.all(color: cs.outline));
-      case AppStyle.modern:
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: cs.outline, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: cs.shadow.withValues(alpha: 0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        );
-      case AppStyle.bubbles:
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: cs.primary.withValues(alpha: 0.4),
-            width: 2,
-          ),
-        );
-      case AppStyle.neon:
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: cs.outlineVariant.withValues(alpha: 0.6),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: cs.outlineVariant.withValues(alpha: 0.2),
-              blurRadius: 6,
-              spreadRadius: 0,
-            ),
-          ],
-        );
-      case AppStyle.retro:
-        return BoxDecoration(border: Border.all(color: cs.outline, width: 2));
-    }
-  }
-
-  BoxDecoration _boardDecoration(AppStyle style, ColorScheme cs) {
-    switch (style) {
-      case AppStyle.classic:
-        return BoxDecoration(border: Border.all(color: cs.outline, width: 2));
-      case AppStyle.modern:
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: cs.outline, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: cs.shadow.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        );
-      case AppStyle.bubbles:
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: cs.primary.withValues(alpha: 0.4),
-            width: 2,
-          ),
-        );
-      case AppStyle.neon:
-        return BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: cs.primary, width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: cs.primary.withValues(alpha: 0.6),
-              blurRadius: 12,
-              spreadRadius: 1,
-            ),
-          ],
-        );
-      case AppStyle.retro:
-        return BoxDecoration(border: Border.all(color: cs.outline, width: 2));
-    }
-  }
-
   void _onGameStateChanged() {
     // Consume score popup event before setState
     if (gameLogic.clearBonusLabel.isNotEmpty) {
@@ -475,7 +392,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       },
       child: Scaffold(
         body: SafeArea(
-          child: _SwipeDetector(
+          child: SwipeDetector(
             gameLogic: gameLogic,
             moveThreshold: _moveThreshold,
             fastSwipeVelocity: _fastSwipeVelocity,
@@ -590,7 +507,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                   Container(
                                     width: 80,
                                     height: 80,
-                                    decoration: _pieceBoxDecoration(
+                                    decoration: pieceBoxDecoration(
                                       widget.settings.style,
                                       cs,
                                     ),
@@ -623,7 +540,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                 Container(
                                   width: 80,
                                   height: 80,
-                                  decoration: _pieceBoxDecoration(
+                                  decoration: pieceBoxDecoration(
                                     widget.settings.style,
                                     cs,
                                   ),
@@ -651,7 +568,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             Container(
                               width: gameboardWidth,
                               height: gameboardHeight,
-                              decoration: _boardDecoration(
+                              decoration: boardDecoration(
                                 widget.settings.style,
                                 cs,
                               ),
@@ -748,163 +665,6 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SwipeDetector extends StatefulWidget {
-  final GameLogic gameLogic;
-  final double moveThreshold;
-  final double fastSwipeVelocity;
-  final Widget child;
-
-  const _SwipeDetector({
-    required this.gameLogic,
-    required this.moveThreshold,
-    required this.fastSwipeVelocity,
-    required this.child,
-  });
-
-  @override
-  State<_SwipeDetector> createState() => _SwipeDetectorState();
-}
-
-class _SwipeDetectorState extends State<_SwipeDetector> {
-  double _totalDx = 0.0;
-  double _totalDy = 0.0;
-  DateTime _lastMoveTime = DateTime.now();
-  bool _directionLocked = false;
-  bool _lockedHorizontal = false;
-  static const Duration _moveDelay = Duration(
-    milliseconds: 150,
-  ); // Increased delay
-  // Minimum movement to lock gesture direction
-  static const double _lockThreshold = 10.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onPanStart: (details) {
-        // Reset tracking variables at start of gesture
-        _totalDx = 0.0;
-        _totalDy = 0.0;
-        _directionLocked = false;
-        _lockedHorizontal = false;
-        _lastMoveTime = DateTime.now();
-      },
-      onPanUpdate: (details) {
-        if (!widget.gameLogic.isGameRunning ||
-            widget.gameLogic.isGameOver ||
-            widget.gameLogic.isPaused) {
-          return;
-        }
-
-        // Accumulate total movement
-        _totalDx += details.delta.dx;
-        _totalDy += details.delta.dy;
-
-        final now = DateTime.now();
-        final timeSinceLastMove = now.difference(_lastMoveTime);
-
-        // Lock gesture direction once we have enough movement, preventing
-        // accidental horizontal drift during a downward drag
-        if (!_directionLocked &&
-            (_totalDx.abs() >= _lockThreshold ||
-                _totalDy.abs() >= _lockThreshold)) {
-          _lockedHorizontal = _totalDx.abs() > _totalDy.abs();
-          _directionLocked = true;
-        }
-
-        if (!_directionLocked) return;
-
-        if (_lockedHorizontal) {
-          // Horizontal movement - prevent accidental moves during slam
-          if (_totalDx.abs() >= widget.moveThreshold &&
-              !widget.gameLogic.isSlamming) {
-            if (_totalDx > 0) {
-              widget.gameLogic.movePieceRight();
-            } else {
-              widget.gameLogic.movePieceLeft();
-            }
-            _totalDx = 0.0;
-            _lastMoveTime = now;
-          }
-          // Continuous horizontal movement
-          else if (_totalDx.abs() >= widget.moveThreshold * 0.6 &&
-              timeSinceLastMove >= _moveDelay &&
-              details.delta.dx.abs() > 2.5 &&
-              !widget.gameLogic.isSlamming) {
-            if (_totalDx > 0) {
-              widget.gameLogic.movePieceRight();
-            } else {
-              widget.gameLogic.movePieceLeft();
-            }
-            _totalDx = 0.0;
-            _lastMoveTime = now;
-          }
-        } else {
-          // Vertical movement - only downward, prevent during grace period
-          if (_totalDy >= widget.moveThreshold &&
-              !widget.gameLogic.isNewPieceGracePeriod) {
-            widget.gameLogic.movePieceDown();
-            _totalDy = 0.0;
-            _lastMoveTime = now;
-          }
-          // Continuous downward movement
-          else if (_totalDy >= widget.moveThreshold * 0.7 &&
-              timeSinceLastMove >= _moveDelay &&
-              details.delta.dy > 3.0 &&
-              !widget.gameLogic.isNewPieceGracePeriod) {
-            widget.gameLogic.movePieceDown();
-            _totalDy = 0.0;
-            _lastMoveTime = now;
-          }
-        }
-      },
-      onPanEnd: (details) {
-        if (!widget.gameLogic.isGameRunning ||
-            widget.gameLogic.isGameOver ||
-            widget.gameLogic.isPaused) {
-          return;
-        }
-
-        // Handle fast downward swipe for instant drop - much higher threshold
-        // Also prevent hard drop during grace period
-        if (details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity &&
-            details.velocity.pixelsPerSecond.dy >
-                details.velocity.pixelsPerSecond.dx.abs() * 2 &&
-            !widget.gameLogic.isNewPieceGracePeriod) {
-          widget.gameLogic.dropPiece();
-        }
-        // Handle fast horizontal swipes - higher threshold and more restrictive
-        // Also prevent horizontal movement during slam
-        else if (details.velocity.pixelsPerSecond.dx.abs() > 600.0 &&
-            details.velocity.pixelsPerSecond.dx.abs() >
-                details.velocity.pixelsPerSecond.dy.abs() * 2 &&
-            !widget.gameLogic.isSlamming) {
-          final direction = details.velocity.pixelsPerSecond.dx > 0 ? 1 : -1;
-          // Reduced extra moves to prevent over-movement
-          final extraMoves =
-              (details.velocity.pixelsPerSecond.dx.abs() / 1200.0)
-                  .clamp(0.0, 2.0)
-                  .round();
-          for (int i = 0; i < extraMoves; i++) {
-            if (direction > 0) {
-              widget.gameLogic.movePieceRight();
-            } else {
-              widget.gameLogic.movePieceLeft();
-            }
-          }
-        }
-
-        // Reset tracking variables
-        _totalDx = 0.0;
-        _totalDy = 0.0;
-        _directionLocked = false;
-        _lockedHorizontal = false;
-      },
-      child: widget.child,
     );
   }
 }

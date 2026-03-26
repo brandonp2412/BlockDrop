@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../settings/settings_provider.dart';
+import 'multiplayer_discovery_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final SettingsProvider settings;
@@ -195,6 +196,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Text('Retro'),
                   ),
                 ],
+              ),
+            ),
+            _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withAlpha(80),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: colorScheme.outline.withAlpha(40)),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MultiplayerDiscoveryScreen(
+                      settings: widget.settings,
+                    ),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.wifi, color: colorScheme.primary, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Play on LAN',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: colorScheme.onSurfaceVariant,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
             _SectionHeader(label: 'Stats', colorScheme: colorScheme),

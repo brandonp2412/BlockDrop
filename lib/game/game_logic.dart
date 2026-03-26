@@ -9,6 +9,10 @@ import '../models/tetromino.dart';
 
 class GameLogic extends ChangeNotifier {
   AudioService? audioService;
+
+  /// Called after lines are cleared (multiplayer: send garbage to opponent).
+  /// Set by the multiplayer game screen; null in solo play (zero overhead).
+  void Function(int linesCleared, bool wasTSpin)? onLinesCleared;
   late List<List<Color?>> board;
   Timer? gameTimer;
 
@@ -332,6 +336,9 @@ class GameLogic extends ChangeNotifier {
     // Restart game timer with new speed
     startGameTimer();
     notifyListeners();
+
+    // Multiplayer hook – only non-null when in a multiplayer game
+    onLinesCleared?.call(clearedLinesCount, wasTSpin);
   }
 
   /// Returns true if the current placement qualifies as a T-spin.
@@ -713,6 +720,94 @@ class GameLogic extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  // ── Multiplayer helpers ───────────────────────────────────────────────────
+
+  /// Push [lines] garbage rows onto the bottom of the board.
+  /// Each garbage row is solid except for one random gap column.
+  /// This is only called when in a multiplayer game.
+  void receiveGarbage(int lines) {
+    if (isGameOver || lines <= 0) return;
+
+    final gapColumn = Random().nextInt(GameConstants.boardWidth);
+    const garbageColor = Color(0xFF607080); // grey-blue, distinct from pieces
+
+    for (int i = 0; i < lines; i++) {
+      // Remove the topmost row (shifts the visible stack up by one)
+      board.removeAt(0);
+      // Append a new garbage row at the bottom
+      final row = List<Color?>.filled(GameConstants.boardWidth, garbageColor);
+      row[gapColumn] = null; // the clearable gap
+      board.add(row);
+    }
+
+    // If the current piece now overlaps the pushed-up stack, move it up
+    if (currentPiece != null &&
+        !canPlacePiece(currentX, currentY, currentPiece!)) {
+      while (currentY > 0 &&
+          !canPlacePiece(currentX, currentY, currentPiece!)) {
+        currentY--;
+      }
+      if (!canPlacePiece(currentX, currentY, currentPiece!)) {
+        isGameOver = true;
+        isGameRunning = false;
+        gameTimer?.cancel();
+        audioService?.playGameOver();
+        notifyListeners();
+        return;
+      }
+    }
+
+    notifyListeners();
+  }
+
+  /// Returns the 200 visible cells (20 rows × 10 cols) as palette indices.
+  /// 0 = empty, 1–7 = piece colours, 8 = garbage.
+  /// Used to send a compact board snapshot to the opponent.
+  List<int> exportBoardSnapshot() {
+    final displayBoard = getBoardWithCurrentPiece();
+    final cells = <int>[];
+    for (int row = GameConstants.previewRows;
+        row < GameConstants.boardHeight + GameConstants.previewRows;
+        row++) {
+      for (int col = 0; col < GameConstants.boardWidth; col++) {
+        cells.add(_colorToIndex(displayBoard[row][col]));
+      }
+    }
+    return cells;
+  }
+
+  static int _colorToIndex(Color? c) {
+    if (c == null || c == GameConstants.ghostPieceColor) return 0;
+    // Map all known piece colours (original + theme-adapted variants) to
+    // a stable palette index used by OpponentBoard.
+    switch (c.toARGB32()) {
+      case 0xFF00BCD4: // I cyan
+      case 0xFF007787:
+        return 1;
+      case 0xFFFFEB3B: // O yellow
+      case 0xFF776D1B:
+        return 2;
+      case 0xFF9C27B0: // T purple
+      case 0xFFBA68C8:
+        return 3;
+      case 0xFF4CAF50: // S green
+      case 0xFF357A38:
+        return 4;
+      case 0xFFF44336: // Z red
+        return 5;
+      case 0xFF2196F3: // J blue
+      case 0xFF196FB5:
+        return 6;
+      case 0xFFFF9800: // L orange
+      case 0xFF9D5D00:
+        return 7;
+      case 0xFF607080: // garbage
+        return 8;
+      default:
+        return 1; // unknown filled cell → show as filled
+    }
   }
 
   @override
