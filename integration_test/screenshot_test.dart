@@ -11,15 +11,11 @@
 // The driver on the host machine receives the PNG bytes and writes them into
 // the fastlane directory structure.
 
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
-
 import 'package:block_drop/main.dart' as app;
 import 'package:block_drop/screens/tetris_game_screen.dart';
 import 'package:block_drop/settings/settings_provider.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 
 // Themes to capture — skip 'system' because its appearance is platform-dependent.
 const _themes = [
@@ -55,11 +51,12 @@ void main() {
 
       // Collect screenshots as base64 strings keyed by "<index>:<name>".
       // The driver on the host decodes these and writes them to disk.
-      final screenshotData = <String, String>{};
       int index = 1;
 
       for (final theme in _themes) {
         for (final style in _styles) {
+          if (style == AppStyle.neon && theme == AppThemeMode.light) continue;
+
           // Apply theme + style and let Flutter rebuild.
           await settings.setThemeMode(theme);
           await settings.setStyle(style);
@@ -69,21 +66,11 @@ void main() {
           await tester.pump(const Duration(milliseconds: 600));
 
           final name = '${theme.name}_${style.name}';
-
-          // Capture the current screen (works on Android/iOS).
-          final bytes = Uint8List.fromList(await binding.takeScreenshot(name));
-
-          // Encode as base64 so it survives JSON transport to the host driver.
-          screenshotData['$index:$name'] = base64Encode(bytes);
-
-          // ignore: avoid_print
-          print('  [$index/15] Captured $name');
+          await binding.takeScreenshot(name);
+          print('[$index/14] Captured $name');
           index++;
         }
       }
-
-      // Report all screenshot data back to the host via the drive protocol.
-      binding.reportData = {'screenshots': screenshotData};
     },
     timeout: const Timeout(Duration(minutes: 10)),
   );

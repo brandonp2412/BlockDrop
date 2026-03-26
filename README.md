@@ -21,15 +21,12 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 
 # Screenshots
 
-Screenshots are auto-generated on every push via `integration_test/screenshot_test.dart` across all themes and styles.
-
 ### Light theme
 
 <p float="left">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_classic.png" width="18%" alt="Light Classic" title="Classic" />
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_modern.png"  width="18%" alt="Light Modern"  title="Modern"  />
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_bubbles.png" width="18%" alt="Light Bubbles" title="Bubbles" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_neon.png"    width="18%" alt="Light Neon"    title="Neon"    />
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_retro.png"   width="18%" alt="Light Retro"   title="Retro"   />
 </p>
 
