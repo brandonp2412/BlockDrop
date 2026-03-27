@@ -211,9 +211,11 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         if (event is KeyDownEvent) _gameLogic.rotatePieceRight();
         return true;
       case LogicalKeyboardKey.space:
+      case LogicalKeyboardKey.select:
         if (event is KeyDownEvent) _gameLogic.dropPiece();
         return true;
       case LogicalKeyboardKey.keyC:
+      case LogicalKeyboardKey.mediaPlayPause:
         if (event is KeyDownEvent) _gameLogic.holdPiece();
         return true;
     }
