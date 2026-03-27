@@ -41,7 +41,7 @@ class AudioService {
 
   Future<void> init() async {
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
-    await _musicPlayer.setVolume(0.5);
+    await _musicPlayer.setVolume(0.25);
     if (Platform.isAndroid) {
       await _musicPlayer.setAudioContext(AudioContext(
           android: AudioContextAndroid(
