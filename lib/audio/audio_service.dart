@@ -86,7 +86,7 @@ class AudioService {
           ),
         );
       }
-      await player.setVolume(_sfxVolumes[name] ?? 0.8);
+      await player.setVolume(_sfxVolumes[name] ?? 0.5);
       await player.setSource(AssetSource('audio/sfx/$name.$_audioExt'));
       _sfxPlayers[name] = player;
     }
