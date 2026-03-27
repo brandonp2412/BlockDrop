@@ -422,13 +422,13 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.red.withAlpha(200),
-                        borderRadius: BorderRadius.circular(6),
+                        color: cs.error.withAlpha(200),
+                        borderRadius: panelBorderRadius(widget.settings.style),
                       ),
                       child: Text(
                         '⚠ +$_incomingGarbage garbage',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: cs.onError,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -458,9 +458,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: cs.outline.withAlpha(120),
-                        width: 1,
+                        width: widget.settings.style == AppStyle.retro ? 2 : 1,
                       ),
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: panelBorderRadius(widget.settings.style),
                     ),
                     child: OpponentBoard(
                       cells: widget.manager.opponentBoard,
@@ -633,8 +633,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(4),
+                      color: cs.surfaceContainerHighest.withAlpha(200),
+                      borderRadius: panelBorderRadius(widget.settings.style),
                     ),
                     child: Text(
                       (widget.manager.opponentName ?? 'OPP').toUpperCase(),
@@ -651,10 +651,10 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: cs.outline.withAlpha(100),
-                        width: 1,
+                        width: widget.settings.style == AppStyle.retro ? 2 : 1,
                       ),
-                      borderRadius: BorderRadius.circular(3),
-                      color: Colors.black26,
+                      borderRadius: panelBorderRadius(widget.settings.style),
+                      color: cs.surface.withAlpha(66),
                     ),
                     child: OpponentBoard(
                       cells: widget.manager.opponentBoard,
@@ -675,8 +675,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(4),
+                color: cs.surfaceContainerHighest.withAlpha(200),
+                borderRadius: panelBorderRadius(widget.settings.style),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,17 +684,17 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                 children: [
                   Text(
                     _fmt.format(_gameLogic.score),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: cs.onSurface,
                     ),
                   ),
                   Text(
                     'Lv ${_gameLogic.level}  ·  ${_gameLogic.linesCleared} lines',
                     style: TextStyle(
                       fontSize: 10,
-                      color: Colors.white.withAlpha(180),
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -715,13 +715,13 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.red.withAlpha(200),
-                    borderRadius: BorderRadius.circular(6),
+                    color: cs.error.withAlpha(200),
+                    borderRadius: panelBorderRadius(widget.settings.style),
                   ),
                   child: Text(
                     '⚠ +$_incomingGarbage garbage',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: cs.onError,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
@@ -742,6 +742,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     required Widget child,
     VoidCallback? onTap,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final style = widget.settings.style;
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -749,11 +751,11 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.0,
-              color: Colors.white70,
+              color: cs.onSurface.withAlpha(178),
             ),
           ),
           const SizedBox(height: 2),
@@ -761,9 +763,12 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: Colors.black54,
-              border: Border.all(color: Colors.white24, width: 1),
-              borderRadius: BorderRadius.circular(4),
+              color: cs.surfaceContainerHighest.withAlpha(200),
+              border: Border.all(
+                color: cs.outline.withAlpha(80),
+                width: style == AppStyle.retro ? 2 : 1,
+              ),
+              borderRadius: panelBorderRadius(style),
             ),
             child: child,
           ),
@@ -775,8 +780,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
   // ── Countdown overlay ─────────────────────────────────────────────────────
 
   Widget _buildCountdownOverlay() {
+    final cs = Theme.of(context).colorScheme;
     return Container(
-      color: Colors.black54,
+      color: cs.surface.withAlpha(180),
       alignment: Alignment.center,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -785,8 +791,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             widget.manager.opponentName != null
                 ? 'vs ${widget.manager.opponentName}'
                 : 'Get Ready',
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: cs.onSurface.withAlpha(178),
               fontSize: 18,
             ),
           ),
@@ -794,7 +800,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           Text(
             _countdown > 0 ? '$_countdown' : 'GO!',
             style: TextStyle(
-              color: _countdown > 0 ? Colors.white : Colors.green[300],
+              color: _countdown > 0 ? cs.onSurface : cs.primary,
               fontSize: 72,
               fontWeight: FontWeight.bold,
               shadows: const [Shadow(blurRadius: 12, color: Colors.black)],
@@ -809,8 +815,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
 
   Widget _buildResultOverlay() {
     final cs = Theme.of(context).colorScheme;
+    final style = widget.settings.style;
     return Container(
-      color: Colors.black87,
+      color: cs.surface.withAlpha(220),
       alignment: Alignment.center,
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -820,7 +827,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             Text(
               _iWon ? '🎉 You Win!' : 'Game Over',
               style: TextStyle(
-                color: _iWon ? Colors.amber : Colors.red,
+                color: _iWon ? cs.tertiary : cs.error,
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
               ),
@@ -845,6 +852,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(false),
+                    style: OutlinedButton.styleFrom(
+                      shape: buttonBorderShape(style),
+                    ),
                     child: const Text('Play Again'),
                   ),
                 ),
@@ -852,6 +862,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                 Expanded(
                   child: FilledButton(
                     onPressed: () => Navigator.of(context).pop(true),
+                    style: FilledButton.styleFrom(
+                      shape: buttonBorderShape(style),
+                    ),
                     child: const Text('Leave'),
                   ),
                 ),
@@ -866,9 +879,11 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
   // ── Leave confirmation ────────────────────────────────────────────────────
 
   Future<void> _confirmLeave() async {
+    final cs = Theme.of(context).colorScheme;
     final shouldLeave = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: styledDialogShape(widget.settings.style, cs),
         title: const Text('Leave Game?'),
         content: const Text('Your opponent will be disconnected.'),
         actions: [
@@ -997,7 +1012,7 @@ class _ResultRow extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: Colors.white70,
+              color: colorScheme.onSurface,
               fontSize: 14,
               fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
             ),
@@ -1006,7 +1021,8 @@ class _ResultRow extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: highlight ? Colors.amber : Colors.white54,
+            color:
+                highlight ? colorScheme.tertiary : colorScheme.onSurfaceVariant,
             fontSize: 16,
             fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
           ),

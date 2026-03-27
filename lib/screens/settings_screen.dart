@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../settings/settings_provider.dart';
+import '../widgets/game_decorations.dart';
 import 'multiplayer_discovery_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -61,6 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: 'Resume',
                         icon: Icons.play_arrow,
                         colorScheme: colorScheme,
+                        style: widget.settings.style,
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ),
@@ -70,6 +72,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: 'Restart',
                         icon: Icons.refresh,
                         colorScheme: colorScheme,
+                        style: widget.settings.style,
                         onPressed: () {
                           Navigator.of(context).pop();
                           widget.onRestart?.call();
@@ -83,6 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           label: 'Quit',
                           icon: Icons.stop,
                           colorScheme: colorScheme,
+                          style: widget.settings.style,
                           isDestructive: true,
                           onPressed: () {
                             Navigator.of(context).pop();
@@ -99,6 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SettingTile(
               label: 'Music',
               colorScheme: colorScheme,
+              style: widget.settings.style,
               child: Switch(
                 value: widget.settings.musicEnabled,
                 onChanged: (value) => widget.settings.setMusicEnabled(value),
@@ -107,6 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SettingTile(
               label: 'Sound Effects',
               colorScheme: colorScheme,
+              style: widget.settings.style,
               child: Switch(
                 value: widget.settings.sfxEnabled,
                 onChanged: (value) => widget.settings.setSfxEnabled(value),
@@ -116,6 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SettingTile(
               label: 'Theme',
               colorScheme: colorScheme,
+              style: widget.settings.style,
               child: DropdownButton<AppThemeMode>(
                 value: widget.settings.themeMode,
                 isExpanded: true,
@@ -165,6 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SettingTile(
               label: 'Style',
               colorScheme: colorScheme,
+              style: widget.settings.style,
               child: DropdownButton<AppStyle>(
                 value: widget.settings.style,
                 isExpanded: true,
@@ -201,13 +209,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withAlpha(80),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.outline.withAlpha(40)),
-              ),
+              decoration: panelDecoration(widget.settings.style, colorScheme),
               child: InkWell(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: panelBorderRadius(widget.settings.style),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -248,6 +252,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SettingTile(
               label: 'High Score',
               colorScheme: colorScheme,
+              style: widget.settings.style,
               child: Text(
                 NumberFormat.decimalPattern('en_US')
                     .format(widget.settings.highScore),
@@ -260,7 +265,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
-            _InstructionsCard(colorScheme: colorScheme),
+            _InstructionsCard(colorScheme: colorScheme, style: widget.settings.style),
             const SizedBox(height: 8),
           ],
         ),
@@ -296,11 +301,13 @@ class _SettingTile extends StatelessWidget {
   final String label;
   final Widget child;
   final ColorScheme colorScheme;
+  final AppStyle style;
 
   const _SettingTile({
     required this.label,
     required this.child,
     required this.colorScheme,
+    required this.style,
   });
 
   @override
@@ -308,11 +315,7 @@ class _SettingTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withAlpha(80),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withAlpha(40)),
-      ),
+      decoration: panelDecoration(style, colorScheme),
       child: Row(
         children: [
           Expanded(
@@ -340,6 +343,7 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final ColorScheme colorScheme;
+  final AppStyle style;
   final VoidCallback onPressed;
   final bool isDestructive;
 
@@ -347,6 +351,7 @@ class _ActionButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.colorScheme,
+    required this.style,
     required this.onPressed,
     this.isDestructive = false,
   });
@@ -361,7 +366,7 @@ class _ActionButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 10),
         side: BorderSide(color: color.withAlpha(80)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: buttonBorderShape(style),
       ),
     );
   }
@@ -369,19 +374,16 @@ class _ActionButton extends StatelessWidget {
 
 class _InstructionsCard extends StatelessWidget {
   final ColorScheme colorScheme;
+  final AppStyle style;
 
-  const _InstructionsCard({required this.colorScheme});
+  const _InstructionsCard({required this.colorScheme, required this.style});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withAlpha(80),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withAlpha(40)),
-      ),
+      decoration: panelDecoration(style, colorScheme),
       child: Column(
         children: [
           _InstructionRow(

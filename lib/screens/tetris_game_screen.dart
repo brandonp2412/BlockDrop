@@ -240,20 +240,19 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     setState(() {
       _gameOverModal = true;
     });
+    final cs = Theme.of(context).colorScheme;
+    final style = widget.settings.style;
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.black87,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-            side: const BorderSide(color: Colors.red, width: 2),
-          ),
-          title: const Text(
+          backgroundColor: cs.surface,
+          shape: styledDialogShape(style, cs, accentColor: cs.error),
+          title: Text(
             'Game Over!',
             style: TextStyle(
-              color: Colors.red,
+              color: cs.error,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -264,28 +263,19 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             children: [
               Text(
                 'Final Score: ${formatter.format(gameLogic.score)}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
+                style: TextStyle(color: cs.onSurface, fontSize: 18),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 'Level: ${gameLogic.level}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 'Lines Cleared: ${gameLogic.linesCleared}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -299,15 +289,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                   if (widget.settings.musicEnabled) _audioService.startMusic();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
+                  backgroundColor: cs.primary,
+                  foregroundColor: cs.onPrimary,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 12,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: buttonBorderShape(style),
                 ),
                 child: const Text(
                   'Play Again',

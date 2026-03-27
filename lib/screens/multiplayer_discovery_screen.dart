@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../multiplayer/multiplayer_manager.dart';
 import '../multiplayer/peer.dart';
 import '../settings/settings_provider.dart';
+import '../widgets/game_decorations.dart';
 import 'multiplayer_game_screen.dart';
 
 class MultiplayerDiscoveryScreen extends StatefulWidget {
@@ -78,9 +79,12 @@ class _MultiplayerDiscoveryScreenState
   }
 
   void _showFirewallDialog() {
+    final style = widget.settings.style;
+    final cs = Theme.of(context).colorScheme;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: styledDialogShape(style, cs),
         title: const Text('Windows Firewall'),
         content: const Text(
           'Windows Firewall may be blocking other players from connecting to '
@@ -151,10 +155,13 @@ class _MultiplayerDiscoveryScreenState
 
   void _showInviteDialog(String fromName) {
     if (!mounted) return;
+    final style = widget.settings.style;
+    final cs = Theme.of(context).colorScheme;
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        shape: styledDialogShape(style, cs),
         title: const Text('Game Invite'),
         content: Text('$fromName wants to play Block Drop with you!'),
         actions: [
@@ -318,6 +325,7 @@ class _MultiplayerDiscoveryScreenState
                   itemBuilder: (ctx, i) => _PeerTile(
                     peer: _manager.peers[i],
                     colorScheme: cs,
+                    style: widget.settings.style,
                     onInvite: () => _manager.invitePeer(_manager.peers[i]),
                   ),
                 ),
@@ -345,6 +353,9 @@ class _MultiplayerDiscoveryScreenState
             const SizedBox(height: 24),
             OutlinedButton(
               onPressed: _manager.cancelInvite,
+              style: OutlinedButton.styleFrom(
+                shape: buttonBorderShape(widget.settings.style),
+              ),
               child: const Text('Cancel'),
             ),
           ],
@@ -372,6 +383,7 @@ class _MultiplayerDiscoveryScreenState
             label: 'You',
             isYou: true,
             colorScheme: cs,
+            style: widget.settings.style,
           ),
           const SizedBox(height: 8),
           _LobbyPlayerTile(
@@ -379,6 +391,7 @@ class _MultiplayerDiscoveryScreenState
             label: 'Opponent',
             isYou: false,
             colorScheme: cs,
+            style: widget.settings.style,
           ),
           const Spacer(),
           if (_manager.isHost) ...[
@@ -392,6 +405,9 @@ class _MultiplayerDiscoveryScreenState
               onPressed: _manager.startGame,
               icon: const Icon(Icons.play_arrow),
               label: const Text('Start Game'),
+              style: FilledButton.styleFrom(
+                shape: buttonBorderShape(widget.settings.style),
+              ),
             ),
           ] else
             Text(
@@ -402,6 +418,9 @@ class _MultiplayerDiscoveryScreenState
           const SizedBox(height: 16),
           OutlinedButton(
             onPressed: () => _manager.backToDiscovery(),
+            style: OutlinedButton.styleFrom(
+              shape: buttonBorderShape(widget.settings.style),
+            ),
             child: const Text('Leave Lobby'),
           ),
         ],
@@ -415,11 +434,13 @@ class _MultiplayerDiscoveryScreenState
 class _PeerTile extends StatelessWidget {
   final Peer peer;
   final ColorScheme colorScheme;
+  final AppStyle style;
   final VoidCallback onInvite;
 
   const _PeerTile({
     required this.peer,
     required this.colorScheme,
+    required this.style,
     required this.onInvite,
   });
 
@@ -428,11 +449,7 @@ class _PeerTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withAlpha(80),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withAlpha(40)),
-      ),
+      decoration: panelDecoration(style, colorScheme),
       child: Row(
         children: [
           Icon(Icons.person, color: colorScheme.primary),
@@ -463,6 +480,7 @@ class _PeerTile extends StatelessWidget {
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               textStyle: const TextStyle(fontSize: 13),
+              shape: buttonBorderShape(style),
             ),
             child: const Text('Invite'),
           ),
@@ -477,27 +495,31 @@ class _LobbyPlayerTile extends StatelessWidget {
   final String label;
   final bool isYou;
   final ColorScheme colorScheme;
+  final AppStyle style;
 
   const _LobbyPlayerTile({
     required this.name,
     required this.label,
     required this.isYou,
     required this.colorScheme,
+    required this.style,
   });
 
   @override
   Widget build(BuildContext context) {
+    final radius = panelBorderRadius(style);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: isYou
             ? colorScheme.primaryContainer.withAlpha(100)
             : colorScheme.surfaceContainerHighest.withAlpha(80),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: radius,
         border: Border.all(
           color: isYou
               ? colorScheme.primary.withAlpha(80)
               : colorScheme.outline.withAlpha(40),
+          width: style == AppStyle.retro ? 2 : 1,
         ),
       ),
       child: Row(
@@ -523,7 +545,7 @@ class _LobbyPlayerTile extends StatelessWidget {
               color: isYou
                   ? colorScheme.primary.withAlpha(30)
                   : colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: panelBorderRadius(style),
             ),
             child: Text(
               label,
