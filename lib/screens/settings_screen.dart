@@ -36,6 +36,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _onSettingsChanged() => setState(() {});
 
+  static String _themeModeLabel(AppThemeMode mode) => switch (mode) {
+        AppThemeMode.system => 'System',
+        AppThemeMode.light => 'Light',
+        AppThemeMode.dark => 'Dark',
+        AppThemeMode.black => 'Black (AMOLED)',
+      };
+
+  static String _styleLabel(AppStyle style) => switch (style) {
+        AppStyle.classic => 'Classic',
+        AppStyle.modern => 'Modern',
+        AppStyle.bubbles => 'Bubbles',
+        AppStyle.neon => 'Neon',
+        AppStyle.retro => 'Retro',
+      };
+
+  void _pickTheme() {
+    final isNeon = widget.settings.style == AppStyle.neon;
+    final cs = Theme.of(context).colorScheme;
+    final options = [
+      if (!isNeon) AppThemeMode.system,
+      if (!isNeon) AppThemeMode.light,
+      AppThemeMode.dark,
+      AppThemeMode.black,
+    ];
+    showDialog<AppThemeMode>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        shape: styledDialogShape(widget.settings.style, cs),
+        title: const Text('Theme'),
+        children: options
+            .map((m) => SimpleDialogOption(
+                  onPressed: () => Navigator.pop(ctx, m),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(children: [
+                      SizedBox(
+                        width: 20,
+                        child: m == widget.settings.themeMode
+                            ? const Icon(Icons.check, size: 16)
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(_themeModeLabel(m)),
+                    ]),
+                  ),
+                ))
+            .toList(),
+      ),
+    ).then((v) {
+      if (v != null) widget.settings.setThemeMode(v);
+    });
+  }
+
+  void _pickStyle() {
+    final cs = Theme.of(context).colorScheme;
+    showDialog<AppStyle>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        shape: styledDialogShape(widget.settings.style, cs),
+        title: const Text('Style'),
+        children: AppStyle.values
+            .map((s) => SimpleDialogOption(
+                  onPressed: () => Navigator.pop(ctx, s),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(children: [
+                      SizedBox(
+                        width: 20,
+                        child: s == widget.settings.style
+                            ? const Icon(Icons.check, size: 16)
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(_styleLabel(s)),
+                    ]),
+                  ),
+                ))
+            .toList(),
+      ),
+    ).then((v) {
+      if (v != null) {
+        widget.settings.setStyle(v);
+        if (v == AppStyle.neon) widget.settings.setThemeMode(AppThemeMode.dark);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -123,87 +210,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: 'Theme',
               colorScheme: colorScheme,
               style: widget.settings.style,
-              child: DropdownButton<AppThemeMode>(
-                value: widget.settings.themeMode,
-                isExpanded: true,
-                underline: const SizedBox.shrink(),
-                disabledHint: Text("Neon style is dark mode only"),
-                onChanged: (value) {
-                  if (value != null) widget.settings.setThemeMode(value);
-                },
-                items: [
-                  DropdownMenuItem(
-                    value: AppThemeMode.system,
-                    enabled: widget.settings.style != AppStyle.neon,
-                    child: Text(
-                      'System',
-                      style: TextStyle(
-                        color: widget.settings.style == AppStyle.neon
-                            ? Theme.of(context).disabledColor
-                            : null,
-                      ),
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: AppThemeMode.light,
-                    enabled: widget.settings.style != AppStyle.neon,
-                    child: Text(
-                      'Light',
-                      style: TextStyle(
-                        color: widget.settings.style == AppStyle.neon
-                            ? Theme.of(context).disabledColor
-                            : null,
-                      ),
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: AppThemeMode.dark,
-                    child: Text('Dark'),
-                  ),
-                  DropdownMenuItem(
-                    value: AppThemeMode.black,
-                    child: Text(
-                      'Black (AMOLED)',
-                    ),
-                  ),
-                ],
+              child: TextButton(
+                onPressed: _pickTheme,
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  foregroundColor: colorScheme.onSurface,
+                  alignment: Alignment.centerLeft,
+                ),
+                child: Row(children: [
+                  Expanded(
+                      child: Text(
+                          _themeModeLabel(widget.settings.themeMode))),
+                  const Icon(Icons.arrow_drop_down, size: 20),
+                ]),
               ),
             ),
             _SettingTile(
               label: 'Style',
               colorScheme: colorScheme,
               style: widget.settings.style,
-              child: DropdownButton<AppStyle>(
-                value: widget.settings.style,
-                isExpanded: true,
-                underline: const SizedBox.shrink(),
-                onChanged: (value) {
-                  if (value != null) widget.settings.setStyle(value);
-                  if (value == AppStyle.neon)
-                    widget.settings.setThemeMode(AppThemeMode.dark);
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: AppStyle.classic,
-                    child: Text('Classic'),
-                  ),
-                  DropdownMenuItem(
-                    value: AppStyle.modern,
-                    child: Text('Modern'),
-                  ),
-                  DropdownMenuItem(
-                    value: AppStyle.bubbles,
-                    child: Text('Bubbles'),
-                  ),
-                  DropdownMenuItem(
-                    value: AppStyle.neon,
-                    child: Text('Neon'),
-                  ),
-                  DropdownMenuItem(
-                    value: AppStyle.retro,
-                    child: Text('Retro'),
-                  ),
-                ],
+              child: TextButton(
+                onPressed: _pickStyle,
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  foregroundColor: colorScheme.onSurface,
+                  alignment: Alignment.centerLeft,
+                ),
+                child: Row(children: [
+                  Expanded(
+                      child:
+                          Text(_styleLabel(widget.settings.style))),
+                  const Icon(Icons.arrow_drop_down, size: 20),
+                ]),
               ),
             ),
             _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),

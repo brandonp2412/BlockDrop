@@ -851,6 +851,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
               children: [
                 Expanded(
                   child: OutlinedButton(
+                    autofocus: true,
                     onPressed: () => Navigator.of(context).pop(false),
                     style: OutlinedButton.styleFrom(
                       shape: buttonBorderShape(style),

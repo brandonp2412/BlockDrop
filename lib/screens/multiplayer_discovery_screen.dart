@@ -173,6 +173,7 @@ class _MultiplayerDiscoveryScreenState
             child: const Text('Decline'),
           ),
           FilledButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _manager.acceptInvite();

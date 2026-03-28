@@ -283,6 +283,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           actions: [
             Center(
               child: TextButton(
+                autofocus: true,
                 onPressed: () {
                   Navigator.of(context).pop();
                   gameLogic.startGame();
