@@ -344,7 +344,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         break;
       case AppLifecycleState.resumed:
         // App is coming back to foreground - resume the game
-        if (gameLogic.isGameRunning &&
+        if (!_isSettingsOpen &&
+            gameLogic.isGameRunning &&
             !gameLogic.isGameOver &&
             gameLogic.isPaused) {
           gameLogic.resumeGame();
