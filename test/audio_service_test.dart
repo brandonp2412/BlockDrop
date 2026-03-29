@@ -61,6 +61,46 @@ void main() {
     return (mock, stateController);
   }
 
+  group('AudioService — musicEnabled flag', () {
+    test(
+      'startMusic does not call play() when musicEnabled is false',
+      () async {
+        final (mockMusic, stateController) = makeMusicPlayer();
+
+        final service = AudioService(
+          musicEnabled: false,
+          musicPlayer: mockMusic,
+          sfxPlayerFactory: makeSfxPlayer,
+        );
+        await service.init();
+        await service.startMusic();
+
+        verifyNever(() => mockMusic.play(any()));
+
+        await stateController.close();
+      },
+    );
+
+    test(
+      'startMusic calls play() when musicEnabled is true',
+      () async {
+        final (mockMusic, stateController) = makeMusicPlayer();
+
+        final service = AudioService(
+          musicEnabled: true,
+          musicPlayer: mockMusic,
+          sfxPlayerFactory: makeSfxPlayer,
+        );
+        await service.init();
+        await service.startMusic();
+
+        verify(() => mockMusic.play(any())).called(1);
+
+        await stateController.close();
+      },
+    );
+  });
+
   group('AudioService — unexpected music pause recovery', () {
     test(
       'calls resume() (not play()) when the music player is externally paused',

@@ -219,8 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 child: Row(children: [
                   Expanded(
-                      child: Text(
-                          _themeModeLabel(widget.settings.themeMode))),
+                      child: Text(_themeModeLabel(widget.settings.themeMode))),
                   const Icon(Icons.arrow_drop_down, size: 20),
                 ]),
               ),
@@ -237,9 +236,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   alignment: Alignment.centerLeft,
                 ),
                 child: Row(children: [
-                  Expanded(
-                      child:
-                          Text(_styleLabel(widget.settings.style))),
+                  Expanded(child: Text(_styleLabel(widget.settings.style))),
                   const Icon(Icons.arrow_drop_down, size: 20),
                 ]),
               ),
@@ -303,7 +300,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
-            _InstructionsCard(colorScheme: colorScheme, style: widget.settings.style),
+            _InstructionsCard(
+                colorScheme: colorScheme, style: widget.settings.style),
             const SizedBox(height: 8),
           ],
         ),

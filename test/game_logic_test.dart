@@ -246,25 +246,93 @@ void main() {
       expect(expectedGhostY, greaterThanOrEqualTo(initialY));
     });
 
-    test('should update score and level when lines are cleared', () {
+    test('dropPiece should be blocked during grace period', () {
       gameLogic.startGame();
 
-      // Fill bottom row except one column
-      for (int col = 0; col < GameConstants.boardWidth - 1; col++) {
-        gameLogic.board[GameConstants.boardHeight +
-            GameConstants.previewRows -
-            1][col] = Colors.red;
-      }
+      // Grace period is always active immediately after a piece spawns
+      expect(gameLogic.isNewPieceGracePeriod, true);
 
-      // Place a piece to complete the line
-      gameLogic.board[GameConstants.boardHeight + GameConstants.previewRows - 1]
-          [GameConstants.boardWidth - 1] = Colors.blue;
+      gameLogic.dropPiece(); // Should return early without placing anything
+
+      // The board should still be empty — no blocks placed
+      bool boardHasPlacedBlocks =
+          gameLogic.board.any((row) => row.any((cell) => cell != null));
+      expect(boardHasPlacedBlocks, false,
+          reason:
+              'Hard drop during grace period must not place the piece on the board');
+    });
+
+    test('should start line clear animation when a full row is detected', () {
+      gameLogic.startGame();
+
+      // Fill the bottom row completely
+      final bottomRow =
+          GameConstants.boardHeight + GameConstants.previewRows - 1;
+      for (int col = 0; col < GameConstants.boardWidth; col++) {
+        gameLogic.board[bottomRow][col] = Colors.red;
+      }
 
       gameLogic.clearLines();
 
-      // Wait for animation to complete
       expect(gameLogic.clearingLines.length, 1);
       expect(gameLogic.isAnimatingClear, true);
+    });
+
+    test('should update score correctly after single line clear', () async {
+      gameLogic.startGame();
+
+      final bottomRow =
+          GameConstants.boardHeight + GameConstants.previewRows - 1;
+      for (int col = 0; col < GameConstants.boardWidth; col++) {
+        gameLogic.board[bottomRow][col] = Colors.red;
+      }
+
+      gameLogic.clearLines();
+      // Wait for the 350 ms clear animation timer to fire
+      await Future.delayed(const Duration(milliseconds: 400));
+
+      expect(gameLogic.score, GameConstants.lineClearScores[1] * 1); // 100
+      expect(gameLogic.linesCleared, 1);
+      expect(gameLogic.isAnimatingClear, false);
+    });
+
+    test('should award full TETRIS bonus for clearing 4 lines at once',
+        () async {
+      gameLogic.startGame();
+
+      final totalRows = GameConstants.boardHeight + GameConstants.previewRows;
+      for (int row = totalRows - 4; row < totalRows; row++) {
+        for (int col = 0; col < GameConstants.boardWidth; col++) {
+          gameLogic.board[row][col] = Colors.red;
+        }
+      }
+
+      gameLogic.clearLines();
+      await Future.delayed(const Duration(milliseconds: 400));
+
+      expect(gameLogic.score, GameConstants.lineClearScores[4] * 1); // 800
+      expect(gameLogic.linesCleared, 4);
+      expect(gameLogic.clearBonusLabel, 'TETRIS!');
+    });
+
+    test('should increase level after clearing linesPerLevel lines', () async {
+      gameLogic.startGame();
+
+      // Fill exactly linesPerLevel full rows
+      final totalRows = GameConstants.boardHeight + GameConstants.previewRows;
+      for (int row = totalRows - GameConstants.linesPerLevel;
+          row < totalRows;
+          row++) {
+        for (int col = 0; col < GameConstants.boardWidth; col++) {
+          gameLogic.board[row][col] = Colors.red;
+        }
+      }
+
+      gameLogic.clearLines();
+      await Future.delayed(const Duration(milliseconds: 400));
+
+      expect(gameLogic.linesCleared, GameConstants.linesPerLevel);
+      expect(gameLogic.level, 2);
     });
 
     test('should detect game over correctly', () {
@@ -284,6 +352,90 @@ void main() {
 
       expect(gameLogic.isGameOver, true);
       expect(gameLogic.isGameRunning, false);
+    });
+
+    test('should pause and resume game correctly', () {
+      gameLogic.startGame();
+      expect(gameLogic.isPaused, false);
+      expect(gameLogic.isGameRunning, true);
+
+      gameLogic.pauseGame();
+      expect(gameLogic.isPaused, true);
+      expect(gameLogic.isGameRunning, true); // still running, just paused
+      expect(gameLogic.isGameOver, false);
+
+      gameLogic.resumeGame();
+      expect(gameLogic.isPaused, false);
+      expect(gameLogic.isGameRunning, true);
+    });
+
+    test('pauseGame should be idempotent', () {
+      gameLogic.startGame();
+      gameLogic.pauseGame();
+      gameLogic.pauseGame(); // second call should be a no-op
+      expect(gameLogic.isPaused, true);
+    });
+
+    test('should receive garbage rows from opponent', () {
+      gameLogic.startGame();
+
+      final totalRows = GameConstants.boardHeight + GameConstants.previewRows;
+      // Board bottom should be empty initially
+      expect(gameLogic.board[totalRows - 1][0], isNull);
+
+      gameLogic.receiveGarbage(2);
+
+      // Count filled vs gap cells in the bottom 2 rows
+      int filledCells = 0;
+      int gapCells = 0;
+      for (int row = totalRows - 2; row < totalRows; row++) {
+        for (int col = 0; col < GameConstants.boardWidth; col++) {
+          if (gameLogic.board[row][col] != null) {
+            filledCells++;
+          } else {
+            gapCells++;
+          }
+        }
+      }
+
+      // Each garbage row has exactly one gap column
+      expect(filledCells, (GameConstants.boardWidth - 1) * 2);
+      expect(gapCells, 2);
+    });
+
+    test('receiveGarbage should be a no-op when lines <= 0', () {
+      gameLogic.startGame();
+      final boardBefore =
+          gameLogic.board.map((row) => List<Color?>.from(row)).toList();
+
+      gameLogic.receiveGarbage(0);
+
+      for (int row = 0; row < gameLogic.board.length; row++) {
+        expect(gameLogic.board[row], equals(boardBefore[row]));
+      }
+    });
+
+    test('should export board snapshot with correct dimensions', () {
+      gameLogic.startGame();
+
+      final snapshot = gameLogic.exportBoardSnapshot();
+
+      // Snapshot covers only the visible board (no preview rows)
+      expect(
+        snapshot.length,
+        GameConstants.boardWidth * GameConstants.boardHeight,
+      );
+      // All values must be valid palette indices
+      expect(snapshot.every((cell) => cell >= 0 && cell <= 8), true);
+    });
+
+    test('exportBoardSnapshot should include the current piece', () {
+      gameLogic.startGame();
+
+      final snapshot = gameLogic.exportBoardSnapshot();
+
+      // Current piece should appear somewhere in the snapshot as a non-zero index
+      expect(snapshot.any((cell) => cell > 0), true);
     });
 
     test('should get board with current piece correctly', () {
