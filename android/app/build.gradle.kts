@@ -9,6 +9,11 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val keyPropertiesFile = rootProject.file("key.properties")
+val keyProperties = Properties().also { props ->
+    if (keyPropertiesFile.exists()) props.load(FileInputStream(keyPropertiesFile))
+}
+
 android {
     namespace = "com.blockdrop.game"
     compileSdk = flutter.compileSdkVersion
@@ -31,31 +36,20 @@ android {
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        create("release") {
-            val keyProperties = Properties()
-            val keyPropertiesFile = rootProject.file("key.properties")
-            if (keyPropertiesFile.exists()) {
-                keyProperties.load(FileInputStream(keyPropertiesFile))
+    if (keyPropertiesFile.exists()) {
+        signingConfigs {
+            create("release") {
+                keyAlias = keyProperties["keyAlias"] as String
+                keyPassword = keyProperties["keyPassword"] as String
+                storeFile = rootProject.file("app/" + keyProperties["storeFile"] as String)
+                storePassword = keyProperties["storePassword"] as String
             }
-
-            keyAlias = keyProperties["keyAlias"] as String?
-            keyPassword = keyProperties["keyPassword"] as String?
-            storeFile = if (keyProperties["storeFile"] != null) {
-                rootProject.file("app/" + keyProperties["storeFile"] as String)
-            } else {
-                null
-            }
-            storePassword = keyProperties["storePassword"] as String?
         }
     }
 
     buildTypes {
         release {
-            signingConfig = if (signingConfigs.getByName("release").storeFile != null)
-                signingConfigs.getByName("release")
-            else
-                signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
     
