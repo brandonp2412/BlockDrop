@@ -98,15 +98,8 @@ flutter:
 # Flutter Launcher Icons configuration
 flutter_launcher_icons:
   android: "launcher_icon"
-  ios: true
-  image_path: "assets/tetris_icon.png"
+  image_path: "assets/icon_drop.png"
   min_sdk_android: 21
-  web:
-    generate: true
-    image_path: "assets/tetris_icon.png"
   windows:
     generate: true
-    image_path: "assets/tetris_icon.png"
-  macos:
-    generate: true
-    image_path: "assets/tetris_icon.png"
+    image_path: "assets/icon_drop.png"

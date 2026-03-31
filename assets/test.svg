@@ -1,0 +1,48 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tgrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF1493"/>
+      <stop offset="50%" stop-color="#CC00FF"/>
+      <stop offset="100%" stop-color="#6600FF"/>
+    </linearGradient>
+    <filter id="glow-wide" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="45" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-tight" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="200" fill="#04040b"/>
+
+  <!-- T-piece: ambient wide glow pass -->
+  <g filter="url(#glow-wide)" opacity="0.7">
+    <rect x="412" y="312" width="200" height="200" fill="#CC00FF" rx="16"/>
+    <rect x="212" y="512" width="200" height="200" fill="#FF1493" rx="16"/>
+    <rect x="412" y="512" width="200" height="200" fill="#CC00FF" rx="16"/>
+    <rect x="612" y="512" width="200" height="200" fill="#6600FF" rx="16"/>
+  </g>
+
+  <!-- T-piece: main blocks with gradient fill + tight glow -->
+  <g filter="url(#glow-tight)">
+    <rect x="412" y="312" width="200" height="200" fill="url(#tgrad)" rx="16"/>
+    <rect x="212" y="512" width="200" height="200" fill="url(#tgrad)" rx="16"/>
+    <rect x="412" y="512" width="200" height="200" fill="url(#tgrad)" rx="16"/>
+    <rect x="612" y="512" width="200" height="200" fill="url(#tgrad)" rx="16"/>
+  </g>
+
+  <!-- Block highlights -->
+  <rect x="420" y="320" width="68" height="22" fill="white" rx="6" fill-opacity="0.30"/>
+  <rect x="220" y="520" width="68" height="22" fill="white" rx="6" fill-opacity="0.30"/>
+  <rect x="420" y="520" width="68" height="22" fill="white" rx="6" fill-opacity="0.30"/>
+  <rect x="620" y="520" width="68" height="22" fill="white" rx="6" fill-opacity="0.30"/>
+</svg>

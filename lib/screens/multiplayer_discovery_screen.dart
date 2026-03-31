@@ -36,7 +36,9 @@ class _MultiplayerDiscoveryScreenState
 
   String _defaultPlayerName() {
     try {
-      return Platform.localHostname.split('.').first;
+      final h = Platform.localHostname.split('.').first;
+      if (h.isEmpty || h.toLowerCase() == 'localhost') return 'Player';
+      return h;
     } catch (_) {
       return 'Player';
     }

@@ -109,6 +109,7 @@ class MultiplayerManager extends ChangeNotifier {
       String? best192;
       String? best10;
       String? best172;
+      String? fallbackAny; // any non-loopback IPv4 (covers unusual ranges)
       for (final iface in interfaces) {
         for (final addr in iface.addresses) {
           final ip = addr.address;
@@ -118,10 +119,12 @@ class MultiplayerManager extends ChangeNotifier {
             best10 ??= ip;
           } else if (RegExp(r'^172\.(1[6-9]|2\d|3[01])\.').hasMatch(ip)) {
             best172 ??= ip;
+          } else {
+            fallbackAny ??= ip;
           }
         }
       }
-      return best192 ?? best10 ?? best172;
+      return best192 ?? best10 ?? best172 ?? fallbackAny;
     } catch (_) {}
     return null;
   }
@@ -165,6 +168,18 @@ class MultiplayerManager extends ChangeNotifier {
   void _sendAnnounce() {
     if (_udpSocket == null) return;
     if (state == MultiplayerState.inGame) return;
+
+    // Retry IP detection on each tick if we haven't found an IP yet (e.g.
+    // Wi-Fi finishes connecting after the screen opens).
+    if (_localIp == null) {
+      _getLocalIp().then((ip) {
+        if (ip != null && _localIp == null) {
+          _localIp = ip;
+          _broadcastAddress = _directedBroadcast(ip);
+          notifyListeners();
+        }
+      });
+    }
 
     final data = utf8.encode(jsonEncode({
       'type': 'announce',
