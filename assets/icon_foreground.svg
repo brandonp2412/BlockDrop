@@ -1,31 +1,31 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <!-- T piece (Purple) - Top center -->
-  <rect x="384" y="192" width="64" height="64" fill="#9C27B0" stroke="#7B1FA2" stroke-width="2"/>
-  <rect x="320" y="256" width="64" height="64" fill="#9C27B0" stroke="#7B1FA2" stroke-width="2"/>
-  <rect x="384" y="256" width="64" height="64" fill="#9C27B0" stroke="#7B1FA2" stroke-width="2"/>
-  <rect x="448" y="256" width="64" height="64" fill="#9C27B0" stroke="#7B1FA2" stroke-width="2"/>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF2DA0"/>
+      <stop offset="100%" stop-color="#7B2FBE"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="22" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
 
-  <!-- O piece (Yellow) - Center -->
-  <rect x="448" y="448" width="64" height="64" fill="#FFEB3B" stroke="#FBC02D" stroke-width="2"/>
-  <rect x="512" y="448" width="64" height="64" fill="#FFEB3B" stroke="#FBC02D" stroke-width="2"/>
-  <rect x="448" y="512" width="64" height="64" fill="#FFEB3B" stroke="#FBC02D" stroke-width="2"/>
-  <rect x="512" y="512" width="64" height="64" fill="#FFEB3B" stroke="#FBC02D" stroke-width="2"/>
+  <!-- Top block (center of T-piece) -->
+  <rect x="392" y="280" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
+  <rect x="414" y="298" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
 
-  <!-- I piece (Cyan) - Bottom center -->
-  <rect x="320" y="640" width="64" height="64" fill="#00BCD4" stroke="#0097A7" stroke-width="2"/>
-  <rect x="384" y="640" width="64" height="64" fill="#00BCD4" stroke="#0097A7" stroke-width="2"/>
-  <rect x="448" y="640" width="64" height="64" fill="#00BCD4" stroke="#0097A7" stroke-width="2"/>
-  <rect x="512" y="640" width="64" height="64" fill="#00BCD4" stroke="#0097A7" stroke-width="2"/>
+  <!-- Bottom-left block -->
+  <rect x="142" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
+  <rect x="164" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
 
-  <!-- L piece (Orange) - Left -->
-  <rect x="192" y="384" width="64" height="64" fill="#FF9800" stroke="#F57C00" stroke-width="2"/>
-  <rect x="192" y="448" width="64" height="64" fill="#FF9800" stroke="#F57C00" stroke-width="2"/>
-  <rect x="192" y="512" width="64" height="64" fill="#FF9800" stroke="#F57C00" stroke-width="2"/>
-  <rect x="256" y="512" width="64" height="64" fill="#FF9800" stroke="#F57C00" stroke-width="2"/>
+  <!-- Bottom-center block -->
+  <rect x="392" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
+  <rect x="414" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
 
-  <!-- S piece (Green) - Right -->
-  <rect x="640" y="448" width="64" height="64" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
-  <rect x="704" y="448" width="64" height="64" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
-  <rect x="576" y="512" width="64" height="64" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
-  <rect x="640" y="512" width="64" height="64" fill="#4CAF50" stroke="#388E3C" stroke-width="2"/>
+  <!-- Bottom-right block -->
+  <rect x="642" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
+  <rect x="664" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
 </svg>

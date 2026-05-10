@@ -1,31 +1,9 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <!-- T piece - Top center -->
-  <rect x="384" y="192" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="320" y="256" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="384" y="256" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="448" y="256" width="64" height="64" fill="#FFFFFF"/>
+  <!-- T-piece silhouette — top block -->
+  <rect x="392" y="280" width="240" height="240" rx="36" ry="36" fill="#FFFFFF"/>
 
-  <!-- O piece - Center -->
-  <rect x="448" y="448" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="512" y="448" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="448" y="512" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="512" y="512" width="64" height="64" fill="#FFFFFF"/>
-
-  <!-- I piece - Bottom center -->
-  <rect x="320" y="640" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="384" y="640" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="448" y="640" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="512" y="640" width="64" height="64" fill="#FFFFFF"/>
-
-  <!-- L piece - Left -->
-  <rect x="192" y="384" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="192" y="448" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="192" y="512" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="256" y="512" width="64" height="64" fill="#FFFFFF"/>
-
-  <!-- S piece - Right -->
-  <rect x="640" y="448" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="704" y="448" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="576" y="512" width="64" height="64" fill="#FFFFFF"/>
-  <rect x="640" y="512" width="64" height="64" fill="#FFFFFF"/>
+  <!-- T-piece silhouette — bottom row -->
+  <rect x="142" y="530" width="240" height="240" rx="36" ry="36" fill="#FFFFFF"/>
+  <rect x="392" y="530" width="240" height="240" rx="36" ry="36" fill="#FFFFFF"/>
+  <rect x="642" y="530" width="240" height="240" rx="36" ry="36" fill="#FFFFFF"/>
 </svg>
