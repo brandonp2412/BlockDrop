@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../settings/settings_provider.dart';
 import '../widgets/game_decorations.dart';
@@ -205,6 +206,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (value) => widget.settings.setSfxEnabled(value),
               ),
             ),
+            _SectionHeader(label: 'Gameplay', colorScheme: colorScheme),
+            _SettingTile(
+              label: 'Ghost Tile',
+              colorScheme: colorScheme,
+              style: widget.settings.style,
+              child: Switch(
+                value: widget.settings.showGhostTile,
+                onChanged: (value) => widget.settings.setShowGhostTile(value),
+              ),
+            ),
             _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
             _SettingTile(
               label: 'Theme',
@@ -302,6 +313,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
             _InstructionsCard(
                 colorScheme: colorScheme, style: widget.settings.style),
+            _SectionHeader(label: 'About', colorScheme: colorScheme),
+            _AboutCard(colorScheme: colorScheme, style: widget.settings.style),
             const SizedBox(height: 8),
           ],
         ),
@@ -477,6 +490,102 @@ class _InstructionsCard extends StatelessWidget {
             colorScheme: colorScheme,
             isLast: true,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AboutCard extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final AppStyle style;
+
+  const _AboutCard({required this.colorScheme, required this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: panelDecoration(style, colorScheme),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Block Drop',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'A free and open-source Tetris clone built with Flutter. '
+            'Drop, rotate, and clear lines in this classic puzzle game.',
+            style: TextStyle(
+              fontSize: 13,
+              color: colorScheme.onSurfaceVariant,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _LinkRow(
+            icon: Icons.code,
+            label: 'Source Code',
+            url: 'https://github.com/brandonp2412/BlockDrop',
+            colorScheme: colorScheme,
+          ),
+          Divider(
+            height: 16,
+            thickness: 1,
+            color: colorScheme.outline.withAlpha(30),
+          ),
+          _LinkRow(
+            icon: Icons.favorite,
+            label: 'Support Development',
+            url: 'https://github.com/sponsors/brandonp2412',
+            colorScheme: colorScheme,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LinkRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String url;
+  final ColorScheme colorScheme;
+
+  const _LinkRow({
+    required this.icon,
+    required this.label,
+    required this.url,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () =>
+          launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: colorScheme.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: colorScheme.primary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Icon(Icons.open_in_new, size: 14, color: colorScheme.primary),
         ],
       ),
     );
