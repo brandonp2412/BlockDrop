@@ -39,7 +39,8 @@ void main() {
       expect(find.text('Music'), findsOneWidget);
       expect(find.text('Sound Effects'), findsOneWidget);
 
-      // Multiplayer entry
+      // Multiplayer entry (may require scrolling on small test screens)
+      await tester.scrollUntilVisible(find.text('Play on LAN'), 100);
       expect(find.text('Play on LAN'), findsOneWidget);
     });
 

@@ -564,7 +564,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                 cs,
                               ),
                               child: GameBoard(
-                                board: gameLogic.getBoardWithCurrentPiece(),
+                                board: gameLogic.getBoardWithCurrentPiece(
+                                    showGhost: widget.settings.showGhostTile),
                                 previewRows: GameConstants.previewRows,
                                 gameLogic: gameLogic,
                                 style: widget.settings.style,

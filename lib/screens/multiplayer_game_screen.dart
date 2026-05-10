@@ -391,7 +391,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       height: yourBoardH,
                       decoration: boardDecoration(widget.settings.style, cs),
                       child: GameBoard(
-                        board: _gameLogic.getBoardWithCurrentPiece(),
+                        board: _gameLogic.getBoardWithCurrentPiece(
+                            showGhost: widget.settings.showGhostTile),
                         previewRows: GameConstants.previewRows,
                         gameLogic: _gameLogic,
                         style: widget.settings.style,

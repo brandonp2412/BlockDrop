@@ -654,7 +654,7 @@ class GameLogic extends ChangeNotifier {
     return ghostY;
   }
 
-  List<List<Color?>> getBoardWithCurrentPiece() {
+  List<List<Color?>> getBoardWithCurrentPiece({bool showGhost = true}) {
     List<List<Color?>> displayBoard = List.generate(
       GameConstants.boardHeight + GameConstants.previewRows,
       (row) =>
@@ -664,7 +664,7 @@ class GameLogic extends ChangeNotifier {
     if (currentPiece != null) {
       // First, draw the ghost piece (shadow)
       int ghostY = calculateGhostPieceY();
-      if (ghostY != currentY) {
+      if (showGhost && ghostY != currentY) {
         // Only show ghost if it's different from current position
         for (int row = 0; row < currentPiece!.shape.length; row++) {
           for (int col = 0; col < currentPiece!.shape[row].length; col++) {
