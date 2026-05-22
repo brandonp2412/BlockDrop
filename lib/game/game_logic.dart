@@ -32,6 +32,7 @@ class GameLogic extends ChangeNotifier {
   bool isGameRunning = false;
   bool isGameOver = false;
   bool isPaused = false;
+  bool practiceMode = false;
   bool isSlamming = false; // Track if piece is currently slamming down
   bool isNewPieceGracePeriod =
       false; // Prevent immediate input after new piece spawns
@@ -70,7 +71,7 @@ class GameLogic extends ChangeNotifier {
     );
   }
 
-  void startGame() {
+  void startGame({int? practiceLevel}) {
     // Cancel all running timers before resetting state
     gameTimer?.cancel();
     gameTimer = null;
@@ -81,6 +82,7 @@ class GameLogic extends ChangeNotifier {
     gracePeriodTimer?.cancel();
     gracePeriodTimer = null;
 
+    practiceMode = practiceLevel != null;
     isGameRunning = true;
     isGameOver = false;
     isPaused = false;
@@ -91,9 +93,15 @@ class GameLogic extends ChangeNotifier {
     clearingLines = [];
     trailBlocks = [];
     score = 0;
-    level = 1;
+    level = practiceLevel ?? 1;
     linesCleared = 0;
-    dropSpeed = GameConstants.initialDropSpeed;
+    dropSpeed = practiceLevel != null
+        ? max(
+            GameConstants.minDropSpeed,
+            GameConstants.initialDropSpeed -
+                (practiceLevel - 1) * GameConstants.speedIncrement,
+          )
+        : GameConstants.initialDropSpeed;
     heldPiece = null;
     canHold = true;
     lastScoreDelta = 0;
@@ -314,18 +322,20 @@ class GameLogic extends ChangeNotifier {
 
     // Update game state
     linesCleared += clearedLinesCount;
-    score += delta;
-    lastScoreDelta = delta;
-    clearBonusLabel = label;
+    if (!practiceMode) {
+      score += delta;
+      lastScoreDelta = delta;
+      clearBonusLabel = label;
 
-    final int oldLevel = level;
-    level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
-    if (level > oldLevel) audioService?.playLevelUp();
-    dropSpeed = max(
-      GameConstants.minDropSpeed,
-      GameConstants.initialDropSpeed -
-          (level - 1) * GameConstants.speedIncrement,
-    );
+      final int oldLevel = level;
+      level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
+      if (level > oldLevel) audioService?.playLevelUp();
+      dropSpeed = max(
+        GameConstants.minDropSpeed,
+        GameConstants.initialDropSpeed -
+            (level - 1) * GameConstants.speedIncrement,
+      );
+    }
 
     // Reset animation state
     clearingLines.clear();

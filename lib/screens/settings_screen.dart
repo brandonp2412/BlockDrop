@@ -253,6 +253,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),
+            _SettingTile(
+              label: 'Show Opponent Board',
+              colorScheme: colorScheme,
+              style: widget.settings.style,
+              child: Switch(
+                value: widget.settings.showOpponentBoard,
+                onChanged: (value) =>
+                    widget.settings.setShowOpponentBoard(value),
+              ),
+            ),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: panelDecoration(widget.settings.style, colorScheme),

@@ -12,6 +12,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _sfxEnabledKey = 'sfx_enabled';
   static const _highScoreKey = 'high_score';
   static const _showGhostTileKey = 'show_ghost_tile';
+  static const _showOpponentBoardKey = 'show_opponent_board';
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
@@ -19,6 +20,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _sfxEnabled = false;
   int _highScore = 0;
   bool _showGhostTile = true;
+  bool _showOpponentBoard = true;
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
@@ -26,6 +28,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get sfxEnabled => _sfxEnabled;
   int get highScore => _highScore;
   bool get showGhostTile => _showGhostTile;
+  bool get showOpponentBoard => _showOpponentBoard;
 
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
@@ -54,6 +57,7 @@ class SettingsProvider extends ChangeNotifier {
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
     _highScore = prefs.getInt(_highScoreKey) ?? 0;
     _showGhostTile = prefs.getBool(_showGhostTileKey) ?? true;
+    _showOpponentBoard = prefs.getBool(_showOpponentBoardKey) ?? true;
     notifyListeners();
   }
 
@@ -90,6 +94,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_showGhostTileKey, value);
+  }
+
+  Future<void> setShowOpponentBoard(bool value) async {
+    _showOpponentBoard = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showOpponentBoardKey, value);
   }
 
   Future<void> updateHighScore(int score) async {

@@ -38,6 +38,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   int _popupDelta = 0;
   bool _gameOverModal = false;
   bool _isSettingsOpen = false;
+  int _practiceLevel = 1;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
   static const double _moveThreshold =
@@ -228,10 +229,84 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
     // Show game over modal when game ends
     if (gameLogic.isGameOver && mounted) {
-      widget.settings.updateHighScore(gameLogic.score);
+      if (!gameLogic.practiceMode)
+        widget.settings.updateHighScore(gameLogic.score);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showGameOverModal();
       });
+    }
+  }
+
+  Future<void> _showPracticeLevelPicker() async {
+    final cs = Theme.of(context).colorScheme;
+    final style = widget.settings.style;
+    int selectedLevel = _practiceLevel;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: cs.surface,
+          shape: styledDialogShape(style, cs),
+          title: const Text('Practice Mode'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Choose a starting level. Speed stays fixed throughout the session.',
+                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.remove),
+                    onPressed: selectedLevel > 1
+                        ? () => setDialogState(() => selectedLevel--)
+                        : null,
+                  ),
+                  SizedBox(
+                    width: 60,
+                    child: Text(
+                      'Lv $selectedLevel',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: selectedLevel < 20
+                        ? () => setDialogState(() => selectedLevel++)
+                        : null,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: FilledButton.styleFrom(shape: buttonBorderShape(style)),
+              child: const Text('Start'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() => _practiceLevel = selectedLevel);
+      gameLogic.startGame(practiceLevel: selectedLevel);
+      if (widget.settings.musicEnabled) _audioService.startMusic();
     }
   }
 
@@ -261,14 +336,17 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (!gameLogic.practiceMode)
+                Text(
+                  'Final Score: ${formatter.format(gameLogic.score)}',
+                  style: TextStyle(color: cs.onSurface, fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+              if (!gameLogic.practiceMode) const SizedBox(height: 8),
               Text(
-                'Final Score: ${formatter.format(gameLogic.score)}',
-                style: TextStyle(color: cs.onSurface, fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Level: ${gameLogic.level}',
+                gameLogic.practiceMode
+                    ? 'Practice Lv ${gameLogic.level}'
+                    : 'Level: ${gameLogic.level}',
                 style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -281,28 +359,37 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             ],
           ),
           actions: [
-            Center(
-              child: TextButton(
-                autofocus: true,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  gameLogic.startGame();
-                  if (widget.settings.musicEnabled) _audioService.startMusic();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: cs.primary,
-                  foregroundColor: cs.onPrimary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _showPracticeLevelPicker();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      shape: buttonBorderShape(style),
+                    ),
+                    child: const Text('Practice'),
                   ),
-                  shape: buttonBorderShape(style),
                 ),
-                child: const Text(
-                  'Play Again',
-                  style: TextStyle(fontSize: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton(
+                    autofocus: true,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      gameLogic.startGame();
+                      if (widget.settings.musicEnabled)
+                        _audioService.startMusic();
+                    },
+                    style: FilledButton.styleFrom(
+                      shape: buttonBorderShape(style),
+                    ),
+                    child: const Text('Play Again'),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         );
@@ -437,10 +524,17 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                           children: [
                             const SizedBox(width: 8),
                             Text(
-                              'Score: ${formatter.format(gameLogic.score)}',
+                              gameLogic.practiceMode
+                                  ? 'PRACTICE'
+                                  : 'Score: ${formatter.format(gameLogic.score)}',
                               style: TextStyle(
-                                color: cs.onSurface,
+                                color: gameLogic.practiceMode
+                                    ? cs.tertiary
+                                    : cs.onSurface,
                                 fontSize: 18,
+                                fontWeight: gameLogic.practiceMode
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                               ),
                             ),
                             const Spacer(),

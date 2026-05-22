@@ -441,38 +441,41 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
               ),
             ),
 
-            SizedBox(width: totalW * 0.03),
+            if (widget.settings.showOpponentBoard) ...[
+              SizedBox(width: totalW * 0.03),
 
-            // ── Opponent side ────────────────────────────────────────────
-            SizedBox(
-              width: oppBoardW,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _OpponentScoreHeader(
-                    manager: widget.manager,
-                    formatter: _fmt,
-                    colorScheme: cs,
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: cs.outline.withAlpha(120),
-                        width: widget.settings.style == AppStyle.retro ? 2 : 1,
+              // ── Opponent side ──────────────────────────────────────────
+              SizedBox(
+                width: oppBoardW,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _OpponentScoreHeader(
+                      manager: widget.manager,
+                      formatter: _fmt,
+                      colorScheme: cs,
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: cs.outline.withAlpha(120),
+                          width:
+                              widget.settings.style == AppStyle.retro ? 2 : 1,
+                        ),
+                        borderRadius: panelBorderRadius(widget.settings.style),
                       ),
-                      borderRadius: panelBorderRadius(widget.settings.style),
+                      child: OpponentBoard(
+                        cells: widget.manager.opponentBoard,
+                        width: oppBoardW,
+                        height: oppBoardH,
+                        isGameOver: widget.manager.opponentIsGameOver,
+                      ),
                     ),
-                    child: OpponentBoard(
-                      cells: widget.manager.opponentBoard,
-                      width: oppBoardW,
-                      height: oppBoardH,
-                      isGameOver: widget.manager.opponentIsGameOver,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -621,53 +624,55 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           ),
 
           // ── Opponent overlay (top-right, semi-transparent) ─────────
-          Positioned(
-            right: boardRight + 4,
-            top: boardTop + 4,
-            child: Opacity(
-              opacity: 0.80,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: cs.surfaceContainerHighest.withAlpha(200),
-                      borderRadius: panelBorderRadius(widget.settings.style),
-                    ),
-                    child: Text(
-                      (widget.manager.opponentName ?? 'OPP').toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
-                        color: cs.secondary,
+          if (widget.settings.showOpponentBoard)
+            Positioned(
+              right: boardRight + 4,
+              top: boardTop + 4,
+              child: Opacity(
+                opacity: 0.80,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHighest.withAlpha(200),
+                        borderRadius: panelBorderRadius(widget.settings.style),
+                      ),
+                      child: Text(
+                        (widget.manager.opponentName ?? 'OPP').toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.0,
+                          color: cs.secondary,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: cs.outline.withAlpha(100),
-                        width: widget.settings.style == AppStyle.retro ? 2 : 1,
+                    const SizedBox(height: 2),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: cs.outline.withAlpha(100),
+                          width:
+                              widget.settings.style == AppStyle.retro ? 2 : 1,
+                        ),
+                        borderRadius: panelBorderRadius(widget.settings.style),
+                        color: cs.surface.withAlpha(66),
                       ),
-                      borderRadius: panelBorderRadius(widget.settings.style),
-                      color: cs.surface.withAlpha(66),
+                      child: OpponentBoard(
+                        cells: widget.manager.opponentBoard,
+                        width: oppW,
+                        height: oppH,
+                        isGameOver: widget.manager.opponentIsGameOver,
+                      ),
                     ),
-                    child: OpponentBoard(
-                      cells: widget.manager.opponentBoard,
-                      width: oppW,
-                      height: oppH,
-                      isGameOver: widget.manager.opponentIsGameOver,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
 
           // ── Your score (bottom-left of board) ─────────────────────
           Positioned(
