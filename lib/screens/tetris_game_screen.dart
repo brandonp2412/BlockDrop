@@ -378,7 +378,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
               },
               style: FilledButton.styleFrom(
                 shape: buttonBorderShape(style),
-                minimumSize: const Size(double.infinity, 0),
+                minimumSize: const Size(double.infinity, 48),
               ),
               child: const Text('Play Again'),
             ),
