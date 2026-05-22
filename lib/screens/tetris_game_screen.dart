@@ -467,11 +467,19 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             fastSwipeVelocity: _fastSwipeVelocity,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                // Calculate space needed for UI elements
-                double scoreHeight = 58; // Score section height
-                double nextPieceHeight = 127; // Next piece section height
-                double spacingHeight = 32; // SizedBox spacing
-                double totalUIHeight =
+                // Scale UI chrome proportionally on large-screen devices
+                // (e.g. Android TV). A phone at ~400 dp wide gets 1.0×;
+                // a 1080p TV at ~960 dp wide gets up to 2.0×.
+                final uiScale = (constraints.maxWidth / 400.0).clamp(1.0, 2.0);
+                final boxSize = 80.0 * uiScale;
+
+                // Calculate space needed for UI elements.
+                // Score row: icon (22*scale) dominates row height; padding scales.
+                final double scoreHeight = (22 + 16) * uiScale;
+                // Hold/Next row: label (16sp scaled), spacer, box, container padding.
+                final double nextPieceHeight = (20 + 8 + 80 + 16) * uiScale;
+                final double spacingHeight = 32 * uiScale;
+                final double totalUIHeight =
                     scoreHeight + nextPieceHeight + spacingHeight;
 
                 // Calculate the maximum height available for the game board
@@ -507,13 +515,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                     children: [
                       // Score section
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8 * uiScale,
+                          vertical: 8 * uiScale,
                         ),
                         child: Row(
                           children: [
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8 * uiScale),
                             Text(
                               gameLogic.practiceMode
                                   ? 'PRACTICE'
@@ -544,27 +552,27 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                 fontSize: 18,
                               ),
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4 * uiScale),
                             ExcludeFocus(
                               child: IconButton(
                                 icon: Icon(
                                   Icons.settings,
                                   color: cs.onSurfaceVariant,
                                 ),
-                                iconSize: 22,
+                                iconSize: 22 * uiScale,
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                                 onPressed: _openSettings,
                               ),
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4 * uiScale),
                           ],
                         ),
                       ),
 
                       // Hold and Next pieces
                       Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.symmetric(vertical: 8 * uiScale),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -576,13 +584,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                     'Hold:',
                                     style: TextStyle(
                                       color: cs.onSurface,
-                                      fontSize: 16,
+                                      fontSize: 16 * uiScale,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 8 * uiScale),
                                   Container(
-                                    width: 80,
-                                    height: 80,
+                                    width: boxSize,
+                                    height: boxSize,
                                     decoration: pieceBoxDecoration(
                                       widget.settings.style,
                                       cs,
@@ -609,13 +617,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                   'Next:',
                                   style: TextStyle(
                                     color: cs.onSurface,
-                                    fontSize: 16,
+                                    fontSize: 16 * uiScale,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8 * uiScale),
                                 Container(
-                                  width: 80,
-                                  height: 80,
+                                  width: boxSize,
+                                  height: boxSize,
                                   decoration: pieceBoxDecoration(
                                     widget.settings.style,
                                     cs,
@@ -633,7 +641,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16 * uiScale),
 
                       // Game board with score popup overlay
                       SizedBox(
@@ -733,7 +741,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16 * uiScale),
                     ],
                   ),
                 );

@@ -305,12 +305,13 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     final mq = MediaQuery.of(context);
     final totalW = constraints.maxWidth - 16;
 
-    const double kOverhead = 110.0;
+    final uiScale = (constraints.maxWidth / 400.0).clamp(1.0, 2.0);
+    final double kOverhead = 110.0 * uiScale;
     final screenH = mq.size.height - mq.padding.top - mq.padding.bottom;
     final availableH = (screenH - kOverhead).clamp(100.0, double.infinity);
 
     // Reserve space for hold/next sidebar
-    const double sidebarW = 72.0;
+    final double sidebarW = 72.0 * uiScale;
     const double sidebarGap = 8.0;
     final boardsW = totalW - sidebarW - sidebarGap;
 
@@ -539,8 +540,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     final oppW = totalW * 0.26;
     final oppH = oppW * 2;
 
-    const double overlayBoxSize = 58.0;
-    const double labelH = 16.0; // height of the HOLD/NEXT label text
+    final uiScale = (constraints.maxWidth / 400.0).clamp(1.0, 2.0);
+    final double overlayBoxSize = 58.0 * uiScale;
+    final double labelH = 16.0 * uiScale; // height of the HOLD/NEXT label text
 
     return SizedBox(
       width: totalW,
