@@ -10,12 +10,14 @@ class SettingsScreen extends StatefulWidget {
   final SettingsProvider settings;
   final VoidCallback? onRestart;
   final VoidCallback? onQuit;
+  final VoidCallback? onPractice;
 
   const SettingsScreen({
     super.key,
     required this.settings,
     this.onRestart,
     this.onQuit,
+    this.onPractice,
   });
 
   @override
@@ -186,6 +188,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
+              if (widget.onPractice != null)
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: _ActionButton(
+                    label: 'Practice Mode',
+                    icon: Icons.school,
+                    colorScheme: colorScheme,
+                    style: widget.settings.style,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      widget.onPractice?.call();
+                    },
+                  ),
+                ),
             ],
             _SectionHeader(label: 'Sound', colorScheme: colorScheme),
             _SettingTile(

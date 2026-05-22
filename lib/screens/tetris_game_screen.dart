@@ -38,6 +38,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   int _popupDelta = 0;
   bool _gameOverModal = false;
   bool _isSettingsOpen = false;
+  bool _pendingPractice = false;
   int _practiceLevel = 1;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
@@ -202,11 +203,20 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             else
               exit(0);
           },
+          onPractice: () {
+            _pendingPractice = true;
+          },
         ),
       ),
     );
 
     _isSettingsOpen = false;
+
+    if (_pendingPractice) {
+      _pendingPractice = false;
+      _showPracticeLevelPicker();
+      return;
+    }
 
     if (mounted &&
         gameLogic.isGameRunning &&
@@ -359,37 +369,18 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             ],
           ),
           actions: [
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _showPracticeLevelPicker();
-                    },
-                    style: OutlinedButton.styleFrom(
-                      shape: buttonBorderShape(style),
-                    ),
-                    child: const Text('Practice'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilledButton(
-                    autofocus: true,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      gameLogic.startGame();
-                      if (widget.settings.musicEnabled)
-                        _audioService.startMusic();
-                    },
-                    style: FilledButton.styleFrom(
-                      shape: buttonBorderShape(style),
-                    ),
-                    child: const Text('Play Again'),
-                  ),
-                ),
-              ],
+            FilledButton(
+              autofocus: true,
+              onPressed: () {
+                Navigator.of(context).pop();
+                gameLogic.startGame();
+                if (widget.settings.musicEnabled) _audioService.startMusic();
+              },
+              style: FilledButton.styleFrom(
+                shape: buttonBorderShape(style),
+                minimumSize: const Size(double.infinity, 0),
+              ),
+              child: const Text('Play Again'),
             ),
           ],
         );
