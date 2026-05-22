@@ -39,13 +39,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _onSettingsChanged() => setState(() {});
 
-  static String _themeModeLabel(AppThemeMode mode) => switch (mode) {
-        AppThemeMode.system => 'System',
-        AppThemeMode.light => 'Light',
-        AppThemeMode.dark => 'Dark',
-        AppThemeMode.black => 'Black (AMOLED)',
-      };
-
   static String _styleLabel(AppStyle style) => switch (style) {
         AppStyle.classic => 'Classic',
         AppStyle.modern => 'Modern',
@@ -53,44 +46,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         AppStyle.neon => 'Neon',
         AppStyle.retro => 'Retro',
       };
-
-  void _pickTheme() {
-    final isNeon = widget.settings.style == AppStyle.neon;
-    final cs = Theme.of(context).colorScheme;
-    final options = [
-      if (!isNeon) AppThemeMode.system,
-      if (!isNeon) AppThemeMode.light,
-      AppThemeMode.dark,
-      AppThemeMode.black,
-    ];
-    showDialog<AppThemeMode>(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        shape: styledDialogShape(widget.settings.style, cs),
-        title: const Text('Theme'),
-        children: options
-            .map((m) => SimpleDialogOption(
-                  onPressed: () => Navigator.pop(ctx, m),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(children: [
-                      SizedBox(
-                        width: 20,
-                        child: m == widget.settings.themeMode
-                            ? const Icon(Icons.check, size: 16)
-                            : null,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(_themeModeLabel(m)),
-                    ]),
-                  ),
-                ))
-            .toList(),
-      ),
-    ).then((v) {
-      if (v != null) widget.settings.setThemeMode(v);
-    });
-  }
 
   void _pickStyle() {
     final cs = Theme.of(context).colorScheme;
@@ -234,22 +189,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: SegmentedButton<AppThemeMode>(
+                segments: [
+                  ButtonSegment(
+                    value: AppThemeMode.system,
+                    label: const Text('System'),
+                    icon: const Icon(Icons.brightness_auto),
+                    enabled: widget.settings.style != AppStyle.neon,
+                  ),
+                  const ButtonSegment(
+                    value: AppThemeMode.dark,
+                    label: Text('Dark'),
+                    icon: Icon(Icons.dark_mode),
+                  ),
+                  ButtonSegment(
+                    value: AppThemeMode.light,
+                    label: const Text('Light'),
+                    icon: const Icon(Icons.light_mode),
+                    enabled: widget.settings.style != AppStyle.neon,
+                  ),
+                ],
+                selected: {
+                  widget.settings.themeMode == AppThemeMode.black
+                      ? AppThemeMode.dark
+                      : widget.settings.themeMode == AppThemeMode.system ||
+                              widget.settings.themeMode == AppThemeMode.light
+                          ? widget.settings.themeMode
+                          : AppThemeMode.dark,
+                },
+                onSelectionChanged: (selection) =>
+                    widget.settings.setThemeMode(selection.first),
+              ),
+            ),
             _SettingTile(
-              label: 'Theme',
+              label: 'Pure Black (AMOLED)',
               colorScheme: colorScheme,
               style: widget.settings.style,
-              child: TextButton(
-                onPressed: _pickTheme,
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  foregroundColor: colorScheme.onSurface,
-                  alignment: Alignment.centerLeft,
+              child: Switch(
+                value: widget.settings.isBlackMode,
+                onChanged: (value) => widget.settings.setThemeMode(
+                  value ? AppThemeMode.black : AppThemeMode.dark,
                 ),
-                child: Row(children: [
-                  Expanded(
-                      child: Text(_themeModeLabel(widget.settings.themeMode))),
-                  const Icon(Icons.arrow_drop_down, size: 20),
-                ]),
               ),
             ),
             _SettingTile(
