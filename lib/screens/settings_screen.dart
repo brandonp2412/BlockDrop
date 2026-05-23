@@ -51,27 +51,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final cs = Theme.of(context).colorScheme;
     showDialog<AppStyle>(
       context: context,
-      builder: (ctx) => SimpleDialog(
+      builder: (ctx) => AlertDialog(
         shape: styledDialogShape(widget.settings.style, cs),
         title: const Text('Style'),
-        children: AppStyle.values
-            .map((s) => SimpleDialogOption(
-                  onPressed: () => Navigator.pop(ctx, s),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(children: [
-                      SizedBox(
-                        width: 20,
-                        child: s == widget.settings.style
-                            ? const Icon(Icons.check, size: 16)
-                            : null,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(_styleLabel(s)),
-                    ]),
-                  ),
-                ))
-            .toList(),
+        contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: AppStyle.values.map((s) {
+            final isSelected = s == widget.settings.style;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: _StyleOption(
+                style: s,
+                label: _styleLabel(s),
+                isSelected: isSelected,
+                colorScheme: cs,
+                onTap: () => Navigator.pop(ctx, s),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     ).then((v) {
       if (v != null) {
@@ -596,6 +595,63 @@ class _LinkRow extends StatelessWidget {
           ),
           Icon(Icons.open_in_new, size: 14, color: colorScheme.primary),
         ],
+      ),
+    );
+  }
+}
+
+class _StyleOption extends StatelessWidget {
+  final AppStyle style;
+  final String label;
+  final bool isSelected;
+  final ColorScheme colorScheme;
+  final VoidCallback onTap;
+
+  const _StyleOption({
+    required this.style,
+    required this.label,
+    required this.isSelected,
+    required this.colorScheme,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = panelBorderRadius(style);
+    return ClipRRect(
+      borderRadius: radius,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: radius,
+          onTap: onTap,
+          child: Container(
+            decoration: panelDecoration(style, colorScheme),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  child: isSelected
+                      ? Icon(Icons.check, size: 16, color: colorScheme.primary)
+                      : null,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: colorScheme.onSurface,
+                    letterSpacing: style == AppStyle.retro ? 1.5 : null,
+                    fontWeight: style == AppStyle.retro
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
