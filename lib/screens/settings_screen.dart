@@ -191,6 +191,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: SegmentedButton<AppThemeMode>(
+                style: SegmentedButton.styleFrom(
+                  shape: buttonBorderShape(widget.settings.style),
+                ),
                 segments: [
                   ButtonSegment(
                     value: AppThemeMode.system,
