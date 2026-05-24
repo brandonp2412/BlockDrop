@@ -92,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.only(top: 8, bottom: 48),
           // Large cacheExtent ensures all children are laid out off-screen so
           // Android TV D-pad focus traversal can reach items below the viewport.
           cacheExtent: 3000,
