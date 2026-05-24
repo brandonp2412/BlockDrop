@@ -757,8 +757,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     ColorScheme cs,
   ) {
     const double scoreBarH = 48.0;
-    const double sidebarW = 100.0;
-    const double boxSize = 64.0;
+    const double sidebarW = 160.0;
+    const double boxSize = 120.0;
     const double gap = 8.0;
 
     final double boardAvailH = (constraints.maxHeight - scoreBarH - gap * 2)
@@ -785,7 +785,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Hold', style: TextStyle(color: cs.onSurface, fontSize: 14)),
+          Text('Hold', style: TextStyle(color: cs.onSurface, fontSize: 18)),
           const SizedBox(height: 6),
           Container(
             width: boxSize,
@@ -803,7 +803,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     Widget nextPanel = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Next', style: TextStyle(color: cs.onSurface, fontSize: 14)),
+        Text('Next', style: TextStyle(color: cs.onSurface, fontSize: 18)),
         const SizedBox(height: 6),
         Container(
           width: boxSize,
