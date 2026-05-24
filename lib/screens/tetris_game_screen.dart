@@ -467,46 +467,35 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             fastSwipeVelocity: _fastSwipeVelocity,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                // Scale UI chrome proportionally on large-screen devices
-                // (e.g. Android TV). Use the shorter screen dimension so that
-                // landscape screens (wide but short) don't over-inflate heights
-                // and squeeze out the game board.
-                final shortSide = constraints.maxWidth < constraints.maxHeight
-                    ? constraints.maxWidth
-                    : constraints.maxHeight;
-                final uiScale = (shortSide / 400.0).clamp(1.0, 2.0);
-                final boxSize = 80.0 * uiScale;
+                final isWideScreen =
+                    constraints.maxWidth > constraints.maxHeight * 1.4;
 
-                // Calculate space needed for UI elements.
-                // Score row: icon (22*scale) dominates row height; padding scales.
-                final double scoreHeight = (22 + 16) * uiScale;
-                // Hold/Next row: label (16sp scaled), spacer, box, container padding.
-                final double nextPieceHeight = (20 + 8 + 80 + 16) * uiScale;
-                final double spacingHeight = 32 * uiScale;
-                final double totalUIHeight =
+                if (isWideScreen) {
+                  return _buildTvLayout(context, constraints, gameLogic, cs);
+                }
+
+                // ── Phone / portrait layout ────────────────────────────────
+                const double scoreHeight = 38.0;
+                const double nextPieceHeight = 124.0;
+                const double spacingHeight = 32.0;
+                const double totalUIHeight =
                     scoreHeight + nextPieceHeight + spacingHeight;
 
-                // Calculate the maximum height available for the game board
-                double availableHeight = (constraints.maxHeight -
-                        totalUIHeight -
-                        32)
-                    .clamp(100.0, double.infinity); // Extra padding for safety
+                double availableHeight =
+                    (constraints.maxHeight - totalUIHeight - 32)
+                        .clamp(100.0, double.infinity);
                 double availableWidth = constraints.maxWidth - 32;
 
-                // Calculate the ideal size based on aspect ratio
                 double idealWidth = availableHeight *
                     (GameConstants.boardWidth / GameConstants.boardHeight);
                 double idealHeight = availableWidth *
                     (GameConstants.boardHeight / GameConstants.boardWidth);
 
-                // Use the smaller dimension to ensure it fits
                 double gameboardWidth, gameboardHeight;
                 if (idealWidth <= availableWidth) {
                   gameboardWidth = idealWidth.clamp(100.0, double.infinity);
-                  gameboardHeight = availableHeight.clamp(
-                    100.0,
-                    double.infinity,
-                  );
+                  gameboardHeight =
+                      availableHeight.clamp(100.0, double.infinity);
                 } else {
                   gameboardWidth = availableWidth.clamp(100.0, double.infinity);
                   gameboardHeight = idealHeight.clamp(100.0, double.infinity);
@@ -519,13 +508,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                     children: [
                       // Score section
                       Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8 * uiScale,
-                          vertical: 8 * uiScale,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
                         ),
                         child: Row(
                           children: [
-                            SizedBox(width: 8 * uiScale),
+                            const SizedBox(width: 8),
                             Text(
                               gameLogic.practiceMode
                                   ? 'PRACTICE'
@@ -556,27 +545,27 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                 fontSize: 18,
                               ),
                             ),
-                            SizedBox(width: 4 * uiScale),
+                            const SizedBox(width: 4),
                             ExcludeFocus(
                               child: IconButton(
                                 icon: Icon(
                                   Icons.settings,
                                   color: cs.onSurfaceVariant,
                                 ),
-                                iconSize: 22 * uiScale,
+                                iconSize: 22,
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                                 onPressed: _openSettings,
                               ),
                             ),
-                            SizedBox(width: 4 * uiScale),
+                            const SizedBox(width: 4),
                           ],
                         ),
                       ),
 
                       // Hold and Next pieces
                       Container(
-                        padding: EdgeInsets.symmetric(vertical: 8 * uiScale),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -588,13 +577,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                     'Hold:',
                                     style: TextStyle(
                                       color: cs.onSurface,
-                                      fontSize: 16 * uiScale,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                  SizedBox(height: 8 * uiScale),
+                                  const SizedBox(height: 8),
                                   Container(
-                                    width: boxSize,
-                                    height: boxSize,
+                                    width: 80,
+                                    height: 80,
                                     decoration: pieceBoxDecoration(
                                       widget.settings.style,
                                       cs,
@@ -621,13 +610,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                   'Next:',
                                   style: TextStyle(
                                     color: cs.onSurface,
-                                    fontSize: 16 * uiScale,
+                                    fontSize: 16,
                                   ),
                                 ),
-                                SizedBox(height: 8 * uiScale),
+                                const SizedBox(height: 8),
                                 Container(
-                                  width: boxSize,
-                                  height: boxSize,
+                                  width: 80,
+                                  height: 80,
                                   decoration: pieceBoxDecoration(
                                     widget.settings.style,
                                     cs,
@@ -645,7 +634,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                         ),
                       ),
 
-                      SizedBox(height: 16 * uiScale),
+                      const SizedBox(height: 16),
 
                       // Game board with score popup overlay
                       SizedBox(
@@ -745,7 +734,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                         ),
                       ),
 
-                      SizedBox(height: 16 * uiScale),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 );
@@ -754,6 +743,233 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           ),
         ),
       ),
+    );
+  }
+
+  /// Full-screen layout for wide displays (Android TV, Chromebox, etc.).
+  ///
+  /// The game board fills nearly the entire screen height.
+  /// Hold and Next are compact side panels so they don't waste space.
+  Widget _buildTvLayout(
+    BuildContext context,
+    BoxConstraints constraints,
+    GameLogic gameLogic,
+    ColorScheme cs,
+  ) {
+    const double scoreBarH = 48.0;
+    const double sidebarW = 100.0;
+    const double boxSize = 64.0;
+    const double gap = 8.0;
+
+    final double boardAvailH = (constraints.maxHeight - scoreBarH - gap * 2)
+        .clamp(100.0, double.infinity);
+    final double boardAvailW = (constraints.maxWidth - sidebarW * 2 - gap * 4)
+        .clamp(100.0, double.infinity);
+
+    const double aspect = GameConstants.boardWidth / GameConstants.boardHeight;
+    double bw = boardAvailH * aspect;
+    double bh = boardAvailH;
+    if (bw > boardAvailW) {
+      bw = boardAvailW;
+      bh = (boardAvailW / aspect).clamp(100.0, double.infinity);
+    }
+
+    Widget holdPanel = GestureDetector(
+      onTap: () {
+        if (gameLogic.isGameRunning &&
+            !gameLogic.isGameOver &&
+            !gameLogic.isPaused) {
+          gameLogic.holdPiece();
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Hold', style: TextStyle(color: cs.onSurface, fontSize: 14)),
+          const SizedBox(height: 6),
+          Container(
+            width: boxSize,
+            height: boxSize,
+            decoration: pieceBoxDecoration(widget.settings.style, cs),
+            child: HoldPieceDisplay(
+              piece: gameLogic.heldPiece,
+              style: widget.settings.style,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Widget nextPanel = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Next', style: TextStyle(color: cs.onSurface, fontSize: 14)),
+        const SizedBox(height: 6),
+        Container(
+          width: boxSize,
+          height: boxSize,
+          decoration: pieceBoxDecoration(widget.settings.style, cs),
+          child: gameLogic.nextPiece != null
+              ? NextPieceDisplay(
+                  piece: gameLogic.nextPiece!,
+                  style: widget.settings.style,
+                )
+              : null,
+        ),
+      ],
+    );
+
+    Widget board = SizedBox(
+      width: bw,
+      height: bh,
+      child: Stack(
+        children: [
+          Container(
+            width: bw,
+            height: bh,
+            decoration: boardDecoration(widget.settings.style, cs),
+            child: GameBoard(
+              board: gameLogic.getBoardWithCurrentPiece(
+                  showGhost: widget.settings.showGhostTile),
+              previewRows: GameConstants.previewRows,
+              gameLogic: gameLogic,
+              style: widget.settings.style,
+              onLeftTap: () {
+                if (gameLogic.isGameRunning &&
+                    !gameLogic.isGameOver &&
+                    !gameLogic.isPaused) {
+                  gameLogic.rotatePieceLeft();
+                }
+              },
+              onRightTap: () {
+                if (gameLogic.isGameRunning &&
+                    !gameLogic.isGameOver &&
+                    !gameLogic.isPaused) {
+                  gameLogic.rotatePieceRight();
+                }
+              },
+            ),
+          ),
+          // Score popup
+          AnimatedBuilder(
+            animation: _popupController,
+            builder: (context, _) {
+              if (_popupController.isDismissed) return const SizedBox.shrink();
+              return Positioned(
+                left: 0,
+                right: 0,
+                top: bh / 2 + _popupOffset.value,
+                child: IgnorePointer(
+                  child: Opacity(
+                    opacity: _popupOpacity.value,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _popupLabel,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _popupLabel.startsWith('T-SPIN')
+                                ? Colors.purple[200]
+                                : (_popupLabel == 'TETRIS!'
+                                    ? Colors.amber
+                                    : Colors.white),
+                            fontSize: _popupLabel == 'TETRIS!' ? 26 : 20,
+                            fontWeight: FontWeight.bold,
+                            shadows: const [
+                              Shadow(blurRadius: 8, color: Colors.black),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '+$_popupDelta',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            shadows: [
+                              Shadow(blurRadius: 6, color: Colors.black),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
+    return Column(
+      children: [
+        // Score bar
+        SizedBox(
+          height: scoreBarH,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Text(
+                  gameLogic.practiceMode
+                      ? 'PRACTICE'
+                      : 'Score: ${formatter.format(gameLogic.score)}',
+                  style: TextStyle(
+                    color: gameLogic.practiceMode ? cs.tertiary : cs.onSurface,
+                    fontSize: 20,
+                    fontWeight: gameLogic.practiceMode
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'Level: ${gameLogic.level}',
+                  style: TextStyle(color: cs.onSurface, fontSize: 20),
+                ),
+                const Spacer(),
+                Text(
+                  'Lines: ${gameLogic.linesCleared}',
+                  style: TextStyle(color: cs.onSurface, fontSize: 20),
+                ),
+                const SizedBox(width: 8),
+                ExcludeFocus(
+                  child: IconButton(
+                    icon: Icon(Icons.settings, color: cs.onSurfaceVariant),
+                    iconSize: 24,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: _openSettings,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Board + sidebars
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: sidebarW,
+                child: Center(child: holdPanel),
+              ),
+              SizedBox(width: gap),
+              board,
+              SizedBox(width: gap),
+              SizedBox(
+                width: sidebarW,
+                child: Center(child: nextPanel),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
