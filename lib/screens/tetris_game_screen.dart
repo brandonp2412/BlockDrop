@@ -468,9 +468,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // Scale UI chrome proportionally on large-screen devices
-                // (e.g. Android TV). A phone at ~400 dp wide gets 1.0×;
-                // a 1080p TV at ~960 dp wide gets up to 2.0×.
-                final uiScale = (constraints.maxWidth / 400.0).clamp(1.0, 2.0);
+                // (e.g. Android TV). Use the shorter screen dimension so that
+                // landscape screens (wide but short) don't over-inflate heights
+                // and squeeze out the game board.
+                final shortSide = constraints.maxWidth < constraints.maxHeight
+                    ? constraints.maxWidth
+                    : constraints.maxHeight;
+                final uiScale = (shortSide / 400.0).clamp(1.0, 2.0);
                 final boxSize = 80.0 * uiScale;
 
                 // Calculate space needed for UI elements.
