@@ -1,0 +1,31 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF2DA0"/>
+      <stop offset="100%" stop-color="#7B2FBE"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="22" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Top block (center of T-piece) -->
+  <rect x="392" y="280" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
+  <rect x="414" y="298" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
+
+  <!-- Bottom-left block -->
+  <rect x="142" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
+  <rect x="164" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
+
+  <!-- Bottom-center block -->
+  <rect x="392" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
+  <rect x="414" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
+
+  <!-- Bottom-right block -->
+  <rect x="642" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
+  <rect x="664" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
+</svg>

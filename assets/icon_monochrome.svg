@@ -1,0 +1,9 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- T-piece silhouette — top block -->
+  <rect x="392" y="280" width="240" height="240" rx="36" ry="36" fill="#FFFFFF"/>
+
+  <!-- T-piece silhouette — bottom row -->
+  <rect x="142" y="530" width="240" height="240" rx="36" ry="36" fill="#FFFFFF"/>
+  <rect x="392" y="530" width="240" height="240" rx="36" ry="36" fill="#FFFFFF"/>
+  <rect x="642" y="530" width="240" height="240" rx="36" ry="36" fill="#FFFFFF"/>
+</svg>

@@ -3,10 +3,16 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
 import '../models/tetromino.dart';
 
 class GameLogic extends ChangeNotifier {
+  AudioService? audioService;
+
+  /// Called after lines are cleared (multiplayer: send garbage to opponent).
+  /// Set by the multiplayer game screen; null in solo play (zero overhead).
+  void Function(int linesCleared, bool wasTSpin)? onLinesCleared;
   late List<List<Color?>> board;
   Timer? gameTimer;
 
@@ -26,6 +32,7 @@ class GameLogic extends ChangeNotifier {
   bool isGameRunning = false;
   bool isGameOver = false;
   bool isPaused = false;
+  bool practiceMode = false;
   bool isSlamming = false; // Track if piece is currently slamming down
   bool isNewPieceGracePeriod =
       false; // Prevent immediate input after new piece spawns
@@ -34,6 +41,14 @@ class GameLogic extends ChangeNotifier {
   int level = 1;
   int linesCleared = 0;
   int dropSpeed = GameConstants.initialDropSpeed;
+
+  // Score popup feedback
+  int lastScoreDelta = 0;
+  String clearBonusLabel = '';
+
+  // T-spin / rotation tracking
+  bool _lastMoveWasRotation = false;
+  bool _pendingTSpin = false;
 
   // Line clearing animation
   List<int> clearingLines = [];
@@ -56,15 +71,43 @@ class GameLogic extends ChangeNotifier {
     );
   }
 
-  void startGame() {
+  void startGame({int? practiceLevel}) {
+    // Cancel all running timers before resetting state
+    gameTimer?.cancel();
+    gameTimer = null;
+    clearAnimationTimer?.cancel();
+    clearAnimationTimer = null;
+    trailAnimationTimer?.cancel();
+    trailAnimationTimer = null;
+    gracePeriodTimer?.cancel();
+    gracePeriodTimer = null;
+
+    practiceMode = practiceLevel != null;
     isGameRunning = true;
     isGameOver = false;
+    isPaused = false;
+    isSlamming = false;
+    isAnimatingClear = false;
+    isAnimatingTrail = false;
+    isNewPieceGracePeriod = false;
+    clearingLines = [];
+    trailBlocks = [];
     score = 0;
-    level = 1;
+    level = practiceLevel ?? 1;
     linesCleared = 0;
-    dropSpeed = GameConstants.initialDropSpeed;
+    dropSpeed = practiceLevel != null
+        ? max(
+            GameConstants.minDropSpeed,
+            GameConstants.initialDropSpeed -
+                (practiceLevel - 1) * GameConstants.speedIncrement,
+          )
+        : GameConstants.initialDropSpeed;
     heldPiece = null;
     canHold = true;
+    lastScoreDelta = 0;
+    clearBonusLabel = '';
+    _lastMoveWasRotation = false;
+    _pendingTSpin = false;
 
     Tetromino.resetBag();
     initializeBoard();
@@ -141,6 +184,7 @@ class GameLogic extends ChangeNotifier {
       isGameOver = true;
       isGameRunning = false;
       gameTimer?.cancel();
+      audioService?.playGameOver();
       notifyListeners();
     }
   }
@@ -170,6 +214,9 @@ class GameLogic extends ChangeNotifier {
   void placePiece() {
     if (currentPiece == null) return;
 
+    // Detect T-spin before the piece is placed on the board
+    _pendingTSpin = _isTSpin();
+
     for (int row = 0; row < currentPiece!.shape.length; row++) {
       for (int col = 0; col < currentPiece!.shape[row].length; col++) {
         if (currentPiece!.shape[row][col] == 1) {
@@ -186,6 +233,7 @@ class GameLogic extends ChangeNotifier {
       }
     }
 
+    _lastMoveWasRotation = false;
     clearLines();
     canHold = true; // Allow holding the next piece
     spawnNewPiece();
@@ -218,6 +266,8 @@ class GameLogic extends ChangeNotifier {
       clearingLines = fullLines;
       isAnimatingClear = true;
 
+      audioService?.playClear(fullLines.length);
+
       // Pause the game timer during animation
       gameTimer?.cancel();
 
@@ -238,7 +288,9 @@ class GameLogic extends ChangeNotifier {
   }
 
   void _completeClearAnimation() {
-    int clearedLinesCount = clearingLines.length;
+    final int clearedLinesCount = clearingLines.length;
+    final bool wasTSpin = _pendingTSpin;
+    _pendingTSpin = false;
 
     // Remove the cleared lines from the board
     for (int row in clearingLines.reversed) {
@@ -250,15 +302,40 @@ class GameLogic extends ChangeNotifier {
       );
     }
 
+    // Calculate score using Tetris guideline multipliers
+    final int delta;
+    final String label;
+    if (wasTSpin) {
+      final int idx =
+          clearedLinesCount.clamp(0, GameConstants.tSpinScores.length - 1);
+      delta = GameConstants.tSpinScores[idx] * level;
+      label = GameConstants.tSpinLabels[idx];
+    } else if (clearedLinesCount > 0) {
+      final int idx =
+          clearedLinesCount.clamp(0, GameConstants.lineClearScores.length - 1);
+      delta = GameConstants.lineClearScores[idx] * level;
+      label = GameConstants.lineClearLabels[idx];
+    } else {
+      delta = 0;
+      label = '';
+    }
+
     // Update game state
     linesCleared += clearedLinesCount;
-    score += clearedLinesCount * GameConstants.pointsPerLine * level;
-    level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
-    dropSpeed = max(
-      GameConstants.minDropSpeed,
-      GameConstants.initialDropSpeed -
-          (level - 1) * GameConstants.speedIncrement,
-    );
+    if (!practiceMode) {
+      score += delta;
+      lastScoreDelta = delta;
+      clearBonusLabel = label;
+
+      final int oldLevel = level;
+      level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
+      if (level > oldLevel) audioService?.playLevelUp();
+      dropSpeed = max(
+        GameConstants.minDropSpeed,
+        GameConstants.initialDropSpeed -
+            (level - 1) * GameConstants.speedIncrement,
+      );
+    }
 
     // Reset animation state
     clearingLines.clear();
@@ -269,6 +346,71 @@ class GameLogic extends ChangeNotifier {
     // Restart game timer with new speed
     startGameTimer();
     notifyListeners();
+
+    // Multiplayer hook – only non-null when in a multiplayer game
+    onLinesCleared?.call(clearedLinesCount, wasTSpin);
+  }
+
+  /// Returns true if the current placement qualifies as a T-spin.
+  bool _isTSpin() {
+    if (!_lastMoveWasRotation) return false;
+    if (currentPiece == null) return false;
+    if (!_isPieceTType()) return false;
+
+    // Find the center of the T piece (the cell with 2+ orthogonal filled neighbors).
+    final shape = currentPiece!.shape;
+    int centerRow = -1;
+    int centerCol = -1;
+    outer:
+    for (int r = 0; r < shape.length; r++) {
+      for (int c = 0; c < shape[r].length; c++) {
+        if (shape[r][c] != 1) continue;
+        int neighbors = 0;
+        if (r > 0 && shape[r - 1][c] == 1) neighbors++;
+        if (r < shape.length - 1 && shape[r + 1][c] == 1) neighbors++;
+        if (c > 0 && shape[r][c - 1] == 1) neighbors++;
+        if (c < shape[r].length - 1 && shape[r][c + 1] == 1) neighbors++;
+        if (neighbors >= 2) {
+          centerRow = r;
+          centerCol = c;
+          break outer;
+        }
+      }
+    }
+    if (centerRow == -1) return false;
+
+    final int boardRow = currentY + centerRow;
+    final int boardCol = currentX + centerCol;
+
+    // Count occupied diagonal corners (out-of-bounds counts as occupied).
+    int occupiedCorners = 0;
+    for (final dr in [-1, 1]) {
+      for (final dc in [-1, 1]) {
+        final r = boardRow + dr;
+        final c = boardCol + dc;
+        if (r < 0 ||
+            r >= GameConstants.boardHeight + GameConstants.previewRows ||
+            c < 0 ||
+            c >= GameConstants.boardWidth ||
+            board[r][c] != null) {
+          occupiedCorners++;
+        }
+      }
+    }
+    return occupiedCorners >= 3;
+  }
+
+  bool _isPieceTType() {
+    if (currentPiece == null) return false;
+    // T piece is always purple — check by color.
+    return currentPiece!.color == const Color(0xFF9C27B0) ||
+        currentPiece!.color == Colors.purple;
+  }
+
+  /// Call this from the screen after reading clearBonusLabel / lastScoreDelta.
+  void consumeClearBonus() {
+    clearBonusLabel = '';
+    lastScoreDelta = 0;
   }
 
   void movePieceDown() {
@@ -277,6 +419,7 @@ class GameLogic extends ChangeNotifier {
 
     if (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
+      _lastMoveWasRotation = false;
       notifyListeners();
     } else {
       placePiece();
@@ -289,6 +432,8 @@ class GameLogic extends ChangeNotifier {
 
     if (canPlacePiece(currentX - 1, currentY, currentPiece!)) {
       currentX--;
+      _lastMoveWasRotation = false;
+      audioService?.playMove();
       notifyListeners();
     }
   }
@@ -299,6 +444,8 @@ class GameLogic extends ChangeNotifier {
 
     if (canPlacePiece(currentX + 1, currentY, currentPiece!)) {
       currentX++;
+      _lastMoveWasRotation = false;
+      audioService?.playMove();
       notifyListeners();
     }
   }
@@ -332,6 +479,8 @@ class GameLogic extends ChangeNotifier {
         currentPiece = rotatedPiece;
         currentX = testX;
         currentY = testY;
+        _lastMoveWasRotation = true;
+        audioService?.playRotate();
         notifyListeners();
         return;
       }
@@ -364,6 +513,8 @@ class GameLogic extends ChangeNotifier {
         currentPiece = rotatedPiece;
         currentX = testX;
         currentY = testY;
+        _lastMoveWasRotation = true;
+        audioService?.playRotate();
         notifyListeners();
         return;
       }
@@ -379,6 +530,7 @@ class GameLogic extends ChangeNotifier {
 
     // Set slamming flag to lock horizontal position
     isSlamming = true;
+    _lastMoveWasRotation = false;
 
     // Store the starting position for trail animation
     int startY = currentY;
@@ -387,6 +539,8 @@ class GameLogic extends ChangeNotifier {
     while (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
     }
+
+    audioService?.playDrop();
 
     // Create trail animation if the piece moved more than 1 row
     if (currentY > startY + 1) {
@@ -471,6 +625,8 @@ class GameLogic extends ChangeNotifier {
   void holdPiece() {
     if (!canHold || currentPiece == null) return;
 
+    audioService?.playHold();
+
     if (heldPiece == null) {
       // First time holding - store current piece and spawn next
       heldPiece = currentPiece;
@@ -508,7 +664,7 @@ class GameLogic extends ChangeNotifier {
     return ghostY;
   }
 
-  List<List<Color?>> getBoardWithCurrentPiece() {
+  List<List<Color?>> getBoardWithCurrentPiece({bool showGhost = true}) {
     List<List<Color?>> displayBoard = List.generate(
       GameConstants.boardHeight + GameConstants.previewRows,
       (row) =>
@@ -518,7 +674,7 @@ class GameLogic extends ChangeNotifier {
     if (currentPiece != null) {
       // First, draw the ghost piece (shadow)
       int ghostY = calculateGhostPieceY();
-      if (ghostY != currentY) {
+      if (showGhost && ghostY != currentY) {
         // Only show ghost if it's different from current position
         for (int row = 0; row < currentPiece!.shape.length; row++) {
           for (int col = 0; col < currentPiece!.shape[row].length; col++) {
@@ -574,6 +730,94 @@ class GameLogic extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  // ── Multiplayer helpers ───────────────────────────────────────────────────
+
+  /// Push [lines] garbage rows onto the bottom of the board.
+  /// Each garbage row is solid except for one random gap column.
+  /// This is only called when in a multiplayer game.
+  void receiveGarbage(int lines) {
+    if (isGameOver || lines <= 0) return;
+
+    final gapColumn = Random().nextInt(GameConstants.boardWidth);
+    const garbageColor = Color(0xFF607080); // grey-blue, distinct from pieces
+
+    for (int i = 0; i < lines; i++) {
+      // Remove the topmost row (shifts the visible stack up by one)
+      board.removeAt(0);
+      // Append a new garbage row at the bottom
+      final row = List<Color?>.filled(GameConstants.boardWidth, garbageColor);
+      row[gapColumn] = null; // the clearable gap
+      board.add(row);
+    }
+
+    // If the current piece now overlaps the pushed-up stack, move it up
+    if (currentPiece != null &&
+        !canPlacePiece(currentX, currentY, currentPiece!)) {
+      while (
+          currentY > 0 && !canPlacePiece(currentX, currentY, currentPiece!)) {
+        currentY--;
+      }
+      if (!canPlacePiece(currentX, currentY, currentPiece!)) {
+        isGameOver = true;
+        isGameRunning = false;
+        gameTimer?.cancel();
+        audioService?.playGameOver();
+        notifyListeners();
+        return;
+      }
+    }
+
+    notifyListeners();
+  }
+
+  /// Returns the 200 visible cells (20 rows × 10 cols) as palette indices.
+  /// 0 = empty, 1–7 = piece colours, 8 = garbage.
+  /// Used to send a compact board snapshot to the opponent.
+  List<int> exportBoardSnapshot() {
+    final displayBoard = getBoardWithCurrentPiece();
+    final cells = <int>[];
+    for (int row = GameConstants.previewRows;
+        row < GameConstants.boardHeight + GameConstants.previewRows;
+        row++) {
+      for (int col = 0; col < GameConstants.boardWidth; col++) {
+        cells.add(_colorToIndex(displayBoard[row][col]));
+      }
+    }
+    return cells;
+  }
+
+  static int _colorToIndex(Color? c) {
+    if (c == null || c == GameConstants.ghostPieceColor) return 0;
+    // Map all known piece colours (original + theme-adapted variants) to
+    // a stable palette index used by OpponentBoard.
+    switch (c.toARGB32()) {
+      case 0xFF00BCD4: // I cyan
+      case 0xFF007787:
+        return 1;
+      case 0xFFFFEB3B: // O yellow
+      case 0xFF776D1B:
+        return 2;
+      case 0xFF9C27B0: // T purple
+      case 0xFFBA68C8:
+        return 3;
+      case 0xFF4CAF50: // S green
+      case 0xFF357A38:
+        return 4;
+      case 0xFFF44336: // Z red
+        return 5;
+      case 0xFF2196F3: // J blue
+      case 0xFF196FB5:
+        return 6;
+      case 0xFFFF9800: // L orange
+      case 0xFF9D5D00:
+        return 7;
+      case 0xFF607080: // garbage
+        return 8;
+      default:
+        return 1; // unknown filled cell → show as filled
+    }
   }
 
   @override

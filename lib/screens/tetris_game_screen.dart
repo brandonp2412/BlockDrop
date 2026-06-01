@@ -1,21 +1,45 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../game/game_logic.dart';
-import '../widgets/game_board.dart';
-import '../widgets/next_piece_display.dart';
-import '../widgets/hold_piece_display.dart';
+import 'package:intl/intl.dart';
+
+import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
+import '../game/game_logic.dart';
+import '../settings/settings_provider.dart';
+import '../widgets/game_board.dart';
+import '../widgets/game_decorations.dart';
+import '../widgets/hold_piece_display.dart';
+import '../widgets/next_piece_display.dart';
+import '../widgets/swipe_detector.dart';
+import 'settings_screen.dart';
 
 class TetrisGameScreen extends StatefulWidget {
-  const TetrisGameScreen({super.key});
+  final SettingsProvider settings;
+
+  const TetrisGameScreen({super.key, required this.settings});
 
   @override
   State<TetrisGameScreen> createState() => _TetrisGameScreenState();
 }
 
 class _TetrisGameScreenState extends State<TetrisGameScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   late GameLogic gameLogic;
+  late AudioService _audioService;
+
+  // Score popup animation
+  late AnimationController _popupController;
+  late Animation<double> _popupOpacity;
+  late Animation<double> _popupOffset;
+  String _popupLabel = '';
+  int _popupDelta = 0;
+  bool _gameOverModal = false;
+  bool _isSettingsOpen = false;
+  bool _pendingPractice = false;
+  int _practiceLevel = 1;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
   static const double _moveThreshold =
@@ -23,43 +47,297 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   static const double _fastSwipeVelocity =
       1000.0; // Velocity threshold for hard drop (increased significantly)
 
+  final formatter = NumberFormat.decimalPattern('en_US');
+
   @override
   void initState() {
     super.initState();
+    _popupController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _popupOpacity = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 15),
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 45),
+    ]).animate(_popupController);
+    _popupOffset = Tween<double>(begin: 0.0, end: -60.0).animate(
+      CurvedAnimation(parent: _popupController, curve: Curves.easeOut),
+    );
+
+    _audioService = AudioService(
+      musicEnabled: widget.settings.musicEnabled,
+      sfxEnabled: widget.settings.sfxEnabled,
+    );
+    _audioService.init().then((_) => _audioService.startMusic());
+
     gameLogic = GameLogic();
+    gameLogic.audioService = _audioService;
     gameLogic.addListener(_onGameStateChanged);
     gameLogic.startGame();
 
-    // Add lifecycle observer to detect app state changes
     WidgetsBinding.instance.addObserver(this);
+    widget.settings.addListener(_onSettingsChanged);
+    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+  }
+
+  bool _handleKeyEvent(KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
+
+    // Escape: open settings when none are open; otherwise let Navigator pop
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape) {
+      if (!_gameOverModal && !_isSettingsOpen) {
+        _openSettings();
+        return true;
+      } else if (!_gameOverModal && _isSettingsOpen) {
+        Navigator.of(context).pop();
+      }
+      return false; // let Navigator handle closing the open screen
+    }
+
+    // Q shows quit confirmation (only when at the game screen)
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyQ) {
+      if (!_gameOverModal && !_isSettingsOpen) _showQuitConfirmation();
+      return true;
+    }
+
+    if (!gameLogic.isGameRunning ||
+        gameLogic.isGameOver ||
+        gameLogic.isPaused) {
+      return false;
+    }
+
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.arrowLeft:
+        gameLogic.movePieceLeft();
+        return true;
+      case LogicalKeyboardKey.arrowRight:
+        gameLogic.movePieceRight();
+        return true;
+      case LogicalKeyboardKey.arrowDown:
+        gameLogic.movePieceDown();
+        return true;
+      case LogicalKeyboardKey.arrowUp:
+      case LogicalKeyboardKey.keyZ:
+        if (event is KeyDownEvent) gameLogic.rotatePiece();
+        return true;
+      case LogicalKeyboardKey.keyX:
+        if (event is KeyDownEvent) gameLogic.rotatePieceRight();
+        return true;
+      case LogicalKeyboardKey.space:
+      case LogicalKeyboardKey.select:
+        if (event is KeyDownEvent) gameLogic.dropPiece();
+        return true;
+      case LogicalKeyboardKey.keyC:
+      case LogicalKeyboardKey.mediaPlayPause:
+        if (event is KeyDownEvent) gameLogic.holdPiece();
+        return true;
+    }
+    return false;
+  }
+
+  Future<void> _showQuitConfirmation() async {
+    final wasRunning =
+        gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused;
+    if (wasRunning) gameLogic.pauseGame();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Quit Game?'),
+        content: const Text('Your current progress will be lost.'),
+        actions: [
+          TextButton(
+            autofocus: true,
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Quit'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    if (confirmed == true) {
+      gameLogic.startGame();
+      if (widget.settings.musicEnabled) _audioService.startMusic();
+    } else if (wasRunning) {
+      gameLogic.resumeGame();
+    }
+  }
+
+  void _onSettingsChanged() {
+    _audioService.musicEnabled = widget.settings.musicEnabled;
+    _audioService.sfxEnabled = widget.settings.sfxEnabled;
+    if (widget.settings.musicEnabled) {
+      _audioService.resumeMusic();
+    } else {
+      _audioService.pauseMusic();
+    }
+    setState(() {});
+  }
+
+  Future<void> _openSettings() async {
+    if (_isSettingsOpen) return;
+    _isSettingsOpen = true;
+
+    final wasRunning =
+        gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused;
+    if (wasRunning) gameLogic.pauseGame();
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SettingsScreen(
+          settings: widget.settings,
+          onRestart: () {
+            gameLogic.startGame();
+          },
+          onQuit: () {
+            if (defaultTargetPlatform == TargetPlatform.android)
+              SystemNavigator.pop();
+            else
+              exit(0);
+          },
+          onPractice: () {
+            _pendingPractice = true;
+          },
+        ),
+      ),
+    );
+
+    _isSettingsOpen = false;
+
+    if (_pendingPractice) {
+      _pendingPractice = false;
+      _showPracticeLevelPicker();
+      return;
+    }
+
+    if (mounted &&
+        gameLogic.isGameRunning &&
+        !gameLogic.isGameOver &&
+        gameLogic.isPaused) {
+      gameLogic.resumeGame();
+    }
   }
 
   void _onGameStateChanged() {
+    // Consume score popup event before setState
+    if (gameLogic.clearBonusLabel.isNotEmpty) {
+      _popupLabel = gameLogic.clearBonusLabel;
+      _popupDelta = gameLogic.lastScoreDelta;
+      gameLogic.consumeClearBonus();
+      _popupController.forward(from: 0.0);
+    }
+
     setState(() {});
 
     // Show game over modal when game ends
     if (gameLogic.isGameOver && mounted) {
+      if (!gameLogic.practiceMode)
+        widget.settings.updateHighScore(gameLogic.score);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showGameOverModal();
       });
     }
   }
 
-  void _showGameOverModal() {
-    showDialog(
+  Future<void> _showPracticeLevelPicker() async {
+    final cs = Theme.of(context).colorScheme;
+    final style = widget.settings.style;
+    int selectedLevel = _practiceLevel;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: cs.surface,
+          shape: styledDialogShape(style, cs),
+          title: const Text('Practice Mode'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Choose a starting level. Speed stays fixed throughout the session.',
+                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.remove),
+                    onPressed: selectedLevel > 1
+                        ? () => setDialogState(() => selectedLevel--)
+                        : null,
+                  ),
+                  SizedBox(
+                    width: 60,
+                    child: Text(
+                      'Lv $selectedLevel',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: selectedLevel < 20
+                        ? () => setDialogState(() => selectedLevel++)
+                        : null,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: FilledButton.styleFrom(shape: buttonBorderShape(style)),
+              child: const Text('Start'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() => _practiceLevel = selectedLevel);
+      gameLogic.startGame(practiceLevel: selectedLevel);
+      if (widget.settings.musicEnabled) _audioService.startMusic();
+    }
+  }
+
+  void _showGameOverModal() async {
+    if (_gameOverModal) return;
+    setState(() {
+      _gameOverModal = true;
+    });
+    final cs = Theme.of(context).colorScheme;
+    final style = widget.settings.style;
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.black87,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-            side: const BorderSide(color: Colors.red, width: 2),
-          ),
-          title: const Text(
+          backgroundColor: cs.surface,
+          shape: styledDialogShape(style, cs, accentColor: cs.error),
+          title: Text(
             'Game Over!',
             style: TextStyle(
-              color: Colors.red,
+              color: cs.error,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -68,70 +346,60 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Final Score: ${gameLogic.score}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
+              if (!gameLogic.practiceMode)
+                Text(
+                  'Final Score: ${formatter.format(gameLogic.score)}',
+                  style: TextStyle(color: cs.onSurface, fontSize: 18),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
+              if (!gameLogic.practiceMode) const SizedBox(height: 8),
               Text(
-                'Level: ${gameLogic.level}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                gameLogic.practiceMode
+                    ? 'Practice Lv ${gameLogic.level}'
+                    : 'Level: ${gameLogic.level}',
+                style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 'Lines Cleared: ${gameLogic.linesCleared}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
             ],
           ),
           actions: [
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  gameLogic.startGame();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Play Again',
-                  style: TextStyle(fontSize: 16),
-                ),
+            FilledButton(
+              autofocus: true,
+              onPressed: () {
+                Navigator.of(context).pop();
+                gameLogic.startGame();
+                if (widget.settings.musicEnabled) _audioService.startMusic();
+              },
+              style: FilledButton.styleFrom(
+                shape: buttonBorderShape(style),
+                minimumSize: const Size(double.infinity, 48),
               ),
+              child: const Text('Play Again'),
             ),
           ],
         );
       },
     );
+    setState(() {
+      _gameOverModal = false;
+    });
   }
 
   @override
   void dispose() {
-    // Remove lifecycle observer
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    _popupController.dispose();
+    widget.settings.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
     gameLogic.removeListener(_onGameStateChanged);
     gameLogic.dispose();
+    _audioService.dispose();
     super.dispose();
   }
 
@@ -142,20 +410,24 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
+        _audioService.pauseMusic();
       case AppLifecycleState.detached:
         // App is going to background or being minimized - pause the game
         if (gameLogic.isGameRunning &&
             !gameLogic.isGameOver &&
             !gameLogic.isPaused) {
           gameLogic.pauseGame();
+          _audioService.pauseMusic();
         }
         break;
       case AppLifecycleState.resumed:
         // App is coming back to foreground - resume the game
-        if (gameLogic.isGameRunning &&
+        if (!_isSettingsOpen &&
+            gameLogic.isGameRunning &&
             !gameLogic.isGameOver &&
             gameLogic.isPaused) {
           gameLogic.resumeGame();
+          _audioService.resumeMusic();
         }
         break;
       case AppLifecycleState.hidden:
@@ -164,6 +436,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             !gameLogic.isGameOver &&
             !gameLogic.isPaused) {
           gameLogic.pauseGame();
+          _audioService.pauseMusic();
         }
         break;
     }
@@ -171,123 +444,121 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Focus(
-          autofocus: true,
-          onKeyEvent: (node, event) {
-            if (event is KeyDownEvent &&
-                gameLogic.isGameRunning &&
-                !gameLogic.isGameOver &&
-                !gameLogic.isPaused) {
-              switch (event.logicalKey) {
-                case LogicalKeyboardKey.arrowLeft:
-                  gameLogic.movePieceLeft();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowRight:
-                  gameLogic.movePieceRight();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowDown:
-                  gameLogic.movePieceDown();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowUp:
-                  gameLogic.rotatePiece();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.space:
-                  gameLogic.dropPiece();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.keyC:
-                  gameLogic.holdPiece();
-                  return KeyEventResult.handled;
-              }
-            } else if (event is KeyRepeatEvent &&
-                gameLogic.isGameRunning &&
-                !gameLogic.isGameOver &&
-                !gameLogic.isPaused) {
-              switch (event.logicalKey) {
-                case LogicalKeyboardKey.arrowLeft:
-                  gameLogic.movePieceLeft();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowRight:
-                  gameLogic.movePieceRight();
-                  return KeyEventResult.handled;
-                case LogicalKeyboardKey.arrowDown:
-                  gameLogic.movePieceDown();
-                  return KeyEventResult.handled;
-              }
-            }
-            return KeyEventResult.ignored;
-          },
-          child: _SwipeDetector(
+    final cs = Theme.of(context).colorScheme;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_gameOverModal || _isSettingsOpen) return;
+        if (gameLogic.isGameRunning &&
+            !gameLogic.isGameOver &&
+            !gameLogic.isPaused &&
+            gameLogic.canHold) {
+          gameLogic.holdPiece();
+        } else {
+          _openSettings();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: SwipeDetector(
             gameLogic: gameLogic,
             moveThreshold: _moveThreshold,
             fastSwipeVelocity: _fastSwipeVelocity,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                // Calculate space needed for UI elements
-                double scoreHeight = 58; // Score section height
-                double nextPieceHeight = 127; // Next piece section height
-                double spacingHeight = 32; // SizedBox spacing
-                double totalUIHeight =
+                final isWideScreen =
+                    constraints.maxWidth > constraints.maxHeight * 1.4;
+
+                if (isWideScreen) {
+                  return _buildTvLayout(context, constraints, gameLogic, cs);
+                }
+
+                // ── Phone / portrait layout ────────────────────────────────
+                const double scoreHeight = 38.0;
+                const double nextPieceHeight = 124.0;
+                const double spacingHeight = 32.0;
+                const double totalUIHeight =
                     scoreHeight + nextPieceHeight + spacingHeight;
 
-                // Calculate the maximum height available for the game board
-                double availableHeight = (constraints.maxHeight -
-                        totalUIHeight -
-                        32)
-                    .clamp(100.0, double.infinity); // Extra padding for safety
+                double availableHeight =
+                    (constraints.maxHeight - totalUIHeight - 32)
+                        .clamp(100.0, double.infinity);
                 double availableWidth = constraints.maxWidth - 32;
 
-                // Calculate the ideal size based on aspect ratio
                 double idealWidth = availableHeight *
                     (GameConstants.boardWidth / GameConstants.boardHeight);
                 double idealHeight = availableWidth *
                     (GameConstants.boardHeight / GameConstants.boardWidth);
 
-                // Use the smaller dimension to ensure it fits
                 double gameboardWidth, gameboardHeight;
                 if (idealWidth <= availableWidth) {
                   gameboardWidth = idealWidth.clamp(100.0, double.infinity);
-                  gameboardHeight = availableHeight.clamp(
-                    100.0,
-                    double.infinity,
-                  );
+                  gameboardHeight =
+                      availableHeight.clamp(100.0, double.infinity);
                 } else {
                   gameboardWidth = availableWidth.clamp(100.0, double.infinity);
                   gameboardHeight = idealHeight.clamp(100.0, double.infinity);
                 }
 
                 return SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Score section
-                      Container(
-                        padding: const EdgeInsets.all(16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                            const SizedBox(width: 8),
                             Text(
-                              'Score: ${gameLogic.score}',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              gameLogic.practiceMode
+                                  ? 'PRACTICE'
+                                  : 'Score: ${formatter.format(gameLogic.score)}',
+                              style: TextStyle(
+                                color: gameLogic.practiceMode
+                                    ? cs.tertiary
+                                    : cs.onSurface,
                                 fontSize: 18,
+                                fontWeight: gameLogic.practiceMode
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                               ),
                             ),
+                            const Spacer(),
                             Text(
                               'Level: ${gameLogic.level}',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: cs.onSurface,
                                 fontSize: 18,
                               ),
                             ),
+                            const Spacer(),
                             Text(
                               'Lines: ${gameLogic.linesCleared}',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: cs.onSurface,
                                 fontSize: 18,
                               ),
                             ),
+                            const SizedBox(width: 4),
+                            ExcludeFocus(
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.settings,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                                iconSize: 22,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: _openSettings,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
                           ],
                         ),
                       ),
@@ -302,10 +573,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             GestureDetector(
                               child: Column(
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Hold:',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: cs.onSurface,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -313,11 +584,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                   Container(
                                     width: 80,
                                     height: 80,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.white),
+                                    decoration: pieceBoxDecoration(
+                                      widget.settings.style,
+                                      cs,
                                     ),
                                     child: HoldPieceDisplay(
                                       piece: gameLogic.heldPiece,
+                                      style: widget.settings.style,
                                     ),
                                   ),
                                 ],
@@ -333,10 +606,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             // Next piece
                             Column(
                               children: [
-                                const Text(
+                                Text(
                                   'Next:',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: cs.onSurface,
                                     fontSize: 16,
                                   ),
                                 ),
@@ -344,12 +617,14 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                 Container(
                                   width: 80,
                                   height: 80,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white),
+                                  decoration: pieceBoxDecoration(
+                                    widget.settings.style,
+                                    cs,
                                   ),
                                   child: gameLogic.nextPiece != null
                                       ? NextPieceDisplay(
                                           piece: gameLogic.nextPiece!,
+                                          style: widget.settings.style,
                                         )
                                       : null,
                                 ),
@@ -361,31 +636,101 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
                       const SizedBox(height: 16),
 
-                      // Game board
-                      Container(
+                      // Game board with score popup overlay
+                      SizedBox(
                         width: gameboardWidth,
                         height: gameboardHeight,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: GameBoard(
-                          board: gameLogic.getBoardWithCurrentPiece(),
-                          previewRows: GameConstants.previewRows,
-                          gameLogic: gameLogic,
-                          onLeftTap: () {
-                            if (gameLogic.isGameRunning &&
-                                !gameLogic.isGameOver &&
-                                !gameLogic.isPaused) {
-                              gameLogic.rotatePieceLeft();
-                            }
-                          },
-                          onRightTap: () {
-                            if (gameLogic.isGameRunning &&
-                                !gameLogic.isGameOver &&
-                                !gameLogic.isPaused) {
-                              gameLogic.rotatePieceRight();
-                            }
-                          },
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: gameboardWidth,
+                              height: gameboardHeight,
+                              decoration: boardDecoration(
+                                widget.settings.style,
+                                cs,
+                              ),
+                              child: GameBoard(
+                                board: gameLogic.getBoardWithCurrentPiece(
+                                    showGhost: widget.settings.showGhostTile),
+                                previewRows: GameConstants.previewRows,
+                                gameLogic: gameLogic,
+                                style: widget.settings.style,
+                                onLeftTap: () {
+                                  if (gameLogic.isGameRunning &&
+                                      !gameLogic.isGameOver &&
+                                      !gameLogic.isPaused) {
+                                    gameLogic.rotatePieceLeft();
+                                  }
+                                },
+                                onRightTap: () {
+                                  if (gameLogic.isGameRunning &&
+                                      !gameLogic.isGameOver &&
+                                      !gameLogic.isPaused) {
+                                    gameLogic.rotatePieceRight();
+                                  }
+                                },
+                              ),
+                            ),
+                            // Score popup
+                            AnimatedBuilder(
+                              animation: _popupController,
+                              builder: (context, _) {
+                                if (_popupController.isDismissed) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  top: gameboardHeight / 2 + _popupOffset.value,
+                                  child: IgnorePointer(
+                                    child: Opacity(
+                                      opacity: _popupOpacity.value,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            _popupLabel,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: _popupLabel
+                                                      .startsWith('T-SPIN')
+                                                  ? Colors.purple[200]
+                                                  : (_popupLabel == 'TETRIS!'
+                                                      ? Colors.amber
+                                                      : Colors.white),
+                                              fontSize: _popupLabel == 'TETRIS!'
+                                                  ? 26
+                                                  : 20,
+                                              fontWeight: FontWeight.bold,
+                                              shadows: const [
+                                                Shadow(
+                                                    blurRadius: 8,
+                                                    color: Colors.black),
+                                              ],
+                                            ),
+                                          ),
+                                          Text(
+                                            '+$_popupDelta',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              shadows: [
+                                                Shadow(
+                                                    blurRadius: 6,
+                                                    color: Colors.black),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
 
@@ -400,157 +745,231 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       ),
     );
   }
-}
 
-class _SwipeDetector extends StatefulWidget {
-  final GameLogic gameLogic;
-  final double moveThreshold;
-  final double fastSwipeVelocity;
-  final Widget child;
+  /// Full-screen layout for wide displays (Android TV, Chromebox, etc.).
+  ///
+  /// The game board fills nearly the entire screen height.
+  /// Hold and Next are compact side panels so they don't waste space.
+  Widget _buildTvLayout(
+    BuildContext context,
+    BoxConstraints constraints,
+    GameLogic gameLogic,
+    ColorScheme cs,
+  ) {
+    const double scoreBarH = 48.0;
+    const double sidebarW = 160.0;
+    const double boxSize = 120.0;
+    const double gap = 8.0;
 
-  const _SwipeDetector({
-    required this.gameLogic,
-    required this.moveThreshold,
-    required this.fastSwipeVelocity,
-    required this.child,
-  });
+    final double boardAvailH = (constraints.maxHeight - scoreBarH - gap * 2)
+        .clamp(100.0, double.infinity);
+    final double boardAvailW = (constraints.maxWidth - sidebarW * 2 - gap * 4)
+        .clamp(100.0, double.infinity);
 
-  @override
-  State<_SwipeDetector> createState() => _SwipeDetectorState();
-}
+    const double aspect = GameConstants.boardWidth / GameConstants.boardHeight;
+    double bw = boardAvailH * aspect;
+    double bh = boardAvailH;
+    if (bw > boardAvailW) {
+      bw = boardAvailW;
+      bh = (boardAvailW / aspect).clamp(100.0, double.infinity);
+    }
 
-class _SwipeDetectorState extends State<_SwipeDetector> {
-  double _totalDx = 0.0;
-  double _totalDy = 0.0;
-  DateTime _lastMoveTime = DateTime.now();
-  static const Duration _moveDelay = Duration(
-    milliseconds: 150,
-  ); // Increased delay
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onPanStart: (details) {
-        // Reset tracking variables at start of gesture
-        _totalDx = 0.0;
-        _totalDy = 0.0;
-        _lastMoveTime = DateTime.now();
-      },
-      onPanUpdate: (details) {
-        if (!widget.gameLogic.isGameRunning ||
-            widget.gameLogic.isGameOver ||
-            widget.gameLogic.isPaused) {
-          return;
-        }
-
-        // Accumulate total movement
-        _totalDx += details.delta.dx;
-        _totalDy += details.delta.dy;
-
-        final now = DateTime.now();
-        final timeSinceLastMove = now.difference(_lastMoveTime);
-
-        // Determine if this is primarily a horizontal or vertical gesture
-        final isHorizontalGesture = _totalDx.abs() > _totalDy.abs();
-        final isPrimaryDirection = isHorizontalGesture
-            ? _totalDx.abs() > _totalDy.abs() * 1.5
-            : _totalDy.abs() > _totalDx.abs() * 1.5;
-
-        // Only process movement if we have a clear directional intent
-        if (isPrimaryDirection) {
-          // Horizontal movement - more restrictive to prevent accidental moves
-          // Also prevent horizontal movement during slam
-          if (isHorizontalGesture &&
-              _totalDx.abs() >= widget.moveThreshold &&
-              !widget.gameLogic.isSlamming) {
-            if (_totalDx > 0) {
-              widget.gameLogic.movePieceRight();
-            } else {
-              widget.gameLogic.movePieceLeft();
-            }
-            _totalDx = 0.0;
-            _lastMoveTime = now;
-          }
-          // Continuous horizontal movement - made more sensitive
-          // Also prevent horizontal movement during slam
-          else if (isHorizontalGesture &&
-              _totalDx.abs() >= widget.moveThreshold * 0.6 &&
-              timeSinceLastMove >= _moveDelay &&
-              details.delta.dx.abs() > 2.5 &&
-              !widget.gameLogic.isSlamming) {
-            if (_totalDx > 0) {
-              widget.gameLogic.movePieceRight();
-            } else {
-              widget.gameLogic.movePieceLeft();
-            }
-            _totalDx = 0.0;
-            _lastMoveTime = now;
-          }
-
-          // Vertical movement - only downward
-          // Also prevent downward movement during grace period
-          if (!isHorizontalGesture &&
-              _totalDy >= widget.moveThreshold &&
-              !widget.gameLogic.isNewPieceGracePeriod) {
-            widget.gameLogic.movePieceDown();
-            _totalDy = 0.0;
-            _lastMoveTime = now;
-          }
-          // Continuous downward movement
-          // Also prevent downward movement during grace period
-          else if (!isHorizontalGesture &&
-              _totalDy >= widget.moveThreshold * 0.7 &&
-              timeSinceLastMove >= _moveDelay &&
-              details.delta.dy > 3.0 &&
-              !widget.gameLogic.isNewPieceGracePeriod) {
-            widget.gameLogic.movePieceDown();
-            _totalDy = 0.0;
-            _lastMoveTime = now;
-          }
+    Widget holdPanel = GestureDetector(
+      onTap: () {
+        if (gameLogic.isGameRunning &&
+            !gameLogic.isGameOver &&
+            !gameLogic.isPaused) {
+          gameLogic.holdPiece();
         }
       },
-      onPanEnd: (details) {
-        if (!widget.gameLogic.isGameRunning ||
-            widget.gameLogic.isGameOver ||
-            widget.gameLogic.isPaused) {
-          return;
-        }
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Hold', style: TextStyle(color: cs.onSurface, fontSize: 18)),
+          const SizedBox(height: 6),
+          Container(
+            width: boxSize,
+            height: boxSize,
+            decoration: pieceBoxDecoration(widget.settings.style, cs),
+            child: HoldPieceDisplay(
+              piece: gameLogic.heldPiece,
+              style: widget.settings.style,
+            ),
+          ),
+        ],
+      ),
+    );
 
-        // Handle fast downward swipe for instant drop - much higher threshold
-        // Also prevent hard drop during grace period
-        if (details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity &&
-            details.velocity.pixelsPerSecond.dy >
-                details.velocity.pixelsPerSecond.dx.abs() * 2 &&
-            !widget.gameLogic.isNewPieceGracePeriod) {
-          widget.gameLogic.dropPiece();
-        }
-        // Handle fast horizontal swipes - higher threshold and more restrictive
-        // Also prevent horizontal movement during slam
-        else if (details.velocity.pixelsPerSecond.dx.abs() > 600.0 &&
-            details.velocity.pixelsPerSecond.dx.abs() >
-                details.velocity.pixelsPerSecond.dy.abs() * 2 &&
-            !widget.gameLogic.isSlamming) {
-          final direction = details.velocity.pixelsPerSecond.dx > 0 ? 1 : -1;
-          // Reduced extra moves to prevent over-movement
-          final extraMoves =
-              (details.velocity.pixelsPerSecond.dx.abs() / 1200.0)
-                  .clamp(0.0, 2.0)
-                  .round();
-          for (int i = 0; i < extraMoves; i++) {
-            if (direction > 0) {
-              widget.gameLogic.movePieceRight();
-            } else {
-              widget.gameLogic.movePieceLeft();
-            }
-          }
-        }
+    Widget nextPanel = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Next', style: TextStyle(color: cs.onSurface, fontSize: 18)),
+        const SizedBox(height: 6),
+        Container(
+          width: boxSize,
+          height: boxSize,
+          decoration: pieceBoxDecoration(widget.settings.style, cs),
+          child: gameLogic.nextPiece != null
+              ? NextPieceDisplay(
+                  piece: gameLogic.nextPiece!,
+                  style: widget.settings.style,
+                )
+              : null,
+        ),
+      ],
+    );
 
-        // Reset tracking variables
-        _totalDx = 0.0;
-        _totalDy = 0.0;
-      },
-      child: widget.child,
+    Widget board = SizedBox(
+      width: bw,
+      height: bh,
+      child: Stack(
+        children: [
+          Container(
+            width: bw,
+            height: bh,
+            decoration: boardDecoration(widget.settings.style, cs),
+            child: GameBoard(
+              board: gameLogic.getBoardWithCurrentPiece(
+                  showGhost: widget.settings.showGhostTile),
+              previewRows: GameConstants.previewRows,
+              gameLogic: gameLogic,
+              style: widget.settings.style,
+              onLeftTap: () {
+                if (gameLogic.isGameRunning &&
+                    !gameLogic.isGameOver &&
+                    !gameLogic.isPaused) {
+                  gameLogic.rotatePieceLeft();
+                }
+              },
+              onRightTap: () {
+                if (gameLogic.isGameRunning &&
+                    !gameLogic.isGameOver &&
+                    !gameLogic.isPaused) {
+                  gameLogic.rotatePieceRight();
+                }
+              },
+            ),
+          ),
+          // Score popup
+          AnimatedBuilder(
+            animation: _popupController,
+            builder: (context, _) {
+              if (_popupController.isDismissed) return const SizedBox.shrink();
+              return Positioned(
+                left: 0,
+                right: 0,
+                top: bh / 2 + _popupOffset.value,
+                child: IgnorePointer(
+                  child: Opacity(
+                    opacity: _popupOpacity.value,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _popupLabel,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _popupLabel.startsWith('T-SPIN')
+                                ? Colors.purple[200]
+                                : (_popupLabel == 'TETRIS!'
+                                    ? Colors.amber
+                                    : Colors.white),
+                            fontSize: _popupLabel == 'TETRIS!' ? 26 : 20,
+                            fontWeight: FontWeight.bold,
+                            shadows: const [
+                              Shadow(blurRadius: 8, color: Colors.black),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '+$_popupDelta',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            shadows: [
+                              Shadow(blurRadius: 6, color: Colors.black),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
+    return Column(
+      children: [
+        // Score bar
+        SizedBox(
+          height: scoreBarH,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Text(
+                  gameLogic.practiceMode
+                      ? 'PRACTICE'
+                      : 'Score: ${formatter.format(gameLogic.score)}',
+                  style: TextStyle(
+                    color: gameLogic.practiceMode ? cs.tertiary : cs.onSurface,
+                    fontSize: 20,
+                    fontWeight: gameLogic.practiceMode
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'Level: ${gameLogic.level}',
+                  style: TextStyle(color: cs.onSurface, fontSize: 20),
+                ),
+                const Spacer(),
+                Text(
+                  'Lines: ${gameLogic.linesCleared}',
+                  style: TextStyle(color: cs.onSurface, fontSize: 20),
+                ),
+                const SizedBox(width: 8),
+                ExcludeFocus(
+                  child: IconButton(
+                    icon: Icon(Icons.settings, color: cs.onSurfaceVariant),
+                    iconSize: 24,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: _openSettings,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Board + sidebars
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: sidebarW,
+                child: Center(child: holdPanel),
+              ),
+              SizedBox(width: gap),
+              board,
+              SizedBox(width: gap),
+              SizedBox(
+                width: sidebarW,
+                child: Center(child: nextPanel),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

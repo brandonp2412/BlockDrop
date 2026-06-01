@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# scripts/pre-push — cross-platform git hook shim
+#
+# This file is symlinked to .git/hooks/pre-push by the install scripts.
+# It detects the OS and delegates to the appropriate implementation:
+#   • Windows (MSYS / Git-Bash) → scripts/pre-push.ps1  (PowerShell)
+#   • Linux / macOS             → scripts/pre-push.sh   (Bash)
+#
+# Install:
+#   Windows  — run scripts/install-hooks.ps1 in PowerShell
+#   Linux    — run scripts/install-hooks.sh  in Bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+case "$OSTYPE" in
+  msys* | cygwin* | win32*)
+    # Git for Windows / MSYS2: call PowerShell with the .ps1 script
+    powershell.exe -ExecutionPolicy Bypass \
+      -File "$SCRIPT_DIR/pre-push.ps1" "$@"
+    ;;
+  *)
+    # Linux / macOS
+    bash "$SCRIPT_DIR/pre-push.sh" "$@"
+    ;;
+esac

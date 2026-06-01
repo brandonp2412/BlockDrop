@@ -309,5 +309,43 @@ void main() {
 
       expect(backToOriginal.shape, equals(tPiece.shape));
     });
+
+    test('7-bag algorithm yields all 7 distinct pieces before refilling', () {
+      Tetromino.resetBag();
+
+      final colors = <Color>[];
+      for (int i = 0; i < 7; i++) {
+        colors.add(Tetromino.random().color);
+      }
+
+      // Every piece in the bag must be unique
+      expect(
+        colors.toSet().length,
+        7,
+        reason: 'The 7-bag must contain exactly one of each piece type',
+      );
+    });
+
+    test('7-bag repeats all 7 pieces in the second bag too', () {
+      Tetromino.resetBag();
+
+      // Drain the first bag
+      for (int i = 0; i < 7; i++) {
+        Tetromino.random();
+      }
+
+      // Second bag should also have all 7 distinct pieces
+      final secondBagColors = <Color>[];
+      for (int i = 0; i < 7; i++) {
+        secondBagColors.add(Tetromino.random().color);
+      }
+
+      expect(
+        secondBagColors.toSet().length,
+        7,
+        reason:
+            'Each refilled bag must also contain exactly one of each piece type',
+      );
+    });
   });
 }
