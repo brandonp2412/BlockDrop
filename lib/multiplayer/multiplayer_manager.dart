@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import 'multiplayer_game_config.dart';
 import 'peer.dart';
 
 enum MultiplayerState {
@@ -20,6 +21,7 @@ enum MultiplayerState {
 class MultiplayerManager extends ChangeNotifier {
   static const int _udpPort = 45678;
   static const int _tcpPort = 45679;
+  static const int _maxPieceSeed = 0x7fffffff;
 
   final String playerId;
   final String playerName;
@@ -30,6 +32,22 @@ class MultiplayerManager extends ChangeNotifier {
   bool get isHost => _isHost;
   int _localPort = _tcpPort;
   String? _broadcastAddress;
+
+  /// Piece sequence mode selected for the next multiplayer match.
+  MultiplayerGameMode gameMode = MultiplayerGameMode.independent;
+
+  /// Seed shared by both players when [gameMode] is shared pieces.
+  int? sharedPieceSeed;
+
+  /// Match configuration the game screen should use when play begins.
+  MultiplayerGameConfig get gameConfig {
+    if (gameMode == MultiplayerGameMode.sharedPieces &&
+        sharedPieceSeed != null) {
+      return MultiplayerGameConfig.sharedPieces(pieceSeed: sharedPieceSeed!);
+    }
+
+    return const MultiplayerGameConfig.independent();
+  }
 
   // Opponent state (updated via board_snapshot messages)
   List<int> opponentBoard = List.filled(200, 0); // 20 rows × 10 cols
@@ -65,6 +83,10 @@ class MultiplayerManager extends ChangeNotifier {
       8,
       (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0'),
     ).join();
+  }
+
+  static int _generatePieceSeed() {
+    return Random.secure().nextInt(_maxPieceSeed);
   }
 
   // ── Discovery ────────────────────────────────────────────────────────────
@@ -265,6 +287,7 @@ class MultiplayerManager extends ChangeNotifier {
     state = MultiplayerState.inviting;
     opponentName = peer.name;
     _isHost = true;
+    _resetGameConfig();
     notifyListeners();
 
     try {
@@ -300,11 +323,13 @@ class MultiplayerManager extends ChangeNotifier {
     state = MultiplayerState.discovering;
     opponentName = null;
     _isHost = false;
+    _resetGameConfig();
     notifyListeners();
   }
 
   void acceptInvite() {
     if (state != MultiplayerState.invited) return;
+    _resetGameConfig();
     _send({'type': 'invite_accept', 'name': playerName});
     state = MultiplayerState.inLobby;
     notifyListeners();
@@ -316,6 +341,7 @@ class MultiplayerManager extends ChangeNotifier {
     _closeConnection();
     state = MultiplayerState.discovering;
     opponentName = null;
+    _resetGameConfig();
     notifyListeners();
   }
 
@@ -324,9 +350,31 @@ class MultiplayerManager extends ChangeNotifier {
   /// Host only – sends game_start to guest then changes own state.
   void startGame() {
     if (state != MultiplayerState.inLobby || !_isHost) return;
-    _send({'type': 'game_start'});
+    final config = _createGameStartConfig();
+    _send(config.toGameStartMessage());
     state = MultiplayerState.inGame;
     notifyListeners();
+  }
+
+  /// Host only – selects the piece sequence mode shown in the lobby.
+  void setGameMode(MultiplayerGameMode mode) {
+    if (state != MultiplayerState.inLobby || !_isHost) return;
+    if (gameMode == mode) return;
+
+    gameMode = mode;
+    sharedPieceSeed = null;
+    _send({'type': 'game_mode', 'mode': mode.wireName});
+    notifyListeners();
+  }
+
+  MultiplayerGameConfig _createGameStartConfig() {
+    if (gameMode == MultiplayerGameMode.sharedPieces) {
+      sharedPieceSeed = _generatePieceSeed();
+      return MultiplayerGameConfig.sharedPieces(pieceSeed: sharedPieceSeed!);
+    }
+
+    sharedPieceSeed = null;
+    return const MultiplayerGameConfig.independent();
   }
 
   void sendGarbage(int lines) {
@@ -362,6 +410,7 @@ class MultiplayerManager extends ChangeNotifier {
     opponentScore = 0;
     opponentLines = 0;
     _isHost = false;
+    _resetGameConfig();
     notifyListeners();
   }
 
@@ -421,12 +470,23 @@ class MultiplayerManager extends ChangeNotifier {
             state = MultiplayerState.discovering;
             opponentName = null;
             _isHost = false;
+            _resetGameConfig();
             notifyListeners();
             onError?.call('Invite was declined');
           }
 
+        case 'game_mode':
+          if (state == MultiplayerState.inLobby && !_isHost) {
+            gameMode = MultiplayerGameModeInfo.fromWireName(msg['mode']);
+            sharedPieceSeed = null;
+            notifyListeners();
+          }
+
         case 'game_start':
           if (state == MultiplayerState.inLobby) {
+            final config = MultiplayerGameConfig.fromGameStartMessage(msg);
+            gameMode = config.mode;
+            sharedPieceSeed = config.pieceSeed;
             state = MultiplayerState.inGame;
             notifyListeners();
           }
@@ -477,6 +537,7 @@ class MultiplayerManager extends ChangeNotifier {
       opponentName = null;
       opponentIsGameOver = false;
       _isHost = false;
+      _resetGameConfig();
       notifyListeners();
     }
   }
@@ -494,6 +555,11 @@ class MultiplayerManager extends ChangeNotifier {
       _peerSocket?.destroy();
     } catch (_) {}
     _peerSocket = null;
+  }
+
+  void _resetGameConfig() {
+    gameMode = MultiplayerGameMode.independent;
+    sharedPieceSeed = null;
   }
 
   @override

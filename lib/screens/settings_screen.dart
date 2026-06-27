@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -93,9 +94,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(top: 8, bottom: 48),
-          // Large cacheExtent ensures all children are laid out off-screen so
+          // Large scrollCacheExtent ensures all children are laid out off-screen so
           // Android TV D-pad focus traversal can reach items below the viewport.
-          cacheExtent: 3000,
+          scrollCacheExtent: const ScrollCacheExtent.pixels(3000),
           children: [
             if (widget.onRestart != null || widget.onQuit != null) ...[
               _SectionHeader(label: 'Game', colorScheme: colorScheme),

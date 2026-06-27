@@ -1,5 +1,6 @@
 import 'package:block_drop/constants/game_constants.dart';
 import 'package:block_drop/game/game_logic.dart';
+import 'package:block_drop/models/tetromino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -54,6 +55,31 @@ void main() {
       expect(gameLogic.nextPiece, isNotNull);
       expect(gameLogic.heldPiece, null);
       expect(gameLogic.canHold, true);
+    });
+
+    test('should use injected seeded bag for reproducible piece sequence', () {
+      final firstGame = GameLogic(pieceBag: TetrominoBag(seed: 8675309));
+      final secondGame = GameLogic(pieceBag: TetrominoBag(seed: 8675309));
+
+      try {
+        firstGame.startGame();
+        secondGame.startGame();
+
+        final firstSequence = <Color>[];
+        final secondSequence = <Color>[];
+        for (int i = 0; i < 10; i++) {
+          firstSequence.add(firstGame.currentPiece!.color);
+          secondSequence.add(secondGame.currentPiece!.color);
+          firstGame.spawnNewPiece();
+          secondGame.spawnNewPiece();
+        }
+
+        expect(firstSequence, equals(secondSequence));
+        expect(firstGame.nextPiece!.color, equals(secondGame.nextPiece!.color));
+      } finally {
+        firstGame.dispose();
+        secondGame.dispose();
+      }
     });
 
     test('should detect collision correctly', () {

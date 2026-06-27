@@ -8,6 +8,8 @@ import '../constants/game_constants.dart';
 import '../models/tetromino.dart';
 
 class GameLogic extends ChangeNotifier {
+  /// Source of upcoming tetrominoes for this game.
+  final TetrominoBag pieceBag;
   AudioService? audioService;
 
   /// Called after lines are cleared (multiplayer: send garbage to opponent).
@@ -60,7 +62,7 @@ class GameLogic extends ChangeNotifier {
   bool isAnimatingTrail = false;
   Timer? trailAnimationTimer;
 
-  GameLogic() {
+  GameLogic({TetrominoBag? pieceBag}) : pieceBag = pieceBag ?? TetrominoBag() {
     initializeBoard();
   }
 
@@ -109,7 +111,7 @@ class GameLogic extends ChangeNotifier {
     _lastMoveWasRotation = false;
     _pendingTSpin = false;
 
-    Tetromino.resetBag();
+    pieceBag.reset();
     initializeBoard();
     spawnNewPiece();
     startGameTimer();
@@ -166,10 +168,10 @@ class GameLogic extends ChangeNotifier {
   }
 
   void spawnNewPiece() {
-    nextPiece ??= Tetromino.random();
+    nextPiece ??= pieceBag.next();
 
     currentPiece = nextPiece;
-    nextPiece = Tetromino.random();
+    nextPiece = pieceBag.next();
     currentX = GameConstants.boardWidth ~/ 2 - 1;
     currentY = GameConstants.previewRows;
 

@@ -66,24 +66,14 @@ class Tetromino {
     ),
   ];
 
-  // 7-bag algorithm implementation
-  static List<Tetromino> _bag = [];
-  static final Random _random = Random();
+  static final TetrominoBag _defaultBag = TetrominoBag();
 
   static Tetromino random() {
-    // If bag is empty, refill it with a shuffled set of all 7 pieces
-    if (_bag.isEmpty) {
-      _bag = List.from(pieces);
-      _bag.shuffle(_random);
-    }
-
-    // Take the next piece from the bag
-    return _bag.removeLast();
+    return _defaultBag.next();
   }
 
-  // Optional: Reset the bag (useful when starting a new game)
   static void resetBag() {
-    _bag.clear();
+    _defaultBag.reset();
   }
 
   Tetromino rotate() {
@@ -105,5 +95,39 @@ class Tetromino {
           List.generate(shape.length, (j) => shape[j][shape[0].length - 1 - i]),
     );
     return Tetromino(shape: rotated, color: color);
+  }
+}
+
+/// Produces tetrominoes using the standard 7-bag shuffle.
+class TetrominoBag {
+  final int? _seed;
+  final List<Tetromino> _bag = [];
+  late Random _random;
+
+  /// Creates a random bag, or a deterministic bag when [seed] is provided.
+  TetrominoBag({int? seed}) : _seed = seed {
+    _random = _createRandom();
+  }
+
+  Random _createRandom() {
+    return _seed == null ? Random() : Random(_seed);
+  }
+
+  /// Returns the next piece, refilling and shuffling the bag when needed.
+  Tetromino next() {
+    if (_bag.isEmpty) {
+      _bag.addAll(Tetromino.pieces);
+      _bag.shuffle(_random);
+    }
+
+    return _bag.removeLast();
+  }
+
+  /// Clears pending pieces and restarts deterministic bags from their seed.
+  void reset() {
+    _bag.clear();
+    if (_seed != null) {
+      _random = _createRandom();
+    }
   }
 }
