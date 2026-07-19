@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../multiplayer/multiplayer_game_config.dart';
 import '../multiplayer/multiplayer_manager.dart';
 import '../multiplayer/peer.dart';
 import '../settings/settings_provider.dart';
@@ -396,6 +397,15 @@ class _MultiplayerDiscoveryScreenState
             colorScheme: cs,
             style: widget.settings.style,
           ),
+          const SizedBox(height: 18),
+          if (_manager.isHost)
+            _LobbyModeSelector(
+              mode: _manager.gameMode,
+              colorScheme: cs,
+              onChanged: _manager.setGameMode,
+            )
+          else
+            _LobbyModeStatus(mode: _manager.gameMode, colorScheme: cs),
           const Spacer(),
           if (_manager.isHost) ...[
             Text(
@@ -433,6 +443,79 @@ class _MultiplayerDiscoveryScreenState
 }
 
 // ── Reusable sub-widgets ──────────────────────────────────────────────────────
+
+IconData _gameModeIcon(MultiplayerGameMode mode) {
+  return switch (mode) {
+    MultiplayerGameMode.independent => Icons.shuffle,
+    MultiplayerGameMode.sharedPieces => Icons.sync,
+  };
+}
+
+class _LobbyModeSelector extends StatelessWidget {
+  final MultiplayerGameMode mode;
+  final ColorScheme colorScheme;
+  final ValueChanged<MultiplayerGameMode> onChanged;
+
+  const _LobbyModeSelector({
+    required this.mode,
+    required this.colorScheme,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          'Mode',
+          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
+        ),
+        const SizedBox(height: 8),
+        SegmentedButton<MultiplayerGameMode>(
+          showSelectedIcon: false,
+          segments: const [
+            ButtonSegment(
+              value: MultiplayerGameMode.independent,
+              icon: Icon(Icons.shuffle),
+              label: Text('Random'),
+            ),
+            ButtonSegment(
+              value: MultiplayerGameMode.sharedPieces,
+              icon: Icon(Icons.sync),
+              label: Text('Fair'),
+            ),
+          ],
+          selected: {mode},
+          onSelectionChanged: (selection) {
+            if (selection.isNotEmpty) onChanged(selection.first);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _LobbyModeStatus extends StatelessWidget {
+  final MultiplayerGameMode mode;
+  final ColorScheme colorScheme;
+
+  const _LobbyModeStatus({required this.mode, required this.colorScheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(_gameModeIcon(mode), size: 18, color: colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(
+          '${mode.label} mode',
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}
 
 class _PeerTile extends StatelessWidget {
   final Peer peer;

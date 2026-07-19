@@ -68,7 +68,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       if (widget.settings.musicEnabled) _audioService.startMusic();
     });
 
-    _gameLogic = GameLogic();
+    _gameLogic =
+        GameLogic(pieceBag: widget.manager.gameConfig.createPieceBag());
     _gameLogic.audioService = _audioService;
     _gameLogic.addListener(_onGameStateChanged);
 

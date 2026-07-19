@@ -347,5 +347,25 @@ void main() {
             'Each refilled bag must also contain exactly one of each piece type',
       );
     });
+
+    test('seeded 7-bags yield the same piece sequence', () {
+      final firstBag = TetrominoBag(seed: 20260627);
+      final secondBag = TetrominoBag(seed: 20260627);
+
+      final firstSequence = List.generate(21, (_) => firstBag.next().color);
+      final secondSequence = List.generate(21, (_) => secondBag.next().color);
+
+      expect(firstSequence, equals(secondSequence));
+    });
+
+    test('reset restarts a seeded 7-bag from the same sequence', () {
+      final bag = TetrominoBag(seed: 42);
+
+      final firstRun = List.generate(14, (_) => bag.next().color);
+      bag.reset();
+      final secondRun = List.generate(14, (_) => bag.next().color);
+
+      expect(secondRun, equals(firstRun));
+    });
   });
 }
