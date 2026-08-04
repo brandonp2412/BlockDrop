@@ -1,7 +1,7 @@
+import 'package:block_drop/settings/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:block_drop/settings/settings_provider.dart';
 
 void main() {
   group('SettingsProvider', () {
@@ -17,6 +17,7 @@ void main() {
       expect(settings.musicEnabled, false);
       expect(settings.sfxEnabled, false);
       expect(settings.highScore, 0);
+      expect(settings.enableHold, true);
     });
 
     test('updateHighScore only updates when the new score is higher', () async {
@@ -105,6 +106,18 @@ void main() {
 
       await settings.setStyle(AppStyle.retro);
       expect(settings.style, AppStyle.retro);
+    });
+
+    test('setEnableHold updates the current hold preference', () async {
+      final settings = SettingsProvider();
+
+      expect(settings.enableHold, true);
+
+      await settings.setEnableHold(false);
+      expect(settings.enableHold, false);
+
+      await settings.setEnableHold(true);
+      expect(settings.enableHold, true);
     });
   });
 }

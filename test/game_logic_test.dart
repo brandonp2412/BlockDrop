@@ -26,6 +26,7 @@ void main() {
       expect(gameLogic.nextPiece, null);
       expect(gameLogic.heldPiece, null);
       expect(gameLogic.canHold, true);
+      expect(gameLogic.enableHold, true);
     });
 
     test('should initialize board with correct dimensions', () {
@@ -225,6 +226,22 @@ void main() {
 
       expect(gameLogic.currentPiece!.color, firstPiece.color);
       expect(gameLogic.heldPiece!.color, secondPiece.color);
+    });
+
+    test('should ignore holdPiece when enableHold is false', () {
+      gameLogic = GameLogic(enableHold: false);
+      gameLogic.startGame();
+
+      final originalPiece = gameLogic.currentPiece!;
+      final originalHeldPiece = gameLogic.heldPiece;
+      final originalCanHold = gameLogic.canHold;
+
+      gameLogic.holdPiece();
+
+      expect(gameLogic.enableHold, false);
+      expect(gameLogic.currentPiece!.color, originalPiece.color);
+      expect(gameLogic.heldPiece, originalHeldPiece);
+      expect(gameLogic.canHold, originalCanHold);
     });
 
     test('should calculate ghost piece position correctly', () {

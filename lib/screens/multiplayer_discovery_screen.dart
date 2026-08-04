@@ -398,13 +398,20 @@ class _MultiplayerDiscoveryScreenState
             style: widget.settings.style,
           ),
           const SizedBox(height: 18),
-          if (_manager.isHost)
+          if (_manager.isHost) ...[
             _LobbyModeSelector(
               mode: _manager.gameMode,
               colorScheme: cs,
               onChanged: _manager.setGameMode,
-            )
-          else
+            ),
+            const SizedBox(height: 16),
+            _LobbyHoldSelector(
+              enabled: _manager.enableHold,
+              colorScheme: cs,
+              style: widget.settings.style,
+              onChanged: (value) => setState(() => _manager.enableHold = value),
+            ),
+          ] else
             _LobbyModeStatus(mode: _manager.gameMode, colorScheme: cs),
           const Spacer(),
           if (_manager.isHost) ...[
@@ -511,6 +518,41 @@ class _LobbyModeStatus extends StatelessWidget {
         Text(
           '${mode.label} mode',
           style: TextStyle(color: colorScheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}
+
+class _LobbyHoldSelector extends StatelessWidget {
+  final bool enabled;
+  final ColorScheme colorScheme;
+  final AppStyle style;
+  final ValueChanged<bool> onChanged;
+
+  const _LobbyHoldSelector({
+    required this.enabled,
+    required this.colorScheme,
+    required this.style,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Hold Piece',
+          style: TextStyle(
+            color: colorScheme.onSurfaceVariant,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Switch(
+          value: enabled,
+          onChanged: onChanged,
         ),
       ],
     );

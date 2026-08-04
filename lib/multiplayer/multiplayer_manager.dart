@@ -36,6 +36,9 @@ class MultiplayerManager extends ChangeNotifier {
   /// Piece sequence mode selected for the next multiplayer match.
   MultiplayerGameMode gameMode = MultiplayerGameMode.independent;
 
+  /// Whether hold is enabled for the next multiplayer match.
+  bool enableHold = true;
+
   /// Seed shared by both players when [gameMode] is shared pieces.
   int? sharedPieceSeed;
 
@@ -43,10 +46,13 @@ class MultiplayerManager extends ChangeNotifier {
   MultiplayerGameConfig get gameConfig {
     if (gameMode == MultiplayerGameMode.sharedPieces &&
         sharedPieceSeed != null) {
-      return MultiplayerGameConfig.sharedPieces(pieceSeed: sharedPieceSeed!);
+      return MultiplayerGameConfig.sharedPieces(
+        pieceSeed: sharedPieceSeed!,
+        enableHold: enableHold,
+      );
     }
 
-    return const MultiplayerGameConfig.independent();
+    return MultiplayerGameConfig.independent(enableHold: enableHold);
   }
 
   // Opponent state (updated via board_snapshot messages)
@@ -370,11 +376,14 @@ class MultiplayerManager extends ChangeNotifier {
   MultiplayerGameConfig _createGameStartConfig() {
     if (gameMode == MultiplayerGameMode.sharedPieces) {
       sharedPieceSeed = _generatePieceSeed();
-      return MultiplayerGameConfig.sharedPieces(pieceSeed: sharedPieceSeed!);
+      return MultiplayerGameConfig.sharedPieces(
+        pieceSeed: sharedPieceSeed!,
+        enableHold: enableHold,
+      );
     }
 
     sharedPieceSeed = null;
-    return const MultiplayerGameConfig.independent();
+    return MultiplayerGameConfig.independent(enableHold: enableHold);
   }
 
   void sendGarbage(int lines) {
@@ -487,6 +496,7 @@ class MultiplayerManager extends ChangeNotifier {
             final config = MultiplayerGameConfig.fromGameStartMessage(msg);
             gameMode = config.mode;
             sharedPieceSeed = config.pieceSeed;
+            enableHold = config.enableHold;
             state = MultiplayerState.inGame;
             notifyListeners();
           }
@@ -560,6 +570,7 @@ class MultiplayerManager extends ChangeNotifier {
   void _resetGameConfig() {
     gameMode = MultiplayerGameMode.independent;
     sharedPieceSeed = null;
+    enableHold = true;
   }
 
   @override

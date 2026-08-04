@@ -11,6 +11,7 @@ class GameLogic extends ChangeNotifier {
   /// Source of upcoming tetrominoes for this game.
   final TetrominoBag pieceBag;
   AudioService? audioService;
+  bool enableHold;
 
   /// Called after lines are cleared (multiplayer: send garbage to opponent).
   /// Set by the multiplayer game screen; null in solo play (zero overhead).
@@ -62,7 +63,9 @@ class GameLogic extends ChangeNotifier {
   bool isAnimatingTrail = false;
   Timer? trailAnimationTimer;
 
-  GameLogic({TetrominoBag? pieceBag}) : pieceBag = pieceBag ?? TetrominoBag() {
+  GameLogic({TetrominoBag? pieceBag, bool? enableHold})
+      : pieceBag = pieceBag ?? TetrominoBag(),
+        enableHold = enableHold ?? true {
     initializeBoard();
   }
 
@@ -625,7 +628,7 @@ class GameLogic extends ChangeNotifier {
   }
 
   void holdPiece() {
-    if (!canHold || currentPiece == null) return;
+    if (!enableHold || !canHold || currentPiece == null) return;
 
     audioService?.playHold();
 

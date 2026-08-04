@@ -191,6 +191,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (value) => widget.settings.setShowGhostTile(value),
               ),
             ),
+            _SettingTile(
+              label: 'Enable Hold Piece',
+              colorScheme: colorScheme,
+              style: widget.settings.style,
+              child: Switch(
+                value: widget.settings.enableHold,
+                onChanged: (value) => widget.settings.setEnableHold(value),
+              ),
+            ),
             _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

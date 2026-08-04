@@ -4,12 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('MultiplayerGameConfig', () {
     test('encodes shared-pieces game starts with the seed', () {
-      const config = MultiplayerGameConfig.sharedPieces(pieceSeed: 123456);
+      const config = MultiplayerGameConfig.sharedPieces(
+        pieceSeed: 123456,
+        enableHold: false,
+      );
 
       expect(config.toGameStartMessage(), {
         'type': 'game_start',
         'mode': 'shared_pieces',
         'piece_seed': 123456,
+        'enable_hold': false,
       });
     });
 
@@ -37,6 +41,18 @@ void main() {
 
       expect(config.mode, MultiplayerGameMode.independent);
       expect(config.pieceSeed, isNull);
+      expect(config.enableHold, true);
+    });
+
+    test('decodes enable-hold from a game start payload', () {
+      final config = MultiplayerGameConfig.fromGameStartMessage({
+        'type': 'game_start',
+        'mode': 'independent',
+        'enable_hold': false,
+      });
+
+      expect(config.enableHold, false);
+      expect(config.mode, MultiplayerGameMode.independent);
     });
   });
 }

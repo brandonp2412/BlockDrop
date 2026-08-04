@@ -41,17 +41,27 @@ class MultiplayerGameConfig {
   /// Seed used when [mode] is [MultiplayerGameMode.sharedPieces].
   final int? pieceSeed;
 
-  const MultiplayerGameConfig._({required this.mode, this.pieceSeed});
+  /// Whether the hold mechanic is enabled for this match.
+  final bool enableHold;
+
+  const MultiplayerGameConfig._({
+    required this.mode,
+    this.pieceSeed,
+    this.enableHold = true,
+  });
 
   /// Creates a config where each player uses their own random 7-bag.
-  const MultiplayerGameConfig.independent()
-      : this._(mode: MultiplayerGameMode.independent);
+  const MultiplayerGameConfig.independent({bool enableHold = true})
+      : this._(mode: MultiplayerGameMode.independent, enableHold: enableHold);
 
   /// Creates a config where both players use the same seeded 7-bag.
-  const MultiplayerGameConfig.sharedPieces({required int pieceSeed})
-      : this._(
+  const MultiplayerGameConfig.sharedPieces({
+    required int pieceSeed,
+    bool enableHold = true,
+  }) : this._(
           mode: MultiplayerGameMode.sharedPieces,
           pieceSeed: pieceSeed,
+          enableHold: enableHold,
         );
 
   /// Decodes a `game_start` socket payload.
@@ -60,12 +70,16 @@ class MultiplayerGameConfig {
   ) {
     final mode = MultiplayerGameModeInfo.fromWireName(message['mode']);
     final seed = (message['piece_seed'] as num?)?.toInt();
+    final enableHold = message['enable_hold'] as bool? ?? true;
 
     if (mode == MultiplayerGameMode.sharedPieces && seed != null) {
-      return MultiplayerGameConfig.sharedPieces(pieceSeed: seed);
+      return MultiplayerGameConfig.sharedPieces(
+        pieceSeed: seed,
+        enableHold: enableHold,
+      );
     }
 
-    return const MultiplayerGameConfig.independent();
+    return MultiplayerGameConfig.independent(enableHold: enableHold);
   }
 
   /// Encodes this config as a `game_start` socket payload.
@@ -74,6 +88,7 @@ class MultiplayerGameConfig {
       'type': 'game_start',
       'mode': mode.wireName,
       if (pieceSeed != null) 'piece_seed': pieceSeed,
+      'enable_hold': enableHold,
     };
   }
 

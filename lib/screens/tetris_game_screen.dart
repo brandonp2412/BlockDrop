@@ -71,7 +71,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     );
     _audioService.init().then((_) => _audioService.startMusic());
 
-    gameLogic = GameLogic();
+    gameLogic = GameLogic(enableHold: widget.settings.enableHold);
     gameLogic.audioService = _audioService;
     gameLogic.addListener(_onGameStateChanged);
     gameLogic.startGame();
@@ -173,6 +173,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   void _onSettingsChanged() {
     _audioService.musicEnabled = widget.settings.musicEnabled;
     _audioService.sfxEnabled = widget.settings.sfxEnabled;
+    gameLogic.enableHold = widget.settings.enableHold;
     if (widget.settings.musicEnabled) {
       _audioService.resumeMusic();
     } else {
@@ -569,40 +570,41 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            // Hold piece
-                            GestureDetector(
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'Hold:',
-                                    style: TextStyle(
-                                      color: cs.onSurface,
-                                      fontSize: 16,
+                            if (widget.settings.enableHold)
+                              // Hold piece
+                              GestureDetector(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Hold:',
+                                      style: TextStyle(
+                                        color: cs.onSurface,
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: pieceBoxDecoration(
-                                      widget.settings.style,
-                                      cs,
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      width: 80,
+                                      height: 80,
+                                      decoration: pieceBoxDecoration(
+                                        widget.settings.style,
+                                        cs,
+                                      ),
+                                      child: HoldPieceDisplay(
+                                        piece: gameLogic.heldPiece,
+                                        style: widget.settings.style,
+                                      ),
                                     ),
-                                    child: HoldPieceDisplay(
-                                      piece: gameLogic.heldPiece,
-                                      style: widget.settings.style,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                                onTap: () {
+                                  if (gameLogic.isGameRunning &&
+                                      !gameLogic.isGameOver &&
+                                      !gameLogic.isPaused) {
+                                    gameLogic.holdPiece();
+                                  }
+                                },
                               ),
-                              onTap: () {
-                                if (gameLogic.isGameRunning &&
-                                    !gameLogic.isGameOver &&
-                                    !gameLogic.isPaused) {
-                                  gameLogic.holdPiece();
-                                }
-                              },
-                            ),
                             // Next piece
                             Column(
                               children: [
@@ -774,31 +776,36 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       bh = (boardAvailW / aspect).clamp(100.0, double.infinity);
     }
 
-    Widget holdPanel = GestureDetector(
-      onTap: () {
-        if (gameLogic.isGameRunning &&
-            !gameLogic.isGameOver &&
-            !gameLogic.isPaused) {
-          gameLogic.holdPiece();
-        }
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Hold', style: TextStyle(color: cs.onSurface, fontSize: 18)),
-          const SizedBox(height: 6),
-          Container(
-            width: boxSize,
-            height: boxSize,
-            decoration: pieceBoxDecoration(widget.settings.style, cs),
-            child: HoldPieceDisplay(
-              piece: gameLogic.heldPiece,
-              style: widget.settings.style,
+    Widget holdPanel = widget.settings.enableHold
+        ? GestureDetector(
+            onTap: () {
+              if (gameLogic.isGameRunning &&
+                  !gameLogic.isGameOver &&
+                  !gameLogic.isPaused) {
+                gameLogic.holdPiece();
+              }
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Hold',
+                  style: TextStyle(color: cs.onSurface, fontSize: 18),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: boxSize,
+                  height: boxSize,
+                  decoration: pieceBoxDecoration(widget.settings.style, cs),
+                  child: HoldPieceDisplay(
+                    piece: gameLogic.heldPiece,
+                    style: widget.settings.style,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
+          )
+        : const SizedBox.shrink();
 
     Widget nextPanel = Column(
       mainAxisSize: MainAxisSize.min,
@@ -955,11 +962,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: sidebarW,
-                child: Center(child: holdPanel),
-              ),
-              SizedBox(width: gap),
+              if (widget.settings.enableHold) ...[
+                SizedBox(
+                  width: sidebarW,
+                  child: Center(child: holdPanel),
+                ),
+                SizedBox(width: gap),
+              ],
               board,
               SizedBox(width: gap),
               SizedBox(
