@@ -1,3 +1,5 @@
+import com.android.build.gradle.LibraryExtension
+
 allprojects {
     repositories {
         google()
@@ -14,6 +16,21 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
+
+    plugins.withId("com.android.library") {
+        if (name == "jni") {
+            // https://f-droid.org/docs/Reproducible_Builds/#cmake
+            extensions.configure<LibraryExtension>("android") {
+                defaultConfig {
+                    externalNativeBuild {
+                        cmake {
+                            arguments += "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--build-id=none"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(":app")
