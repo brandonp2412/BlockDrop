@@ -26,6 +26,7 @@ const _themes = [
 
 // All five visual styles.
 const _styles = AppStyle.values;
+const _onlyScreenshot = String.fromEnvironment('SCREENSHOT_ONLY');
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -66,6 +67,8 @@ void main() {
           await tester.pump(const Duration(milliseconds: 600));
 
           final name = '${theme.name}_${style.name}';
+          if (_onlyScreenshot.isNotEmpty && _onlyScreenshot != name) continue;
+
           await binding.takeScreenshot(name);
           print('[$index/14] Captured $name');
           index++;

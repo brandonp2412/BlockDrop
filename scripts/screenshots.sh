@@ -1,47 +1,21 @@
 #!/bin/bash
-# Blockdrop screenshot script.
-# NOTE: The test driver hardcodes 'phoneScreenshots' as the output directory,
-# so the AVD name should match (default: phoneScreenshots).
+# Generate Block Drop screenshots on an existing Android device.
 
-set -ex
+set -e
 
-device_type="${1:-phoneScreenshots}"
+device="${1:?Usage: screenshots.sh <device-id> [device-type] [screenshot]}"
+device_type="${2:-phoneScreenshots}"
+only="${3:-}"
 
-case "$(uname -s)" in
-Linux*)
-  echo "Launching $device_type..."
-  $TERMINAL -t Hide emulator -avd "$device_type" -feature -Vulkan \
-    -no-boot-anim -noaudio -no-window &>/dev/null &
+export BLOCKDROP_DEVICE_TYPE="$device_type"
 
-  while true; do
-    for device in $(adb devices | awk 'NR>1{print $1}' | grep emulator); do
-      name=$(
-        adb -s $device emu avd name 2>/dev/null | head -n 1 | tr -d '\r'
-      )
-      [ "$name" = "$device_type" ] && break
-    done
-
-    boot_completed=$(
-      adb -s "$device" shell getprop sys.boot_completed 2>/dev/null |
-        tr -d '\r'
-    )
-    adb -s "$device" get-state 2>/dev/null | grep -q device &&
-      [ "$name" = "$device_type" ] && [ "$boot_completed" = "1" ] &&
-      break
-
-    sleep 1
-  done
-  ;;
-esac
+dart_define=()
+if [ -n "$only" ]; then
+  dart_define=(--dart-define=SCREENSHOT_ONLY="$only")
+  echo "Capturing only: $only"
+fi
 
 flutter drive --profile --driver=test_driver/integration_test.dart \
   --target=integration_test/screenshot_test.dart \
-  -d "${device:-$device_type}"
-code=$?
-
-case "$(uname -s)" in
-Linux*)
-  adb -s "$device" reboot -p
-  exit $code
-  ;;
-esac
+  "${dart_define[@]}" \
+  -d "$device"
