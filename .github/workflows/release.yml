@@ -46,7 +46,7 @@ jobs:
           - device_type: phoneScreenshots
             profile: pixel_6
           - device_type: sevenInchScreenshots
-            profile: Nexus 7
+            profile: pixel_2
           - device_type: tenInchScreenshots
             profile: Nexus 10
     steps:
