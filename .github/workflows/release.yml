@@ -63,6 +63,7 @@ jobs:
       - name: Setup Flutter from submodule
         run: |
           echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
+          flutter/bin/flutter --version
           flutter/bin/flutter config --no-analytics
 
       - name: Get dependencies
@@ -111,6 +112,7 @@ jobs:
       - name: Setup Flutter from submodule
         run: |
           echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
+          flutter/bin/flutter --version
           flutter/bin/flutter config --no-analytics
 
       - name: Get dependencies
