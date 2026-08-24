@@ -1,12 +1,18 @@
-Classic Block Puzzle - Free & Open Source
-Stack falling blocks to clear lines in this timeless puzzle game! Arrange geometric shapes as they drop from the top of the screen to create complete horizontal rows, which will disappear and score you points.
-Key Features:
+Drop blocks, clear lines, and beat your high score in a classic falling-block puzzle.
 
-Simple, addictive gameplay that's easy to learn but challenging to master
-Smooth controls and responsive touch interface
-Increasing speed as you progress keeps you on your toes
-Classic arcade-style scoring system
+BlockDrop is a fast, focused arcade puzzle game built around the familiar challenge of placing falling tetrominoes. Rotate and move each piece, complete horizontal lines, and keep the board clear as the pace rises.
 
-Free and Open Source Software (FOSS)
-This game is completely free with no ads, no in-app purchases, and no hidden costs. The source code is publicly available, meaning the community can inspect, modify, and improve the game. Your privacy is protected - no data collection, no tracking.
-Perfect for quick gaming sessions or longer play when you want to beat your high score. Test your reflexes and spatial reasoning in this beloved block-stacking puzzle format.Retry
+PLAY YOUR WAY
+
+• Use all seven classic tetromino pieces
+• Move, rotate, soft drop, and hard drop with responsive controls
+• Hold a piece for the right moment
+• Plan ahead with the next-piece preview
+• Track score and line clears as the game speeds up
+• Choose light, dark, or AMOLED-friendly themes
+
+MADE FOR QUICK PUZZLE SESSIONS
+
+Whether you have a few minutes or want to chase a new personal best, BlockDrop gives you a clean block-stacking game without unnecessary distractions. It works offline and is available across mobile and desktop platforms.
+
+BlockDrop is free and open source. It contains no ads, in-app purchases, tracking, or data collection.

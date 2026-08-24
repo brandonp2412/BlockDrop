@@ -1,1 +1,1 @@
-Track gym progress, visualize graphs, enjoy offline support & timers
+Classic offline block puzzle with hold, next-piece preview, and themes.
