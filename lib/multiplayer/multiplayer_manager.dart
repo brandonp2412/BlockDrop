@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../logging.dart';
 import 'multiplayer_game_config.dart';
 import 'peer.dart';
 
@@ -110,7 +111,9 @@ class MultiplayerManager extends ChangeNotifier {
       await _startTcpServer();
       _startAnnouncing();
       _startPeerExpiryTimer();
-    } catch (e) {
+      talker.info('Multiplayer discovery started on port $_localPort');
+    } catch (e, stackTrace) {
+      talker.handle(e, stackTrace, 'Starting multiplayer discovery failed');
       state = MultiplayerState.idle;
       onError?.call('Could not start network discovery: $e');
       notifyListeners();
@@ -153,7 +156,10 @@ class MultiplayerManager extends ChangeNotifier {
         }
       }
       return best192 ?? best10 ?? best172 ?? fallbackAny;
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      talker.handle(
+          error, stackTrace, 'Looking up local network address failed');
+    }
     return null;
   }
 
@@ -171,7 +177,8 @@ class MultiplayerManager extends ChangeNotifier {
           if (dg != null) _handleUdpDatagram(dg);
         }
       },
-      onError: (_) {},
+      onError: (error, stackTrace) =>
+          talker.handle(error, stackTrace, 'Multiplayer UDP socket failed'),
     );
   }
 
@@ -274,7 +281,10 @@ class MultiplayerManager extends ChangeNotifier {
         ));
       }
       notifyListeners();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      talker.handle(
+          error, stackTrace, 'Parsing multiplayer discovery packet failed');
+    }
   }
 
   void _startPeerExpiryTimer() {
@@ -309,7 +319,9 @@ class MultiplayerManager extends ChangeNotifier {
       _peerSocket = socket;
       _listenOnSocket(socket);
       _send({'type': 'invite', 'name': playerName, 'id': playerId});
-    } catch (_) {
+      talker.info('Sent multiplayer invite to ${peer.name}');
+    } catch (error, stackTrace) {
+      talker.handle(error, stackTrace, 'Connecting to multiplayer peer failed');
       if (state == MultiplayerState.inviting) {
         state = MultiplayerState.discovering;
         opponentName = null;
@@ -338,6 +350,7 @@ class MultiplayerManager extends ChangeNotifier {
     _resetGameConfig();
     _send({'type': 'invite_accept', 'name': playerName});
     state = MultiplayerState.inLobby;
+    talker.info('Accepted multiplayer invite');
     notifyListeners();
   }
 
@@ -348,6 +361,7 @@ class MultiplayerManager extends ChangeNotifier {
     state = MultiplayerState.discovering;
     opponentName = null;
     _resetGameConfig();
+    talker.info('Rejected multiplayer invite');
     notifyListeners();
   }
 
@@ -359,6 +373,7 @@ class MultiplayerManager extends ChangeNotifier {
     final config = _createGameStartConfig();
     _send(config.toGameStartMessage());
     state = MultiplayerState.inGame;
+    talker.info('Started multiplayer game (${gameMode.wireName})');
     notifyListeners();
   }
 
@@ -524,7 +539,9 @@ class MultiplayerManager extends ChangeNotifier {
         case 'quit':
           _handleDisconnect();
       }
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      talker.handle(error, stackTrace, 'Parsing multiplayer message failed');
+    }
   }
 
   void _handleDisconnect() {
@@ -538,6 +555,7 @@ class MultiplayerManager extends ChangeNotifier {
 
     if (prevState == MultiplayerState.inGame ||
         prevState == MultiplayerState.inLobby) {
+      talker.warning('Multiplayer peer disconnected during ${prevState.name}');
       onError?.call('${prevOpponentName ?? 'Opponent'} disconnected');
     }
 

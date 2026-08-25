@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'logging.dart';
 import 'screens/tetris_game_screen.dart';
 import 'settings/settings_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  installTalkerErrorHandlers();
+  talker.info('Starting Block Drop');
   runApp(const TetrisApp());
 }
 
