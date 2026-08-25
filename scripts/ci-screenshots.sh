@@ -16,6 +16,11 @@ screenshot_dir="fastlane/metadata/android/en-US/images/$BLOCKDROP_DEVICE_TYPE"
 rm -rf "$screenshot_dir"
 mkdir -p "$screenshot_dir"
 
+if [ -n "${SCREENSHOT_SCREEN_SIZE:-}" ]; then
+  adb -s "emulator-$EMULATOR_PORT" shell wm size "$SCREENSHOT_SCREEN_SIZE"
+  expected_dimensions=$(printf '%s' "$SCREENSHOT_SCREEN_SIZE" | sed 's/x/ x /')
+fi
+
 drive_log=$(mktemp)
 drive_status=0
 timeout --foreground -k 30 1200 flutter drive --profile \
@@ -39,6 +44,10 @@ for screenshot in \
   if [ ! -s "$screenshot_dir/$screenshot.png" ]; then
     echo "Missing generated screenshot: $screenshot.png" >&2
     [ "$drive_status" -ne 0 ] && exit "$drive_status"
+    exit 1
+  fi
+  if [ -n "${SCREENSHOT_SCREEN_SIZE:-}" ] && ! file "$screenshot_dir/$screenshot.png" | grep -Fq " $expected_dimensions,"; then
+    echo "Screenshot has unexpected dimensions: $(file "$screenshot_dir/$screenshot.png")" >&2
     exit 1
   fi
 done
