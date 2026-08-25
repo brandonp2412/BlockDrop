@@ -139,5 +139,30 @@ void main() {
         );
       },
     );
+
+    testWidgets('horizontal drag distance maps directly to board columns', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const TetrisApp());
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final gameLogic =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+      final int startX = gameLogic.currentX;
+      final center = tester.getCenter(find.byType(GameBoard));
+      final gesture = await tester.startGesture(center);
+
+      await gesture.moveBy(const Offset(-54, 0));
+      await tester.pump();
+      await gesture.moveBy(const Offset(-1, 0));
+      await tester.pump();
+      expect(gameLogic.currentX, startX - 3);
+
+      await gesture.moveBy(const Offset(19, 0));
+      await tester.pump();
+      expect(gameLogic.currentX, startX - 2);
+
+      await gesture.up();
+    });
   });
 }
