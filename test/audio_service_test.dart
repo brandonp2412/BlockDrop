@@ -136,6 +136,27 @@ void main() {
       verify(() => mockMusic.play(any())).called(1);
       await stateController.close();
     });
+
+    test('music starts without waiting for sound effects to preload', () async {
+      final (mockMusic, stateController) = makeMusicPlayer();
+      final mockSfx = makeSfxPlayer();
+      final sfxInitializationGate = Completer<void>();
+      when(() => mockSfx.setSource(any()))
+          .thenAnswer((_) => sfxInitializationGate.future);
+      final service = AudioService(
+        musicEnabled: true,
+        musicPlayer: mockMusic,
+        sfxPlayerFactory: () => mockSfx,
+      );
+
+      final initialization = service.init();
+      await service.startMusic().timeout(const Duration(seconds: 1));
+
+      verify(() => mockMusic.play(any())).called(1);
+      sfxInitializationGate.complete();
+      await initialization;
+      await stateController.close();
+    });
   });
 
   group('AudioService — unexpected music pause recovery', () {

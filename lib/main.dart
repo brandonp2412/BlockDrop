@@ -3,22 +3,28 @@ import 'logging.dart';
 import 'screens/tetris_game_screen.dart';
 import 'settings/settings_provider.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   installTalkerErrorHandlers();
   talker.info('Starting Block Drop');
-  runApp(const TetrisApp());
+  final settings = SettingsProvider();
+  await settings.load();
+  runApp(TetrisApp(settings: settings));
 }
 
 class TetrisApp extends StatefulWidget {
-  const TetrisApp({super.key});
+  final SettingsProvider? settings;
+
+  const TetrisApp({super.key, this.settings});
 
   @override
   State<TetrisApp> createState() => _TetrisAppState();
 }
 
 class _TetrisAppState extends State<TetrisApp> {
-  final _settings = SettingsProvider();
+  late final SettingsProvider _settings;
+  late final bool _ownsSettings;
+  late final VoidCallback _settingsListener;
 
   static final _lightTheme = ThemeData(
     colorScheme: ColorScheme.fromSeed(
@@ -53,13 +59,17 @@ class _TetrisAppState extends State<TetrisApp> {
   @override
   void initState() {
     super.initState();
-    _settings.addListener(() => setState(() {}));
-    _settings.load();
+    _ownsSettings = widget.settings == null;
+    _settings = widget.settings ?? SettingsProvider();
+    _settingsListener = () => setState(() {});
+    _settings.addListener(_settingsListener);
+    if (_ownsSettings) _settings.load();
   }
 
   @override
   void dispose() {
-    _settings.dispose();
+    _settings.removeListener(_settingsListener);
+    if (_ownsSettings) _settings.dispose();
     super.dispose();
   }
 

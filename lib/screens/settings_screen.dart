@@ -105,9 +105,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               if (widget.onRestart != null || widget.onQuit != null) ...[
                 _SectionHeader(label: 'Game', colorScheme: colorScheme),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                _SettingsPanel(
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
                   child: Row(
                     children: [
                       Expanded(
@@ -152,9 +152,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 if (widget.onPractice != null)
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  _SettingsPanel(
+                    colorScheme: colorScheme,
+                    style: widget.settings.style,
                     child: _ActionButton(
                       label: 'Practice Mode',
                       icon: Icons.school,
@@ -206,9 +206,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              _SettingsPanel(
+                colorScheme: colorScheme,
+                style: widget.settings.style,
                 child: SegmentedButton<AppThemeMode>(
                   style: SegmentedButton.styleFrom(
                     shape: buttonBorderShape(widget.settings.style),
@@ -222,6 +222,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     selectedBackgroundColor:
                         colorScheme.primary.withValues(alpha: 0.18),
                     selectedForegroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onSurface,
+                    disabledForegroundColor:
+                        colorScheme.onSurface.withValues(alpha: 0.65),
                     backgroundColor: colorScheme.surfaceContainerHighest
                         .withValues(alpha: 0.35),
                   ),
@@ -414,6 +417,28 @@ class _SectionHeader extends StatelessWidget {
           color: colorScheme.primary,
         ),
       ),
+    );
+  }
+}
+
+class _SettingsPanel extends StatelessWidget {
+  final Widget child;
+  final ColorScheme colorScheme;
+  final AppStyle style;
+
+  const _SettingsPanel({
+    required this.child,
+    required this.colorScheme,
+    required this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.all(8),
+      decoration: panelDecoration(style, colorScheme),
+      child: child,
     );
   }
 }

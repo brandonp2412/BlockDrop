@@ -18,6 +18,7 @@ class AudioService {
   bool _musicIntentionallyPaused = true;
   bool _isIntentionallyStarting = false;
   Future<void>? _initialization;
+  Future<void>? _musicInitialization;
   Future<void>? _musicStart;
 
   AudioService({
@@ -39,11 +40,26 @@ class AudioService {
     'game_over',
   ];
 
-  static const _sfxVolumes = <String, double>{};
+  static const _sfxVolumes = <String, double>{
+    'move': 0.32,
+    'rotate': 0.42,
+    'drop': 0.5,
+    'clear': 0.45,
+    'tetris': 0.5,
+    'level_up': 0.36,
+    'hold': 0.4,
+    'game_over': 0.45,
+  };
 
-  Future<void> init() => _initialization ??= _initialize();
+  Future<void> init() => _initialization ??= Future.wait([
+        _ensureMusicInitialized(),
+        _initializeSfx(),
+      ]);
 
-  Future<void> _initialize() async {
+  Future<void> _ensureMusicInitialized() =>
+      _musicInitialization ??= _initializeMusic();
+
+  Future<void> _initializeMusic() async {
     await _musicPlayer.setPlayerMode(PlayerMode.mediaPlayer);
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
     await _musicPlayer.setVolume(0.25);
@@ -75,7 +91,9 @@ class AudioService {
         await startMusic();
       }
     });
+  }
 
+  Future<void> _initializeSfx() async {
     for (final name in _sfxNames) {
       final player = _sfxPlayerFactory?.call() ?? AudioPlayer();
       if (Platform.isAndroid) {
@@ -103,7 +121,7 @@ class AudioService {
   }
 
   Future<void> _startMusic() async {
-    await init();
+    await _ensureMusicInitialized();
     if (!musicEnabled || _musicIntentionallyPaused) return;
     if (_musicPlayer.state == PlayerState.playing) return;
     _isIntentionallyStarting = true;
@@ -123,13 +141,13 @@ class AudioService {
 
   Future<void> pauseMusic() async {
     _musicIntentionallyPaused = true;
-    await init();
+    await _ensureMusicInitialized();
     await _musicPlayer.pause();
   }
 
   Future<void> resumeMusic() async {
     _musicIntentionallyPaused = false;
-    await init();
+    await _ensureMusicInitialized();
     if (!musicEnabled || _musicIntentionallyPaused) return;
     final state = _musicPlayer.state;
     if (state == PlayerState.paused) {
