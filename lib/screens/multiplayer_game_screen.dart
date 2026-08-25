@@ -68,8 +68,10 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       if (widget.settings.musicEnabled) _audioService.startMusic();
     });
 
-    _gameLogic =
-        GameLogic(pieceBag: widget.manager.gameConfig.createPieceBag());
+    _gameLogic = GameLogic(
+      pieceBag: widget.manager.gameConfig.createPieceBag(),
+      enableHold: widget.manager.gameConfig.enableHold,
+    );
     _gameLogic.audioService = _audioService;
     _gameLogic.addListener(_onGameStateChanged);
 
@@ -341,24 +343,25 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
               width: sidebarW,
               child: Column(
                 children: [
-                  _buildSidebarPieceBox(
-                    label: 'HOLD',
-                    size: sidebarW,
-                    cs: cs,
-                    onTap: () {
-                      if (_gameActive &&
-                          _gameLogic.isGameRunning &&
-                          !_gameLogic.isGameOver &&
-                          !_gameLogic.isPaused) {
-                        _gameLogic.holdPiece();
-                      }
-                    },
-                    child: HoldPieceDisplay(
-                      piece: _gameLogic.heldPiece,
-                      style: widget.settings.style,
+                  if (_gameLogic.enableHold)
+                    _buildSidebarPieceBox(
+                      label: 'HOLD',
+                      size: sidebarW,
+                      cs: cs,
+                      onTap: () {
+                        if (_gameActive &&
+                            _gameLogic.isGameRunning &&
+                            !_gameLogic.isGameOver &&
+                            !_gameLogic.isPaused) {
+                          _gameLogic.holdPiece();
+                        }
+                      },
+                      child: HoldPieceDisplay(
+                        piece: _gameLogic.heldPiece,
+                        style: widget.settings.style,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
+                  if (_gameLogic.enableHold) const SizedBox(height: 8),
                   _buildSidebarPieceBox(
                     label: 'NEXT',
                     size: sidebarW,
@@ -595,31 +598,34 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           ),
 
           // ── Hold overlay (top-left of board) ──────────────────────
-          Positioned(
-            left: boardLeft + 4,
-            top: boardTop + 4,
-            child: _buildOverlayPieceBox(
-              label: 'HOLD',
-              size: overlayBoxSize,
-              onTap: () {
-                if (_gameActive &&
-                    _gameLogic.isGameRunning &&
-                    !_gameLogic.isGameOver &&
-                    !_gameLogic.isPaused) {
-                  _gameLogic.holdPiece();
-                }
-              },
-              child: HoldPieceDisplay(
-                piece: _gameLogic.heldPiece,
-                style: widget.settings.style,
+          if (_gameLogic.enableHold)
+            Positioned(
+              left: boardLeft + 4,
+              top: boardTop + 4,
+              child: _buildOverlayPieceBox(
+                label: 'HOLD',
+                size: overlayBoxSize,
+                onTap: () {
+                  if (_gameActive &&
+                      _gameLogic.isGameRunning &&
+                      !_gameLogic.isGameOver &&
+                      !_gameLogic.isPaused) {
+                    _gameLogic.holdPiece();
+                  }
+                },
+                child: HoldPieceDisplay(
+                  piece: _gameLogic.heldPiece,
+                  style: widget.settings.style,
+                ),
               ),
             ),
-          ),
 
           // ── Next overlay (below hold) ──────────────────────────────
           Positioned(
             left: boardLeft + 4,
-            top: boardTop + 4 + labelH + overlayBoxSize + 6,
+            top: boardTop +
+                4 +
+                (_gameLogic.enableHold ? labelH + overlayBoxSize + 6 : 0),
             child: _buildOverlayPieceBox(
               label: 'NEXT',
               size: overlayBoxSize,

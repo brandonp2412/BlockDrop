@@ -13,6 +13,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _highScoreKey = 'high_score';
   static const _showGhostTileKey = 'show_ghost_tile';
   static const _showOpponentBoardKey = 'show_opponent_board';
+  static const _enableHoldKey = 'enable_hold';
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
@@ -21,6 +22,7 @@ class SettingsProvider extends ChangeNotifier {
   int _highScore = 0;
   bool _showGhostTile = true;
   bool _showOpponentBoard = true;
+  bool _enableHold = true;
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
@@ -29,6 +31,7 @@ class SettingsProvider extends ChangeNotifier {
   int get highScore => _highScore;
   bool get showGhostTile => _showGhostTile;
   bool get showOpponentBoard => _showOpponentBoard;
+  bool get enableHold => _enableHold;
 
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
@@ -58,6 +61,7 @@ class SettingsProvider extends ChangeNotifier {
     _highScore = prefs.getInt(_highScoreKey) ?? 0;
     _showGhostTile = prefs.getBool(_showGhostTileKey) ?? true;
     _showOpponentBoard = prefs.getBool(_showOpponentBoardKey) ?? true;
+    _enableHold = prefs.getBool(_enableHoldKey) ?? true;
     notifyListeners();
   }
 
@@ -101,6 +105,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_showOpponentBoardKey, value);
+  }
+
+  Future<void> setEnableHold(bool value) async {
+    _enableHold = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_enableHoldKey, value);
   }
 
   Future<void> updateHighScore(int score) async {
