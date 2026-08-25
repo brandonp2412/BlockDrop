@@ -64,9 +64,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       musicEnabled: widget.settings.musicEnabled,
       sfxEnabled: widget.settings.sfxEnabled,
     );
-    _audioService.init().then((_) {
-      if (widget.settings.musicEnabled) _audioService.startMusic();
-    });
+    _audioService.startMusic();
 
     _gameLogic = GameLogic(
       pieceBag: widget.manager.gameConfig.createPieceBag(),

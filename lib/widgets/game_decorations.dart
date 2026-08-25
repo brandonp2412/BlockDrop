@@ -36,8 +36,8 @@ BoxDecoration pieceBoxDecoration(AppStyle style, ColorScheme cs) {
         ),
         boxShadow: [
           BoxShadow(
-            color: cs.outlineVariant.withValues(alpha: 0.2),
-            blurRadius: 6,
+            color: cs.outlineVariant.withValues(alpha: 0.1),
+            blurRadius: 4,
             spreadRadius: 0,
           ),
         ],
@@ -89,8 +89,8 @@ BoxDecoration panelDecoration(AppStyle style, ColorScheme cs, {Color? color}) {
         ),
         boxShadow: [
           BoxShadow(
-            color: cs.outlineVariant.withValues(alpha: 0.15),
-            blurRadius: 8,
+            color: cs.outlineVariant.withValues(alpha: 0.08),
+            blurRadius: 4,
           ),
         ],
       );
@@ -200,9 +200,8 @@ BoxDecoration boardDecoration(AppStyle style, ColorScheme cs) {
         border: Border.all(color: cs.primary, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: cs.primary.withValues(alpha: 0.6),
-            blurRadius: 12,
-            spreadRadius: 1,
+            color: cs.primary.withValues(alpha: 0.25),
+            blurRadius: 6,
           ),
         ],
       );

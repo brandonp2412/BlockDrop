@@ -85,266 +85,314 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final controlTheme = theme.copyWith(
+      switchTheme: _switchTheme(widget.settings.style, colorScheme),
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.only(top: 8, bottom: 48),
-          // Large scrollCacheExtent ensures all children are laid out off-screen so
-          // Android TV D-pad focus traversal can reach items below the viewport.
-          scrollCacheExtent: const ScrollCacheExtent.pixels(3000),
-          children: [
-            if (widget.onRestart != null || widget.onQuit != null) ...[
-              _SectionHeader(label: 'Game', colorScheme: colorScheme),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _ActionButton(
-                        label: 'Resume',
-                        icon: Icons.play_arrow,
-                        colorScheme: colorScheme,
-                        style: widget.settings.style,
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _ActionButton(
-                        label: 'Restart',
-                        icon: Icons.refresh,
-                        colorScheme: colorScheme,
-                        style: widget.settings.style,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          widget.onRestart?.call();
-                        },
-                      ),
-                    ),
-                    if (widget.onQuit != null) ...[
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _ActionButton(
-                          label: 'Quit',
-                          icon: Icons.stop,
-                          colorScheme: colorScheme,
-                          style: widget.settings.style,
-                          isDestructive: true,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            widget.onQuit?.call();
-                          },
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (widget.onPractice != null)
+      body: Theme(
+        data: controlTheme,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.only(top: 8, bottom: 48),
+            // Large scrollCacheExtent ensures all children are laid out off-screen so
+            // Android TV D-pad focus traversal can reach items below the viewport.
+            scrollCacheExtent: const ScrollCacheExtent.pixels(3000),
+            children: [
+              if (widget.onRestart != null || widget.onQuit != null) ...[
+                _SectionHeader(label: 'Game', colorScheme: colorScheme),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: _ActionButton(
-                    label: 'Practice Mode',
-                    icon: Icons.school,
-                    colorScheme: colorScheme,
-                    style: widget.settings.style,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      widget.onPractice?.call();
-                    },
-                  ),
-                ),
-            ],
-            _SectionHeader(label: 'Sound', colorScheme: colorScheme),
-            _SettingTile(
-              label: 'Music',
-              colorScheme: colorScheme,
-              style: widget.settings.style,
-              child: Switch(
-                value: widget.settings.musicEnabled,
-                onChanged: (value) => widget.settings.setMusicEnabled(value),
-              ),
-            ),
-            _SettingTile(
-              label: 'Sound Effects',
-              colorScheme: colorScheme,
-              style: widget.settings.style,
-              child: Switch(
-                value: widget.settings.sfxEnabled,
-                onChanged: (value) => widget.settings.setSfxEnabled(value),
-              ),
-            ),
-            _SectionHeader(label: 'Gameplay', colorScheme: colorScheme),
-            _SettingTile(
-              label: 'Ghost Tile',
-              colorScheme: colorScheme,
-              style: widget.settings.style,
-              child: Switch(
-                value: widget.settings.showGhostTile,
-                onChanged: (value) => widget.settings.setShowGhostTile(value),
-              ),
-            ),
-            _SettingTile(
-              label: 'Enable Hold Piece',
-              colorScheme: colorScheme,
-              style: widget.settings.style,
-              child: Switch(
-                value: widget.settings.enableHold,
-                onChanged: (value) => widget.settings.setEnableHold(value),
-              ),
-            ),
-            _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: SegmentedButton<AppThemeMode>(
-                style: SegmentedButton.styleFrom(
-                  shape: buttonBorderShape(widget.settings.style),
-                ),
-                segments: [
-                  ButtonSegment(
-                    value: AppThemeMode.system,
-                    label: const Text('System'),
-                    icon: const Icon(Icons.brightness_auto),
-                    enabled: widget.settings.style != AppStyle.neon,
-                  ),
-                  const ButtonSegment(
-                    value: AppThemeMode.dark,
-                    label: Text('Dark'),
-                    icon: Icon(Icons.dark_mode),
-                  ),
-                  ButtonSegment(
-                    value: AppThemeMode.light,
-                    label: const Text('Light'),
-                    icon: const Icon(Icons.light_mode),
-                    enabled: widget.settings.style != AppStyle.neon,
-                  ),
-                ],
-                selected: {
-                  widget.settings.themeMode == AppThemeMode.black
-                      ? AppThemeMode.dark
-                      : widget.settings.themeMode == AppThemeMode.system ||
-                              widget.settings.themeMode == AppThemeMode.light
-                          ? widget.settings.themeMode
-                          : AppThemeMode.dark,
-                },
-                onSelectionChanged: (selection) =>
-                    widget.settings.setThemeMode(selection.first),
-              ),
-            ),
-            _SettingTile(
-              label: 'Pure Black (AMOLED)',
-              colorScheme: colorScheme,
-              style: widget.settings.style,
-              child: Switch(
-                value: widget.settings.isBlackMode,
-                onChanged: (value) => widget.settings.setThemeMode(
-                  value ? AppThemeMode.black : AppThemeMode.dark,
-                ),
-              ),
-            ),
-            _SettingTile(
-              label: 'Style',
-              colorScheme: colorScheme,
-              style: widget.settings.style,
-              child: TextButton(
-                onPressed: _pickStyle,
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  foregroundColor: colorScheme.onSurface,
-                  alignment: Alignment.centerLeft,
-                ),
-                child: Row(children: [
-                  Expanded(child: Text(_styleLabel(widget.settings.style))),
-                  const Icon(Icons.arrow_drop_down, size: 20),
-                ]),
-              ),
-            ),
-            _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),
-            _SettingTile(
-              label: 'Show Opponent Board',
-              colorScheme: colorScheme,
-              style: widget.settings.style,
-              child: Switch(
-                value: widget.settings.showOpponentBoard,
-                onChanged: (value) =>
-                    widget.settings.setShowOpponentBoard(value),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              decoration: panelDecoration(widget.settings.style, colorScheme),
-              child: InkWell(
-                borderRadius: panelBorderRadius(widget.settings.style),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MultiplayerDiscoveryScreen(
-                      settings: widget.settings,
-                    ),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
                   child: Row(
                     children: [
-                      Icon(Icons.wifi, color: colorScheme.primary, size: 20),
-                      const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          'Play on LAN',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: colorScheme.onSurface,
-                          ),
+                        child: _ActionButton(
+                          label: 'Resume',
+                          icon: Icons.play_arrow,
+                          colorScheme: colorScheme,
+                          style: widget.settings.style,
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: colorScheme.onSurfaceVariant,
-                        size: 20,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ActionButton(
+                          label: 'Restart',
+                          icon: Icons.refresh,
+                          colorScheme: colorScheme,
+                          style: widget.settings.style,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            widget.onRestart?.call();
+                          },
+                        ),
                       ),
+                      if (widget.onQuit != null) ...[
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _ActionButton(
+                            label: 'Quit',
+                            icon: Icons.stop,
+                            colorScheme: colorScheme,
+                            style: widget.settings.style,
+                            isDestructive: true,
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              widget.onQuit?.call();
+                            },
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
-              ),
-            ),
-            _SectionHeader(label: 'Stats', colorScheme: colorScheme),
-            _SettingTile(
-              label: 'High Score',
-              colorScheme: colorScheme,
-              style: widget.settings.style,
-              child: Text(
-                NumberFormat.decimalPattern('en_US')
-                    .format(widget.settings.highScore),
-                textAlign: TextAlign.end,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.primary,
+                if (widget.onPractice != null)
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child: _ActionButton(
+                      label: 'Practice Mode',
+                      icon: Icons.school,
+                      colorScheme: colorScheme,
+                      style: widget.settings.style,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        widget.onPractice?.call();
+                      },
+                    ),
+                  ),
+              ],
+              _SectionHeader(label: 'Sound', colorScheme: colorScheme),
+              _SettingTile(
+                label: 'Music',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.musicEnabled,
+                  onChanged: (value) => widget.settings.setMusicEnabled(value),
                 ),
               ),
-            ),
-            _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
-            _InstructionsCard(
-                colorScheme: colorScheme, style: widget.settings.style),
-            _SectionHeader(label: 'About', colorScheme: colorScheme),
-            _AboutCard(colorScheme: colorScheme, style: widget.settings.style),
-            const SizedBox(height: 8),
-          ],
+              _SettingTile(
+                label: 'Sound Effects',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.sfxEnabled,
+                  onChanged: (value) => widget.settings.setSfxEnabled(value),
+                ),
+              ),
+              _SectionHeader(label: 'Gameplay', colorScheme: colorScheme),
+              _SettingTile(
+                label: 'Ghost Tile',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.showGhostTile,
+                  onChanged: (value) => widget.settings.setShowGhostTile(value),
+                ),
+              ),
+              _SettingTile(
+                label: 'Enable Hold Piece',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.enableHold,
+                  onChanged: (value) => widget.settings.setEnableHold(value),
+                ),
+              ),
+              _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: SegmentedButton<AppThemeMode>(
+                  style: SegmentedButton.styleFrom(
+                    shape: buttonBorderShape(widget.settings.style),
+                    side: BorderSide(
+                      color: colorScheme.primary.withValues(
+                        alpha:
+                            widget.settings.style == AppStyle.neon ? 0.55 : 0.3,
+                      ),
+                      width: widget.settings.style == AppStyle.retro ? 2 : 1,
+                    ),
+                    selectedBackgroundColor:
+                        colorScheme.primary.withValues(alpha: 0.18),
+                    selectedForegroundColor: colorScheme.primary,
+                    backgroundColor: colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.35),
+                  ),
+                  segments: [
+                    ButtonSegment(
+                      value: AppThemeMode.system,
+                      label: const Text('System'),
+                      icon: const Icon(Icons.brightness_auto),
+                      enabled: widget.settings.style != AppStyle.neon,
+                    ),
+                    const ButtonSegment(
+                      value: AppThemeMode.dark,
+                      label: Text('Dark'),
+                      icon: Icon(Icons.dark_mode),
+                    ),
+                    ButtonSegment(
+                      value: AppThemeMode.light,
+                      label: const Text('Light'),
+                      icon: const Icon(Icons.light_mode),
+                      enabled: widget.settings.style != AppStyle.neon,
+                    ),
+                  ],
+                  selected: {
+                    widget.settings.themeMode == AppThemeMode.black
+                        ? AppThemeMode.dark
+                        : widget.settings.themeMode == AppThemeMode.system ||
+                                widget.settings.themeMode == AppThemeMode.light
+                            ? widget.settings.themeMode
+                            : AppThemeMode.dark,
+                  },
+                  onSelectionChanged: (selection) =>
+                      widget.settings.setThemeMode(selection.first),
+                ),
+              ),
+              _SettingTile(
+                label: 'Pure Black (AMOLED)',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.isBlackMode,
+                  onChanged: (value) => widget.settings.setThemeMode(
+                    value ? AppThemeMode.black : AppThemeMode.dark,
+                  ),
+                ),
+              ),
+              _SettingTile(
+                label: 'Style',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: TextButton(
+                  onPressed: _pickStyle,
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    foregroundColor: colorScheme.onSurface,
+                    alignment: Alignment.centerLeft,
+                  ),
+                  child: Row(children: [
+                    Expanded(child: Text(_styleLabel(widget.settings.style))),
+                    const Icon(Icons.arrow_drop_down, size: 20),
+                  ]),
+                ),
+              ),
+              _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),
+              _SettingTile(
+                label: 'Show Opponent Board',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.showOpponentBoard,
+                  onChanged: (value) =>
+                      widget.settings.setShowOpponentBoard(value),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: panelDecoration(widget.settings.style, colorScheme),
+                child: InkWell(
+                  borderRadius: panelBorderRadius(widget.settings.style),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MultiplayerDiscoveryScreen(
+                        settings: widget.settings,
+                      ),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.wifi, color: colorScheme.primary, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Play on LAN',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              _SectionHeader(label: 'Stats', colorScheme: colorScheme),
+              _SettingTile(
+                label: 'High Score',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Text(
+                  NumberFormat.decimalPattern('en_US')
+                      .format(widget.settings.highScore),
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ),
+              _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
+              _InstructionsCard(
+                  colorScheme: colorScheme, style: widget.settings.style),
+              _SectionHeader(label: 'About', colorScheme: colorScheme),
+              _AboutCard(
+                  colorScheme: colorScheme, style: widget.settings.style),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+SwitchThemeData _switchTheme(AppStyle style, ColorScheme colorScheme) {
+  final outlineAlpha = switch (style) {
+    AppStyle.classic => 0.65,
+    AppStyle.modern => 0.25,
+    AppStyle.bubbles => 0.4,
+    AppStyle.neon => 0.55,
+    AppStyle.retro => 0.8,
+  };
+  return SwitchThemeData(
+    trackColor: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.selected)
+          ? colorScheme.primary.withValues(alpha: 0.42)
+          : colorScheme.surfaceContainerHighest,
+    ),
+    thumbColor: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.selected)
+          ? colorScheme.primary
+          : colorScheme.onSurfaceVariant,
+    ),
+    trackOutlineColor: WidgetStateProperty.all(
+      colorScheme.primary.withValues(alpha: outlineAlpha),
+    ),
+    trackOutlineWidth: WidgetStateProperty.all(
+      style == AppStyle.retro ? 2 : 1,
+    ),
+  );
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -438,7 +486,15 @@ class _ActionButton extends StatelessWidget {
       label: Text(label, style: TextStyle(color: color, fontSize: 13)),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 10),
-        side: BorderSide(color: color.withAlpha(80)),
+        backgroundColor: color.withValues(
+          alpha: style == AppStyle.neon ? 0.08 : 0.04,
+        ),
+        side: BorderSide(
+          color: color.withValues(
+            alpha: style == AppStyle.neon ? 0.55 : 0.32,
+          ),
+          width: style == AppStyle.retro ? 2 : 1,
+        ),
         shape: buttonBorderShape(style),
       ),
     );

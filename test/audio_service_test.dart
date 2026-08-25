@@ -41,10 +41,11 @@ void main() {
 
     when(() => mock.onPlayerStateChanged)
         .thenAnswer((_) => stateController.stream);
+    when(() => mock.setPlayerMode(any())).thenAnswer((_) async {});
     when(() => mock.setReleaseMode(any())).thenAnswer((_) async {});
     when(() => mock.setAudioContext(any())).thenAnswer((_) async {});
     when(() => mock.setVolume(any())).thenAnswer((_) async {});
-    when(() => mock.state).thenReturn(PlayerState.playing);
+    when(() => mock.state).thenReturn(PlayerState.stopped);
     when(() => mock.play(any())).thenAnswer((_) async {
       stateController.add(PlayerState.stopped);
       await Future<void>.delayed(const Duration(milliseconds: 1));
@@ -99,6 +100,42 @@ void main() {
         await stateController.close();
       },
     );
+
+    test('a pause during initialization cancels pending playback', () async {
+      final (mockMusic, stateController) = makeMusicPlayer();
+      final initializationGate = Completer<void>();
+      when(() => mockMusic.setPlayerMode(any()))
+          .thenAnswer((_) => initializationGate.future);
+
+      final service = AudioService(
+        musicEnabled: true,
+        musicPlayer: mockMusic,
+        sfxPlayerFactory: makeSfxPlayer,
+      );
+
+      final start = service.startMusic();
+      final pause = service.pauseMusic();
+      initializationGate.complete();
+      await Future.wait([start, pause]);
+
+      verifyNever(() => mockMusic.play(any()));
+      verify(() => mockMusic.pause()).called(1);
+      await stateController.close();
+    });
+
+    test('concurrent start requests only start the player once', () async {
+      final (mockMusic, stateController) = makeMusicPlayer();
+      final service = AudioService(
+        musicEnabled: true,
+        musicPlayer: mockMusic,
+        sfxPlayerFactory: makeSfxPlayer,
+      );
+
+      await Future.wait([service.startMusic(), service.startMusic()]);
+
+      verify(() => mockMusic.play(any())).called(1);
+      await stateController.close();
+    });
   });
 
   group('AudioService — unexpected music pause recovery', () {

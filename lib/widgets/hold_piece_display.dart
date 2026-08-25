@@ -146,9 +146,8 @@ class HoldPieceDisplay extends StatelessWidget {
             border: Border.all(color: displayColor, width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: displayColor.withValues(alpha: 0.8),
-                blurRadius: 6,
-                spreadRadius: 1,
+                color: displayColor.withValues(alpha: 0.3),
+                blurRadius: 3,
               ),
             ],
           ),

@@ -69,7 +69,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       musicEnabled: widget.settings.musicEnabled,
       sfxEnabled: widget.settings.sfxEnabled,
     );
-    _audioService.init().then((_) => _audioService.startMusic());
+    _audioService.startMusic();
 
     gameLogic = GameLogic(enableHold: widget.settings.enableHold);
     gameLogic.audioService = _audioService;

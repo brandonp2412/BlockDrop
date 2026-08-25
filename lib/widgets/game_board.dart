@@ -247,14 +247,9 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
             border: Border.all(color: displayColor, width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: _colorWithAlpha(displayColor, 0.5),
-                blurRadius: 4,
+                color: _colorWithAlpha(displayColor, 0.25),
+                blurRadius: 3,
                 spreadRadius: 0,
-              ),
-              BoxShadow(
-                color: _colorWithAlpha(displayColor, 0.15),
-                blurRadius: 8,
-                spreadRadius: 1,
               ),
             ],
           ),

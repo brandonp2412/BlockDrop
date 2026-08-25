@@ -17,6 +17,8 @@ class AudioService {
 
   bool _musicIntentionallyPaused = true;
   bool _isIntentionallyStarting = false;
+  Future<void>? _initialization;
+  Future<void>? _musicStart;
 
   AudioService({
     this.musicEnabled = true,
@@ -39,7 +41,10 @@ class AudioService {
 
   static const _sfxVolumes = <String, double>{};
 
-  Future<void> init() async {
+  Future<void> init() => _initialization ??= _initialize();
+
+  Future<void> _initialize() async {
+    await _musicPlayer.setPlayerMode(PlayerMode.mediaPlayer);
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
     await _musicPlayer.setVolume(0.25);
     if (Platform.isAndroid) {
@@ -92,11 +97,23 @@ class AudioService {
     }
   }
 
-  Future<void> startMusic() async {
+  Future<void> startMusic() {
     _musicIntentionallyPaused = false;
-    if (!musicEnabled) return;
+    return _musicStart ??= _startMusic().whenComplete(() => _musicStart = null);
+  }
+
+  Future<void> _startMusic() async {
+    await init();
+    if (!musicEnabled || _musicIntentionallyPaused) return;
+    if (_musicPlayer.state == PlayerState.playing) return;
     _isIntentionallyStarting = true;
-    await _musicPlayer.play(AssetSource('audio/music/theme.$_audioExt'));
+    try {
+      await _musicPlayer.play(AssetSource('audio/music/theme.$_audioExt'));
+    } finally {
+      if (_musicPlayer.state != PlayerState.playing) {
+        _isIntentionallyStarting = false;
+      }
+    }
   }
 
   Future<void> stopMusic() async {
@@ -106,12 +123,14 @@ class AudioService {
 
   Future<void> pauseMusic() async {
     _musicIntentionallyPaused = true;
+    await init();
     await _musicPlayer.pause();
   }
 
   Future<void> resumeMusic() async {
     _musicIntentionallyPaused = false;
-    if (!musicEnabled) return;
+    await init();
+    if (!musicEnabled || _musicIntentionallyPaused) return;
     final state = _musicPlayer.state;
     if (state == PlayerState.paused) {
       await _musicPlayer.resume();
