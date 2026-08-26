@@ -14,14 +14,17 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    expect(find.text('Starting Speed'), findsOneWidget);
-    expect(find.text('Speed per Level'), findsOneWidget);
-    expect(find.text('Maximum Level'), findsOneWidget);
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
-    await tester.pumpAndSettle();
-    expect(find.text('Lines per Level'), findsOneWidget);
-    expect(find.text('Enable Soft Drop'), findsOneWidget);
-    expect(find.text('Back Gesture Holds'), findsOneWidget);
+    for (final label in [
+      'Starting Speed',
+      'Speed per Level',
+      'Maximum Level',
+      'Lines per Level',
+      'Enable Soft Drop',
+      'Back Gesture Holds',
+    ]) {
+      await tester.scrollUntilVisible(find.text(label), 120);
+      expect(find.text(label), findsOneWidget);
+    }
   });
 
   testWidgets('maximum level picker offers unlimited progression',
@@ -31,8 +34,7 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    await tester.drag(find.byType(ListView), const Offset(0, -350));
-    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Maximum Level'), 120);
     await tester.tap(find.text('20'));
     await tester.pumpAndSettle();
 

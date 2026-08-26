@@ -17,10 +17,13 @@ void main() {
     );
 
     for (final action in GameplayAction.values) {
-      expect(
-          find.byKey(Key('controller-binding-${action.name}')), findsOneWidget);
+      final binding = find.byKey(Key('controller-binding-${action.name}'));
+      await tester.scrollUntilVisible(binding, 120);
+      expect(binding, findsOneWidget);
     }
-    expect(find.byKey(const Key('reset-controller-bindings')), findsOneWidget);
+    final resetButton = find.byKey(const Key('reset-controller-bindings'));
+    await tester.scrollUntilVisible(resetButton, 120);
+    expect(resetButton, findsOneWidget);
   });
 
   testWidgets('binding button opens controller input prompt', (tester) async {
@@ -31,7 +34,11 @@ void main() {
     final binding = find.byKey(
       const Key('controller-binding-rotateRight'),
     );
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.scrollUntilVisible(binding, 120);
+    await Scrollable.ensureVisible(
+      tester.element(binding),
+      alignment: 0.5,
+    );
     await tester.pumpAndSettle();
     await tester.tap(binding);
     await tester.pumpAndSettle();
