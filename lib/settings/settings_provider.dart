@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../game/gameplay_settings.dart';
+
 enum AppThemeMode { system, light, dark, black }
 
 enum AppStyle { classic, modern, bubbles, neon, retro }
@@ -16,6 +18,14 @@ class SettingsProvider extends ChangeNotifier {
   static const _enableHoldKey = 'enable_hold';
   static const _showOnScreenControlsKey = 'show_on_screen_controls';
   static const _fullscreenBoardKey = 'fullscreen_board';
+  static const _gameplayKeys = <String>{
+    'initial_drop_speed',
+    'speed_increment',
+    'maximum_level',
+    'lines_per_level',
+    'soft_drop_enabled',
+    'hold_interaction_mode',
+  };
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
@@ -27,6 +37,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _enableHold = true;
   bool _showOnScreenControls = false;
   bool _fullscreenBoard = false;
+  GameplaySettings _gameplay = GameplaySettings.defaults;
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
@@ -40,6 +51,9 @@ class SettingsProvider extends ChangeNotifier {
 
   /// Whether single-player uses the large board with overlaid game controls.
   bool get fullscreenBoard => _fullscreenBoard;
+
+  /// Gameplay rules to use when creating the next match.
+  GameplaySettings get gameplay => _gameplay.copyWith(holdEnabled: _enableHold);
 
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
@@ -70,6 +84,10 @@ class SettingsProvider extends ChangeNotifier {
     _enableHold = prefs.getBool(_enableHoldKey) ?? true;
     _showOnScreenControls = prefs.getBool(_showOnScreenControlsKey) ?? false;
     _fullscreenBoard = prefs.getBool(_fullscreenBoardKey) ?? false;
+    _gameplay = GameplaySettings.fromMap({
+      for (final key in _gameplayKeys) key: prefs.get(key),
+      'hold_enabled': _enableHold,
+    });
     notifyListeners();
   }
 
@@ -135,6 +153,26 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_fullscreenBoardKey, value);
+  }
+
+  /// Updates and persists the gameplay rules used for new solo and LAN games.
+  Future<void> setGameplaySettings(GameplaySettings value) async {
+    _gameplay = value;
+    _enableHold = value.holdEnabled;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await Future.wait([
+      prefs.setInt('initial_drop_speed', value.initialDropSpeed),
+      prefs.setInt('speed_increment', value.speedIncrement),
+      prefs.setInt('maximum_level', value.maximumLevel),
+      prefs.setInt('lines_per_level', value.linesPerLevel),
+      prefs.setBool('soft_drop_enabled', value.softDropEnabled),
+      prefs.setBool(_enableHoldKey, value.holdEnabled),
+      prefs.setString(
+        'hold_interaction_mode',
+        value.holdInteractionMode.wireName,
+      ),
+    ]);
   }
 
   Future<void> updateHighScore(int score) async {

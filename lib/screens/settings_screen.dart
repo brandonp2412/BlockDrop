@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../settings/settings_provider.dart';
+import '../game/gameplay_settings.dart';
 import '../widgets/game_decorations.dart';
 import 'multiplayer_discovery_screen.dart';
 
@@ -79,6 +80,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (v == AppStyle.neon) widget.settings.setThemeMode(AppThemeMode.dark);
       }
     });
+  }
+
+  Future<void> _pickGameplayNumber({
+    required String title,
+    required String help,
+    required int value,
+    required int min,
+    required int max,
+    required int divisions,
+    required String suffix,
+    required GameplaySettings Function(int value) update,
+    String? zeroLabel,
+  }) async {
+    double selected = value.toDouble();
+    final result = await showDialog<int>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          final current = selected.round();
+          final label =
+              current == 0 && zeroLabel != null ? zeroLabel : '$current$suffix';
+          return AlertDialog(
+            shape: styledDialogShape(
+              widget.settings.style,
+              Theme.of(ctx).colorScheme,
+            ),
+            title: Text(title),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(help),
+                const SizedBox(height: 16),
+                Text(label, style: Theme.of(ctx).textTheme.titleLarge),
+                Slider(
+                  value: selected,
+                  min: min.toDouble(),
+                  max: max.toDouble(),
+                  divisions: divisions,
+                  label: label,
+                  onChanged: (next) => setDialogState(() => selected = next),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, current),
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (result != null)
+      await widget.settings.setGameplaySettings(update(result));
   }
 
   @override
@@ -221,6 +281,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       widget.settings.setFullscreenBoard(value),
                 ),
               ),
+              _GameplayValueTile(
+                label: 'Starting Speed',
+                value: '${widget.settings.gameplay.initialDropSpeed} ms',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                onTap: () => _pickGameplayNumber(
+                  title: 'Starting Speed',
+                  help: 'Time between automatic downward moves at level 1. '
+                      'Lower values are faster.',
+                  value: widget.settings.gameplay.initialDropSpeed,
+                  min: 200,
+                  max: 2000,
+                  divisions: 18,
+                  suffix: ' ms',
+                  update: (value) => widget.settings.gameplay
+                      .copyWith(initialDropSpeed: value),
+                ),
+              ),
+              _GameplayValueTile(
+                label: 'Speed per Level',
+                value: '${widget.settings.gameplay.speedIncrement} ms',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                onTap: () => _pickGameplayNumber(
+                  title: 'Speed per Level',
+                  help: 'Milliseconds removed from the drop delay each level.',
+                  value: widget.settings.gameplay.speedIncrement,
+                  min: 0,
+                  max: 200,
+                  divisions: 20,
+                  suffix: ' ms',
+                  update: (value) =>
+                      widget.settings.gameplay.copyWith(speedIncrement: value),
+                ),
+              ),
+              _GameplayValueTile(
+                label: 'Maximum Level',
+                value: widget.settings.gameplay.maximumLevel ==
+                        GameplaySettings.unlimitedLevels
+                    ? 'Unlimited'
+                    : '${widget.settings.gameplay.maximumLevel}',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                onTap: () => _pickGameplayNumber(
+                  title: 'Maximum Level',
+                  help: 'Choose 0 for unlimited level progression.',
+                  value: widget.settings.gameplay.maximumLevel,
+                  min: 0,
+                  max: 100,
+                  divisions: 100,
+                  suffix: '',
+                  zeroLabel: 'Unlimited',
+                  update: (value) =>
+                      widget.settings.gameplay.copyWith(maximumLevel: value),
+                ),
+              ),
+              _GameplayValueTile(
+                label: 'Lines per Level',
+                value: '${widget.settings.gameplay.linesPerLevel}',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                onTap: () => _pickGameplayNumber(
+                  title: 'Lines per Level',
+                  help: 'Cleared lines required to advance one level.',
+                  value: widget.settings.gameplay.linesPerLevel,
+                  min: 1,
+                  max: 50,
+                  divisions: 49,
+                  suffix: ' lines',
+                  update: (value) =>
+                      widget.settings.gameplay.copyWith(linesPerLevel: value),
+                ),
+              ),
+              _SettingTile(
+                label: 'Enable Soft Drop',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.gameplay.softDropEnabled,
+                  onChanged: (value) => widget.settings.setGameplaySettings(
+                    widget.settings.gameplay.copyWith(softDropEnabled: value),
+                  ),
+                ),
+              ),
+              if (widget.settings.enableHold)
+                _SettingTile(
+                  label: 'Back Gesture Holds',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.gameplay.holdInteractionMode ==
+                        HoldInteractionMode.panelAndBackGesture,
+                    onChanged: (value) => widget.settings.setGameplaySettings(
+                      widget.settings.gameplay.copyWith(
+                        holdInteractionMode: value
+                            ? HoldInteractionMode.panelAndBackGesture
+                            : HoldInteractionMode.panelOnly,
+                      ),
+                    ),
+                  ),
+                ),
               _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
               _SettingsPanel(
                 colorScheme: colorScheme,
@@ -502,6 +663,40 @@ class _SettingTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _GameplayValueTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final ColorScheme colorScheme;
+  final AppStyle style;
+  final VoidCallback onTap;
+
+  const _GameplayValueTile({
+    required this.label,
+    required this.value,
+    required this.colorScheme,
+    required this.style,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => _SettingTile(
+        label: label,
+        colorScheme: colorScheme,
+        style: style,
+        child: TextButton(
+          onPressed: onTap,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(value),
+              const SizedBox(width: 4),
+              const Icon(Icons.tune, size: 18),
+            ],
+          ),
+        ),
+      );
 }
 
 class _ActionButton extends StatelessWidget {

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
+import '../game/gameplay_settings.dart';
 import '../multiplayer/multiplayer_manager.dart';
 import '../settings/settings_provider.dart';
 import '../widgets/game_board.dart';
@@ -69,7 +70,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
 
     _gameLogic = GameLogic(
       pieceBag: widget.manager.gameConfig.createPieceBag(),
-      enableHold: widget.manager.gameConfig.enableHold,
+      gameplaySettings: widget.manager.gameConfig.gameplaySettings,
     );
     _gameLogic.audioService = _audioService;
     _gameLogic.addListener(_onGameStateChanged);
@@ -203,7 +204,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         _gameLogic.movePieceRight();
         return true;
       case LogicalKeyboardKey.arrowDown:
-        _gameLogic.movePieceDown();
+        _gameLogic.softDrop();
         return true;
       case LogicalKeyboardKey.arrowUp:
       case LogicalKeyboardKey.keyZ:
@@ -268,7 +269,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         if (_gameLogic.isGameRunning &&
             !_gameLogic.isGameOver &&
             !_gameLogic.isPaused &&
-            _gameLogic.canHold) {
+            _gameLogic.canHold &&
+            _gameLogic.gameplaySettings.holdInteractionMode ==
+                HoldInteractionMode.panelAndBackGesture) {
           _gameLogic.holdPiece();
         } else {
           if (!didPop) _confirmLeave();
@@ -471,9 +474,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: cs.outline.withAlpha(120),
-                          width: widget.settings.style == AppStyle.retro
-                              ? 2
-                              : 1,
+                          width:
+                              widget.settings.style == AppStyle.retro ? 2 : 1,
                         ),
                         borderRadius: panelBorderRadius(widget.settings.style),
                       ),
@@ -628,8 +630,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           // ── Next overlay (below hold) ──────────────────────────────
           Positioned(
             left: boardLeft + 4,
-            top:
-                boardTop +
+            top: boardTop +
                 4 +
                 (_gameLogic.enableHold ? labelH + overlayBoxSize + 6 : 0),
             child: _buildOverlayPieceBox(
@@ -679,9 +680,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: cs.outline.withAlpha(100),
-                          width: widget.settings.style == AppStyle.retro
-                              ? 2
-                              : 1,
+                          width:
+                              widget.settings.style == AppStyle.retro ? 2 : 1,
                         ),
                         borderRadius: panelBorderRadius(widget.settings.style),
                         color: cs.surface.withAlpha(66),
@@ -1048,9 +1048,8 @@ class _ResultRow extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: highlight
-                ? colorScheme.tertiary
-                : colorScheme.onSurfaceVariant,
+            color:
+                highlight ? colorScheme.tertiary : colorScheme.onSurfaceVariant,
             fontSize: 16,
             fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
           ),

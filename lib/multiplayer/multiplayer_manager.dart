@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import '../logging.dart';
+import '../game/gameplay_settings.dart';
 import 'multiplayer_game_config.dart';
 import 'peer.dart';
 
@@ -40,6 +41,9 @@ class MultiplayerManager extends ChangeNotifier {
   /// Whether hold is enabled for the next multiplayer match.
   bool enableHold = true;
 
+  /// Host-selected gameplay rules for the next match.
+  GameplaySettings gameplaySettings = GameplaySettings.defaults;
+
   /// Seed shared by both players when [gameMode] is shared pieces.
   int? sharedPieceSeed;
 
@@ -49,11 +53,13 @@ class MultiplayerManager extends ChangeNotifier {
         sharedPieceSeed != null) {
       return MultiplayerGameConfig.sharedPieces(
         pieceSeed: sharedPieceSeed!,
-        enableHold: enableHold,
+        gameplaySettings: gameplaySettings.copyWith(holdEnabled: enableHold),
       );
     }
 
-    return MultiplayerGameConfig.independent(enableHold: enableHold);
+    return MultiplayerGameConfig.independent(
+      gameplaySettings: gameplaySettings.copyWith(holdEnabled: enableHold),
+    );
   }
 
   // Opponent state (updated via board_snapshot messages)
@@ -158,7 +164,10 @@ class MultiplayerManager extends ChangeNotifier {
       return best192 ?? best10 ?? best172 ?? fallbackAny;
     } catch (error, stackTrace) {
       talker.handle(
-          error, stackTrace, 'Looking up local network address failed');
+        error,
+        stackTrace,
+        'Looking up local network address failed',
+      );
     }
     return null;
   }
@@ -186,8 +195,10 @@ class MultiplayerManager extends ChangeNotifier {
     // Try the preferred port first; if already in use (e.g. another instance
     // on the same machine), fall back to any free port. Using catchError keeps
     // VS Code from pausing on the intermediate SocketException.
-    _tcpServer = await ServerSocket.bind(InternetAddress.anyIPv4, _tcpPort)
-        .catchError((_) => ServerSocket.bind(InternetAddress.anyIPv4, 0));
+    _tcpServer = await ServerSocket.bind(
+      InternetAddress.anyIPv4,
+      _tcpPort,
+    ).catchError((_) => ServerSocket.bind(InternetAddress.anyIPv4, 0));
     _localPort = _tcpServer!.port;
     _tcpServer!.listen(_handleIncomingConnection);
   }
@@ -216,13 +227,15 @@ class MultiplayerManager extends ChangeNotifier {
       });
     }
 
-    final data = utf8.encode(jsonEncode({
-      'type': 'announce',
-      'id': playerId,
-      'name': playerName,
-      'port': _localPort,
-      'status': state.name,
-    }));
+    final data = utf8.encode(
+      jsonEncode({
+        'type': 'announce',
+        'id': playerId,
+        'name': playerName,
+        'port': _localPort,
+        'status': state.name,
+      }),
+    );
 
     // Directed subnet broadcast (e.g. 192.168.1.255) – works on all platforms.
     if (_broadcastAddress != null) {
@@ -272,18 +285,23 @@ class MultiplayerManager extends ChangeNotifier {
           peers.removeAt(idx);
         }
       } else if (isAvailable) {
-        peers.add(Peer(
-          id: id,
-          name: name,
-          ip: ip,
-          port: port,
-          lastSeen: DateTime.now(),
-        ));
+        peers.add(
+          Peer(
+            id: id,
+            name: name,
+            ip: ip,
+            port: port,
+            lastSeen: DateTime.now(),
+          ),
+        );
       }
       notifyListeners();
     } catch (error, stackTrace) {
       talker.handle(
-          error, stackTrace, 'Parsing multiplayer discovery packet failed');
+        error,
+        stackTrace,
+        'Parsing multiplayer discovery packet failed',
+      );
     }
   }
 
@@ -393,12 +411,14 @@ class MultiplayerManager extends ChangeNotifier {
       sharedPieceSeed = _generatePieceSeed();
       return MultiplayerGameConfig.sharedPieces(
         pieceSeed: sharedPieceSeed!,
-        enableHold: enableHold,
+        gameplaySettings: gameplaySettings.copyWith(holdEnabled: enableHold),
       );
     }
 
     sharedPieceSeed = null;
-    return MultiplayerGameConfig.independent(enableHold: enableHold);
+    return MultiplayerGameConfig.independent(
+      gameplaySettings: gameplaySettings.copyWith(holdEnabled: enableHold),
+    );
   }
 
   void sendGarbage(int lines) {
@@ -512,6 +532,7 @@ class MultiplayerManager extends ChangeNotifier {
             gameMode = config.mode;
             sharedPieceSeed = config.pieceSeed;
             enableHold = config.enableHold;
+            gameplaySettings = config.gameplaySettings;
             state = MultiplayerState.inGame;
             notifyListeners();
           }
@@ -588,7 +609,7 @@ class MultiplayerManager extends ChangeNotifier {
   void _resetGameConfig() {
     gameMode = MultiplayerGameMode.independent;
     sharedPieceSeed = null;
-    enableHold = true;
+    enableHold = gameplaySettings.holdEnabled;
   }
 
   @override

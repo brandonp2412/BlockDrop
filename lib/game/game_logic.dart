@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
 import '../models/tetromino.dart';
+import 'gameplay_settings.dart';
 
 class GameLogic extends ChangeNotifier {
   /// Source of upcoming tetrominoes for this game.
   final TetrominoBag pieceBag;
   AudioService? audioService;
   bool enableHold;
+  GameplaySettings gameplaySettings;
 
   /// Called after lines are cleared (multiplayer: send garbage to opponent).
   /// Set by the multiplayer game screen; null in solo play (zero overhead).
@@ -84,8 +86,10 @@ class GameLogic extends ChangeNotifier {
     TetrominoBag? pieceBag,
     bool? enableHold,
     this.lockDelay = GameConstants.lockDelay,
+    GameplaySettings gameplaySettings = GameplaySettings.defaults,
   })  : pieceBag = pieceBag ?? TetrominoBag(),
-        enableHold = enableHold ?? true {
+        gameplaySettings = gameplaySettings,
+        enableHold = enableHold ?? gameplaySettings.holdEnabled {
     initializeBoard();
   }
 
@@ -125,10 +129,9 @@ class GameLogic extends ChangeNotifier {
     dropSpeed = practiceLevel != null
         ? max(
             GameConstants.minDropSpeed,
-            GameConstants.initialDropSpeed -
-                (practiceLevel - 1) * GameConstants.speedIncrement,
+            gameplaySettings.dropSpeedForLevel(practiceLevel),
           )
-        : GameConstants.initialDropSpeed;
+        : gameplaySettings.initialDropSpeed;
     heldPiece = null;
     canHold = true;
     lastScoreDelta = 0;
@@ -374,12 +377,11 @@ class GameLogic extends ChangeNotifier {
       clearBonusLabel = label;
 
       final int oldLevel = level;
-      level = (linesCleared ~/ GameConstants.linesPerLevel) + 1;
+      level = gameplaySettings.levelForLines(linesCleared);
       if (level > oldLevel) audioService?.playLevelUp();
       dropSpeed = max(
         GameConstants.minDropSpeed,
-        GameConstants.initialDropSpeed -
-            (level - 1) * GameConstants.speedIncrement,
+        gameplaySettings.dropSpeedForLevel(level),
       );
     }
 
@@ -471,6 +473,11 @@ class GameLogic extends ChangeNotifier {
     } else {
       _startLockDelay();
     }
+  }
+
+  /// Moves the piece down from player input when soft drop is enabled.
+  void softDrop() {
+    if (gameplaySettings.softDropEnabled) movePieceDown();
   }
 
   void movePieceLeft() {

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
+import '../game/gameplay_settings.dart';
 import '../settings/settings_provider.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_decorations.dart';
@@ -74,7 +75,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     _audioService.init();
     _audioService.startMusic();
 
-    gameLogic = GameLogic(enableHold: widget.settings.enableHold);
+    gameLogic = GameLogic(gameplaySettings: widget.settings.gameplay);
     gameLogic.audioService = _audioService;
     gameLogic.addListener(_onGameStateChanged);
     gameLogic.startGame();
@@ -119,7 +120,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         gameLogic.movePieceRight();
         return true;
       case LogicalKeyboardKey.arrowDown:
-        gameLogic.movePieceDown();
+        gameLogic.softDrop();
         return true;
       case LogicalKeyboardKey.arrowUp:
       case LogicalKeyboardKey.keyZ:
@@ -177,6 +178,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     _audioService.musicEnabled = widget.settings.musicEnabled;
     _audioService.sfxEnabled = widget.settings.sfxEnabled;
     gameLogic.enableHold = widget.settings.enableHold;
+    gameLogic.gameplaySettings = widget.settings.gameplay;
     if (widget.settings.musicEnabled) {
       _audioService.resumeMusic();
     } else {
@@ -457,7 +459,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         if (gameLogic.isGameRunning &&
             !gameLogic.isGameOver &&
             !gameLogic.isPaused &&
-            gameLogic.canHold) {
+            gameLogic.canHold &&
+            gameLogic.gameplaySettings.holdInteractionMode ==
+                HoldInteractionMode.panelAndBackGesture) {
           gameLogic.holdPiece();
         } else {
           _openSettings();

@@ -1,4 +1,5 @@
 import 'package:block_drop/multiplayer/multiplayer_game_config.dart';
+import 'package:block_drop/game/gameplay_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -14,7 +15,45 @@ void main() {
         'mode': 'shared_pieces',
         'piece_seed': 123456,
         'enable_hold': false,
+        'gameplay_settings': {
+          'initial_drop_speed': 800,
+          'speed_increment': 50,
+          'maximum_level': 20,
+          'lines_per_level': 10,
+          'soft_drop_enabled': true,
+          'hold_enabled': false,
+          'hold_interaction_mode': 'panel_and_back',
+        },
       });
+    });
+
+    test('round trips all host gameplay rules', () {
+      const rules = GameplaySettings(
+        initialDropSpeed: 1200,
+        speedIncrement: 20,
+        maximumLevel: GameplaySettings.unlimitedLevels,
+        linesPerLevel: 6,
+        softDropEnabled: false,
+        holdEnabled: true,
+        holdInteractionMode: HoldInteractionMode.panelOnly,
+      );
+      const sent = MultiplayerGameConfig.independent(
+        gameplaySettings: rules,
+      );
+
+      final received = MultiplayerGameConfig.fromGameStartMessage(
+        sent.toGameStartMessage(),
+      );
+
+      expect(received.gameplaySettings.initialDropSpeed, 1200);
+      expect(received.gameplaySettings.speedIncrement, 20);
+      expect(received.gameplaySettings.maximumLevel, 0);
+      expect(received.gameplaySettings.linesPerLevel, 6);
+      expect(received.gameplaySettings.softDropEnabled, false);
+      expect(
+        received.gameplaySettings.holdInteractionMode,
+        HoldInteractionMode.panelOnly,
+      );
     });
 
     test('decodes shared-pieces game starts into deterministic piece bags', () {

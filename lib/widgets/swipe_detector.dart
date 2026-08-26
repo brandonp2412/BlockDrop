@@ -88,14 +88,14 @@ class _SwipeDetectorState extends State<SwipeDetector> {
         } else {
           if (_totalDy >= widget.moveThreshold &&
               !widget.gameLogic.isNewPieceGracePeriod) {
-            widget.gameLogic.movePieceDown();
+            widget.gameLogic.softDrop();
             _totalDy = 0.0;
             _lastMoveTime = now;
           } else if (_totalDy >= widget.moveThreshold * 0.7 &&
               timeSinceLastMove >= _moveDelay &&
               details.delta.dy > 3.0 &&
               !widget.gameLogic.isNewPieceGracePeriod) {
-            widget.gameLogic.movePieceDown();
+            widget.gameLogic.softDrop();
             _totalDy = 0.0;
             _lastMoveTime = now;
           }

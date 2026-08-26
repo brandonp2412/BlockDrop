@@ -29,6 +29,8 @@ class _MultiplayerDiscoveryScreenState
     super.initState();
 
     _manager = MultiplayerManager(playerName: _defaultPlayerName());
+    _manager.gameplaySettings = widget.settings.gameplay;
+    _manager.enableHold = widget.settings.gameplay.holdEnabled;
     _manager.onError = _showError;
     _manager.onInviteReceived = _showInviteDialog;
     _manager.addListener(_onManagerChanged);
@@ -125,9 +127,7 @@ class _MultiplayerDiscoveryScreenState
     // Write a tiny .vbs file that uses ShellExecute with "runas" to
     // trigger UAC and run netsh with admin rights. This is the most
     // reliable elevation path on Windows without packaging changes.
-    final vbs = File(
-      '${Directory.systemTemp.path}\\blockdrop_fw.vbs',
-    );
+    final vbs = File('${Directory.systemTemp.path}\\blockdrop_fw.vbs');
     await vbs.writeAsString(
       'Set sh = CreateObject("Shell.Application")\r\n'
       'sh.ShellExecute "netsh", '
@@ -193,13 +193,8 @@ class _MultiplayerDiscoveryScreenState
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Multiplayer'),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: _buildBody(cs),
-      ),
+      appBar: AppBar(title: const Text('Multiplayer'), centerTitle: true),
+      body: SafeArea(child: _buildBody(cs)),
     );
   }
 
@@ -544,16 +539,10 @@ class _LobbyHoldSelector extends StatelessWidget {
       children: [
         Text(
           'Hold Piece',
-          style: TextStyle(
-            color: colorScheme.onSurfaceVariant,
-            fontSize: 12,
-          ),
+          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
         ),
         const SizedBox(width: 12),
-        Switch(
-          value: enabled,
-          onChanged: onChanged,
-        ),
+        Switch(value: enabled, onChanged: onChanged),
       ],
     );
   }

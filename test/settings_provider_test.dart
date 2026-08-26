@@ -1,4 +1,5 @@
 import 'package:block_drop/settings/settings_provider.dart';
+import 'package:block_drop/game/gameplay_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -148,6 +149,51 @@ void main() {
       final reloadedSettings = SettingsProvider();
       await reloadedSettings.load();
       expect(reloadedSettings.fullscreenBoard, true);
+    });
+
+    test('persists and loads all gameplay settings', () async {
+      final settings = SettingsProvider();
+      const rules = GameplaySettings(
+        initialDropSpeed: 1400,
+        speedIncrement: 30,
+        maximumLevel: 0,
+        linesPerLevel: 7,
+        softDropEnabled: false,
+        holdEnabled: false,
+        holdInteractionMode: HoldInteractionMode.panelOnly,
+      );
+
+      await settings.setGameplaySettings(rules);
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+
+      expect(reloaded.gameplay.initialDropSpeed, 1400);
+      expect(reloaded.gameplay.speedIncrement, 30);
+      expect(reloaded.gameplay.maximumLevel, 0);
+      expect(reloaded.gameplay.linesPerLevel, 7);
+      expect(reloaded.gameplay.softDropEnabled, false);
+      expect(reloaded.enableHold, false);
+      expect(
+        reloaded.gameplay.holdInteractionMode,
+        HoldInteractionMode.panelOnly,
+      );
+    });
+
+    test('clamps invalid persisted gameplay values', () async {
+      SharedPreferences.setMockInitialValues({
+        'initial_drop_speed': -1,
+        'speed_increment': 999,
+        'maximum_level': 999,
+        'lines_per_level': 0,
+      });
+      final settings = SettingsProvider();
+
+      await settings.load();
+
+      expect(settings.gameplay.initialDropSpeed, 200);
+      expect(settings.gameplay.speedIncrement, 200);
+      expect(settings.gameplay.maximumLevel, 100);
+      expect(settings.gameplay.linesPerLevel, 1);
     });
   });
 }
