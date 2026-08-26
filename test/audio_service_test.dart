@@ -159,6 +159,30 @@ void main() {
     });
   });
 
+  test('initializes sound effects with the softened volume mix', () async {
+    final (mockMusic, stateController) = makeMusicPlayer();
+    final sfxPlayers = <MockAudioPlayer>[];
+    final service = AudioService(
+      musicPlayer: mockMusic,
+      sfxPlayerFactory: () {
+        final player = makeSfxPlayer();
+        sfxPlayers.add(player);
+        return player;
+      },
+    );
+
+    await service.init();
+
+    const expectedVolumes = [0.26, 0.34, 0.42, 0.26, 0.32, 0.3, 0.32, 0.38];
+    for (var index = 0; index < sfxPlayers.length; index++) {
+      verify(() => sfxPlayers[index].setVolume(expectedVolumes[index]))
+          .called(1);
+    }
+
+    await service.dispose();
+    await stateController.close();
+  });
+
   group('AudioService — unexpected music pause recovery', () {
     test(
       'calls resume() (not play()) when the music player is externally paused',

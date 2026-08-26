@@ -41,14 +41,14 @@ class AudioService {
   ];
 
   static const _sfxVolumes = <String, double>{
-    'move': 0.32,
-    'rotate': 0.42,
-    'drop': 0.5,
-    'clear': 0.45,
-    'tetris': 0.5,
-    'level_up': 0.36,
-    'hold': 0.4,
-    'game_over': 0.45,
+    'move': 0.26,
+    'rotate': 0.34,
+    'drop': 0.42,
+    'clear': 0.26,
+    'tetris': 0.32,
+    'level_up': 0.3,
+    'hold': 0.32,
+    'game_over': 0.38,
   };
 
   Future<void> init() => _initialization ??= Future.wait([
