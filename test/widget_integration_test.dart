@@ -3,6 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:block_drop/main.dart';
 import 'package:block_drop/widgets/game_board.dart';
 import 'package:block_drop/widgets/hold_piece_display.dart';
+import 'package:block_drop/screens/tetris_game_screen.dart';
+import 'package:block_drop/settings/settings_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('Widget Integration Tests', () {
@@ -40,9 +43,38 @@ void main() {
       expect(find.text('Music'), findsOneWidget);
       expect(find.text('Sound Effects'), findsOneWidget);
 
+      await tester.scrollUntilVisible(find.text('Large Board'), 100);
+      expect(find.text('Large Board'), findsOneWidget);
+
       // Multiplayer entry (may require scrolling on small test screens)
       await tester.scrollUntilVisible(find.text('Play on LAN'), 100);
       expect(find.text('Play on LAN'), findsOneWidget);
+    });
+
+    testWidgets('large board setting uses the fullscreen game layout', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = SettingsProvider();
+      await settings.setFullscreenBoard(true);
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(() => SharedPreferences.setMockInitialValues({}));
+
+      await tester.pumpWidget(
+        MaterialApp(home: TetrisGameScreen(settings: settings)),
+      );
+      await tester.pump();
+
+      expect(
+        find.byKey(const ValueKey('fullscreen-game-board')),
+        findsOneWidget,
+      );
+      expect(find.text('HOLD'), findsOneWidget);
+      expect(find.text('NEXT'), findsOneWidget);
+      expect(tester.getSize(find.byType(GameBoard)).height, greaterThan(790));
     });
 
     testWidgets('Resume button in settings returns to the game', (
@@ -95,9 +127,8 @@ void main() {
       expect(holdPreview.isAvailable, isFalse);
 
       await tester.pump(const Duration(milliseconds: 201));
-      final gameLogic = tester
-          .widget<GameBoard>(find.byType(GameBoard))
-          .gameLogic;
+      final gameLogic =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
       gameLogic.dropPiece();
       await tester.pump();
 
@@ -112,9 +143,8 @@ void main() {
         // Wait for grace period to expire
         await tester.pump(const Duration(milliseconds: 500));
 
-        final gameLogic = tester
-            .widget<GameBoard>(find.byType(GameBoard))
-            .gameLogic;
+        final gameLogic =
+            tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
         final int startX = gameLogic.currentX;
 
         // Simulate dragging mostly downward but with horizontal drift —
@@ -144,9 +174,8 @@ void main() {
         await tester.pumpWidget(const TetrisApp());
         await tester.pump(const Duration(milliseconds: 500));
 
-        final gameLogic = tester
-            .widget<GameBoard>(find.byType(GameBoard))
-            .gameLogic;
+        final gameLogic =
+            tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
         final int startX = gameLogic.currentX;
 
         // Simulate dragging mostly rightward — should move piece right.
@@ -174,9 +203,8 @@ void main() {
       await tester.pumpWidget(const TetrisApp());
       await tester.pump(const Duration(milliseconds: 500));
 
-      final gameLogic = tester
-          .widget<GameBoard>(find.byType(GameBoard))
-          .gameLogic;
+      final gameLogic =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
       final int startX = gameLogic.currentX;
       final center = tester.getCenter(find.byType(GameBoard));
       final gesture = await tester.startGesture(center);

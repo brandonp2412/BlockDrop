@@ -19,6 +19,7 @@ void main() {
       expect(settings.highScore, 0);
       expect(settings.enableHold, true);
       expect(settings.showOnScreenControls, false);
+      expect(settings.fullscreenBoard, false);
     });
 
     test('updateHighScore only updates when the new score is higher', () async {
@@ -136,6 +137,17 @@ void main() {
       final reloadedSettings = SettingsProvider();
       await reloadedSettings.load();
       expect(reloadedSettings.showOnScreenControls, true);
+    });
+
+    test('fullscreen board setting persists across providers', () async {
+      final settings = SettingsProvider();
+
+      await settings.setFullscreenBoard(true);
+      expect(settings.fullscreenBoard, true);
+
+      final reloadedSettings = SettingsProvider();
+      await reloadedSettings.load();
+      expect(reloadedSettings.fullscreenBoard, true);
     });
   });
 }

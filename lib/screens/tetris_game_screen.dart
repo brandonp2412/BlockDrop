@@ -478,30 +478,31 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                   return _buildTvLayout(context, constraints, gameLogic, cs);
                 }
 
+                if (widget.settings.fullscreenBoard) {
+                  return _buildFullscreenLayout(constraints, cs);
+                }
+
                 // ── Phone / portrait layout ────────────────────────────────
                 const double scoreHeight = 38.0;
                 const double nextPieceHeight = 124.0;
                 final double controlsHeight =
                     widget.settings.showOnScreenControls ? 112 : 0;
                 const double spacingHeight = 32.0;
-                final double totalUIHeight =
-                    scoreHeight +
+                final double totalUIHeight = scoreHeight +
                     nextPieceHeight +
                     spacingHeight +
                     controlsHeight;
 
                 double availableHeight =
                     (constraints.maxHeight - totalUIHeight - 32).clamp(
-                      100.0,
-                      double.infinity,
-                    );
+                  100.0,
+                  double.infinity,
+                );
                 double availableWidth = constraints.maxWidth - 32;
 
-                double idealWidth =
-                    availableHeight *
+                double idealWidth = availableHeight *
                     (GameConstants.boardWidth / GameConstants.boardHeight);
-                double idealHeight =
-                    availableWidth *
+                double idealHeight = availableWidth *
                     (GameConstants.boardHeight / GameConstants.boardWidth);
 
                 double gameboardWidth, gameboardHeight;
@@ -710,14 +711,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                             _popupLabel,
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              color:
-                                                  _popupLabel.startsWith(
-                                                    'T-SPIN',
-                                                  )
+                                              color: _popupLabel.startsWith(
+                                                'T-SPIN',
+                                              )
                                                   ? Colors.purple[200]
                                                   : (_popupLabel == 'TETRIS!'
-                                                        ? Colors.amber
-                                                        : Colors.white),
+                                                      ? Colors.amber
+                                                      : Colors.white),
                                               fontSize: _popupLabel == 'TETRIS!'
                                                   ? 26
                                                   : 20,
@@ -782,6 +782,175 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFullscreenLayout(BoxConstraints constraints, ColorScheme cs) {
+    final boardHeight = constraints.maxHeight;
+    final boardWidth = (boardHeight / 2).clamp(0.0, constraints.maxWidth);
+    final actualBoardHeight = boardWidth * 2;
+    final boardLeft = (constraints.maxWidth - boardWidth) / 2;
+    final boardTop = (constraints.maxHeight - actualBoardHeight) / 2;
+    final overlaySize = (constraints.maxWidth * 0.16).clamp(48.0, 72.0);
+
+    Widget pieceOverlay({
+      required String label,
+      required Widget child,
+      VoidCallback? onTap,
+    }) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              width: overlaySize,
+              height: overlaySize,
+              decoration: pieceBoxDecoration(widget.settings.style, cs),
+              child: child,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return SizedBox.expand(
+      child: Stack(
+        children: [
+          Positioned(
+            left: boardLeft,
+            top: boardTop,
+            child: Container(
+              key: const ValueKey('fullscreen-game-board'),
+              width: boardWidth,
+              height: actualBoardHeight,
+              decoration: boardDecoration(widget.settings.style, cs),
+              child: GameBoard(
+                board: gameLogic.getBoardWithCurrentPiece(
+                  showGhost: widget.settings.showGhostTile,
+                ),
+                previewRows: GameConstants.previewRows,
+                gameLogic: gameLogic,
+                style: widget.settings.style,
+                onLeftTap: () {
+                  if (gameLogic.isGameRunning &&
+                      !gameLogic.isGameOver &&
+                      !gameLogic.isPaused) {
+                    gameLogic.rotatePieceLeft();
+                  }
+                },
+                onRightTap: () {
+                  if (gameLogic.isGameRunning &&
+                      !gameLogic.isGameOver &&
+                      !gameLogic.isPaused) {
+                    gameLogic.rotatePieceRight();
+                  }
+                },
+              ),
+            ),
+          ),
+          if (widget.settings.enableHold)
+            Positioned(
+              left: boardLeft + 4,
+              top: boardTop + 4,
+              child: pieceOverlay(
+                label: 'HOLD',
+                onTap: () {
+                  if (gameLogic.isGameRunning &&
+                      !gameLogic.isGameOver &&
+                      !gameLogic.isPaused) {
+                    gameLogic.holdPiece();
+                  }
+                },
+                child: HoldPieceDisplay(
+                  piece: gameLogic.heldPiece,
+                  style: widget.settings.style,
+                ),
+              ),
+            ),
+          Positioned(
+            left: boardLeft + 4,
+            top: boardTop +
+                4 +
+                (widget.settings.enableHold ? overlaySize + 24 : 0),
+            child: pieceOverlay(
+              label: 'NEXT',
+              child: gameLogic.nextPiece == null
+                  ? const SizedBox.shrink()
+                  : NextPieceDisplay(
+                      piece: gameLogic.nextPiece!,
+                      style: widget.settings.style,
+                    ),
+            ),
+          ),
+          Positioned(
+            right: boardLeft + 4,
+            top: boardTop + 4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: cs.surface.withValues(alpha: 0.82),
+                borderRadius: panelBorderRadius(widget.settings.style),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    gameLogic.practiceMode
+                        ? 'PRACTICE'
+                        : 'Score ${formatter.format(gameLogic.score)}',
+                  ),
+                  Text('Level ${gameLogic.level}'),
+                  Text('Lines ${gameLogic.linesCleared}'),
+                  IconButton(
+                    tooltip: 'Settings',
+                    icon: const Icon(Icons.settings),
+                    iconSize: 20,
+                    visualDensity: VisualDensity.compact,
+                    onPressed: _openSettings,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          AnimatedBuilder(
+            animation: _popupController,
+            builder: (context, _) {
+              if (_popupController.isDismissed) return const SizedBox.shrink();
+              return Positioned(
+                left: boardLeft,
+                width: boardWidth,
+                top: boardTop + actualBoardHeight / 2 + _popupOffset.value,
+                child: IgnorePointer(
+                  child: Opacity(
+                    opacity: _popupOpacity.value,
+                    child: Text(
+                      '$_popupLabel\n+$_popupDelta',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        shadows: [Shadow(blurRadius: 8, color: Colors.black)],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -919,8 +1088,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             color: _popupLabel.startsWith('T-SPIN')
                                 ? Colors.purple[200]
                                 : (_popupLabel == 'TETRIS!'
-                                      ? Colors.amber
-                                      : Colors.white),
+                                    ? Colors.amber
+                                    : Colors.white),
                             fontSize: _popupLabel == 'TETRIS!' ? 26 : 20,
                             fontWeight: FontWeight.bold,
                             shadows: const [

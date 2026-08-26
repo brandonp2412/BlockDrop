@@ -15,6 +15,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _showOpponentBoardKey = 'show_opponent_board';
   static const _enableHoldKey = 'enable_hold';
   static const _showOnScreenControlsKey = 'show_on_screen_controls';
+  static const _fullscreenBoardKey = 'fullscreen_board';
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
@@ -25,6 +26,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _showOpponentBoard = true;
   bool _enableHold = true;
   bool _showOnScreenControls = false;
+  bool _fullscreenBoard = false;
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
@@ -35,6 +37,9 @@ class SettingsProvider extends ChangeNotifier {
   bool get showOpponentBoard => _showOpponentBoard;
   bool get enableHold => _enableHold;
   bool get showOnScreenControls => _showOnScreenControls;
+
+  /// Whether single-player uses the large board with overlaid game controls.
+  bool get fullscreenBoard => _fullscreenBoard;
 
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
@@ -64,6 +69,7 @@ class SettingsProvider extends ChangeNotifier {
     _showOpponentBoard = prefs.getBool(_showOpponentBoardKey) ?? true;
     _enableHold = prefs.getBool(_enableHoldKey) ?? true;
     _showOnScreenControls = prefs.getBool(_showOnScreenControlsKey) ?? false;
+    _fullscreenBoard = prefs.getBool(_fullscreenBoardKey) ?? false;
     notifyListeners();
   }
 
@@ -121,6 +127,14 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_showOnScreenControlsKey, value);
+  }
+
+  /// Enables the large board layout for single-player games.
+  Future<void> setFullscreenBoard(bool value) async {
+    _fullscreenBoard = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_fullscreenBoardKey, value);
   }
 
   Future<void> updateHighScore(int score) async {

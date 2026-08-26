@@ -41,12 +41,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _onSettingsChanged() => setState(() {});
 
   static String _styleLabel(AppStyle style) => switch (style) {
-    AppStyle.classic => 'Classic',
-    AppStyle.modern => 'Modern',
-    AppStyle.bubbles => 'Bubbles',
-    AppStyle.neon => 'Neon',
-    AppStyle.retro => 'Retro',
-  };
+        AppStyle.classic => 'Classic',
+        AppStyle.modern => 'Modern',
+        AppStyle.bubbles => 'Bubbles',
+        AppStyle.neon => 'Neon',
+        AppStyle.retro => 'Retro',
+      };
 
   void _pickStyle() {
     final cs = Theme.of(context).colorScheme;
@@ -211,6 +211,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onChanged: widget.settings.setShowOnScreenControls,
                 ),
               ),
+              _SettingTile(
+                label: 'Large Board',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.fullscreenBoard,
+                  onChanged: (value) =>
+                      widget.settings.setFullscreenBoard(value),
+                ),
+              ),
               _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
               _SettingsPanel(
                 colorScheme: colorScheme,
@@ -220,9 +230,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     shape: buttonBorderShape(widget.settings.style),
                     side: BorderSide(
                       color: colorScheme.primary.withValues(
-                        alpha: widget.settings.style == AppStyle.neon
-                            ? 0.55
-                            : 0.3,
+                        alpha:
+                            widget.settings.style == AppStyle.neon ? 0.55 : 0.3,
                       ),
                       width: widget.settings.style == AppStyle.retro ? 2 : 1,
                     ),
@@ -260,9 +269,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     widget.settings.themeMode == AppThemeMode.black
                         ? AppThemeMode.dark
                         : widget.settings.themeMode == AppThemeMode.system ||
-                              widget.settings.themeMode == AppThemeMode.light
-                        ? widget.settings.themeMode
-                        : AppThemeMode.dark,
+                                widget.settings.themeMode == AppThemeMode.light
+                            ? widget.settings.themeMode
+                            : AppThemeMode.dark,
                   },
                   onSelectionChanged: (selection) =>
                       widget.settings.setThemeMode(selection.first),
