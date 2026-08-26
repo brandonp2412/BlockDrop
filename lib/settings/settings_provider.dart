@@ -14,6 +14,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _showGhostTileKey = 'show_ghost_tile';
   static const _showOpponentBoardKey = 'show_opponent_board';
   static const _enableHoldKey = 'enable_hold';
+  static const _showOnScreenControlsKey = 'show_on_screen_controls';
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
@@ -23,6 +24,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _showGhostTile = true;
   bool _showOpponentBoard = true;
   bool _enableHold = true;
+  bool _showOnScreenControls = false;
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
@@ -32,6 +34,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get showGhostTile => _showGhostTile;
   bool get showOpponentBoard => _showOpponentBoard;
   bool get enableHold => _enableHold;
+  bool get showOnScreenControls => _showOnScreenControls;
 
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
@@ -51,10 +54,8 @@ class SettingsProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final themeIndex = prefs.getInt(_themeKey) ?? 0;
     final styleIndex = prefs.getInt(_styleKey) ?? 0;
-    _themeMode = AppThemeMode.values[themeIndex.clamp(
-      0,
-      AppThemeMode.values.length - 1,
-    )];
+    _themeMode = AppThemeMode
+        .values[themeIndex.clamp(0, AppThemeMode.values.length - 1)];
     _style = AppStyle.values[styleIndex.clamp(0, AppStyle.values.length - 1)];
     _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
@@ -62,6 +63,7 @@ class SettingsProvider extends ChangeNotifier {
     _showGhostTile = prefs.getBool(_showGhostTileKey) ?? true;
     _showOpponentBoard = prefs.getBool(_showOpponentBoardKey) ?? true;
     _enableHold = prefs.getBool(_enableHoldKey) ?? true;
+    _showOnScreenControls = prefs.getBool(_showOnScreenControlsKey) ?? false;
     notifyListeners();
   }
 
@@ -112,6 +114,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_enableHoldKey, value);
+  }
+
+  Future<void> setShowOnScreenControls(bool value) async {
+    _showOnScreenControls = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showOnScreenControlsKey, value);
   }
 
   Future<void> updateHighScore(int score) async {

@@ -41,12 +41,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _onSettingsChanged() => setState(() {});
 
   static String _styleLabel(AppStyle style) => switch (style) {
-        AppStyle.classic => 'Classic',
-        AppStyle.modern => 'Modern',
-        AppStyle.bubbles => 'Bubbles',
-        AppStyle.neon => 'Neon',
-        AppStyle.retro => 'Retro',
-      };
+    AppStyle.classic => 'Classic',
+    AppStyle.modern => 'Modern',
+    AppStyle.bubbles => 'Bubbles',
+    AppStyle.neon => 'Neon',
+    AppStyle.retro => 'Retro',
+  };
 
   void _pickStyle() {
     final cs = Theme.of(context).colorScheme;
@@ -90,10 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Settings'), centerTitle: true),
       body: Theme(
         data: controlTheme,
         child: SafeArea(
@@ -205,6 +202,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onChanged: (value) => widget.settings.setEnableHold(value),
                 ),
               ),
+              _SettingTile(
+                label: 'On-Screen Controls',
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+                child: Switch(
+                  value: widget.settings.showOnScreenControls,
+                  onChanged: widget.settings.setShowOnScreenControls,
+                ),
+              ),
               _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
               _SettingsPanel(
                 colorScheme: colorScheme,
@@ -214,17 +220,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     shape: buttonBorderShape(widget.settings.style),
                     side: BorderSide(
                       color: colorScheme.primary.withValues(
-                        alpha:
-                            widget.settings.style == AppStyle.neon ? 0.55 : 0.3,
+                        alpha: widget.settings.style == AppStyle.neon
+                            ? 0.55
+                            : 0.3,
                       ),
                       width: widget.settings.style == AppStyle.retro ? 2 : 1,
                     ),
-                    selectedBackgroundColor:
-                        colorScheme.primary.withValues(alpha: 0.18),
+                    selectedBackgroundColor: colorScheme.primary.withValues(
+                      alpha: 0.18,
+                    ),
                     selectedForegroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onSurface,
-                    disabledForegroundColor:
-                        colorScheme.onSurface.withValues(alpha: 0.65),
+                    disabledForegroundColor: colorScheme.onSurface.withValues(
+                      alpha: 0.65,
+                    ),
                     backgroundColor: colorScheme.surfaceContainerHighest
                         .withValues(alpha: 0.35),
                   ),
@@ -251,9 +260,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     widget.settings.themeMode == AppThemeMode.black
                         ? AppThemeMode.dark
                         : widget.settings.themeMode == AppThemeMode.system ||
-                                widget.settings.themeMode == AppThemeMode.light
-                            ? widget.settings.themeMode
-                            : AppThemeMode.dark,
+                              widget.settings.themeMode == AppThemeMode.light
+                        ? widget.settings.themeMode
+                        : AppThemeMode.dark,
                   },
                   onSelectionChanged: (selection) =>
                       widget.settings.setThemeMode(selection.first),
@@ -281,10 +290,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     foregroundColor: colorScheme.onSurface,
                     alignment: Alignment.centerLeft,
                   ),
-                  child: Row(children: [
-                    Expanded(child: Text(_styleLabel(widget.settings.style))),
-                    const Icon(Icons.arrow_drop_down, size: 20),
-                  ]),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(_styleLabel(widget.settings.style))),
+                      const Icon(Icons.arrow_drop_down, size: 20),
+                    ],
+                  ),
                 ),
               ),
               _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),
@@ -306,9 +317,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => MultiplayerDiscoveryScreen(
-                        settings: widget.settings,
-                      ),
+                      builder: (_) =>
+                          MultiplayerDiscoveryScreen(settings: widget.settings),
                     ),
                   ),
                   child: Padding(
@@ -345,8 +355,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 colorScheme: colorScheme,
                 style: widget.settings.style,
                 child: Text(
-                  NumberFormat.decimalPattern('en_US')
-                      .format(widget.settings.highScore),
+                  NumberFormat.decimalPattern(
+                    'en_US',
+                  ).format(widget.settings.highScore),
                   textAlign: TextAlign.end,
                   style: TextStyle(
                     fontSize: 16,
@@ -357,10 +368,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
               _InstructionsCard(
-                  colorScheme: colorScheme, style: widget.settings.style),
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+              ),
               _SectionHeader(label: 'About', colorScheme: colorScheme),
               _AboutCard(
-                  colorScheme: colorScheme, style: widget.settings.style),
+                colorScheme: colorScheme,
+                style: widget.settings.style,
+              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -392,9 +407,7 @@ SwitchThemeData _switchTheme(AppStyle style, ColorScheme colorScheme) {
     trackOutlineColor: WidgetStateProperty.all(
       colorScheme.primary.withValues(alpha: outlineAlpha),
     ),
-    trackOutlineWidth: WidgetStateProperty.all(
-      style == AppStyle.retro ? 2 : 1,
-    ),
+    trackOutlineWidth: WidgetStateProperty.all(style == AppStyle.retro ? 2 : 1),
   );
 }
 
@@ -470,10 +483,7 @@ class _SettingTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: colorScheme.onSurface,
-                  ),
+                  style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
                 ),
               ],
             ),
@@ -515,9 +525,7 @@ class _ActionButton extends StatelessWidget {
           alpha: style == AppStyle.neon ? 0.08 : 0.04,
         ),
         side: BorderSide(
-          color: color.withValues(
-            alpha: style == AppStyle.neon ? 0.55 : 0.32,
-          ),
+          color: color.withValues(alpha: style == AppStyle.neon ? 0.55 : 0.32),
           width: style == AppStyle.retro ? 2 : 1,
         ),
         shape: buttonBorderShape(style),

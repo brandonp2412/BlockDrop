@@ -13,6 +13,7 @@ import '../widgets/game_board.dart';
 import '../widgets/game_decorations.dart';
 import '../widgets/hold_piece_display.dart';
 import '../widgets/next_piece_display.dart';
+import '../widgets/on_screen_game_controls.dart';
 import '../widgets/swipe_detector.dart';
 import 'settings_screen.dart';
 
@@ -480,9 +481,14 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 // ── Phone / portrait layout ────────────────────────────────
                 const double scoreHeight = 38.0;
                 const double nextPieceHeight = 124.0;
+                final double controlsHeight =
+                    widget.settings.showOnScreenControls ? 112 : 0;
                 const double spacingHeight = 32.0;
-                const double totalUIHeight =
-                    scoreHeight + nextPieceHeight + spacingHeight;
+                final double totalUIHeight =
+                    scoreHeight +
+                    nextPieceHeight +
+                    spacingHeight +
+                    controlsHeight;
 
                 double availableHeight =
                     (constraints.maxHeight - totalUIHeight - 32).clamp(
@@ -751,6 +757,24 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                       ),
 
                       const SizedBox(height: 16),
+
+                      if (widget.settings.showOnScreenControls) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: OnScreenGameControls(
+                            onMoveLeft: gameLogic.movePieceLeft,
+                            onMoveRight: gameLogic.movePieceRight,
+                            onSoftDrop: gameLogic.movePieceDown,
+                            onRotateLeft: gameLogic.rotatePieceLeft,
+                            onRotateRight: gameLogic.rotatePieceRight,
+                            onHardDrop: gameLogic.dropPiece,
+                            onHold: widget.settings.enableHold
+                                ? gameLogic.holdPiece
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                     ],
                   ),
                 );

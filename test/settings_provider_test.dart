@@ -18,6 +18,7 @@ void main() {
       expect(settings.sfxEnabled, false);
       expect(settings.highScore, 0);
       expect(settings.enableHold, true);
+      expect(settings.showOnScreenControls, false);
     });
 
     test('updateHighScore only updates when the new score is higher', () async {
@@ -33,16 +34,20 @@ void main() {
       expect(settings.highScore, 1000);
     });
 
-    test('updateHighScore does not update when score equals current high score',
-        () async {
-      final settings = SettingsProvider();
+    test(
+      'updateHighScore does not update when score equals current high score',
+      () async {
+        final settings = SettingsProvider();
 
-      await settings.updateHighScore(300);
-      expect(settings.highScore, 300);
+        await settings.updateHighScore(300);
+        expect(settings.highScore, 300);
 
-      await settings.updateHighScore(300); // equal — should not trigger notify
-      expect(settings.highScore, 300);
-    });
+        await settings.updateHighScore(
+          300,
+        ); // equal — should not trigger notify
+        expect(settings.highScore, 300);
+      },
+    );
 
     test('isBlackMode is true only for AppThemeMode.black', () async {
       final settings = SettingsProvider();
@@ -62,23 +67,25 @@ void main() {
       expect(settings.isBlackMode, false);
     });
 
-    test('flutterThemeMode maps each AppThemeMode to the correct ThemeMode',
-        () async {
-      final settings = SettingsProvider();
+    test(
+      'flutterThemeMode maps each AppThemeMode to the correct ThemeMode',
+      () async {
+        final settings = SettingsProvider();
 
-      await settings.setThemeMode(AppThemeMode.system);
-      expect(settings.flutterThemeMode, ThemeMode.system);
+        await settings.setThemeMode(AppThemeMode.system);
+        expect(settings.flutterThemeMode, ThemeMode.system);
 
-      await settings.setThemeMode(AppThemeMode.light);
-      expect(settings.flutterThemeMode, ThemeMode.light);
+        await settings.setThemeMode(AppThemeMode.light);
+        expect(settings.flutterThemeMode, ThemeMode.light);
 
-      await settings.setThemeMode(AppThemeMode.dark);
-      expect(settings.flutterThemeMode, ThemeMode.dark);
+        await settings.setThemeMode(AppThemeMode.dark);
+        expect(settings.flutterThemeMode, ThemeMode.dark);
 
-      // Black AMOLED mode piggybacks on dark theme
-      await settings.setThemeMode(AppThemeMode.black);
-      expect(settings.flutterThemeMode, ThemeMode.dark);
-    });
+        // Black AMOLED mode piggybacks on dark theme
+        await settings.setThemeMode(AppThemeMode.black);
+        expect(settings.flutterThemeMode, ThemeMode.dark);
+      },
+    );
 
     test('setMusicEnabled and setSfxEnabled update in-memory state', () async {
       final settings = SettingsProvider();
@@ -118,6 +125,17 @@ void main() {
 
       await settings.setEnableHold(true);
       expect(settings.enableHold, true);
+    });
+
+    test('persists the on-screen controls preference', () async {
+      final settings = SettingsProvider();
+
+      await settings.setShowOnScreenControls(true);
+      expect(settings.showOnScreenControls, true);
+
+      final reloadedSettings = SettingsProvider();
+      await reloadedSettings.load();
+      expect(reloadedSettings.showOnScreenControls, true);
     });
   });
 }
