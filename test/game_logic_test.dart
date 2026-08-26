@@ -145,6 +145,122 @@ void main() {
       expect(gameLogic.currentY, initialY + 1);
     });
 
+    test('grounded piece remains controllable until lock delay expires',
+        () async {
+      gameLogic.dispose();
+      gameLogic = GameLogic(lockDelay: const Duration(milliseconds: 60));
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      gameLogic.currentPiece = Tetromino.pieces[1];
+      gameLogic.currentY = GameConstants.boardHeight +
+          GameConstants.previewRows -
+          gameLogic.currentPiece!.shape.length;
+
+      final landedPiece = gameLogic.currentPiece;
+      gameLogic.movePieceDown();
+
+      expect(gameLogic.isLockDelayActive, true);
+      expect(gameLogic.currentPiece, same(landedPiece));
+      expect(gameLogic.board.last.every((cell) => cell == null), true);
+
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+
+      expect(gameLogic.currentY, GameConstants.previewRows);
+      expect(gameLogic.board.last.any((cell) => cell != null), true);
+    });
+
+    test('successful grounded movement resets the lock delay', () async {
+      gameLogic.dispose();
+      gameLogic = GameLogic(lockDelay: const Duration(milliseconds: 70));
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      gameLogic.currentPiece = Tetromino.pieces[1];
+      gameLogic.currentY = GameConstants.boardHeight +
+          GameConstants.previewRows -
+          gameLogic.currentPiece!.shape.length;
+
+      final landedPiece = gameLogic.currentPiece;
+      gameLogic.movePieceDown();
+      await Future<void>.delayed(const Duration(milliseconds: 45));
+      gameLogic.movePieceRight();
+      await Future<void>.delayed(const Duration(milliseconds: 45));
+
+      expect(gameLogic.currentPiece, same(landedPiece));
+      expect(gameLogic.isLockDelayActive, true);
+
+      await Future<void>.delayed(const Duration(milliseconds: 45));
+      expect(gameLogic.currentY, GameConstants.previewRows);
+    });
+
+    test('successful grounded rotation resets the lock delay', () async {
+      gameLogic.dispose();
+      gameLogic = GameLogic(lockDelay: const Duration(milliseconds: 70));
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      gameLogic.currentPiece = Tetromino.pieces[2];
+      gameLogic.currentY = 22;
+
+      gameLogic.movePieceDown();
+      await Future<void>.delayed(const Duration(milliseconds: 45));
+      gameLogic.rotatePieceRight();
+      await Future<void>.delayed(const Duration(milliseconds: 45));
+
+      expect(gameLogic.currentY, 21);
+      expect(gameLogic.isLockDelayActive, true);
+
+      await Future<void>.delayed(const Duration(milliseconds: 45));
+      expect(gameLogic.currentY, GameConstants.previewRows);
+    });
+
+    test('moving off support cancels the active lock delay', () async {
+      gameLogic.dispose();
+      gameLogic = GameLogic(lockDelay: const Duration(milliseconds: 50));
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      gameLogic.currentPiece = Tetromino.pieces[1];
+      gameLogic.currentX = 3;
+      gameLogic.currentY = 20;
+      gameLogic.board[22][3] = Colors.red;
+
+      final supportedPiece = gameLogic.currentPiece;
+      gameLogic.movePieceDown();
+      expect(gameLogic.isLockDelayActive, true);
+
+      gameLogic.movePieceRight();
+      expect(gameLogic.isLockDelayActive, false);
+
+      await Future<void>.delayed(const Duration(milliseconds: 70));
+      expect(gameLogic.currentPiece, same(supportedPiece));
+      expect(gameLogic.currentY, 20);
+    });
+
+    test('pause preserves the remaining lock delay', () async {
+      gameLogic.dispose();
+      gameLogic = GameLogic(lockDelay: const Duration(milliseconds: 80));
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      gameLogic.currentPiece = Tetromino.pieces[1];
+      gameLogic.currentY = GameConstants.boardHeight +
+          GameConstants.previewRows -
+          gameLogic.currentPiece!.shape.length;
+
+      final landedPiece = gameLogic.currentPiece;
+      gameLogic.movePieceDown();
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      gameLogic.pauseGame();
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      expect(gameLogic.currentPiece, same(landedPiece));
+
+      gameLogic.resumeGame();
+      await Future<void>.delayed(const Duration(milliseconds: 70));
+      expect(gameLogic.currentY, GameConstants.previewRows);
+    });
+
     test('should not move piece beyond boundaries', () {
       gameLogic.startGame();
 

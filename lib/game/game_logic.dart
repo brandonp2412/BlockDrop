@@ -18,6 +18,18 @@ class GameLogic extends ChangeNotifier {
   void Function(int linesCleared, bool wasTSpin)? onLinesCleared;
   late List<List<Color?>> board;
   Timer? gameTimer;
+  Timer? _lockDelayTimer;
+  Duration _remainingLockDelay = Duration.zero;
+  DateTime? _lockDelayDeadline;
+
+  /// Delay between a piece touching the stack and becoming fixed in place.
+  final Duration lockDelay;
+
+  /// Whether the current grounded piece is waiting to lock.
+  bool get isLockDelayActive =>
+      _lockDelayTimer != null || _remainingLockDelay > Duration.zero;
+
+  int _lockDelayResetCount = 0;
 
   // Current piece
   Tetromino? currentPiece;
@@ -67,8 +79,12 @@ class GameLogic extends ChangeNotifier {
   bool isAnimatingTrail = false;
   Timer? trailAnimationTimer;
 
-  GameLogic({TetrominoBag? pieceBag, bool? enableHold})
-      : pieceBag = pieceBag ?? TetrominoBag(),
+  /// Creates game state, optionally using deterministic pieces and lock timing.
+  GameLogic({
+    TetrominoBag? pieceBag,
+    bool? enableHold,
+    this.lockDelay = GameConstants.lockDelay,
+  })  : pieceBag = pieceBag ?? TetrominoBag(),
         enableHold = enableHold ?? true {
     initializeBoard();
   }
@@ -90,6 +106,7 @@ class GameLogic extends ChangeNotifier {
     trailAnimationTimer = null;
     gracePeriodTimer?.cancel();
     gracePeriodTimer = null;
+    _cancelLockDelay();
 
     practiceMode = practiceLevel != null;
     isGameRunning = true;
@@ -143,6 +160,7 @@ class GameLogic extends ChangeNotifier {
       clearAnimationTimer?.cancel();
       trailAnimationTimer?.cancel();
       gracePeriodTimer?.cancel();
+      _pauseLockDelay();
 
       notifyListeners();
     }
@@ -171,11 +189,15 @@ class GameLogic extends ChangeNotifier {
         _startNewPieceGracePeriod();
       }
 
+      _resumeLockDelay();
+
       notifyListeners();
     }
   }
 
   void spawnNewPiece() {
+    _cancelLockDelay();
+    _lockDelayResetCount = 0;
     nextPiece ??= pieceBag.next();
 
     currentPiece = nextPiece;
@@ -223,6 +245,8 @@ class GameLogic extends ChangeNotifier {
 
   void placePiece() {
     if (currentPiece == null) return;
+
+    _cancelLockDelay();
 
     // Detect T-spin before the piece is placed on the board
     _pendingTSpin = _isTSpin();
@@ -442,9 +466,10 @@ class GameLogic extends ChangeNotifier {
     if (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
       _lastMoveWasRotation = false;
+      _updateLockDelayAfterAction(resetWhenGrounded: false);
       notifyListeners();
     } else {
-      placePiece();
+      _startLockDelay();
     }
   }
 
@@ -455,6 +480,7 @@ class GameLogic extends ChangeNotifier {
     if (canPlacePiece(currentX - 1, currentY, currentPiece!)) {
       currentX--;
       _lastMoveWasRotation = false;
+      _updateLockDelayAfterAction(resetWhenGrounded: true);
       audioService?.playMove();
       notifyListeners();
     }
@@ -467,6 +493,7 @@ class GameLogic extends ChangeNotifier {
     if (canPlacePiece(currentX + 1, currentY, currentPiece!)) {
       currentX++;
       _lastMoveWasRotation = false;
+      _updateLockDelayAfterAction(resetWhenGrounded: true);
       audioService?.playMove();
       notifyListeners();
     }
@@ -502,6 +529,7 @@ class GameLogic extends ChangeNotifier {
         currentX = testX;
         currentY = testY;
         _lastMoveWasRotation = true;
+        _updateLockDelayAfterAction(resetWhenGrounded: true);
         audioService?.playRotate();
         notifyListeners();
         return;
@@ -536,6 +564,7 @@ class GameLogic extends ChangeNotifier {
         currentX = testX;
         currentY = testY;
         _lastMoveWasRotation = true;
+        _updateLockDelayAfterAction(resetWhenGrounded: true);
         audioService?.playRotate();
         notifyListeners();
         return;
@@ -571,6 +600,77 @@ class GameLogic extends ChangeNotifier {
 
     placePiece();
     notifyListeners();
+  }
+
+  void _updateLockDelayAfterAction({required bool resetWhenGrounded}) {
+    final piece = currentPiece;
+    if (piece == null) return;
+
+    if (canPlacePiece(currentX, currentY + 1, piece)) {
+      _cancelLockDelay();
+      return;
+    }
+
+    if (_lockDelayTimer == null) {
+      _startLockDelay();
+      return;
+    }
+
+    if (resetWhenGrounded &&
+        _lockDelayResetCount < GameConstants.maxLockDelayResets) {
+      _lockDelayResetCount++;
+      _startLockDelay(restart: true);
+    }
+  }
+
+  void _startLockDelay({bool restart = false}) {
+    if (currentPiece == null || isPaused || isGameOver) return;
+    if (_lockDelayTimer != null && !restart) return;
+
+    _lockDelayTimer?.cancel();
+    _remainingLockDelay = lockDelay;
+    _lockDelayDeadline = DateTime.now().add(lockDelay);
+    _lockDelayTimer = Timer(lockDelay, _lockCurrentPiece);
+    notifyListeners();
+  }
+
+  void _lockCurrentPiece() {
+    _lockDelayTimer = null;
+    _lockDelayDeadline = null;
+    _remainingLockDelay = Duration.zero;
+    if (!isGameRunning || isPaused || currentPiece == null) return;
+
+    if (canPlacePiece(currentX, currentY + 1, currentPiece!)) return;
+    placePiece();
+    notifyListeners();
+  }
+
+  void _pauseLockDelay() {
+    final deadline = _lockDelayDeadline;
+    if (_lockDelayTimer == null || deadline == null) return;
+
+    _remainingLockDelay = deadline.difference(DateTime.now());
+    if (_remainingLockDelay.isNegative) {
+      _remainingLockDelay = Duration.zero;
+    }
+    _lockDelayTimer?.cancel();
+    _lockDelayTimer = null;
+    _lockDelayDeadline = null;
+  }
+
+  void _resumeLockDelay() {
+    if (_remainingLockDelay == Duration.zero || currentPiece == null) return;
+
+    final remaining = _remainingLockDelay;
+    _lockDelayDeadline = DateTime.now().add(remaining);
+    _lockDelayTimer = Timer(remaining, _lockCurrentPiece);
+  }
+
+  void _cancelLockDelay() {
+    _lockDelayTimer?.cancel();
+    _lockDelayTimer = null;
+    _lockDelayDeadline = null;
+    _remainingLockDelay = Duration.zero;
   }
 
   void _createTrailAnimation(int startY, int endY) {
@@ -647,6 +747,8 @@ class GameLogic extends ChangeNotifier {
   void holdPiece() {
     if (!enableHold || !canHold || currentPiece == null) return;
 
+    _cancelLockDelay();
+    _lockDelayResetCount = 0;
     audioService?.playHold();
 
     if (heldPiece == null) {
@@ -848,6 +950,7 @@ class GameLogic extends ChangeNotifier {
     clearAnimationTimer?.cancel();
     trailAnimationTimer?.cancel();
     gracePeriodTimer?.cancel();
+    _lockDelayTimer?.cancel();
     super.dispose();
   }
 }

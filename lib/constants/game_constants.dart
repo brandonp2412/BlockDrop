@@ -9,6 +9,12 @@ class GameConstants {
   static const int speedIncrement = 50;
   static const int linesPerLevel = 10;
 
+  /// Time a grounded piece remains controllable before it locks.
+  static const Duration lockDelay = Duration(milliseconds: 500);
+
+  /// Maximum grounded actions that can postpone one piece's lock.
+  static const int maxLockDelayResets = 15;
+
   // Standard Tetris guideline line-clear scores (multiplied by level)
   static const List<int> lineClearScores = [0, 100, 300, 500, 800];
   static const List<String> lineClearLabels = [
