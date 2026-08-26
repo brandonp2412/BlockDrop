@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 import '../game/gameplay_settings.dart';
 import '../settings/settings_provider.dart';
+import '../settings/controller_bindings.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_decorations.dart';
 import '../widgets/hold_piece_display.dart';
@@ -112,6 +114,15 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       return false;
     }
 
+    if (event.deviceType != ui.KeyEventDeviceType.keyboard) {
+      final action = widget.settings.controllerActionFor(event.logicalKey);
+      if (action != null) {
+        _performControllerAction(action, event is KeyDownEvent);
+        return true;
+      }
+      return false;
+    }
+
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowLeft:
         gameLogic.movePieceLeft();
@@ -139,6 +150,25 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         return true;
     }
     return false;
+  }
+
+  void _performControllerAction(GameplayAction action, bool isFirstPress) {
+    switch (action) {
+      case GameplayAction.moveLeft:
+        gameLogic.movePieceLeft();
+      case GameplayAction.moveRight:
+        gameLogic.movePieceRight();
+      case GameplayAction.softDrop:
+        gameLogic.movePieceDown();
+      case GameplayAction.rotateLeft:
+        if (isFirstPress) gameLogic.rotatePieceLeft();
+      case GameplayAction.rotateRight:
+        if (isFirstPress) gameLogic.rotatePieceRight();
+      case GameplayAction.hardDrop:
+        if (isFirstPress) gameLogic.dropPiece();
+      case GameplayAction.hold:
+        if (isFirstPress) gameLogic.holdPiece();
+    }
   }
 
   Future<void> _showQuitConfirmation() async {

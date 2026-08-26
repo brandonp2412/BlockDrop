@@ -1,6 +1,8 @@
 import 'package:block_drop/settings/settings_provider.dart';
 import 'package:block_drop/game/gameplay_settings.dart';
+import 'package:block_drop/settings/controller_bindings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -194,6 +196,58 @@ void main() {
       expect(settings.gameplay.speedIncrement, 200);
       expect(settings.gameplay.maximumLevel, 100);
       expect(settings.gameplay.linesPerLevel, 1);
+    });
+
+    test('persists controller bindings', () async {
+      final settings = SettingsProvider();
+
+      await settings.setControllerBinding(
+        GameplayAction.hardDrop,
+        LogicalKeyboardKey.gameButtonRight1,
+      );
+
+      final reloadedSettings = SettingsProvider();
+      await reloadedSettings.load();
+      expect(
+        reloadedSettings.controllerBindings[GameplayAction.hardDrop],
+        LogicalKeyboardKey.gameButtonRight1,
+      );
+      expect(
+        reloadedSettings.controllerActionFor(
+          LogicalKeyboardKey.gameButtonRight1,
+        ),
+        GameplayAction.hardDrop,
+      );
+    });
+
+    test('swaps conflicting controller bindings', () async {
+      final settings = SettingsProvider();
+
+      await settings.setControllerBinding(
+        GameplayAction.hold,
+        LogicalKeyboardKey.gameButtonA,
+      );
+
+      expect(
+        settings.controllerBindings[GameplayAction.hold],
+        LogicalKeyboardKey.gameButtonA,
+      );
+      expect(
+        settings.controllerBindings[GameplayAction.rotateRight],
+        LogicalKeyboardKey.gameButtonX,
+      );
+    });
+
+    test('reset restores every default controller binding', () async {
+      final settings = SettingsProvider();
+      await settings.setControllerBinding(
+        GameplayAction.moveLeft,
+        LogicalKeyboardKey.gameButtonRight1,
+      );
+
+      await settings.resetControllerBindings();
+
+      expect(settings.controllerBindings, defaultControllerBindings);
     });
   });
 }

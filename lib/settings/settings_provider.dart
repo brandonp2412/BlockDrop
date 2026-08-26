@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../game/gameplay_settings.dart';
+import 'controller_bindings.dart';
 
 enum AppThemeMode { system, light, dark, black }
 
@@ -26,6 +28,7 @@ class SettingsProvider extends ChangeNotifier {
     'soft_drop_enabled',
     'hold_interaction_mode',
   };
+  static const _controllerBindingsKey = 'controller_bindings';
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
@@ -38,6 +41,9 @@ class SettingsProvider extends ChangeNotifier {
   bool _showOnScreenControls = false;
   bool _fullscreenBoard = false;
   GameplaySettings _gameplay = GameplaySettings.defaults;
+  Map<GameplayAction, LogicalKeyboardKey> _controllerBindings = Map.of(
+    defaultControllerBindings,
+  );
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
@@ -54,6 +60,18 @@ class SettingsProvider extends ChangeNotifier {
 
   /// Gameplay rules to use when creating the next match.
   GameplaySettings get gameplay => _gameplay.copyWith(holdEnabled: _enableHold);
+
+  /// Current controller button assigned to each gameplay operation.
+  Map<GameplayAction, LogicalKeyboardKey> get controllerBindings =>
+      Map.unmodifiable(_controllerBindings);
+
+  /// Returns the gameplay operation assigned to [key], if any.
+  GameplayAction? controllerActionFor(LogicalKeyboardKey key) {
+    for (final entry in _controllerBindings.entries) {
+      if (entry.value == key) return entry.key;
+    }
+    return null;
+  }
 
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
@@ -88,7 +106,64 @@ class SettingsProvider extends ChangeNotifier {
       for (final key in _gameplayKeys) key: prefs.get(key),
       'hold_enabled': _enableHold,
     });
+    _controllerBindings = _decodeControllerBindings(
+      prefs.getStringList(_controllerBindingsKey),
+    );
     notifyListeners();
+  }
+
+  Map<GameplayAction, LogicalKeyboardKey> _decodeControllerBindings(
+    List<String>? stored,
+  ) {
+    final bindings = Map<GameplayAction, LogicalKeyboardKey>.of(
+      defaultControllerBindings,
+    );
+    if (stored == null) return bindings;
+    for (final value in stored) {
+      final separator = value.indexOf(':');
+      if (separator < 1) continue;
+      final actionName = value.substring(0, separator);
+      final keyId = int.tryParse(value.substring(separator + 1));
+      if (keyId == null) continue;
+      final action = GameplayAction.values
+          .where((candidate) => candidate.name == actionName)
+          .firstOrNull;
+      if (action != null) bindings[action] = LogicalKeyboardKey(keyId);
+    }
+    return bindings;
+  }
+
+  /// Assigns [key] to [action], swapping any conflicting assignment.
+  Future<void> setControllerBinding(
+    GameplayAction action,
+    LogicalKeyboardKey key,
+  ) async {
+    final previousKey = _controllerBindings[action]!;
+    final conflict = controllerActionFor(key);
+    if (conflict == action) return;
+    if (conflict != null) _controllerBindings[conflict] = previousKey;
+    _controllerBindings[action] = key;
+    notifyListeners();
+    await _persistControllerBindings();
+  }
+
+  /// Restores the recommended controller layout.
+  Future<void> resetControllerBindings() async {
+    _controllerBindings = Map.of(defaultControllerBindings);
+    notifyListeners();
+    await _persistControllerBindings();
+  }
+
+  Future<void> _persistControllerBindings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _controllerBindingsKey,
+      GameplayAction.values
+          .map(
+            (action) => '${action.name}:${_controllerBindings[action]!.keyId}',
+          )
+          .toList(),
+    );
   }
 
   Future<void> setThemeMode(AppThemeMode mode) async {

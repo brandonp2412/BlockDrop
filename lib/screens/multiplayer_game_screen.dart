@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import '../game/game_logic.dart';
 import '../game/gameplay_settings.dart';
 import '../multiplayer/multiplayer_manager.dart';
 import '../settings/settings_provider.dart';
+import '../settings/controller_bindings.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_decorations.dart';
 import '../widgets/hold_piece_display.dart';
@@ -196,6 +198,15 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     if (!_gameActive || _gameLogic.isGameOver || _gameLogic.isPaused) {
       return false;
     }
+    if (event.deviceType != ui.KeyEventDeviceType.keyboard) {
+      final action = widget.settings.controllerActionFor(event.logicalKey);
+      if (action != null) {
+        _performControllerAction(action, event is KeyDownEvent);
+        return true;
+      }
+      return false;
+    }
+
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowLeft:
         _gameLogic.movePieceLeft();
@@ -223,6 +234,25 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         return true;
     }
     return false;
+  }
+
+  void _performControllerAction(GameplayAction action, bool isFirstPress) {
+    switch (action) {
+      case GameplayAction.moveLeft:
+        _gameLogic.movePieceLeft();
+      case GameplayAction.moveRight:
+        _gameLogic.movePieceRight();
+      case GameplayAction.softDrop:
+        _gameLogic.movePieceDown();
+      case GameplayAction.rotateLeft:
+        if (isFirstPress) _gameLogic.rotatePieceLeft();
+      case GameplayAction.rotateRight:
+        if (isFirstPress) _gameLogic.rotatePieceRight();
+      case GameplayAction.hardDrop:
+        if (isFirstPress) _gameLogic.dropPiece();
+      case GameplayAction.hold:
+        if (isFirstPress) _gameLogic.holdPiece();
+    }
   }
 
   @override

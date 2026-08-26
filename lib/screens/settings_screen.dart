@@ -1,10 +1,14 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../settings/settings_provider.dart';
 import '../game/gameplay_settings.dart';
+import '../settings/controller_bindings.dart';
 import '../widgets/game_decorations.dart';
 import 'multiplayer_discovery_screen.dart';
 
@@ -382,6 +386,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
+              _SectionHeader(label: 'Controller', colorScheme: colorScheme),
+              _ControllerBindingsPanel(
+                settings: widget.settings,
+                colorScheme: colorScheme,
+              ),
               _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
               _SettingsPanel(
                 colorScheme: colorScheme,
@@ -733,6 +742,112 @@ class _ActionButton extends StatelessWidget {
           width: style == AppStyle.retro ? 2 : 1,
         ),
         shape: buttonBorderShape(style),
+      ),
+    );
+  }
+}
+
+class _ControllerBindingsPanel extends StatelessWidget {
+  final SettingsProvider settings;
+  final ColorScheme colorScheme;
+
+  const _ControllerBindingsPanel({
+    required this.settings,
+    required this.colorScheme,
+  });
+
+  Future<void> _captureBinding(
+    BuildContext context,
+    GameplayAction action,
+  ) async {
+    final key = await showDialog<LogicalKeyboardKey>(
+      context: context,
+      builder: (dialogContext) => _ControllerKeyDialog(action: action),
+    );
+    if (key != null) await settings.setControllerBinding(action, key);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      decoration: panelDecoration(settings.style, colorScheme),
+      child: Column(
+        children: [
+          for (final action in GameplayAction.values)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(action.label),
+              trailing: OutlinedButton(
+                key: Key('controller-binding-${action.name}'),
+                onPressed: () => _captureBinding(context, action),
+                child: Text(
+                  controllerKeyLabel(settings.controllerBindings[action]!),
+                ),
+              ),
+            ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              key: const Key('reset-controller-bindings'),
+              onPressed: settings.resetControllerBindings,
+              icon: const Icon(Icons.restart_alt, size: 18),
+              label: const Text('Reset controller layout'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ControllerKeyDialog extends StatefulWidget {
+  final GameplayAction action;
+
+  const _ControllerKeyDialog({required this.action});
+
+  @override
+  State<_ControllerKeyDialog> createState() => _ControllerKeyDialogState();
+}
+
+class _ControllerKeyDialogState extends State<_ControllerKeyDialog> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardListener(
+      autofocus: true,
+      focusNode: _focusNode,
+      onKeyEvent: (event) {
+        if (event is! KeyDownEvent) return;
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
+          Navigator.pop(context);
+          return;
+        }
+        if (event.deviceType != ui.KeyEventDeviceType.keyboard) {
+          Navigator.pop(context, event.logicalKey);
+        }
+      },
+      child: AlertDialog(
+        title: Text('Bind ${widget.action.label}'),
+        content: const Text(
+          'Press a button or direction on your connected controller.\n\n'
+          'Press Escape to cancel.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
     );
   }
