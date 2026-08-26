@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:block_drop/main.dart';
 import 'package:block_drop/widgets/game_board.dart';
+import 'package:block_drop/widgets/hold_piece_display.dart';
 
 void main() {
   group('Widget Integration Tests', () {
@@ -79,6 +80,31 @@ void main() {
       expect(find.text('Next:'), findsOneWidget);
     });
 
+    testWidgets('hold preview availability resets after the piece locks', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const TetrisApp());
+      await tester.pump();
+
+      await tester.tap(find.text('Hold:'));
+      await tester.pump();
+
+      HoldPieceDisplay holdPreview = tester.widget(
+        find.byType(HoldPieceDisplay),
+      );
+      expect(holdPreview.isAvailable, isFalse);
+
+      await tester.pump(const Duration(milliseconds: 201));
+      final gameLogic = tester
+          .widget<GameBoard>(find.byType(GameBoard))
+          .gameLogic;
+      gameLogic.dropPiece();
+      await tester.pump();
+
+      holdPreview = tester.widget(find.byType(HoldPieceDisplay));
+      expect(holdPreview.isAvailable, isTrue);
+    });
+
     testWidgets(
       'downward drag with horizontal drift does not move piece sideways',
       (WidgetTester tester) async {
@@ -86,8 +112,9 @@ void main() {
         // Wait for grace period to expire
         await tester.pump(const Duration(milliseconds: 500));
 
-        final gameLogic =
-            tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+        final gameLogic = tester
+            .widget<GameBoard>(find.byType(GameBoard))
+            .gameLogic;
         final int startX = gameLogic.currentX;
 
         // Simulate dragging mostly downward but with horizontal drift —
@@ -117,8 +144,9 @@ void main() {
         await tester.pumpWidget(const TetrisApp());
         await tester.pump(const Duration(milliseconds: 500));
 
-        final gameLogic =
-            tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+        final gameLogic = tester
+            .widget<GameBoard>(find.byType(GameBoard))
+            .gameLogic;
         final int startX = gameLogic.currentX;
 
         // Simulate dragging mostly rightward — should move piece right.
@@ -146,8 +174,9 @@ void main() {
       await tester.pumpWidget(const TetrisApp());
       await tester.pump(const Duration(milliseconds: 500));
 
-      final gameLogic =
-          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+      final gameLogic = tester
+          .widget<GameBoard>(find.byType(GameBoard))
+          .gameLogic;
       final int startX = gameLogic.currentX;
       final center = tester.getCenter(find.byType(GameBoard));
       final gesture = await tester.startGesture(center);

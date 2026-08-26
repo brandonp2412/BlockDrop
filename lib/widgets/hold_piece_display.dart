@@ -3,21 +3,31 @@ import '../models/tetromino.dart';
 import '../constants/game_constants.dart';
 import '../settings/settings_provider.dart';
 
+/// Displays the held tetromino and reflects whether hold can be used.
 class HoldPieceDisplay extends StatelessWidget {
+  /// The tetromino currently stored in the hold slot.
   final Tetromino? piece;
+
+  /// The visual style used to render each occupied cell.
   final AppStyle style;
 
+  /// Whether the player can currently swap with the held piece.
+  final bool isAvailable;
+
+  /// Creates a preview of the currently held piece.
   const HoldPieceDisplay({
     super.key,
     this.piece,
     required this.style,
+    this.isAvailable = true,
   });
 
   @override
   Widget build(BuildContext context) {
     if (piece == null) {
       return Container(
-          decoration: const BoxDecoration(color: Colors.transparent));
+        decoration: const BoxDecoration(color: Colors.transparent),
+      );
     }
     final brightness = Theme.of(context).brightness;
 
@@ -43,7 +53,7 @@ class HoldPieceDisplay extends StatelessWidget {
     int offsetX = (4 - pieceWidth) ~/ 2;
     int offsetY = (4 - pieceHeight) ~/ 2;
 
-    return GridView.builder(
+    final preview = GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
@@ -71,6 +81,16 @@ class HoldPieceDisplay extends StatelessWidget {
 
         return _buildCell(displayColor);
       },
+    );
+
+    if (isAvailable) return preview;
+
+    return Opacity(
+      opacity: 0.45,
+      child: ColorFiltered(
+        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+        child: preview,
+      ),
     );
   }
 

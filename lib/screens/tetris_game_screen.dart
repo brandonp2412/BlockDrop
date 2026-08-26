@@ -61,9 +61,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 45),
     ]).animate(_popupController);
-    _popupOffset = Tween<double>(begin: 0.0, end: -60.0).animate(
-      CurvedAnimation(parent: _popupController, curve: Curves.easeOut),
-    );
+    _popupOffset = Tween<double>(
+      begin: 0.0,
+      end: -60.0,
+    ).animate(CurvedAnimation(parent: _popupController, curve: Curves.easeOut));
 
     _audioService = AudioService(
       musicEnabled: widget.settings.musicEnabled,
@@ -484,20 +485,26 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                     scoreHeight + nextPieceHeight + spacingHeight;
 
                 double availableHeight =
-                    (constraints.maxHeight - totalUIHeight - 32)
-                        .clamp(100.0, double.infinity);
+                    (constraints.maxHeight - totalUIHeight - 32).clamp(
+                      100.0,
+                      double.infinity,
+                    );
                 double availableWidth = constraints.maxWidth - 32;
 
-                double idealWidth = availableHeight *
+                double idealWidth =
+                    availableHeight *
                     (GameConstants.boardWidth / GameConstants.boardHeight);
-                double idealHeight = availableWidth *
+                double idealHeight =
+                    availableWidth *
                     (GameConstants.boardHeight / GameConstants.boardWidth);
 
                 double gameboardWidth, gameboardHeight;
                 if (idealWidth <= availableWidth) {
                   gameboardWidth = idealWidth.clamp(100.0, double.infinity);
-                  gameboardHeight =
-                      availableHeight.clamp(100.0, double.infinity);
+                  gameboardHeight = availableHeight.clamp(
+                    100.0,
+                    double.infinity,
+                  );
                 } else {
                   gameboardWidth = availableWidth.clamp(100.0, double.infinity);
                   gameboardHeight = idealHeight.clamp(100.0, double.infinity);
@@ -594,6 +601,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                       child: HoldPieceDisplay(
                                         piece: gameLogic.heldPiece,
                                         style: widget.settings.style,
+                                        isAvailable: gameLogic.canHold,
                                       ),
                                     ),
                                   ],
@@ -654,7 +662,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                               ),
                               child: GameBoard(
                                 board: gameLogic.getBoardWithCurrentPiece(
-                                    showGhost: widget.settings.showGhostTile),
+                                  showGhost: widget.settings.showGhostTile,
+                                ),
                                 previewRows: GameConstants.previewRows,
                                 gameLogic: gameLogic,
                                 style: widget.settings.style,
@@ -695,20 +704,23 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                             _popupLabel,
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              color: _popupLabel
-                                                      .startsWith('T-SPIN')
+                                              color:
+                                                  _popupLabel.startsWith(
+                                                    'T-SPIN',
+                                                  )
                                                   ? Colors.purple[200]
                                                   : (_popupLabel == 'TETRIS!'
-                                                      ? Colors.amber
-                                                      : Colors.white),
+                                                        ? Colors.amber
+                                                        : Colors.white),
                                               fontSize: _popupLabel == 'TETRIS!'
                                                   ? 26
                                                   : 20,
                                               fontWeight: FontWeight.bold,
                                               shadows: const [
                                                 Shadow(
-                                                    blurRadius: 8,
-                                                    color: Colors.black),
+                                                  blurRadius: 8,
+                                                  color: Colors.black,
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -721,8 +733,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                               fontWeight: FontWeight.w600,
                                               shadows: [
                                                 Shadow(
-                                                    blurRadius: 6,
-                                                    color: Colors.black),
+                                                  blurRadius: 6,
+                                                  color: Colors.black,
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -801,6 +814,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                   child: HoldPieceDisplay(
                     piece: gameLogic.heldPiece,
                     style: widget.settings.style,
+                    isAvailable: gameLogic.canHold,
                   ),
                 ),
               ],
@@ -838,7 +852,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             decoration: boardDecoration(widget.settings.style, cs),
             child: GameBoard(
               board: gameLogic.getBoardWithCurrentPiece(
-                  showGhost: widget.settings.showGhostTile),
+                showGhost: widget.settings.showGhostTile,
+              ),
               previewRows: GameConstants.previewRows,
               gameLogic: gameLogic,
               style: widget.settings.style,
@@ -880,8 +895,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             color: _popupLabel.startsWith('T-SPIN')
                                 ? Colors.purple[200]
                                 : (_popupLabel == 'TETRIS!'
-                                    ? Colors.amber
-                                    : Colors.white),
+                                      ? Colors.amber
+                                      : Colors.white),
                             fontSize: _popupLabel == 'TETRIS!' ? 26 : 20,
                             fontWeight: FontWeight.bold,
                             shadows: const [

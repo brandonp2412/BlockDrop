@@ -358,6 +358,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       child: HoldPieceDisplay(
                         piece: _gameLogic.heldPiece,
                         style: widget.settings.style,
+                        isAvailable: _gameLogic.canHold,
                       ),
                     ),
                   if (_gameLogic.enableHold) const SizedBox(height: 8),
@@ -399,7 +400,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       decoration: boardDecoration(widget.settings.style, cs),
                       child: GameBoard(
                         board: _gameLogic.getBoardWithCurrentPiece(
-                            showGhost: widget.settings.showGhostTile),
+                          showGhost: widget.settings.showGhostTile,
+                        ),
                         previewRows: GameConstants.previewRows,
                         gameLogic: _gameLogic,
                         style: widget.settings.style,
@@ -428,7 +430,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     child: Container(
                       margin: const EdgeInsets.only(top: 4),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: cs.error.withAlpha(200),
                         borderRadius: panelBorderRadius(widget.settings.style),
@@ -467,8 +471,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: cs.outline.withAlpha(120),
-                          width:
-                              widget.settings.style == AppStyle.retro ? 2 : 1,
+                          width: widget.settings.style == AppStyle.retro
+                              ? 2
+                              : 1,
                         ),
                         borderRadius: panelBorderRadius(widget.settings.style),
                       ),
@@ -615,6 +620,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                 child: HoldPieceDisplay(
                   piece: _gameLogic.heldPiece,
                   style: widget.settings.style,
+                  isAvailable: _gameLogic.canHold,
                 ),
               ),
             ),
@@ -622,7 +628,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           // ── Next overlay (below hold) ──────────────────────────────
           Positioned(
             left: boardLeft + 4,
-            top: boardTop +
+            top:
+                boardTop +
                 4 +
                 (_gameLogic.enableHold ? labelH + overlayBoxSize + 6 : 0),
             child: _buildOverlayPieceBox(
@@ -650,7 +657,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 2),
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerHighest.withAlpha(200),
                         borderRadius: panelBorderRadius(widget.settings.style),
@@ -670,8 +679,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: cs.outline.withAlpha(100),
-                          width:
-                              widget.settings.style == AppStyle.retro ? 2 : 1,
+                          width: widget.settings.style == AppStyle.retro
+                              ? 2
+                              : 1,
                         ),
                         borderRadius: panelBorderRadius(widget.settings.style),
                         color: cs.surface.withAlpha(66),
@@ -712,10 +722,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                   ),
                   Text(
                     'Lv ${_gameLogic.level}  ·  ${_gameLogic.linesCleared} lines',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: cs.onSurfaceVariant,
-                    ),
+                    style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -732,8 +739,10 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
               duration: const Duration(milliseconds: 200),
               child: Center(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: cs.error.withAlpha(200),
                     borderRadius: panelBorderRadius(widget.settings.style),
@@ -811,10 +820,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             widget.manager.opponentName != null
                 ? 'vs ${widget.manager.opponentName}'
                 : 'Get Ready',
-            style: TextStyle(
-              color: cs.onSurface.withAlpha(178),
-              fontSize: 18,
-            ),
+            style: TextStyle(color: cs.onSurface.withAlpha(178), fontSize: 18),
           ),
           const SizedBox(height: 16),
           Text(
@@ -1042,8 +1048,9 @@ class _ResultRow extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color:
-                highlight ? colorScheme.tertiary : colorScheme.onSurfaceVariant,
+            color: highlight
+                ? colorScheme.tertiary
+                : colorScheme.onSurfaceVariant,
             fontSize: 16,
             fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
           ),
