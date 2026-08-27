@@ -10,6 +10,13 @@
 - Before implementing features for a package, use the browser tool to read the latest README and API docs on `https://pub.dev/packages/[PACKAGE_NAME]`.
 - Note: Your Flutter MCP is for the SDK; use the browser for community packages like Drift, Riverpod, etc.
 
+# Cross-Project Flutter Reuse
+- Before implementing or fixing generic Flutter, Android, CI, navigation, theming, lifecycle, startup, logging, or performance behavior, search the sibling Flutter repositories (`Flexify`, `FitBook`, `MarketMonk`, `Quitter`, and `BlockDrop`) for an existing solution or regression test.
+- Prefer the shared workflows hosted by Flexify for app-agnostic CI behavior.
+- Reuse `frisbee_flutter_foundation` for generic runtime infrastructure when it improves this app, but retain stronger app-specific implementations such as Talker rather than replacing them merely for consistency.
+- When a generic fix is made here, check whether the same failure pattern exists in sibling apps before considering the task complete.
+- Keep shared-workflow and shared-package references pinned to a concrete commit.
+
 # Git & Version Control
 - **Completion Protocol**: When a task is successful, you MUST commit the work.
 - **Commit Format**: Use the [Conventional Commits](https://www.conventionalcommits.org/) standard (e.g., `feat:`, `fix:`, `chore:`).

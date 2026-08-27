@@ -1,15 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'logging.dart';
 import 'screens/tetris_game_screen.dart';
 import 'settings/settings_provider.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  installTalkerErrorHandlers();
-  talker.info('Starting Block Drop');
-  final settings = SettingsProvider();
-  await settings.load();
-  runApp(TetrisApp(settings: settings));
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      installTalkerErrorHandlers();
+      talker.info('Starting Block Drop');
+      final settings = SettingsProvider();
+      await settings.load();
+      runApp(TetrisApp(settings: settings));
+    },
+    (error, stackTrace) =>
+        talker.handle(error, stackTrace, 'Uncaught zone error'),
+  );
 }
 
 class TetrisApp extends StatefulWidget {
