@@ -38,9 +38,8 @@ fi
 cat "$drive_log"
 
 for screenshot in \
-  light_classic light_modern light_bubbles light_retro \
-  dark_classic dark_modern dark_bubbles dark_neon dark_retro \
-  black_classic black_modern black_bubbles black_neon black_retro; do
+  1_en-US 2_en-US 3_en-US 4_en-US 5_en-US 6_en-US 7_en-US \
+  8_en-US 9_en-US 10_en-US 11_en-US 12_en-US 13_en-US 14_en-US; do
   if [ ! -s "$screenshot_dir/$screenshot.png" ]; then
     echo "Missing generated screenshot: $screenshot.png" >&2
     [ "$drive_status" -ne 0 ] && exit "$drive_status"

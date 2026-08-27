@@ -49,8 +49,6 @@ void main() {
       // Converts the OpenGL/Vulkan surface to a raster image that can be read.
       await binding.convertFlutterSurfaceToImage();
 
-      // Collect screenshots as base64 strings keyed by "<index>:<name>".
-      // The driver on the host decodes these and writes them to disk.
       int index = 1;
 
       for (final theme in _themes) {
@@ -65,9 +63,10 @@ void main() {
           await tester.pump();
           await tester.pump(const Duration(milliseconds: 600));
 
-          final name = '${theme.name}_${style.name}';
+          final label = '${theme.name}_${style.name}';
+          final name = '${index}_en-US';
           await binding.takeScreenshot(name);
-          print('[$index/14] Captured $name');
+          print('[$index/14] Captured $label as $name');
           index++;
         }
       }

@@ -24,30 +24,30 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 ### Light theme
 
 <p float="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_classic.png" width="18%" alt="Light Classic" title="Classic" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_modern.png"  width="18%" alt="Light Modern"  title="Modern"  />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_bubbles.png" width="18%" alt="Light Bubbles" title="Bubbles" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/light_retro.png"   width="18%" alt="Light Retro"   title="Retro"   />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" width="18%" alt="Light Classic" title="Classic" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png"  width="18%" alt="Light Modern"  title="Modern"  />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png" width="18%" alt="Light Bubbles" title="Bubbles" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png"   width="18%" alt="Light Retro"   title="Retro"   />
 </p>
 
 ### Dark theme
 
 <p float="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/dark_classic.png" width="18%" alt="Dark Classic" title="Classic" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/dark_modern.png"  width="18%" alt="Dark Modern"  title="Modern"  />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/dark_bubbles.png" width="18%" alt="Dark Bubbles" title="Bubbles" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/dark_neon.png"    width="18%" alt="Dark Neon"    title="Neon"    />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/dark_retro.png"   width="18%" alt="Dark Retro"   title="Retro"   />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png" width="18%" alt="Dark Classic" title="Classic" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6_en-US.png"  width="18%" alt="Dark Modern"  title="Modern"  />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7_en-US.png" width="18%" alt="Dark Bubbles" title="Bubbles" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8_en-US.png"    width="18%" alt="Dark Neon"    title="Neon"    />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/9_en-US.png"   width="18%" alt="Dark Retro"   title="Retro"   />
 </p>
 
 ### Black (AMOLED) theme
 
 <p float="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/black_classic.png" width="18%" alt="Black Classic" title="Classic" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/black_modern.png"  width="18%" alt="Black Modern"  title="Modern"  />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/black_bubbles.png" width="18%" alt="Black Bubbles" title="Bubbles" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/black_neon.png"    width="18%" alt="Black Neon"    title="Neon"    />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/black_retro.png"   width="18%" alt="Black Retro"   title="Retro"   />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/10_en-US.png" width="18%" alt="Black Classic" title="Classic" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/11_en-US.png"  width="18%" alt="Black Modern"  title="Modern"  />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/12_en-US.png" width="18%" alt="Black Bubbles" title="Bubbles" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/13_en-US.png"    width="18%" alt="Black Neon"    title="Neon"    />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/14_en-US.png"   width="18%" alt="Black Retro"   title="Retro"   />
 </p>
 
 ## How to Play
@@ -110,7 +110,7 @@ flutter build web --release
 ```bash
 flutter build windows --release  # Windows
 flutter build macos --release    # macOS
-flutter build linux --release    # Linux
+flutter build linux --release
 ```
 
 ## License
