@@ -3,6 +3,10 @@ name: Retroactive VirusTotal Fix
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   fix-releases:
     runs-on: ubuntu-latest
