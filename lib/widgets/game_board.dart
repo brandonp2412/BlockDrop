@@ -338,16 +338,16 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
             final comboStrength = (streak - 1).clamp(0, 7);
             final pulse = math.sin(clearProgress * math.pi);
             final shakeDecay = 1 - clearProgress;
-            final shakeX = streak >= 4
+            final shakeX = streak >= 2
                 ? math.sin(clearProgress * math.pi * (8 + streak)) *
                     comboStrength *
-                    0.8 *
+                    1.8 *
                     shakeDecay
                 : 0.0;
-            final shakeY = streak >= 5
+            final shakeY = streak >= 3
                 ? math.cos(clearProgress * math.pi * (11 + streak)) *
                     comboStrength *
-                    0.45 *
+                    0.9 *
                     shakeDecay
                 : 0.0;
             final lineFractions = widget.gameLogic.clearingLines
@@ -358,7 +358,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
             final board = Transform.translate(
               offset: Offset(shakeX, shakeY),
               child: Transform.scale(
-                scale: 1 + pulse * comboStrength * 0.006,
+                scale: 1 + pulse * comboStrength * 0.018,
                 child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -558,18 +558,16 @@ class _ComboClearPainter extends CustomPainter {
       final y = size.height * fraction;
       _paintPrismaticBeam(canvas, size, y, eased, fade, hueShift, intensity);
 
-      if (streak >= 3) {
+      if (streak >= 2) {
         _paintSparks(canvas, size, y, eased, fade, hueShift, intensity);
-      }
-      if (streak >= 4) {
         _paintShockwaves(canvas, size, y, eased, fade, hueShift, intensity);
       }
-      if (streak >= 6) {
+      if (streak >= 4) {
         _paintLightning(canvas, size, y, eased, fade, hueShift, intensity);
       }
     }
 
-    if (streak >= 5) {
+    if (streak >= 3) {
       _paintStarburst(canvas, size, eased, fade, hueShift, intensity);
     }
   }
@@ -587,7 +585,7 @@ class _ComboClearPainter extends CustomPainter {
     final rect = Rect.fromCenter(
       center: Offset(size.width / 2, y),
       width: beamWidth,
-      height: 2 + intensity * 1.2,
+      height: 4 + intensity * 1.8,
     );
     final colors = [
       HSVColor.fromAHSV(0, hue, 0.75, 1).toColor(),
@@ -597,15 +595,15 @@ class _ComboClearPainter extends CustomPainter {
     final beamPaint = Paint()
       ..shader = LinearGradient(
         colors: colors
-            .map((color) => color.withValues(alpha: 0.28 * fade))
+            .map((color) => color.withValues(alpha: 0.48 * fade))
             .toList(growable: false),
       ).createShader(rect)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2.0 + intensity);
     canvas.drawRect(rect, beamPaint);
 
     final corePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.45 * fade)
-      ..strokeWidth = 1 + intensity * 0.35;
+      ..color = Colors.white.withValues(alpha: 0.72 * fade)
+      ..strokeWidth = 1.6 + intensity * 0.5;
     canvas.drawLine(
       Offset((size.width - beamWidth) / 2, y),
       Offset((size.width + beamWidth) / 2, y),
@@ -639,7 +637,7 @@ class _ComboClearPainter extends CustomPainter {
       final radius = 0.8 + random.nextDouble() * (1.4 + intensity * 0.22);
       canvas.drawCircle(point, radius, Paint()..color = color);
 
-      if (streak >= 5) {
+      if (streak >= 3) {
         final trail = Offset(point.dx - direction * (5 + intensity), point.dy);
         canvas.drawLine(
           trail,
@@ -665,7 +663,7 @@ class _ComboClearPainter extends CustomPainter {
       final delayed = ((eased * 1.25) - ring * 0.16).clamp(0.0, 1.0);
       if (delayed == 0) continue;
       final color = HSVColor.fromAHSV(
-        (0.34 - ring * 0.045).clamp(0.08, 0.34) * fade,
+        (0.5 - ring * 0.055).clamp(0.12, 0.5) * fade,
         (hue + ring * 55) % 360,
         0.72,
         1,
@@ -679,7 +677,7 @@ class _ComboClearPainter extends CustomPainter {
         oval,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 1 + intensity * 0.18
+          ..strokeWidth = 1.4 + intensity * 0.28
           ..color = color,
       );
     }
