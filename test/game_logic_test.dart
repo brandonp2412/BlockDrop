@@ -22,6 +22,7 @@ void main() {
       expect(gameLogic.score, 0);
       expect(gameLogic.level, 1);
       expect(gameLogic.linesCleared, 0);
+      expect(gameLogic.lineClearStreak, 0);
       expect(gameLogic.currentPiece, null);
       expect(gameLogic.nextPiece, null);
       expect(gameLogic.heldPiece, null);
@@ -298,11 +299,15 @@ void main() {
       gameLogic.dropPiece(); // Should return early without placing anything
 
       // The board should still be empty — no blocks placed
-      bool boardHasPlacedBlocks =
-          gameLogic.board.any((row) => row.any((cell) => cell != null));
-      expect(boardHasPlacedBlocks, false,
-          reason:
-              'Hard drop during grace period must not place the piece on the board');
+      bool boardHasPlacedBlocks = gameLogic.board.any(
+        (row) => row.any((cell) => cell != null),
+      );
+      expect(
+        boardHasPlacedBlocks,
+        false,
+        reason:
+            'Hard drop during grace period must not place the piece on the board',
+      );
     });
 
     test('should start line clear animation when a full row is detected', () {
@@ -339,24 +344,51 @@ void main() {
       expect(gameLogic.isAnimatingClear, false);
     });
 
-    test('should award full TETRIS bonus for clearing 4 lines at once',
-        () async {
+    test('should escalate and reset consecutive line-clear streaks', () async {
       gameLogic.startGame();
+      final bottomRow =
+          GameConstants.boardHeight + GameConstants.previewRows - 1;
 
-      final totalRows = GameConstants.boardHeight + GameConstants.previewRows;
-      for (int row = totalRows - 4; row < totalRows; row++) {
+      void fillBottomRow() {
         for (int col = 0; col < GameConstants.boardWidth; col++) {
-          gameLogic.board[row][col] = Colors.red;
+          gameLogic.board[bottomRow][col] = Colors.red;
         }
       }
 
+      fillBottomRow();
       gameLogic.clearLines();
+      expect(gameLogic.lineClearStreak, 1);
       await Future.delayed(const Duration(milliseconds: 400));
 
-      expect(gameLogic.score, GameConstants.lineClearScores[4] * 1); // 800
-      expect(gameLogic.linesCleared, 4);
-      expect(gameLogic.clearBonusLabel, 'TETRIS!');
+      fillBottomRow();
+      gameLogic.clearLines();
+      expect(gameLogic.lineClearStreak, 2);
+      await Future.delayed(const Duration(milliseconds: 400));
+
+      gameLogic.clearLines();
+      expect(gameLogic.lineClearStreak, 0);
     });
+
+    test(
+      'should award full TETRIS bonus for clearing 4 lines at once',
+      () async {
+        gameLogic.startGame();
+
+        final totalRows = GameConstants.boardHeight + GameConstants.previewRows;
+        for (int row = totalRows - 4; row < totalRows; row++) {
+          for (int col = 0; col < GameConstants.boardWidth; col++) {
+            gameLogic.board[row][col] = Colors.red;
+          }
+        }
+
+        gameLogic.clearLines();
+        await Future.delayed(const Duration(milliseconds: 400));
+
+        expect(gameLogic.score, GameConstants.lineClearScores[4] * 1); // 800
+        expect(gameLogic.linesCleared, 4);
+        expect(gameLogic.clearBonusLabel, 'TETRIS!');
+      },
+    );
 
     test('should increase level after clearing linesPerLevel lines', () async {
       gameLogic.startGame();

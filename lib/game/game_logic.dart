@@ -43,6 +43,10 @@ class GameLogic extends ChangeNotifier {
   int score = 0;
   int level = 1;
   int linesCleared = 0;
+
+  /// Consecutive piece placements that have cleared at least one line.
+  int lineClearStreak = 0;
+
   int dropSpeed = GameConstants.initialDropSpeed;
 
   // Score popup feedback
@@ -100,6 +104,7 @@ class GameLogic extends ChangeNotifier {
     score = 0;
     level = practiceLevel ?? 1;
     linesCleared = 0;
+    lineClearStreak = 0;
     dropSpeed = practiceLevel != null
         ? max(
             GameConstants.minDropSpeed,
@@ -266,19 +271,27 @@ class GameLogic extends ChangeNotifier {
       }
     }
 
-    if (fullLines.isNotEmpty) {
-      // Start the clearing animation
-      clearingLines = fullLines;
-      isAnimatingClear = true;
-
-      audioService?.playClear(fullLines.length);
-
-      // Pause the game timer during animation
-      gameTimer?.cancel();
-
-      // Start the glow and disappear animation
-      _startClearAnimation();
+    if (fullLines.isEmpty) {
+      if (lineClearStreak != 0) {
+        lineClearStreak = 0;
+        notifyListeners();
+      }
+      return;
     }
+
+    lineClearStreak++;
+
+    // Start the clearing animation
+    clearingLines = fullLines;
+    isAnimatingClear = true;
+
+    audioService?.playClear(fullLines.length);
+
+    // Pause the game timer during animation
+    gameTimer?.cancel();
+
+    // Start the glow and disappear animation
+    _startClearAnimation();
   }
 
   void _startClearAnimation() {
@@ -311,13 +324,17 @@ class GameLogic extends ChangeNotifier {
     final int delta;
     final String label;
     if (wasTSpin) {
-      final int idx =
-          clearedLinesCount.clamp(0, GameConstants.tSpinScores.length - 1);
+      final int idx = clearedLinesCount.clamp(
+        0,
+        GameConstants.tSpinScores.length - 1,
+      );
       delta = GameConstants.tSpinScores[idx] * level;
       label = GameConstants.tSpinLabels[idx];
     } else if (clearedLinesCount > 0) {
-      final int idx =
-          clearedLinesCount.clamp(0, GameConstants.lineClearScores.length - 1);
+      final int idx = clearedLinesCount.clamp(
+        0,
+        GameConstants.lineClearScores.length - 1,
+      );
       delta = GameConstants.lineClearScores[idx] * level;
       label = GameConstants.lineClearLabels[idx];
     } else {
