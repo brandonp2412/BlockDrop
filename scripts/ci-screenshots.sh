@@ -59,6 +59,13 @@ if [ -n "${SCREENSHOT_SCREEN_SIZE:-}" ]; then
   expected_dimensions=$(printf '%s' "$SCREENSHOT_SCREEN_SIZE" | sed 's/x/ x /')
 fi
 
+screenshots_complete() {
+  for screenshot in 1_en-US 2_en-US 3_en-US 4_en-US 5_en-US 6_en-US 7_en-US 8_en-US; do
+    [ -s "$screenshot_dir/$screenshot.png" ] || return 1
+  done
+  return 0
+}
+
 drive_log=$(mktemp)
 drive_status=0
 attempt=1
@@ -75,14 +82,16 @@ while :; do
 
   cat "$drive_log"
 
-  if [ "$drive_status" -eq 0 ] || grep -q "All tests passed!" "$drive_log"; then
+  if screenshots_complete && { [ "$drive_status" -eq 0 ] || grep -q "All tests passed!" "$drive_log"; }; then
     break
   fi
 
   transient_failure=0
   if [ "$drive_status" -eq 124 ] || grep -Eiq \
-    'device offline|Connection reset|VMServiceFlutterDriver: It is taking an unusually long time to connect' \
+    'device offline|Connection reset|Service has disappeared|VMServiceFlutterDriver: It is taking an unusually long time to connect' \
     "$drive_log"; then
+    transient_failure=1
+  elif grep -q "All tests passed!" "$drive_log" && ! screenshots_complete; then
     transient_failure=1
   fi
 
@@ -98,9 +107,7 @@ while :; do
   drive_log=$(mktemp)
 done
 
-for screenshot in \
-  1_en-US 2_en-US 3_en-US 4_en-US 5_en-US 6_en-US 7_en-US \
-  8_en-US 9_en-US 10_en-US 11_en-US 12_en-US 13_en-US 14_en-US; do
+for screenshot in 1_en-US 2_en-US 3_en-US 4_en-US 5_en-US 6_en-US 7_en-US 8_en-US; do
   if [ ! -s "$screenshot_dir/$screenshot.png" ]; then
     echo "Missing generated screenshot: $screenshot.png" >&2
     [ "$drive_status" -ne 0 ] && exit "$drive_status"
@@ -111,6 +118,12 @@ for screenshot in \
     exit 1
   fi
 done
+
+screenshot_count=$(find "$screenshot_dir" -maxdepth 1 -type f -name '*.png' | wc -l | tr -d ' ')
+if [ "$screenshot_count" -ne 8 ]; then
+  echo "Expected exactly 8 Google Play screenshots, found $screenshot_count" >&2
+  exit 1
+fi
 
 if [ "$drive_status" -ne 0 ]; then
   if ! grep -q "All tests passed!" "$drive_log"; then
