@@ -57,6 +57,9 @@ void main() {
     when(() => mock.pause()).thenAnswer((_) async {
       stateController.add(PlayerState.paused);
     });
+    when(() => mock.stop()).thenAnswer((_) async {
+      stateController.add(PlayerState.stopped);
+    });
     when(() => mock.dispose()).thenAnswer((_) async {});
 
     return (mock, stateController);
@@ -265,5 +268,27 @@ void main() {
         await stateController.close();
       },
     );
+  });
+
+  test('stopMusic prevents a stopped player from being restarted', () async {
+    final (mockMusic, stateController) = makeMusicPlayer();
+    final service = AudioService(
+      musicPlayer: mockMusic,
+      sfxPlayerFactory: makeSfxPlayer,
+    );
+
+    await service.init();
+    await service.startMusic();
+    clearInteractions(mockMusic);
+
+    await service.stopMusic();
+    stateController.add(PlayerState.stopped);
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+
+    verify(() => mockMusic.stop()).called(1);
+    verifyNever(() => mockMusic.play(any()));
+    verifyNever(() => mockMusic.resume());
+
+    await stateController.close();
   });
 }

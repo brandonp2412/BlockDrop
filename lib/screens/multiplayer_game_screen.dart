@@ -150,6 +150,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     );
     // If the opponent disconnects during play, treat as opponent quit
     if (_gameActive && !_showResult) {
+      _audioService.stopMusic();
       setState(() {
         _showResult = true;
         _iWon = true;
@@ -163,6 +164,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     if (widget.manager.opponentIsGameOver && _gameActive && !_showResult) {
       // If we're still alive we win; if we're also over it's simultaneous
       if (!_gameLogic.isGameOver) {
+        _audioService.stopMusic();
         setState(() {
           _showResult = true;
           _iWon = true;
@@ -176,6 +178,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     if (!mounted) return;
     setState(() {});
     if (_gameLogic.isGameOver && _gameActive && !_showResult) {
+      _audioService.stopMusic();
       widget.manager.sendGameOver(_gameLogic.score);
       // Only show "you lose" if opponent hasn't lost yet
       if (!widget.manager.opponentIsGameOver) {
@@ -265,7 +268,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         _audioService.pauseMusic();
       }
     } else if (state == AppLifecycleState.resumed) {
-      if (_gameLogic.isGameRunning && _gameLogic.isPaused) {
+      if (!_showResult && _gameLogic.isGameRunning && _gameLogic.isPaused) {
         _gameLogic.resumeGame();
         if (widget.settings.musicEnabled) _audioService.resumeMusic();
       }
