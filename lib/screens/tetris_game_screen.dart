@@ -159,7 +159,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       case GameplayAction.moveRight:
         gameLogic.movePieceRight();
       case GameplayAction.softDrop:
-        gameLogic.movePieceDown();
+        gameLogic.softDrop();
       case GameplayAction.rotateLeft:
         if (isFirstPress) gameLogic.rotatePieceLeft();
       case GameplayAction.rotateRight:
@@ -798,7 +798,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                           child: OnScreenGameControls(
                             onMoveLeft: gameLogic.movePieceLeft,
                             onMoveRight: gameLogic.movePieceRight,
-                            onSoftDrop: gameLogic.movePieceDown,
+                            onSoftDrop: gameLogic.softDrop,
                             onRotateLeft: gameLogic.rotatePieceLeft,
                             onRotateRight: gameLogic.rotatePieceRight,
                             onHardDrop: gameLogic.dropPiece,

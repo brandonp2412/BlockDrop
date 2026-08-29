@@ -39,6 +39,30 @@ void main() {
 
     expect(find.text('Music'), findsOneWidget);
     expect(find.text('Sound Effects'), findsNothing);
+    expect(find.text('Ghost Tile'), findsNothing);
+    expect(find.text('Large Board'), findsNothing);
+    expect(find.text('Show Opponent Board'), findsNothing);
+  });
+
+  testWidgets('search finds settings outside the sound section',
+      (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.tap(find.byKey(const Key('settings-search-button')));
+    await tester.pump();
+    await tester.enterText(
+      find.byKey(const Key('settings-search')),
+      'large board',
+    );
+    await tester.pump();
+
+    expect(find.text('Large Board'), findsOneWidget);
+    expect(find.text('Music'), findsNothing);
+    expect(find.text('Ghost Tile'), findsNothing);
+    expect(find.text('Show Opponent Board'), findsNothing);
   });
 
   testWidgets('binding button opens controller input prompt', (tester) async {

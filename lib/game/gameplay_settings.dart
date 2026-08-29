@@ -74,18 +74,27 @@ class GameplaySettings {
 
   /// Creates rules from persisted or network values, safely clamping bad input.
   factory GameplaySettings.fromMap(Map<String, Object?> values) {
-    int integer(String key, int fallback, int min, int max) =>
-        ((values[key] as num?)?.toInt() ?? fallback).clamp(min, max);
+    int integer(String key, int fallback, int min, int max) {
+      final value = values[key];
+      return value is num ? value.toInt().clamp(min, max) : fallback;
+    }
+
+    bool boolean(String key, bool fallback) {
+      final value = values[key];
+      return value is bool ? value : fallback;
+    }
+
+    final holdEnabled = values['hold_enabled'] is bool
+        ? values['hold_enabled']! as bool
+        : boolean('enable_hold', true);
 
     return GameplaySettings(
       initialDropSpeed: integer('initial_drop_speed', 800, 200, 2000),
       speedIncrement: integer('speed_increment', 50, 0, 200),
       maximumLevel: integer('maximum_level', 20, 0, 100),
       linesPerLevel: integer('lines_per_level', 10, 1, 50),
-      softDropEnabled: values['soft_drop_enabled'] as bool? ?? true,
-      holdEnabled: values['hold_enabled'] as bool? ??
-          values['enable_hold'] as bool? ??
-          true,
+      softDropEnabled: boolean('soft_drop_enabled', true),
+      holdEnabled: holdEnabled,
       holdInteractionMode: HoldInteractionMode.fromWireName(
         values['hold_interaction_mode'],
       ),

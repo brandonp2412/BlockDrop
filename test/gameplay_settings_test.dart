@@ -52,5 +52,38 @@ void main() {
       expect(logic.dropSpeed, 1500);
       logic.dispose();
     });
+
+    test('malformed persisted or network values fall back safely', () {
+      final rules = GameplaySettings.fromMap({
+        'initial_drop_speed': 'fast',
+        'speed_increment': false,
+        'maximum_level': <String, Object?>{},
+        'lines_per_level': 'ten',
+        'soft_drop_enabled': 'yes',
+        'hold_enabled': 1,
+        'enable_hold': false,
+      });
+
+      expect(rules.initialDropSpeed, 800);
+      expect(rules.speedIncrement, 50);
+      expect(rules.maximumLevel, 20);
+      expect(rules.linesPerLevel, 10);
+      expect(rules.softDropEnabled, true);
+      expect(rules.holdEnabled, false);
+    });
+
+    test('numeric gameplay values are clamped to supported ranges', () {
+      final rules = GameplaySettings.fromMap({
+        'initial_drop_speed': 50,
+        'speed_increment': 999,
+        'maximum_level': 1000,
+        'lines_per_level': 0,
+      });
+
+      expect(rules.initialDropSpeed, 200);
+      expect(rules.speedIncrement, 200);
+      expect(rules.maximumLevel, 100);
+      expect(rules.linesPerLevel, 1);
+    });
   });
 }

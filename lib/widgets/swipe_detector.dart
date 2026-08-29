@@ -108,7 +108,8 @@ class _SwipeDetectorState extends State<SwipeDetector> {
           return;
         }
 
-        if (details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity &&
+        if (widget.gameLogic.gameplaySettings.softDropEnabled &&
+            details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity &&
             details.velocity.pixelsPerSecond.dy >
                 details.velocity.pixelsPerSecond.dx.abs() * 2 &&
             !widget.gameLogic.isNewPieceGracePeriod) {

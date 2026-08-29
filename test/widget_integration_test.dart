@@ -77,6 +77,34 @@ void main() {
       expect(tester.getSize(find.byType(GameBoard)).height, greaterThan(790));
     });
 
+    testWidgets('on-screen soft drop respects the disabled gameplay rule', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = SettingsProvider();
+      await settings.setShowOnScreenControls(true);
+      await settings.setGameplaySettings(
+        settings.gameplay.copyWith(softDropEnabled: false),
+      );
+      addTearDown(() => SharedPreferences.setMockInitialValues({}));
+
+      await tester.pumpWidget(
+        MaterialApp(home: TetrisGameScreen(settings: settings)),
+      );
+      await tester.pump(const Duration(milliseconds: 250));
+
+      final gameLogic =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      final startingY = gameLogic.currentY;
+
+      await tester.tap(find.byKey(const Key('soft-drop-control')));
+      await tester.pump();
+
+      expect(gameLogic.currentY, startingY);
+    });
+
     testWidgets('Resume button in settings returns to the game', (
       WidgetTester tester,
     ) async {

@@ -48,8 +48,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _onSettingsChanged() => setState(() {});
 
-  bool _matchesSearch(String label) =>
-      _searchQuery.isEmpty || label.toLowerCase().contains(_searchQuery);
+  bool _matchesSearch(String label, {String? section}) {
+    if (_searchQuery.isEmpty) return true;
+    return label.toLowerCase().contains(_searchQuery) ||
+        (section?.toLowerCase().contains(_searchQuery) ?? false);
+  }
+
+  bool _sectionMatches(String section, Iterable<String> labels) {
+    if (_searchQuery.isEmpty || section.toLowerCase().contains(_searchQuery)) {
+      return true;
+    }
+    return labels.any((label) => label.toLowerCase().contains(_searchQuery));
+  }
 
   static String _styleLabel(AppStyle style) => switch (style) {
         AppStyle.classic => 'Classic',
@@ -158,6 +168,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final controlTheme = theme.copyWith(
       switchTheme: _switchTheme(widget.settings.style, colorScheme),
     );
+    final showGame = _sectionMatches('Game', [
+      'Resume',
+      'Restart',
+      'Quit',
+      'Practice Mode',
+    ]);
+    final showSound = _sectionMatches('Sound', ['Music', 'Sound Effects']);
+    final showGameplay = _sectionMatches('Gameplay', [
+      'Ghost Tile',
+      'Enable Hold Piece',
+      'On-Screen Controls',
+      'Large Board',
+      'Starting Speed',
+      'Speed per Level',
+      'Maximum Level',
+      'Lines per Level',
+      'Enable Soft Drop',
+      'Back Gesture Holds',
+    ]);
+    final showController = _sectionMatches('Controller', [
+      ...GameplayAction.values.map((action) => action.label),
+      'Reset controller layout',
+    ]);
+    final showAppearance = _sectionMatches('Appearance', [
+      'Theme',
+      'System',
+      'Dark',
+      'Light',
+      'Pure Black AMOLED',
+      'Style',
+    ]);
+    final showMultiplayer = _sectionMatches('Multiplayer', [
+      'Show Opponent Board',
+      'Play on LAN',
+    ]);
+    final showStats = _sectionMatches('Stats', ['High Score']);
+    final showInstructions = _sectionMatches('Instructions', ['Controls']);
+    final showAbout = _sectionMatches('About', ['BlockDrop']);
 
     return Scaffold(
       appBar: AppBar(
@@ -196,7 +244,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Android TV D-pad focus traversal can reach items below the viewport.
             scrollCacheExtent: const ScrollCacheExtent.pixels(3000),
             children: [
-              if (widget.onRestart != null || widget.onQuit != null) ...[
+              if ((widget.onRestart != null || widget.onQuit != null) &&
+                  showGame) ...[
                 _SectionHeader(label: 'Game', colorScheme: colorScheme),
                 _SettingsPanel(
                   colorScheme: colorScheme,
@@ -260,11 +309,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
               ],
-              if (_matchesSearch('Sound') ||
-                  _matchesSearch('Music') ||
-                  _matchesSearch('Sound Effects'))
+              if (showSound)
                 _SectionHeader(label: 'Sound', colorScheme: colorScheme),
-              if (_matchesSearch('Music'))
+              if (_matchesSearch('Music', section: 'Sound'))
                 _SettingTile(
                   label: 'Music',
                   colorScheme: colorScheme,
@@ -275,7 +322,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         widget.settings.setMusicEnabled(value),
                   ),
                 ),
-              if (_matchesSearch('Sound Effects'))
+              if (_matchesSearch('Sound Effects', section: 'Sound'))
                 _SettingTile(
                   label: 'Sound Effects',
                   colorScheme: colorScheme,
@@ -285,129 +332,142 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onChanged: (value) => widget.settings.setSfxEnabled(value),
                   ),
                 ),
-              _SectionHeader(label: 'Gameplay', colorScheme: colorScheme),
-              _SettingTile(
-                label: 'Ghost Tile',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.showGhostTile,
-                  onChanged: (value) => widget.settings.setShowGhostTile(value),
-                ),
-              ),
-              _SettingTile(
-                label: 'Enable Hold Piece',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.enableHold,
-                  onChanged: (value) => widget.settings.setEnableHold(value),
-                ),
-              ),
-              _SettingTile(
-                label: 'On-Screen Controls',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.showOnScreenControls,
-                  onChanged: widget.settings.setShowOnScreenControls,
-                ),
-              ),
-              _SettingTile(
-                label: 'Large Board',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.fullscreenBoard,
-                  onChanged: (value) =>
-                      widget.settings.setFullscreenBoard(value),
-                ),
-              ),
-              _GameplayValueTile(
-                label: 'Starting Speed',
-                value: '${widget.settings.gameplay.initialDropSpeed} ms',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                onTap: () => _pickGameplayNumber(
-                  title: 'Starting Speed',
-                  help: 'Time between automatic downward moves at level 1. '
-                      'Lower values are faster.',
-                  value: widget.settings.gameplay.initialDropSpeed,
-                  min: 200,
-                  max: 2000,
-                  divisions: 18,
-                  suffix: ' ms',
-                  update: (value) => widget.settings.gameplay
-                      .copyWith(initialDropSpeed: value),
-                ),
-              ),
-              _GameplayValueTile(
-                label: 'Speed per Level',
-                value: '${widget.settings.gameplay.speedIncrement} ms',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                onTap: () => _pickGameplayNumber(
-                  title: 'Speed per Level',
-                  help: 'Milliseconds removed from the drop delay each level.',
-                  value: widget.settings.gameplay.speedIncrement,
-                  min: 0,
-                  max: 200,
-                  divisions: 20,
-                  suffix: ' ms',
-                  update: (value) =>
-                      widget.settings.gameplay.copyWith(speedIncrement: value),
-                ),
-              ),
-              _GameplayValueTile(
-                label: 'Maximum Level',
-                value: widget.settings.gameplay.maximumLevel ==
-                        GameplaySettings.unlimitedLevels
-                    ? 'Unlimited'
-                    : '${widget.settings.gameplay.maximumLevel}',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                onTap: () => _pickGameplayNumber(
-                  title: 'Maximum Level',
-                  help: 'Choose 0 for unlimited level progression.',
-                  value: widget.settings.gameplay.maximumLevel,
-                  min: 0,
-                  max: 100,
-                  divisions: 100,
-                  suffix: '',
-                  zeroLabel: 'Unlimited',
-                  update: (value) =>
-                      widget.settings.gameplay.copyWith(maximumLevel: value),
-                ),
-              ),
-              _GameplayValueTile(
-                label: 'Lines per Level',
-                value: '${widget.settings.gameplay.linesPerLevel}',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                onTap: () => _pickGameplayNumber(
-                  title: 'Lines per Level',
-                  help: 'Cleared lines required to advance one level.',
-                  value: widget.settings.gameplay.linesPerLevel,
-                  min: 1,
-                  max: 50,
-                  divisions: 49,
-                  suffix: ' lines',
-                  update: (value) =>
-                      widget.settings.gameplay.copyWith(linesPerLevel: value),
-                ),
-              ),
-              _SettingTile(
-                label: 'Enable Soft Drop',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.gameplay.softDropEnabled,
-                  onChanged: (value) => widget.settings.setGameplaySettings(
-                    widget.settings.gameplay.copyWith(softDropEnabled: value),
+              if (showGameplay)
+                _SectionHeader(label: 'Gameplay', colorScheme: colorScheme),
+              if (_matchesSearch('Ghost Tile', section: 'Gameplay'))
+                _SettingTile(
+                  label: 'Ghost Tile',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.showGhostTile,
+                    onChanged: (value) =>
+                        widget.settings.setShowGhostTile(value),
                   ),
                 ),
-              ),
-              if (widget.settings.enableHold)
+              if (_matchesSearch('Enable Hold Piece', section: 'Gameplay'))
+                _SettingTile(
+                  label: 'Enable Hold Piece',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.enableHold,
+                    onChanged: (value) => widget.settings.setEnableHold(value),
+                  ),
+                ),
+              if (_matchesSearch('On-Screen Controls', section: 'Gameplay'))
+                _SettingTile(
+                  label: 'On-Screen Controls',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.showOnScreenControls,
+                    onChanged: widget.settings.setShowOnScreenControls,
+                  ),
+                ),
+              if (_matchesSearch('Large Board', section: 'Gameplay'))
+                _SettingTile(
+                  label: 'Large Board',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.fullscreenBoard,
+                    onChanged: (value) =>
+                        widget.settings.setFullscreenBoard(value),
+                  ),
+                ),
+              if (_matchesSearch('Starting Speed', section: 'Gameplay'))
+                _GameplayValueTile(
+                  label: 'Starting Speed',
+                  value: '${widget.settings.gameplay.initialDropSpeed} ms',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  onTap: () => _pickGameplayNumber(
+                    title: 'Starting Speed',
+                    help: 'Time between automatic downward moves at level 1. '
+                        'Lower values are faster.',
+                    value: widget.settings.gameplay.initialDropSpeed,
+                    min: 200,
+                    max: 2000,
+                    divisions: 18,
+                    suffix: ' ms',
+                    update: (value) => widget.settings.gameplay
+                        .copyWith(initialDropSpeed: value),
+                  ),
+                ),
+              if (_matchesSearch('Speed per Level', section: 'Gameplay'))
+                _GameplayValueTile(
+                  label: 'Speed per Level',
+                  value: '${widget.settings.gameplay.speedIncrement} ms',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  onTap: () => _pickGameplayNumber(
+                    title: 'Speed per Level',
+                    help:
+                        'Milliseconds removed from the drop delay each level.',
+                    value: widget.settings.gameplay.speedIncrement,
+                    min: 0,
+                    max: 200,
+                    divisions: 20,
+                    suffix: ' ms',
+                    update: (value) => widget.settings.gameplay
+                        .copyWith(speedIncrement: value),
+                  ),
+                ),
+              if (_matchesSearch('Maximum Level', section: 'Gameplay'))
+                _GameplayValueTile(
+                  label: 'Maximum Level',
+                  value: widget.settings.gameplay.maximumLevel ==
+                          GameplaySettings.unlimitedLevels
+                      ? 'Unlimited'
+                      : '${widget.settings.gameplay.maximumLevel}',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  onTap: () => _pickGameplayNumber(
+                    title: 'Maximum Level',
+                    help: 'Choose 0 for unlimited level progression.',
+                    value: widget.settings.gameplay.maximumLevel,
+                    min: 0,
+                    max: 100,
+                    divisions: 100,
+                    suffix: '',
+                    zeroLabel: 'Unlimited',
+                    update: (value) =>
+                        widget.settings.gameplay.copyWith(maximumLevel: value),
+                  ),
+                ),
+              if (_matchesSearch('Lines per Level', section: 'Gameplay'))
+                _GameplayValueTile(
+                  label: 'Lines per Level',
+                  value: '${widget.settings.gameplay.linesPerLevel}',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  onTap: () => _pickGameplayNumber(
+                    title: 'Lines per Level',
+                    help: 'Cleared lines required to advance one level.',
+                    value: widget.settings.gameplay.linesPerLevel,
+                    min: 1,
+                    max: 50,
+                    divisions: 49,
+                    suffix: ' lines',
+                    update: (value) =>
+                        widget.settings.gameplay.copyWith(linesPerLevel: value),
+                  ),
+                ),
+              if (_matchesSearch('Enable Soft Drop', section: 'Gameplay'))
+                _SettingTile(
+                  label: 'Enable Soft Drop',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.gameplay.softDropEnabled,
+                    onChanged: (value) => widget.settings.setGameplaySettings(
+                      widget.settings.gameplay.copyWith(softDropEnabled: value),
+                    ),
+                  ),
+                ),
+              if (widget.settings.enableHold &&
+                  _matchesSearch('Back Gesture Holds', section: 'Gameplay'))
                 _SettingTile(
                   label: 'Back Gesture Holds',
                   colorScheme: colorScheme,
@@ -424,175 +484,202 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-              _SectionHeader(label: 'Controller', colorScheme: colorScheme),
-              _ControllerBindingsPanel(
-                settings: widget.settings,
-                colorScheme: colorScheme,
-              ),
-              _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
-              _SettingsPanel(
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: SegmentedButton<AppThemeMode>(
-                  style: SegmentedButton.styleFrom(
-                    shape: buttonBorderShape(widget.settings.style),
-                    side: BorderSide(
-                      color: colorScheme.primary.withValues(
-                        alpha:
-                            widget.settings.style == AppStyle.neon ? 0.55 : 0.3,
+              if (showController) ...[
+                _SectionHeader(label: 'Controller', colorScheme: colorScheme),
+                _ControllerBindingsPanel(
+                  settings: widget.settings,
+                  colorScheme: colorScheme,
+                ),
+              ],
+              if (showAppearance)
+                _SectionHeader(label: 'Appearance', colorScheme: colorScheme),
+              if (_matchesSearch(
+                'Theme System Dark Light',
+                section: 'Appearance',
+              ))
+                _SettingsPanel(
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: SegmentedButton<AppThemeMode>(
+                    style: SegmentedButton.styleFrom(
+                      shape: buttonBorderShape(widget.settings.style),
+                      side: BorderSide(
+                        color: colorScheme.primary.withValues(
+                          alpha: widget.settings.style == AppStyle.neon
+                              ? 0.55
+                              : 0.3,
+                        ),
+                        width: widget.settings.style == AppStyle.retro ? 2 : 1,
                       ),
-                      width: widget.settings.style == AppStyle.retro ? 2 : 1,
+                      selectedBackgroundColor: colorScheme.primary.withValues(
+                        alpha: 0.18,
+                      ),
+                      selectedForegroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onSurface,
+                      disabledForegroundColor: colorScheme.onSurface.withValues(
+                        alpha: 0.65,
+                      ),
+                      backgroundColor: colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.35),
                     ),
-                    selectedBackgroundColor: colorScheme.primary.withValues(
-                      alpha: 0.18,
-                    ),
-                    selectedForegroundColor: colorScheme.primary,
-                    foregroundColor: colorScheme.onSurface,
-                    disabledForegroundColor: colorScheme.onSurface.withValues(
-                      alpha: 0.65,
-                    ),
-                    backgroundColor: colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.35),
-                  ),
-                  segments: [
-                    ButtonSegment(
-                      value: AppThemeMode.system,
-                      label: const Text('System'),
-                      icon: const Icon(Icons.brightness_auto),
-                      enabled: widget.settings.style != AppStyle.neon,
-                    ),
-                    const ButtonSegment(
-                      value: AppThemeMode.dark,
-                      label: Text('Dark'),
-                      icon: Icon(Icons.dark_mode),
-                    ),
-                    ButtonSegment(
-                      value: AppThemeMode.light,
-                      label: const Text('Light'),
-                      icon: const Icon(Icons.light_mode),
-                      enabled: widget.settings.style != AppStyle.neon,
-                    ),
-                  ],
-                  selected: {
-                    widget.settings.themeMode == AppThemeMode.black
-                        ? AppThemeMode.dark
-                        : widget.settings.themeMode == AppThemeMode.system ||
-                                widget.settings.themeMode == AppThemeMode.light
-                            ? widget.settings.themeMode
-                            : AppThemeMode.dark,
-                  },
-                  onSelectionChanged: (selection) =>
-                      widget.settings.setThemeMode(selection.first),
-                ),
-              ),
-              _SettingTile(
-                label: 'Pure Black (AMOLED)',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.isBlackMode,
-                  onChanged: (value) => widget.settings.setThemeMode(
-                    value ? AppThemeMode.black : AppThemeMode.dark,
-                  ),
-                ),
-              ),
-              _SettingTile(
-                label: 'Style',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: TextButton(
-                  onPressed: _pickStyle,
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    foregroundColor: colorScheme.onSurface,
-                    alignment: Alignment.centerLeft,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text(_styleLabel(widget.settings.style))),
-                      const Icon(Icons.arrow_drop_down, size: 20),
+                    segments: [
+                      ButtonSegment(
+                        value: AppThemeMode.system,
+                        label: const Text('System'),
+                        icon: const Icon(Icons.brightness_auto),
+                        enabled: widget.settings.style != AppStyle.neon,
+                      ),
+                      const ButtonSegment(
+                        value: AppThemeMode.dark,
+                        label: Text('Dark'),
+                        icon: Icon(Icons.dark_mode),
+                      ),
+                      ButtonSegment(
+                        value: AppThemeMode.light,
+                        label: const Text('Light'),
+                        icon: const Icon(Icons.light_mode),
+                        enabled: widget.settings.style != AppStyle.neon,
+                      ),
                     ],
+                    selected: {
+                      widget.settings.themeMode == AppThemeMode.black
+                          ? AppThemeMode.dark
+                          : widget.settings.themeMode == AppThemeMode.system ||
+                                  widget.settings.themeMode ==
+                                      AppThemeMode.light
+                              ? widget.settings.themeMode
+                              : AppThemeMode.dark,
+                    },
+                    onSelectionChanged: (selection) =>
+                        widget.settings.setThemeMode(selection.first),
                   ),
                 ),
-              ),
-              _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),
-              _SettingTile(
-                label: 'Show Opponent Board',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.showOpponentBoard,
-                  onChanged: (value) =>
-                      widget.settings.setShowOpponentBoard(value),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: panelDecoration(widget.settings.style, colorScheme),
-                child: InkWell(
-                  borderRadius: panelBorderRadius(widget.settings.style),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          MultiplayerDiscoveryScreen(settings: widget.settings),
+              if (_matchesSearch('Pure Black AMOLED', section: 'Appearance'))
+                _SettingTile(
+                  label: 'Pure Black (AMOLED)',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.isBlackMode,
+                    onChanged: (value) => widget.settings.setThemeMode(
+                      value ? AppThemeMode.black : AppThemeMode.dark,
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
+                ),
+              if (_matchesSearch('Style', section: 'Appearance'))
+                _SettingTile(
+                  label: 'Style',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: TextButton(
+                    onPressed: _pickStyle,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      foregroundColor: colorScheme.onSurface,
+                      alignment: Alignment.centerLeft,
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.wifi, color: colorScheme.primary, size: 20),
-                        const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            'Play on LAN',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                        Icon(
-                          Icons.chevron_right,
-                          color: colorScheme.onSurfaceVariant,
-                          size: 20,
-                        ),
+                            child: Text(_styleLabel(widget.settings.style))),
+                        const Icon(Icons.arrow_drop_down, size: 20),
                       ],
                     ),
                   ),
                 ),
-              ),
-              _SectionHeader(label: 'Stats', colorScheme: colorScheme),
-              _SettingTile(
-                label: 'High Score',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Text(
-                  NumberFormat.decimalPattern(
-                    'en_US',
-                  ).format(widget.settings.highScore),
-                  textAlign: TextAlign.end,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.primary,
+              if (showMultiplayer)
+                _SectionHeader(label: 'Multiplayer', colorScheme: colorScheme),
+              if (_matchesSearch('Show Opponent Board', section: 'Multiplayer'))
+                _SettingTile(
+                  label: 'Show Opponent Board',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.showOpponentBoard,
+                    onChanged: (value) =>
+                        widget.settings.setShowOpponentBoard(value),
                   ),
                 ),
-              ),
-              _SectionHeader(label: 'Instructions', colorScheme: colorScheme),
-              _InstructionsCard(
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-              ),
-              _SectionHeader(label: 'About', colorScheme: colorScheme),
-              _AboutCard(
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-              ),
+              if (_matchesSearch('Play on LAN', section: 'Multiplayer'))
+                Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  decoration:
+                      panelDecoration(widget.settings.style, colorScheme),
+                  child: InkWell(
+                    borderRadius: panelBorderRadius(widget.settings.style),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MultiplayerDiscoveryScreen(
+                            settings: widget.settings),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.wifi,
+                              color: colorScheme.primary, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Play on LAN',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              if (showStats)
+                _SectionHeader(label: 'Stats', colorScheme: colorScheme),
+              if (_matchesSearch('High Score', section: 'Stats'))
+                _SettingTile(
+                  label: 'High Score',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Text(
+                    NumberFormat.decimalPattern(
+                      'en_US',
+                    ).format(widget.settings.highScore),
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                ),
+              if (showInstructions) ...[
+                _SectionHeader(
+                  label: 'Instructions',
+                  colorScheme: colorScheme,
+                ),
+                _InstructionsCard(
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                ),
+              ],
+              if (showAbout) ...[
+                _SectionHeader(label: 'About', colorScheme: colorScheme),
+                _AboutCard(
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                ),
+              ],
               const SizedBox(height: 8),
             ],
           ),

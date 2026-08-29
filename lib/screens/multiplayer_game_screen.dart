@@ -246,7 +246,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       case GameplayAction.moveRight:
         _gameLogic.movePieceRight();
       case GameplayAction.softDrop:
-        _gameLogic.movePieceDown();
+        _gameLogic.softDrop();
       case GameplayAction.rotateLeft:
         if (isFirstPress) _gameLogic.rotatePieceLeft();
       case GameplayAction.rotateRight:
