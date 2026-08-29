@@ -31,6 +31,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  String _searchQuery = '';
+  bool _isSearching = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +47,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _onSettingsChanged() => setState(() {});
+
+  bool _matchesSearch(String label) =>
+      _searchQuery.isEmpty || label.toLowerCase().contains(_searchQuery);
 
   static String _styleLabel(AppStyle style) => switch (style) {
         AppStyle.classic => 'Classic',
@@ -154,7 +160,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings'), centerTitle: true),
+      appBar: AppBar(
+        title: _isSearching
+            ? TextField(
+                autofocus: true,
+                key: const ValueKey('settings-search'),
+                decoration: const InputDecoration(
+                  hintText: 'Search settings',
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) => setState(
+                  () => _searchQuery = value.trim().toLowerCase(),
+                ),
+              )
+            : const Text('Settings'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            key: const ValueKey('settings-search-button'),
+            tooltip: 'Search settings',
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () => setState(() {
+              _isSearching = !_isSearching;
+              if (!_isSearching) _searchQuery = '';
+            }),
+          ),
+        ],
+      ),
       body: Theme(
         data: controlTheme,
         child: SafeArea(
@@ -228,25 +260,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
               ],
-              _SectionHeader(label: 'Sound', colorScheme: colorScheme),
-              _SettingTile(
-                label: 'Music',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.musicEnabled,
-                  onChanged: (value) => widget.settings.setMusicEnabled(value),
+              if (_matchesSearch('Sound') ||
+                  _matchesSearch('Music') ||
+                  _matchesSearch('Sound Effects'))
+                _SectionHeader(label: 'Sound', colorScheme: colorScheme),
+              if (_matchesSearch('Music'))
+                _SettingTile(
+                  label: 'Music',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.musicEnabled,
+                    onChanged: (value) =>
+                        widget.settings.setMusicEnabled(value),
+                  ),
                 ),
-              ),
-              _SettingTile(
-                label: 'Sound Effects',
-                colorScheme: colorScheme,
-                style: widget.settings.style,
-                child: Switch(
-                  value: widget.settings.sfxEnabled,
-                  onChanged: (value) => widget.settings.setSfxEnabled(value),
+              if (_matchesSearch('Sound Effects'))
+                _SettingTile(
+                  label: 'Sound Effects',
+                  colorScheme: colorScheme,
+                  style: widget.settings.style,
+                  child: Switch(
+                    value: widget.settings.sfxEnabled,
+                    onChanged: (value) => widget.settings.setSfxEnabled(value),
+                  ),
                 ),
-              ),
               _SectionHeader(label: 'Gameplay', colorScheme: colorScheme),
               _SettingTile(
                 label: 'Ghost Tile',

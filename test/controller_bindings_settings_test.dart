@@ -26,6 +26,21 @@ void main() {
     expect(resetButton, findsOneWidget);
   });
 
+  testWidgets('filters settings by the search query', (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.tap(find.byKey(const Key('settings-search-button')));
+    await tester.pump();
+    await tester.enterText(find.byKey(const Key('settings-search')), 'music');
+    await tester.pump();
+
+    expect(find.text('Music'), findsOneWidget);
+    expect(find.text('Sound Effects'), findsNothing);
+  });
+
   testWidgets('binding button opens controller input prompt', (tester) async {
     final settings = SettingsProvider();
     await tester.pumpWidget(
