@@ -3,6 +3,9 @@ name: Retroactive VirusTotal Fix
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -13,15 +16,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-
       - name: Fix broken VirusTotal links
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
           REPO: ${{ github.repository }}
         run: |
-          set -e
+          set -euo pipefail
 
           BROKEN_TAGS=$(gh release list --repo "$REPO" --limit 50 --json tagName,body \
             --jq '.[] | select(.body != null) | select(.body | contains("(/detection)")) | .tagName')
@@ -36,7 +37,7 @@ jobs:
           for TAG in $BROKEN_TAGS; do
             echo ""
             echo "Fixing $TAG..."
-
+            rm -rf /tmp/vt-apks
             mkdir -p /tmp/vt-apks
 
             gh release download "$TAG" --repo "$REPO" \
@@ -46,7 +47,7 @@ jobs:
             gh release download "$TAG" --repo "$REPO" \
               --pattern "*x86_64*release.apk" --dir /tmp/vt-apks --clobber 2>/dev/null || true
 
-            APK_COUNT=$(ls /tmp/vt-apks/*.apk 2>/dev/null | wc -l)
+            APK_COUNT=$(find /tmp/vt-apks -maxdepth 1 -type f -name '*.apk' | wc -l)
             if [ "$APK_COUNT" -eq 0 ]; then
               echo "  No APKs found, skipping"
               rm -rf /tmp/vt-apks
@@ -55,17 +56,17 @@ jobs:
 
             VT_SECTION=$'\n\n<details>\n<summary>VirusTotal Analysis</summary>\n\n'
 
-            for APK in $(ls /tmp/vt-apks/*.apk | sort); do
+            while IFS= read -r APK; do
               FILENAME=$(basename "$APK")
               SHA256=$(sha256sum "$APK" | awk '{print $1}')
 
-              VT_CHECK=$(curl -s \
+              VT_CHECK=$(curl --fail-with-body --silent --show-error \
                 "https://www.virustotal.com/api/v3/files/${SHA256}" \
-                -H "x-apikey: ${VT_API_KEY}")
+                -H "x-apikey: ${VT_API_KEY}" || true)
 
-              if ! echo "$VT_CHECK" | grep -q '"data"'; then
+              if ! printf '%s' "$VT_CHECK" | grep -q '"data"'; then
                 echo "  Submitting $FILENAME to VT..."
-                curl -s -X POST \
+                curl --fail-with-body --silent --show-error -X POST \
                   "https://www.virustotal.com/api/v3/files" \
                   -H "x-apikey: ${VT_API_KEY}" \
                   -F "file=@${APK}" > /dev/null
@@ -74,7 +75,7 @@ jobs:
               URL="https://www.virustotal.com/gui/file/${SHA256}/detection"
               VT_SECTION+="- [${FILENAME}](${URL})"$'\n'
               echo "  $FILENAME -> $URL"
-            done
+            done < <(find /tmp/vt-apks -maxdepth 1 -type f -name '*.apk' | sort)
 
             VT_SECTION+=$'\n</details>'
 
@@ -83,7 +84,7 @@ jobs:
             CLEAN_BODY=$(python3 -c "
             import sys
             body = sys.stdin.read()
-            for marker in ['\n\n---\n**VirusTotal Analysis**', '\n\n<details>\n<summary>VirusTotal Analysis</summary>']:
+            for marker in ['\\n\\n---\\n**VirusTotal Analysis**', '\\n\\n<details>\\n<summary>VirusTotal Analysis</summary>']:
                 idx = body.rfind(marker)
                 if idx != -1:
                     body = body[:idx]
