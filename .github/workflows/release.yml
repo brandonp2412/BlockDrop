@@ -7,6 +7,9 @@ on:
       - "pubspec.yaml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,16 +18,16 @@ jobs:
   quality-checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           submodules: recursive
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Flutter from submodule
         run: |
           export PATH="$PATH:$PWD/flutter/bin"
-          echo "$PWD/flutter/bin" >> $GITHUB_PATH
+          echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
           flutter --version
           flutter config --no-analytics
           flutter precache
@@ -55,13 +58,14 @@ jobs:
           - device_type: tenInchScreenshots
             profile: Nexus 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           submodules: recursive
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: "zulu"
           java-version: "17"
@@ -83,7 +87,7 @@ jobs:
 
       - name: Generate ${{ matrix.device_type }}
         timeout-minutes: 25
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         env:
           BLOCKDROP_DEVICE_TYPE: ${{ matrix.device_type }}
           SCREENSHOT_SCREEN_SIZE: ${{ matrix.screen_size }}
@@ -96,7 +100,7 @@ jobs:
           script: ./scripts/ci-screenshots.sh
 
       - name: Upload ${{ matrix.device_type }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: screenshots-${{ matrix.device_type }}
           path: fastlane/metadata/android/en-US/images/${{ matrix.device_type }}
@@ -106,13 +110,14 @@ jobs:
   patrol-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           submodules: recursive
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: "zulu"
           java-version: "17"
@@ -138,7 +143,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run Patrol tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
           api-level: 35
           target: google_apis
@@ -156,26 +161,26 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
           submodules: recursive
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Download phone screenshots
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: screenshots-phoneScreenshots
           path: fastlane/metadata/android/en-US/images/phoneScreenshots
 
       - name: Download seven-inch screenshots
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: screenshots-sevenInchScreenshots
           path: fastlane/metadata/android/en-US/images/sevenInchScreenshots
 
       - name: Download ten-inch screenshots
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: screenshots-tenInchScreenshots
           path: fastlane/metadata/android/en-US/images/tenInchScreenshots
@@ -190,58 +195,61 @@ jobs:
         run: |
           CURRENT_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
           CURRENT_BUILD_NUMBER=$(grep '^version:' pubspec.yaml | sed 's/.*+//')
-          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "current_build_number=$CURRENT_BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "current_build_number=$CURRENT_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
           echo "Current version: $CURRENT_VERSION+$CURRENT_BUILD_NUMBER"
 
       - name: Bump version
         id: version
+        env:
+          CURRENT_VERSION: ${{ steps.current_version.outputs.current_version }}
+          CURRENT_BUILD_NUMBER: ${{ steps.current_version.outputs.current_build_number }}
         run: |
-          CURRENT_VERSION=${{ steps.current_version.outputs.current_version }}
-          CURRENT_BUILD_NUMBER=${{ steps.current_version.outputs.current_build_number }}
-
-          # Parse version components
           IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
           MAJOR=${VERSION_PARTS[0]}
           MINOR=${VERSION_PARTS[1]}
           PATCH=${VERSION_PARTS[2]}
           PATCH=$((PATCH + 1))
-
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           NEW_BUILD_NUMBER=$((CURRENT_BUILD_NUMBER + 1))
-
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "build_number=$NEW_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
           echo "New version: $NEW_VERSION+$NEW_BUILD_NUMBER"
-
-          # Update pubspec.yaml with new version and build number
           sed -i "s/^version: .*/version: $NEW_VERSION+$NEW_BUILD_NUMBER/" pubspec.yaml
-          echo "Updated pubspec.yaml with new version"
 
       - name: Commit and push version bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
         run: |
           git add pubspec.yaml fastlane/metadata/android/en-US/images
-          git commit -m "Bump version to ${{ steps.version.outputs.version }}+${{ steps.version.outputs.build_number }} [skip ci]"
+          git commit -m "Bump version to ${VERSION}+${BUILD_NUMBER} [skip ci]"
+          gh auth setup-git
           git push origin main
 
       - name: Create and push tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          NEW_VERSION=${{ steps.version.outputs.version }}
-          git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
-          git push origin "v$NEW_VERSION"
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          gh auth setup-git
+          git push origin "v$VERSION"
 
   build-android:
     needs: version-bump
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: main
           submodules: recursive
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: "zulu"
           java-version: "17"
@@ -249,7 +257,7 @@ jobs:
       - name: Setup Flutter from submodule
         run: |
           export PATH="$PATH:$PWD/flutter/bin"
-          echo "$PWD/flutter/bin" >> $GITHUB_PATH
+          echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
           flutter --version
           flutter config --no-analytics
           flutter precache
@@ -258,28 +266,45 @@ jobs:
         run: flutter pub get
 
       - name: Decode Android keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
-          echo "storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/keystore.jks
+          printf 'storePassword=%s\n' "$ANDROID_STORE_PASSWORD" > android/key.properties
+          printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD" >> android/key.properties
+          printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS" >> android/key.properties
           echo "storeFile=keystore.jks" >> android/key.properties
 
       - name: Build APK for x86_64
-        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }} --target-platform android-x64 --split-per-abi
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: flutter build apk --release --build-name="$VERSION" --build-number="$BUILD_NUMBER" --target-platform android-x64 --split-per-abi
 
       - name: Build APK for armeabi-v7a
-        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }} --target-platform android-arm --split-per-abi
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: flutter build apk --release --build-name="$VERSION" --build-number="$BUILD_NUMBER" --target-platform android-arm --split-per-abi
 
       - name: Build APK for arm64
-        run: flutter build apk --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }} --target-platform android-arm64 --split-per-abi
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: flutter build apk --release --build-name="$VERSION" --build-number="$BUILD_NUMBER" --target-platform android-arm64 --split-per-abi
 
       - name: Build App Bundle
-        run: flutter build appbundle --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: flutter build appbundle --release --build-name="$VERSION" --build-number="$BUILD_NUMBER"
 
       - name: Upload APK artifact
         if: github.actor != 'nektos/act'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           retention-days: 7
           name: android-apk
@@ -287,7 +312,7 @@ jobs:
 
       - name: Upload AAB artifact
         if: github.actor != 'nektos/act'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           retention-days: 7
           name: android-aab
@@ -297,11 +322,12 @@ jobs:
     needs: version-bump
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: main
           submodules: recursive
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Flutter from submodule
         run: |
@@ -315,30 +341,36 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows
-        run: flutter build windows --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: flutter build windows --release --build-name=$env:VERSION --build-number=$env:BUILD_NUMBER
 
       - name: Create Windows archive
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
         run: |
           cd build/windows/x64/runner/Release
-          7z a ../../../../../block_drop_windows_${{ needs.version-bump.outputs.version }}.zip *
+          7z a "../../../../../block_drop_windows_$env:VERSION.zip" *
 
       - name: Upload Windows artifact
         if: github.actor != 'nektos/act'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           retention-days: 7
           name: windows-app
-          path: block_drop_windows_${{ needs.version-bump.outputs.version }}.zip
+          path: block_drop_windows_*.zip
 
   build-linux:
     needs: version-bump
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: main
           submodules: recursive
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install Linux dependencies
         run: |
@@ -348,7 +380,7 @@ jobs:
       - name: Setup Flutter from submodule
         run: |
           export PATH="$PATH:$PWD/flutter/bin"
-          echo "$PWD/flutter/bin" >> $GITHUB_PATH
+          echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
           flutter --version
           flutter config --no-analytics
           flutter precache --linux
@@ -357,20 +389,25 @@ jobs:
         run: flutter pub get
 
       - name: Build Linux
-        run: flutter build linux --release --build-name=${{ needs.version-bump.outputs.version }} --build-number=${{ needs.version-bump.outputs.build_number }}
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: flutter build linux --release --build-name="$VERSION" --build-number="$BUILD_NUMBER"
 
       - name: Create Linux archive
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
         run: |
           cd build/linux/x64/release/bundle
-          tar -czf ../../../../../block_drop_linux_${{ needs.version-bump.outputs.version }}.tar.gz *
+          tar -czf "../../../../../block_drop_linux_${VERSION}.tar.gz" *
 
       - name: Upload Linux artifact
         if: github.actor != 'nektos/act'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           retention-days: 7
           name: linux-app
-          path: block_drop_linux_${{ needs.version-bump.outputs.version }}.tar.gz
+          path: block_drop_linux_*.tar.gz
 
   create-release:
     needs: [version-bump, build-android, build-windows, build-linux]
@@ -379,19 +416,19 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           submodules: recursive
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: artifacts
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           tag_name: v${{ needs.version-bump.outputs.version }}
           name: Block Drop v${{ needs.version-bump.outputs.version }}
@@ -401,8 +438,8 @@ jobs:
           files: |
             artifacts/android-apk/app-*-release.apk
             artifacts/android-aab/app-release.aab
-            artifacts/windows-app/block_drop_windows_${{ needs.version-bump.outputs.version }}.zip
-            artifacts/linux-app/block_drop_linux_${{ needs.version-bump.outputs.version }}.tar.gz
+            artifacts/windows-app/block_drop_windows_*.zip
+            artifacts/linux-app/block_drop_linux_*.tar.gz
 
   virustotal:
     needs: [create-release, version-bump]
@@ -410,17 +447,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-
       - name: Download Android artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: android-apk
           path: android-apk
 
       - name: VirusTotal Scan
         id: vt
-        uses: crazy-max/ghaction-virustotal@v4
+        uses: crazy-max/ghaction-virustotal@d34968c958ae283fe976efed637081b9f9dcf74f # v4
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -431,7 +466,8 @@ jobs:
 
       - name: Append VirusTotal links to release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           VERSION: v${{ needs.version-bump.outputs.version }}
           ANALYSIS: ${{ steps.vt.outputs.analysis }}
         run: |
@@ -443,5 +479,5 @@ jobs:
             VT_SECTION+="- [${filename}](${url})"$'\n'
           done
           VT_SECTION+=$'\n</details>'
-          CURRENT_BODY=$(gh release view "$VERSION" --json body -q .body)
-          gh release edit "$VERSION" --notes "${CURRENT_BODY}${VT_SECTION}"
+          CURRENT_BODY=$(gh release view "$VERSION" --repo "$REPO" --json body -q .body)
+          gh release edit "$VERSION" --repo "$REPO" --notes "${CURRENT_BODY}${VT_SECTION}"
