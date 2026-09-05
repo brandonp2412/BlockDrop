@@ -81,16 +81,7 @@ jobs:
 
             CURRENT_BODY=$(gh release view "$TAG" --repo "$REPO" --json body -q .body)
 
-            CLEAN_BODY=$(python3 -c "
-            import sys
-            body = sys.stdin.read()
-            for marker in ['\\n\\n---\\n**VirusTotal Analysis**', '\\n\\n<details>\\n<summary>VirusTotal Analysis</summary>']:
-                idx = body.rfind(marker)
-                if idx != -1:
-                    body = body[:idx]
-                    break
-            sys.stdout.write(body)
-            " <<< "$CURRENT_BODY")
+            CLEAN_BODY=$(printf '%s' "$CURRENT_BODY" | python3 -c 'import sys; body=sys.stdin.read(); markers=["\n\n---\n**VirusTotal Analysis**", "\n\n<details>\n<summary>VirusTotal Analysis</summary>"]; idx=max((body.rfind(marker) for marker in markers), default=-1); sys.stdout.write(body if idx == -1 else body[:idx])')
 
             NOTES_FILE=$(mktemp)
             printf '%s%s' "$CLEAN_BODY" "$VT_SECTION" > "$NOTES_FILE"
