@@ -667,9 +667,8 @@ class _LobbyPlayerTile extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: isYou
-                    ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
+                color:
+                    isYou ? colorScheme.primary : colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
