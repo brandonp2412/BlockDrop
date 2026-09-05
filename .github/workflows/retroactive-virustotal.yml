@@ -24,8 +24,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          BROKEN_TAGS=$(gh release list --repo "$REPO" --limit 50 --json tagName,body \
-            --jq '.[] | select(.body != null) | select(.body | contains("(/detection)")) | .tagName')
+          BROKEN_TAGS=$(gh api --paginate "repos/${REPO}/releases?per_page=100" \
+            --jq '.[] | select(.body != null) | select(.body | contains("(/detection)")) | .tag_name')
 
           if [ -z "$BROKEN_TAGS" ]; then
             echo "No broken releases found."
