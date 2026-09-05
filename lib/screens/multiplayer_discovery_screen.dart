@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../multiplayer/multiplayer_game_config.dart';
 import '../multiplayer/multiplayer_manager.dart';
+import '../widgets/empty_state.dart';
 import '../multiplayer/peer.dart';
 import '../settings/settings_provider.dart';
 import '../widgets/game_decorations.dart';
@@ -311,13 +312,11 @@ class _MultiplayerDiscoveryScreenState
         const SizedBox(height: 4),
         Expanded(
           child: _manager.peers.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    'No players found yet.\nMake sure others have Block Drop open on the same Wi-Fi.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: cs.onSurfaceVariant),
-                  ),
+              ? const AppEmptyState(
+                  icon: Icons.wifi_find_rounded,
+                  title: 'No players found yet',
+                  message:
+                      'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.',
                 )
               : ListView.builder(
                   itemCount: _manager.peers.length,
@@ -668,8 +667,9 @@ class _LobbyPlayerTile extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color:
-                    isYou ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                color: isYou
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
