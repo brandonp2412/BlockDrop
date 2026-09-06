@@ -514,13 +514,16 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                 children: [
                   board,
                   if (widget.gameLogic.isAnimatingClear && streak >= 2)
-                    IgnorePointer(
-                      child: CustomPaint(
-                        key: const ValueKey('combo-clear-effects'),
-                        painter: _ComboClearPainter(
-                          progress: clearProgress,
-                          streak: streak,
-                          lineFractions: lineFractions,
+                    Semantics(
+                      label: '$streak-line combo clear effect',
+                      child: IgnorePointer(
+                        child: CustomPaint(
+                          key: const ValueKey('combo-clear-effects'),
+                          painter: _ComboClearPainter(
+                            progress: clearProgress,
+                            streak: streak,
+                            lineFractions: lineFractions,
+                          ),
                         ),
                       ),
                     ),

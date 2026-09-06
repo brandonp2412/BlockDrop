@@ -83,13 +83,21 @@ class HoldPieceDisplay extends StatelessWidget {
       },
     );
 
-    if (isAvailable) return preview;
+    if (isAvailable) {
+      return Semantics(label: 'Held piece available', child: preview);
+    }
 
-    return Opacity(
-      opacity: 0.45,
-      child: ColorFiltered(
-        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-        child: preview,
+    return Semantics(
+      label: 'Held piece unavailable',
+      child: Opacity(
+        opacity: 0.45,
+        child: ColorFiltered(
+          colorFilter: const ColorFilter.mode(
+            Colors.grey,
+            BlendMode.saturation,
+          ),
+          child: preview,
+        ),
       ),
     );
   }

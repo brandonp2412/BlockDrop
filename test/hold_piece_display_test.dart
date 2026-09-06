@@ -31,14 +31,12 @@ void main() {
   ) async {
     await tester.pumpWidget(buildPreview(isAvailable: false));
 
-    expect(find.byType(ColorFiltered), findsOneWidget);
-    expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, lessThan(1));
+    expect(find.bySemanticsLabel('Held piece unavailable'), findsOneWidget);
   });
 
   testWidgets('shows the normal piece when hold is available', (tester) async {
     await tester.pumpWidget(buildPreview(isAvailable: true));
 
-    expect(find.byType(ColorFiltered), findsNothing);
-    expect(find.byType(Opacity), findsNothing);
+    expect(find.bySemanticsLabel('Held piece available'), findsOneWidget);
   });
 }

@@ -17,11 +17,11 @@ void main() {
     );
 
     for (final action in GameplayAction.values) {
-      final binding = find.byKey(Key('controller-binding-${action.name}'));
-      await tester.scrollUntilVisible(binding, 120);
-      expect(binding, findsOneWidget);
+      final actionLabel = find.text(action.label);
+      await tester.scrollUntilVisible(actionLabel, 120);
+      expect(actionLabel, findsOneWidget);
     }
-    final resetButton = find.byKey(const Key('reset-controller-bindings'));
+    final resetButton = find.text('Reset controller layout');
     await tester.scrollUntilVisible(resetButton, 120);
     expect(resetButton, findsOneWidget);
   });
@@ -44,8 +44,9 @@ void main() {
     expect(find.text('Show Opponent Board'), findsNothing);
   });
 
-  testWidgets('search finds settings outside the sound section',
-      (tester) async {
+  testWidgets('search finds settings outside the sound section', (
+    tester,
+  ) async {
     final settings = SettingsProvider();
     await tester.pumpWidget(
       MaterialApp(home: SettingsScreen(settings: settings)),
@@ -70,14 +71,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
-    final binding = find.byKey(
-      const Key('controller-binding-rotateRight'),
-    );
+    final binding = find.text('Button A');
     await tester.scrollUntilVisible(binding, 120);
-    await Scrollable.ensureVisible(
-      tester.element(binding),
-      alignment: 0.5,
-    );
+    await Scrollable.ensureVisible(tester.element(binding), alignment: 0.5);
     await tester.pumpAndSettle();
     await tester.tap(binding);
     await tester.pumpAndSettle();

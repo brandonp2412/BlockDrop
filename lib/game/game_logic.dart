@@ -33,19 +33,15 @@ class GameLogic extends ChangeNotifier {
 
   int _lockDelayResetCount = 0;
 
-  // Current piece
   Tetromino? currentPiece;
   int currentX = 0;
   int currentY = 0;
 
-  // Next piece
   Tetromino? nextPiece;
 
-  // Hold piece
   Tetromino? heldPiece;
   bool canHold = true; // Prevents holding multiple times per piece
 
-  // Game state
   bool isGameRunning = false;
   bool isGameOver = false;
   bool isPaused = false;
@@ -63,20 +59,16 @@ class GameLogic extends ChangeNotifier {
 
   int dropSpeed = GameConstants.initialDropSpeed;
 
-  // Score popup feedback
   int lastScoreDelta = 0;
   String clearBonusLabel = '';
 
-  // T-spin / rotation tracking
   bool _lastMoveWasRotation = false;
   bool _pendingTSpin = false;
 
-  // Line clearing animation
   List<int> clearingLines = [];
   bool isAnimatingClear = false;
   Timer? clearAnimationTimer;
 
-  // Trail animation for hard drop
   List<Map<String, dynamic>> trailBlocks = [];
   bool isAnimatingTrail = false;
   Timer? trailAnimationTimer;
@@ -101,7 +93,6 @@ class GameLogic extends ChangeNotifier {
   }
 
   void startGame({int? practiceLevel}) {
-    // Cancel all running timers before resetting state
     gameTimer?.cancel();
     gameTimer = null;
     clearAnimationTimer?.cancel();
@@ -159,7 +150,6 @@ class GameLogic extends ChangeNotifier {
       isPaused = true;
       gameTimer?.cancel();
 
-      // Pause all animation timers
       clearAnimationTimer?.cancel();
       trailAnimationTimer?.cancel();
       gracePeriodTimer?.cancel();
@@ -173,22 +163,17 @@ class GameLogic extends ChangeNotifier {
     if (isGameRunning && !isGameOver && isPaused) {
       isPaused = false;
 
-      // Restart the main game timer
       startGameTimer();
 
-      // Resume animation timers if they were active
       if (isAnimatingClear && clearAnimationTimer == null) {
-        // Resume clear animation - calculate remaining time
         _startClearAnimation();
       }
 
       if (isAnimatingTrail && trailAnimationTimer == null) {
-        // Resume trail animation
         _startTrailAnimation();
       }
 
       if (isNewPieceGracePeriod && gracePeriodTimer == null) {
-        // Resume grace period
         _startNewPieceGracePeriod();
       }
 
@@ -208,13 +193,11 @@ class GameLogic extends ChangeNotifier {
     currentX = GameConstants.boardWidth ~/ 2 - 1;
     currentY = GameConstants.previewRows;
 
-    // Reset slamming flag for new piece
     isSlamming = false;
 
     // Start grace period to prevent immediate input
     _startNewPieceGracePeriod();
 
-    // Check for game over
     if (!canPlacePiece(currentX, currentY, currentPiece!)) {
       isGameOver = true;
       isGameRunning = false;
@@ -281,7 +264,6 @@ class GameLogic extends ChangeNotifier {
 
     List<int> fullLines = [];
 
-    // Find all full lines
     for (int row = GameConstants.boardHeight + GameConstants.previewRows - 1;
         row >= GameConstants.previewRows;
         row--) {
@@ -308,27 +290,21 @@ class GameLogic extends ChangeNotifier {
 
     lineClearStreak++;
 
-    // Start the clearing animation
     clearingLines = fullLines;
     isAnimatingClear = true;
 
     audioService?.playClear(fullLines.length);
 
-    // Pause the game timer during animation
     gameTimer?.cancel();
 
-    // Start the glow and disappear animation
     _startClearAnimation();
   }
 
   void _startClearAnimation() {
-    // Single animation duration to match the widget animation
     clearAnimationTimer = Timer(const Duration(milliseconds: 350), () {
-      // Animation complete - actually remove the lines
       _completeClearAnimation();
     });
 
-    // Trigger immediate update to start the animation
     notifyListeners();
   }
 
@@ -337,10 +313,8 @@ class GameLogic extends ChangeNotifier {
     final bool wasTSpin = _pendingTSpin;
     _pendingTSpin = false;
 
-    // Remove the cleared lines from the board
     for (int row in clearingLines.reversed) {
       board.removeAt(row);
-      // Add empty line at the top
       board.insert(
         GameConstants.previewRows,
         List.generate(GameConstants.boardWidth, (index) => null),
@@ -369,7 +343,6 @@ class GameLogic extends ChangeNotifier {
       label = '';
     }
 
-    // Update game state
     linesCleared += clearedLinesCount;
     if (!practiceMode) {
       score += delta;
@@ -385,13 +358,11 @@ class GameLogic extends ChangeNotifier {
       );
     }
 
-    // Reset animation state
     clearingLines.clear();
     isAnimatingClear = false;
     clearAnimationTimer?.cancel();
     clearAnimationTimer = null;
 
-    // Restart game timer with new speed
     startGameTimer();
     notifyListeners();
 

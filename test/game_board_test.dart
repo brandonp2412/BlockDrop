@@ -40,7 +40,10 @@ void main() {
     fillBottomRow();
     gameLogic.clearLines();
     await tester.pump();
-    expect(find.byKey(const ValueKey('combo-clear-effects')), findsNothing);
+    expect(
+      find.bySemanticsLabel('2-line combo clear effect'),
+      findsNothing,
+    );
 
     await tester.pump(const Duration(milliseconds: 400));
     fillBottomRow();
@@ -48,10 +51,7 @@ void main() {
     await tester.pump();
 
     expect(gameLogic.lineClearStreak, 2);
-    expect(
-      find.byKey(const ValueKey('combo-clear-effects')),
-      findsOneWidget,
-    );
+    expect(find.bySemanticsLabel('2-line combo clear effect'), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpWidget(const SizedBox.shrink());

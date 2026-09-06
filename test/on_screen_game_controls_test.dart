@@ -21,16 +21,16 @@ void main() {
       ),
     );
 
-    for (final key in [
-      'move-left-control',
-      'move-right-control',
-      'soft-drop-control',
-      'rotate-left-control',
-      'rotate-right-control',
-      'hard-drop-control',
-      'hold-control',
+    for (final label in [
+      'Move left',
+      'Move right',
+      'Soft drop',
+      'Rotate left',
+      'Rotate right',
+      'Hard drop',
+      'Hold piece',
     ]) {
-      await tester.tap(find.byKey(Key(key)));
+      await tester.tap(find.bySemanticsLabel(label));
     }
 
     expect(actions, [
@@ -60,6 +60,6 @@ void main() {
       ),
     );
 
-    expect(find.byKey(const Key('hold-control')), findsNothing);
+    expect(find.bySemanticsLabel('Hold piece'), findsNothing);
   });
 }

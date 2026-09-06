@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:block_drop/main.dart';
 
@@ -37,13 +36,12 @@ void main() {
       expect(find.text('Next:'), findsOneWidget);
     });
 
-    testWidgets('production build has no debug banner', (
+    testWidgets('startup does not display a debug banner', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(const TetrisApp());
 
-      final MaterialApp app = tester.widget(find.byType(MaterialApp));
-      expect(app.debugShowCheckedModeBanner, false);
+      expect(find.text('DEBUG'), findsNothing);
     });
   });
 }

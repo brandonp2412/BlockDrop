@@ -18,7 +18,7 @@ void main() {
     await $('Resume').tap();
     await $.pumpAndSettle();
 
-    expect($(Icons.settings), findsWidgets);
+    expect($('Hold:'), findsOneWidget);
     expect($('Settings'), findsNothing);
   });
 }

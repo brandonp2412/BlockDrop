@@ -74,7 +74,12 @@ void main() {
       );
       expect(find.text('HOLD'), findsOneWidget);
       expect(find.text('NEXT'), findsOneWidget);
-      expect(tester.getSize(find.byType(GameBoard)).height, greaterThan(790));
+      expect(
+        tester
+            .getSize(find.byKey(const ValueKey('fullscreen-game-board')))
+            .height,
+        greaterThan(790),
+      );
     });
 
     testWidgets('on-screen soft drop respects the disabled gameplay rule', (
