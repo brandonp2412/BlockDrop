@@ -59,9 +59,8 @@ class GameConstants {
   static Color adaptPieceColor(Color color, Brightness brightness) {
     if (brightness == Brightness.light) {
       return _lightPieceColors[color] ?? color;
-    } else {
-      return _darkPieceColors[color] ?? color;
     }
+    return _darkPieceColors[color] ?? color;
   }
 
   static Color ghostBorderColor(Brightness brightness) =>
