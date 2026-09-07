@@ -32,9 +32,10 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    await tester.tap(find.byKey(const Key('settings-search-button')));
+    await tester.tap(find.byTooltip('Search settings'));
     await tester.pump();
-    await tester.enterText(find.byKey(const Key('settings-search')), 'music');
+    expect(find.text('Search settings'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'music');
     await tester.pump();
 
     expect(find.text('Music'), findsOneWidget);
@@ -52,12 +53,10 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    await tester.tap(find.byKey(const Key('settings-search-button')));
+    await tester.tap(find.byTooltip('Search settings'));
     await tester.pump();
-    await tester.enterText(
-      find.byKey(const Key('settings-search')),
-      'large board',
-    );
+    expect(find.text('Search settings'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'large board');
     await tester.pump();
 
     expect(find.text('Large Board'), findsOneWidget);
