@@ -13,15 +13,11 @@ ROOT="$(git rev-parse --show-toplevel)"
 HOOK_DST="$ROOT/.git/hooks/pre-push"
 HOOK_SRC="$ROOT/scripts/pre-push"
 
-# Ensure the shim is executable
 chmod +x "$HOOK_SRC"
-# Also make the bash implementation executable
 chmod +x "$ROOT/scripts/pre-push.sh"
 
-# Remove any existing hook
 rm -f "$HOOK_DST"
 
-# Create symlink (relative path so the repo can be moved)
 ln -sf "../../scripts/pre-push" "$HOOK_DST"
 
 echo "Symlink created:"
