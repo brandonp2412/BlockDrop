@@ -90,19 +90,18 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   bool _handleKeyEvent(KeyEvent event) {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
 
-    // Escape: open settings when none are open; otherwise let Navigator pop
     if (event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.escape) {
       if (!_gameOverModal && !_isSettingsOpen) {
         _openSettings();
         return true;
-      } else if (!_gameOverModal && _isSettingsOpen) {
+      }
+      if (!_gameOverModal && _isSettingsOpen) {
         Navigator.of(context).pop();
       }
       return false; // let Navigator handle closing the open screen
     }
 
-    // Q shows quit confirmation (only when at the game screen)
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyQ) {
       if (!_gameOverModal && !_isSettingsOpen) _showQuitConfirmation();
       return true;

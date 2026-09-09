@@ -102,8 +102,6 @@ class MultiplayerManager extends ChangeNotifier {
     return Random.secure().nextInt(_maxPieceSeed);
   }
 
-  // ── Discovery ────────────────────────────────────────────────────────────
-
   Future<void> startDiscovery() async {
     if (state != MultiplayerState.idle) return;
     state = MultiplayerState.discovering;

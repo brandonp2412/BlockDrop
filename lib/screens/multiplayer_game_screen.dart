@@ -839,8 +839,6 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     );
   }
 
-  // ── Countdown overlay ─────────────────────────────────────────────────────
-
   Widget _buildCountdownOverlay() {
     final cs = Theme.of(context).colorScheme;
     return Container(
@@ -869,8 +867,6 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       ),
     );
   }
-
-  // ── Result overlay ────────────────────────────────────────────────────────
 
   Widget _buildResultOverlay() {
     final cs = Theme.of(context).colorScheme;

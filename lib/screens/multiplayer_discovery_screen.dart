@@ -224,8 +224,6 @@ class _MultiplayerDiscoveryScreenState
     }
   }
 
-  // ── Discovering ───────────────────────────────────────────────────────────
-
   Widget _buildDiscovering(ColorScheme cs) {
     final localIp = _manager.localIp;
     final bcast = _manager.broadcastAddress;
@@ -255,7 +253,6 @@ class _MultiplayerDiscoveryScreenState
           ),
         ),
         const SizedBox(height: 6),
-        // ── Diagnostic row ───────────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: localIp == null
@@ -272,7 +269,6 @@ class _MultiplayerDiscoveryScreenState
                   ),
                 ),
         ),
-        // ── Windows Firewall hint ─────────────────────────────────────────
         if (Platform.isWindows) ...[
           const SizedBox(height: 4),
           Padding(
@@ -332,8 +328,6 @@ class _MultiplayerDiscoveryScreenState
     );
   }
 
-  // ── Inviting ──────────────────────────────────────────────────────────────
-
   Widget _buildInviting(ColorScheme cs) {
     return Center(
       child: Padding(
@@ -361,8 +355,6 @@ class _MultiplayerDiscoveryScreenState
       ),
     );
   }
-
-  // ── Lobby ─────────────────────────────────────────────────────────────────
 
   Widget _buildLobby(ColorScheme cs) {
     return Padding(

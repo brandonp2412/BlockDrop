@@ -538,7 +538,6 @@ void main() {
         }
       }
 
-      // Try to spawn a new piece
       gameLogic.spawnNewPiece();
 
       expect(gameLogic.isGameOver, true);
