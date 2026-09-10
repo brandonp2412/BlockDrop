@@ -442,6 +442,33 @@ void main() {
       expect(gameLogic.isAnimatingClear, true);
     });
 
+    test('line clear should not trigger a false game over before rows are removed', () async {
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      gameLogic.initializeBoard();
+
+      final clearRow = GameConstants.previewRows;
+      gameLogic.currentPiece = Tetromino.pieces[0];
+      gameLogic.currentX = 0;
+      gameLogic.currentY = clearRow;
+      for (int col = 4; col < GameConstants.boardWidth; col++) {
+        gameLogic.board[clearRow][col] = Colors.red;
+      }
+
+      gameLogic.placePiece();
+
+      expect(gameLogic.isAnimatingClear, true);
+      expect(gameLogic.isGameOver, false);
+
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+
+      expect(gameLogic.linesCleared, 1);
+      expect(gameLogic.isGameRunning, true);
+      expect(gameLogic.isGameOver, false);
+      expect(gameLogic.currentPiece, isNotNull);
+    });
+
     test('should update score correctly after single line clear', () async {
       gameLogic.startGame();
 

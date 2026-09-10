@@ -64,6 +64,7 @@ class GameLogic extends ChangeNotifier {
 
   bool _lastMoveWasRotation = false;
   bool _pendingTSpin = false;
+  bool _spawnAfterClear = false;
 
   List<int> clearingLines = [];
   bool isAnimatingClear = false;
@@ -129,6 +130,7 @@ class GameLogic extends ChangeNotifier {
     clearBonusLabel = '';
     _lastMoveWasRotation = false;
     _pendingTSpin = false;
+    _spawnAfterClear = false;
 
     pieceBag.reset();
     initializeBoard();
@@ -256,7 +258,11 @@ class GameLogic extends ChangeNotifier {
     _lastMoveWasRotation = false;
     clearLines();
     canHold = true; // Allow holding the next piece
-    spawnNewPiece();
+    if (isAnimatingClear) {
+      _spawnAfterClear = true;
+    } else {
+      spawnNewPiece();
+    }
   }
 
   void clearLines() {
@@ -363,7 +369,13 @@ class GameLogic extends ChangeNotifier {
     clearAnimationTimer?.cancel();
     clearAnimationTimer = null;
 
-    startGameTimer();
+    if (_spawnAfterClear) {
+      _spawnAfterClear = false;
+      spawnNewPiece();
+    }
+    if (isGameRunning && !isGameOver && !isPaused) {
+      startGameTimer();
+    }
     notifyListeners();
 
     // Multiplayer hook – only non-null when in a multiplayer game
@@ -433,8 +445,8 @@ class GameLogic extends ChangeNotifier {
   }
 
   void movePieceDown() {
-    // Prevent downward movement during grace period
-    if (isNewPieceGracePeriod) return;
+    // Prevent movement while a line clear is resolving or during spawn grace.
+    if (isAnimatingClear || isNewPieceGracePeriod) return;
 
     if (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
@@ -452,8 +464,8 @@ class GameLogic extends ChangeNotifier {
   }
 
   void movePieceLeft() {
-    // Prevent horizontal movement during slam
-    if (isSlamming) return;
+    // Prevent horizontal movement during slam or line-clear animation.
+    if (isSlamming || isAnimatingClear) return;
 
     if (canPlacePiece(currentX - 1, currentY, currentPiece!)) {
       currentX--;
@@ -465,8 +477,8 @@ class GameLogic extends ChangeNotifier {
   }
 
   void movePieceRight() {
-    // Prevent horizontal movement during slam
-    if (isSlamming) return;
+    // Prevent horizontal movement during slam or line-clear animation.
+    if (isSlamming || isAnimatingClear) return;
 
     if (canPlacePiece(currentX + 1, currentY, currentPiece!)) {
       currentX++;
@@ -482,7 +494,7 @@ class GameLogic extends ChangeNotifier {
   }
 
   void rotatePieceRight() {
-    if (currentPiece == null) return;
+    if (currentPiece == null || isAnimatingClear) return;
 
     Tetromino rotatedPiece = currentPiece!.rotateRight();
 
@@ -517,7 +529,7 @@ class GameLogic extends ChangeNotifier {
   }
 
   void rotatePieceLeft() {
-    if (currentPiece == null) return;
+    if (currentPiece == null || isAnimatingClear) return;
 
     Tetromino rotatedPiece = currentPiece!.rotateLeft();
 
@@ -552,7 +564,7 @@ class GameLogic extends ChangeNotifier {
   }
 
   void dropPiece() {
-    if (currentPiece == null) return;
+    if (currentPiece == null || isAnimatingClear) return;
 
     // Prevent hard drop during grace period
     if (isNewPieceGracePeriod) return;
@@ -723,7 +735,9 @@ class GameLogic extends ChangeNotifier {
   }
 
   void holdPiece() {
-    if (!enableHold || !canHold || currentPiece == null) return;
+    if (isAnimatingClear || !enableHold || !canHold || currentPiece == null) {
+      return;
+    }
 
     _cancelLockDelay();
     _lockDelayResetCount = 0;
