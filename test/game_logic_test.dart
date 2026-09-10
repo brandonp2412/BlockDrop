@@ -632,6 +632,47 @@ void main() {
       }
     });
 
+    test('garbage received during a line clear waits until it finishes', () async {
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.initializeBoard();
+      final bottomRow =
+          GameConstants.boardHeight + GameConstants.previewRows - 1;
+      for (int col = 0; col < GameConstants.boardWidth; col++) {
+        gameLogic.board[bottomRow][col] = Colors.red;
+      }
+
+      gameLogic.clearLines();
+      final boardDuringClear =
+          gameLogic.board.map((row) => List<Color?>.from(row)).toList();
+      gameLogic.receiveGarbage(1);
+
+      for (int row = 0; row < gameLogic.board.length; row++) {
+        expect(gameLogic.board[row], equals(boardDuringClear[row]));
+      }
+      expect(gameLogic.isGameOver, isFalse);
+
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+
+      expect(gameLogic.linesCleared, 1);
+      expect(gameLogic.isGameOver, isFalse);
+      expect(
+        gameLogic.board.last.where((cell) => cell != null).length,
+        GameConstants.boardWidth - 1,
+      );
+    });
+
+    test('oversized garbage attacks cannot corrupt the board', () {
+      gameLogic.startGame();
+      final totalRows = GameConstants.boardHeight + GameConstants.previewRows;
+
+      expect(
+        () => gameLogic.receiveGarbage(totalRows + 100),
+        returnsNormally,
+      );
+      expect(gameLogic.board.length, totalRows);
+    });
+
     test('should export board snapshot with correct dimensions', () {
       gameLogic.startGame();
 

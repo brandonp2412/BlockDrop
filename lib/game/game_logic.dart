@@ -65,6 +65,7 @@ class GameLogic extends ChangeNotifier {
   bool _lastMoveWasRotation = false;
   bool _pendingTSpin = false;
   bool _spawnAfterClear = false;
+  int _pendingGarbageLines = 0;
 
   List<int> clearingLines = [];
   bool isAnimatingClear = false;
@@ -131,6 +132,7 @@ class GameLogic extends ChangeNotifier {
     _lastMoveWasRotation = false;
     _pendingTSpin = false;
     _spawnAfterClear = false;
+    _pendingGarbageLines = 0;
 
     pieceBag.reset();
     initializeBoard();
@@ -372,6 +374,11 @@ class GameLogic extends ChangeNotifier {
     if (_spawnAfterClear) {
       _spawnAfterClear = false;
       spawnNewPiece();
+    }
+    if (_pendingGarbageLines > 0) {
+      final pendingGarbageLines = _pendingGarbageLines;
+      _pendingGarbageLines = 0;
+      if (!isGameOver) receiveGarbage(pendingGarbageLines);
     }
     if (isGameRunning && !isGameOver && !isPaused) {
       startGameTimer();
@@ -855,11 +862,19 @@ class GameLogic extends ChangeNotifier {
   /// This is only called when in a multiplayer game.
   void receiveGarbage(int lines) {
     if (isGameOver || lines <= 0) return;
+    final safeLines = min(lines, board.length);
+    if (isAnimatingClear) {
+      _pendingGarbageLines = min(
+        board.length,
+        _pendingGarbageLines + safeLines,
+      );
+      return;
+    }
 
     final gapColumn = Random().nextInt(GameConstants.boardWidth);
     const garbageColor = Color(0xFF607080); // grey-blue, distinct from pieces
 
-    for (int i = 0; i < lines; i++) {
+    for (int i = 0; i < safeLines; i++) {
       // Remove the topmost row (shifts the visible stack up by one)
       board.removeAt(0);
       // Append a new garbage row at the bottom
