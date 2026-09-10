@@ -29,9 +29,10 @@ class _MultiplayerDiscoveryScreenState
   void initState() {
     super.initState();
 
-    _manager = MultiplayerManager(playerName: _defaultPlayerName());
-    _manager.gameplaySettings = widget.settings.gameplay;
-    _manager.enableHold = widget.settings.gameplay.holdEnabled;
+    _manager = MultiplayerManager(
+      playerName: _defaultPlayerName(),
+      gameplaySettings: widget.settings.gameplay,
+    );
     _manager.onError = _showError;
     _manager.onInviteReceived = _showInviteDialog;
     _manager.addListener(_onManagerChanged);

@@ -44,6 +44,9 @@ class MultiplayerManager extends ChangeNotifier {
   /// Host-selected gameplay rules for the next match.
   GameplaySettings gameplaySettings = GameplaySettings.defaults;
 
+  /// This device's preferred rules, restored after a guest match finishes.
+  GameplaySettings _localGameplaySettings = GameplaySettings.defaults;
+
   /// Seed shared by both players when [gameMode] is shared pieces.
   int? sharedPieceSeed;
 
@@ -88,7 +91,14 @@ class MultiplayerManager extends ChangeNotifier {
   String? get localIp => _localIp;
   String? get broadcastAddress => _broadcastAddress;
 
-  MultiplayerManager({required this.playerName}) : playerId = _generateId();
+  MultiplayerManager({
+    required this.playerName,
+    GameplaySettings gameplaySettings = GameplaySettings.defaults,
+  }) : playerId = _generateId() {
+    this.gameplaySettings = gameplaySettings;
+    _localGameplaySettings = gameplaySettings;
+    enableHold = gameplaySettings.holdEnabled;
+  }
 
   static String _generateId() {
     final r = Random.secure();
@@ -607,7 +617,8 @@ class MultiplayerManager extends ChangeNotifier {
   void _resetGameConfig() {
     gameMode = MultiplayerGameMode.independent;
     sharedPieceSeed = null;
-    enableHold = gameplaySettings.holdEnabled;
+    gameplaySettings = _localGameplaySettings;
+    enableHold = _localGameplaySettings.holdEnabled;
   }
 
   @override
