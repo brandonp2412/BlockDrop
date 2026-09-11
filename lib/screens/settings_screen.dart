@@ -339,6 +339,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         colorScheme: colorScheme,
                         style: widget.settings.style,
                         child: Switch(
+                          key: const Key('settingsMusicSwitch'),
                           value: widget.settings.musicEnabled,
                           onChanged: (value) =>
                               widget.settings.setMusicEnabled(value),
