@@ -442,7 +442,9 @@ void main() {
       expect(gameLogic.isAnimatingClear, true);
     });
 
-    test('line clear should not trigger a false game over before rows are removed', () async {
+    test(
+        'line clear should not trigger a false game over before rows are removed',
+        () async {
       gameLogic.startGame();
       gameLogic.gameTimer?.cancel();
       gameLogic.isNewPieceGracePeriod = false;
@@ -632,7 +634,8 @@ void main() {
       }
     });
 
-    test('garbage received during a line clear waits until it finishes', () async {
+    test('garbage received during a line clear waits until it finishes',
+        () async {
       gameLogic.startGame();
       gameLogic.gameTimer?.cancel();
       gameLogic.initializeBoard();
