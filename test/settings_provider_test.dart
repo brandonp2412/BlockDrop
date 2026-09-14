@@ -23,6 +23,8 @@ void main() {
       expect(settings.enableHold, true);
       expect(settings.showOnScreenControls, false);
       expect(settings.fullscreenBoard, false);
+      expect(settings.continueGameEnabled, true);
+      expect(settings.gameplay.swipeUpHoldEnabled, false);
     });
 
     test('updateHighScore only updates when the new score is higher', () async {
@@ -153,6 +155,28 @@ void main() {
       expect(reloadedSettings.fullscreenBoard, true);
     });
 
+    test('persists and clears a resumable game snapshot', () async {
+      final settings = SettingsProvider();
+      final snapshot = <String, Object?>{
+        'version': 1,
+        'score': 321,
+      };
+
+      await settings.saveGameSnapshot(snapshot);
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.savedGameSnapshot?['score'], 321);
+
+      await reloaded.setContinueGameEnabled(false);
+      expect(reloaded.continueGameEnabled, false);
+      expect(reloaded.savedGameSnapshot, isNull);
+
+      final afterDisable = SettingsProvider();
+      await afterDisable.load();
+      expect(afterDisable.continueGameEnabled, false);
+      expect(afterDisable.savedGameSnapshot, isNull);
+    });
+
     test('persists and loads all gameplay settings', () async {
       final settings = SettingsProvider();
       const rules = GameplaySettings(
@@ -162,6 +186,7 @@ void main() {
         linesPerLevel: 7,
         softDropEnabled: false,
         holdEnabled: false,
+        swipeUpHoldEnabled: true,
         holdInteractionMode: HoldInteractionMode.panelOnly,
       );
 
@@ -175,6 +200,7 @@ void main() {
       expect(reloaded.gameplay.linesPerLevel, 7);
       expect(reloaded.gameplay.softDropEnabled, false);
       expect(reloaded.enableHold, false);
+      expect(reloaded.gameplay.swipeUpHoldEnabled, true);
       expect(
         reloaded.gameplay.holdInteractionMode,
         HoldInteractionMode.panelOnly,

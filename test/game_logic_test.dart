@@ -261,6 +261,85 @@ void main() {
       expect(gameLogic.currentY, GameConstants.previewRows);
     });
 
+    test('horizontal movement just before lock expiry resets the lock delay',
+        () async {
+      gameLogic.dispose();
+      gameLogic = GameLogic(lockDelay: const Duration(milliseconds: 100));
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      gameLogic.currentPiece = Tetromino.pieces[1];
+      gameLogic.currentX = 3;
+      gameLogic.currentY = GameConstants.boardHeight +
+          GameConstants.previewRows -
+          gameLogic.currentPiece!.shape.length;
+
+      gameLogic.movePieceDown();
+      await Future<void>.delayed(const Duration(milliseconds: 85));
+      gameLogic.movePieceRight();
+      final movedX = gameLogic.currentX;
+      await Future<void>.delayed(const Duration(milliseconds: 35));
+
+      expect(gameLogic.currentX, movedX);
+      expect(
+        gameLogic.currentY,
+        GameConstants.boardHeight +
+            GameConstants.previewRows -
+            gameLogic.currentPiece!.shape.length,
+        reason: 'A valid late slide must keep the grounded piece controllable',
+      );
+
+      await Future<void>.delayed(const Duration(milliseconds: 85));
+      expect(gameLogic.currentY, GameConstants.previewRows);
+    });
+
+    test('saved snapshot restores an in-progress solo game', () {
+      gameLogic.startGame();
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      gameLogic.movePieceRight();
+      gameLogic.score = 1234;
+      gameLogic.linesCleared = 7;
+      gameLogic.level = 3;
+      gameLogic.lineClearStreak = 2;
+      gameLogic.heldPiece = Tetromino.pieces[4];
+      gameLogic.canHold = false;
+      gameLogic.board.last[0] = Colors.blue;
+
+      final expectedX = gameLogic.currentX;
+      final expectedY = gameLogic.currentY;
+      final expectedPiece = gameLogic.currentPiece!;
+      final snapshot = gameLogic.createSnapshot();
+
+      gameLogic.startGame();
+      expect(gameLogic.restoreSnapshot(snapshot), true);
+
+      expect(gameLogic.score, 1234);
+      expect(gameLogic.linesCleared, 7);
+      expect(gameLogic.level, 3);
+      expect(gameLogic.lineClearStreak, 2);
+      expect(gameLogic.currentX, expectedX);
+      expect(gameLogic.currentY, expectedY);
+      expect(gameLogic.currentPiece!.shape, expectedPiece.shape);
+      expect(
+        gameLogic.currentPiece!.color.toARGB32(),
+        expectedPiece.color.toARGB32(),
+      );
+      expect(gameLogic.heldPiece!.color.toARGB32(), Colors.red.toARGB32());
+      expect(gameLogic.canHold, false);
+      expect(
+        gameLogic.board.last[0]!.toARGB32(),
+        Colors.blue.toARGB32(),
+      );
+      expect(gameLogic.isGameRunning, true);
+      expect(gameLogic.isGameOver, false);
+    });
+
+    test('rejects malformed saved snapshots', () {
+      expect(gameLogic.restoreSnapshot({'version': 1, 'board': []}), false);
+      expect(gameLogic.isGameRunning, false);
+    });
+
     test('should not move piece beyond boundaries', () {
       gameLogic.startGame();
 

@@ -94,6 +94,153 @@ class GameLogic extends ChangeNotifier {
     );
   }
 
+  /// Whether the current solo state can be safely persisted and restored.
+  bool get canSaveSnapshot =>
+      isGameRunning &&
+      !isGameOver &&
+      !practiceMode &&
+      !isAnimatingClear &&
+      !isSlamming &&
+      currentPiece != null;
+
+  /// Encodes the stable portion of a solo game as JSON-compatible values.
+  Map<String, Object?> createSnapshot() {
+    if (!canSaveSnapshot) {
+      throw StateError('Current game state cannot be saved');
+    }
+    return {
+      'version': 1,
+      'board': board
+          .map((row) => row.map((cell) => cell?.toARGB32()).toList())
+          .toList(),
+      'current_piece': _pieceToSnapshot(currentPiece),
+      'next_piece': _pieceToSnapshot(nextPiece),
+      'held_piece': _pieceToSnapshot(heldPiece),
+      'current_x': currentX,
+      'current_y': currentY,
+      'score': score,
+      'level': level,
+      'lines_cleared': linesCleared,
+      'line_clear_streak': lineClearStreak,
+      'drop_speed': dropSpeed,
+      'can_hold': canHold,
+    };
+  }
+
+  Map<String, Object?>? _pieceToSnapshot(Tetromino? piece) => piece == null
+      ? null
+      : {
+          'shape': piece.shape,
+          'color': piece.color.toARGB32(),
+        };
+
+  Tetromino? _pieceFromSnapshot(Object? value) {
+    if (value == null) return null;
+    if (value is! Map) throw const FormatException('Invalid piece');
+    final rawShape = value['shape'];
+    final rawColor = value['color'];
+    if (rawShape is! List || rawColor is! num) {
+      throw const FormatException('Invalid piece');
+    }
+    final shape = rawShape.map((row) {
+      if (row is! List) throw const FormatException('Invalid piece shape');
+      return row.map((cell) {
+        if (cell is! num || (cell != 0 && cell != 1)) {
+          throw const FormatException('Invalid piece cell');
+        }
+        return cell.toInt();
+      }).toList();
+    }).toList();
+    if (shape.isEmpty || shape.any((row) => row.isEmpty)) {
+      throw const FormatException('Invalid piece shape');
+    }
+    return Tetromino(shape: shape, color: Color(rawColor.toInt()));
+  }
+
+  int _snapshotInt(Map<String, dynamic> snapshot, String key) {
+    final value = snapshot[key];
+    if (value is! num) throw FormatException('Invalid $key');
+    return value.toInt();
+  }
+
+  /// Restores a previously saved solo game. Invalid snapshots are rejected.
+  bool restoreSnapshot(Map<String, dynamic> snapshot) {
+    try {
+      if (snapshot['version'] != 1) return false;
+      final rawBoard = snapshot['board'];
+      if (rawBoard is! List ||
+          rawBoard.length !=
+              GameConstants.boardHeight + GameConstants.previewRows) {
+        return false;
+      }
+      final restoredBoard = rawBoard.map((rawRow) {
+        if (rawRow is! List || rawRow.length != GameConstants.boardWidth) {
+          throw const FormatException('Invalid board row');
+        }
+        return rawRow.map<Color?>((cell) {
+          if (cell == null) return null;
+          if (cell is! num) throw const FormatException('Invalid board cell');
+          return Color(cell.toInt());
+        }).toList();
+      }).toList();
+
+      final restoredCurrent = _pieceFromSnapshot(snapshot['current_piece']);
+      final restoredNext = _pieceFromSnapshot(snapshot['next_piece']);
+      final restoredHeld = _pieceFromSnapshot(snapshot['held_piece']);
+      if (restoredCurrent == null || restoredNext == null) return false;
+
+      gameTimer?.cancel();
+      clearAnimationTimer?.cancel();
+      trailAnimationTimer?.cancel();
+      gracePeriodTimer?.cancel();
+      _cancelLockDelay();
+
+      board = restoredBoard;
+      currentPiece = restoredCurrent;
+      nextPiece = restoredNext;
+      heldPiece = restoredHeld;
+      currentX = _snapshotInt(snapshot, 'current_x');
+      currentY = _snapshotInt(snapshot, 'current_y');
+      score = _snapshotInt(snapshot, 'score').clamp(0, 1 << 31);
+      level = _snapshotInt(snapshot, 'level').clamp(1, 1000000);
+      linesCleared = _snapshotInt(snapshot, 'lines_cleared').clamp(0, 1 << 31);
+      lineClearStreak =
+          _snapshotInt(snapshot, 'line_clear_streak').clamp(0, 1 << 20);
+      dropSpeed = _snapshotInt(snapshot, 'drop_speed').clamp(
+        GameConstants.minDropSpeed,
+        10000,
+      );
+      canHold =
+          snapshot['can_hold'] is bool ? snapshot['can_hold']! as bool : true;
+
+      practiceMode = false;
+      isGameRunning = true;
+      isGameOver = false;
+      isPaused = false;
+      isSlamming = false;
+      isAnimatingClear = false;
+      isAnimatingTrail = false;
+      clearingLines = [];
+      trailBlocks = [];
+      _spawnAfterClear = false;
+      _pendingGarbageLines = 0;
+      _pendingTSpin = false;
+      _lastMoveWasRotation = false;
+      _lockDelayResetCount = 0;
+      pieceBag.reset();
+
+      if (!canPlacePiece(currentX, currentY, currentPiece!)) return false;
+      _startNewPieceGracePeriod();
+      startGameTimer();
+      notifyListeners();
+      return true;
+    } on FormatException {
+      return false;
+    } on RangeError {
+      return false;
+    }
+  }
+
   void startGame({int? practiceLevel}) {
     gameTimer?.cancel();
     gameTimer = null;

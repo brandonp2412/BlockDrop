@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:block_drop/main.dart';
 import 'package:block_drop/widgets/game_board.dart';
@@ -143,6 +145,125 @@ void main() {
       expect(find.textContaining('Score:'), findsOneWidget);
       expect(find.text('Hold:'), findsOneWidget);
       expect(find.text('Next:'), findsOneWidget);
+    });
+
+    testWidgets('optional upward swipe holds the active piece', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = SettingsProvider();
+      await settings.setGameplaySettings(
+        settings.gameplay.copyWith(swipeUpHoldEnabled: true),
+      );
+      addTearDown(() => SharedPreferences.setMockInitialValues({}));
+
+      await tester.pumpWidget(
+        MaterialApp(home: TetrisGameScreen(settings: settings)),
+      );
+      await tester.pump();
+
+      final gameLogic =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+      expect(gameLogic.heldPiece, isNull);
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(GameBoard)),
+      );
+      for (int i = 0; i < 3; i++) {
+        await gesture.moveBy(const Offset(0, -25));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await gesture.up();
+      await tester.pump();
+
+      expect(gameLogic.heldPiece, isNotNull);
+      expect(gameLogic.canHold, isFalse);
+    });
+
+    testWidgets('Android TV D-pad up holds when swipe-up hold is enabled', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      addTearDown(() => SharedPreferences.setMockInitialValues({}));
+      final settings = SettingsProvider();
+      await settings.setGameplaySettings(
+        settings.gameplay.copyWith(swipeUpHoldEnabled: true),
+      );
+
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        await tester.pumpWidget(
+          MaterialApp(home: TetrisGameScreen(settings: settings)),
+        );
+        await tester.pump();
+        final gameLogic =
+            tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pump();
+
+        expect(gameLogic.heldPiece, isNotNull);
+        expect(gameLogic.canHold, isFalse);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('saved solo game is restored by a fresh game screen', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      addTearDown(() => SharedPreferences.setMockInitialValues({}));
+      final settings = SettingsProvider();
+
+      await tester.pumpWidget(
+        MaterialApp(home: TetrisGameScreen(settings: settings)),
+      );
+      await tester.pump();
+      final firstGame =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+      firstGame.gameTimer?.cancel();
+      firstGame.score = 777;
+      firstGame.linesCleared = 6;
+      await settings.saveGameSnapshot(firstGame.createSnapshot());
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+
+      final reloadedSettings = SettingsProvider();
+      await reloadedSettings.load();
+      await tester.pumpWidget(
+        MaterialApp(home: TetrisGameScreen(settings: reloadedSettings)),
+      );
+      await tester.pump();
+      final restoredGame =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+
+      expect(restoredGame.score, 777);
+      expect(restoredGame.linesCleared, 6);
+      expect(restoredGame.isGameRunning, isTrue);
+    });
+
+    testWidgets('short horizontal flick still moves one column', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const TetrisApp());
+      await tester.pump(const Duration(milliseconds: 250));
+
+      final gameLogic =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+      gameLogic.gameTimer?.cancel();
+      gameLogic.isNewPieceGracePeriod = false;
+      final startingX = gameLogic.currentX;
+
+      await tester.fling(
+        find.byType(GameBoard),
+        const Offset(20, 0),
+        1000,
+      );
+      await tester.pump();
+
+      expect(gameLogic.currentX, startingX + 1);
     });
 
     testWidgets('hold preview availability resets after the piece locks', (

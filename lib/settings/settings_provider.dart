@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,12 +22,15 @@ class SettingsProvider extends ChangeNotifier {
   static const _enableHoldKey = 'enable_hold';
   static const _showOnScreenControlsKey = 'show_on_screen_controls';
   static const _fullscreenBoardKey = 'fullscreen_board';
+  static const _continueGameKey = 'continue_game';
+  static const _savedGameKey = 'saved_game';
   static const _gameplayKeys = <String>{
     'initial_drop_speed',
     'speed_increment',
     'maximum_level',
     'lines_per_level',
     'soft_drop_enabled',
+    'swipe_up_hold_enabled',
     'hold_interaction_mode',
   };
   static const _controllerBindingsKey = 'controller_bindings';
@@ -40,6 +45,8 @@ class SettingsProvider extends ChangeNotifier {
   bool _enableHold = true;
   bool _showOnScreenControls = false;
   bool _fullscreenBoard = false;
+  bool _continueGameEnabled = true;
+  String? _savedGameJson;
   GameplaySettings _gameplay = GameplaySettings.defaults;
   Map<GameplayAction, LogicalKeyboardKey> _controllerBindings = Map.of(
     defaultControllerBindings,
@@ -54,6 +61,19 @@ class SettingsProvider extends ChangeNotifier {
   bool get showOpponentBoard => _showOpponentBoard;
   bool get enableHold => _enableHold;
   bool get showOnScreenControls => _showOnScreenControls;
+  bool get continueGameEnabled => _continueGameEnabled;
+
+  /// Most recently persisted solo game, if it is valid JSON.
+  Map<String, dynamic>? get savedGameSnapshot {
+    final encoded = _savedGameJson;
+    if (encoded == null) return null;
+    try {
+      final decoded = jsonDecode(encoded);
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } on FormatException {
+      return null;
+    }
+  }
 
   /// Whether single-player uses the large board with overlaid game controls.
   bool get fullscreenBoard => _fullscreenBoard;
@@ -102,6 +122,9 @@ class SettingsProvider extends ChangeNotifier {
     _enableHold = prefs.getBool(_enableHoldKey) ?? true;
     _showOnScreenControls = prefs.getBool(_showOnScreenControlsKey) ?? false;
     _fullscreenBoard = prefs.getBool(_fullscreenBoardKey) ?? false;
+    _continueGameEnabled = prefs.getBool(_continueGameKey) ?? true;
+    _savedGameJson =
+        _continueGameEnabled ? prefs.getString(_savedGameKey) : null;
     _gameplay = GameplaySettings.fromMap({
       for (final key in _gameplayKeys) key: prefs.get(key),
       'hold_enabled': _enableHold,
@@ -222,6 +245,34 @@ class SettingsProvider extends ChangeNotifier {
     await prefs.setBool(_showOnScreenControlsKey, value);
   }
 
+  /// Controls whether a solo game is persisted and restored across app restarts.
+  Future<void> setContinueGameEnabled(bool value) async {
+    _continueGameEnabled = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_continueGameKey, value);
+    if (!value) {
+      _savedGameJson = null;
+      await prefs.remove(_savedGameKey);
+    }
+    notifyListeners();
+  }
+
+  /// Persists a resumable solo-game snapshot when continuation is enabled.
+  Future<void> saveGameSnapshot(Map<String, Object?> snapshot) async {
+    if (!_continueGameEnabled) return;
+    final encoded = jsonEncode(snapshot);
+    _savedGameJson = encoded;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_savedGameKey, encoded);
+  }
+
+  /// Removes any previously saved solo game.
+  Future<void> clearSavedGame() async {
+    _savedGameJson = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_savedGameKey);
+  }
+
   /// Enables the large board layout for single-player games.
   Future<void> setFullscreenBoard(bool value) async {
     _fullscreenBoard = value;
@@ -243,6 +294,7 @@ class SettingsProvider extends ChangeNotifier {
       prefs.setInt('lines_per_level', value.linesPerLevel),
       prefs.setBool('soft_drop_enabled', value.softDropEnabled),
       prefs.setBool(_enableHoldKey, value.holdEnabled),
+      prefs.setBool('swipe_up_hold_enabled', value.swipeUpHoldEnabled),
       prefs.setString(
         'hold_interaction_mode',
         value.holdInteractionMode.wireName,

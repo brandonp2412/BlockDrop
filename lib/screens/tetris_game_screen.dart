@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -44,6 +45,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   bool _isSettingsOpen = false;
   bool _pendingPractice = false;
   int _practiceLevel = 1;
+  Timer? _saveGameTimer;
 
   // Gesture tracking constants - made more sensitive for better horizontal movement
   static const double _moveThreshold =
@@ -80,7 +82,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     gameLogic = GameLogic(gameplaySettings: widget.settings.gameplay);
     gameLogic.audioService = _audioService;
     gameLogic.addListener(_onGameStateChanged);
-    gameLogic.startGame();
+    final savedGame = widget.settings.continueGameEnabled
+        ? widget.settings.savedGameSnapshot
+        : null;
+    if (savedGame == null || !gameLogic.restoreSnapshot(savedGame)) {
+      if (savedGame != null) widget.settings.clearSavedGame();
+      gameLogic.startGame();
+    }
 
     WidgetsBinding.instance.addObserver(this);
     widget.settings.addListener(_onSettingsChanged);
@@ -111,6 +119,15 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         gameLogic.isGameOver ||
         gameLogic.isPaused) {
       return false;
+    }
+
+    if (event is KeyDownEvent &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        event.logicalKey == LogicalKeyboardKey.arrowUp &&
+        widget.settings.enableHold &&
+        widget.settings.gameplay.swipeUpHoldEnabled) {
+      gameLogic.holdPiece();
+      return true;
     }
 
     if (event.deviceType != ui.KeyEventDeviceType.keyboard) {
@@ -208,6 +225,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     _audioService.sfxEnabled = widget.settings.sfxEnabled;
     gameLogic.enableHold = widget.settings.enableHold;
     gameLogic.gameplaySettings = widget.settings.gameplay;
+    if (widget.settings.continueGameEnabled) {
+      _scheduleGameSave();
+    } else {
+      widget.settings.clearSavedGame();
+    }
     if (widget.settings.musicEnabled) {
       _audioService.resumeMusic();
     } else {
@@ -261,7 +283,29 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     }
   }
 
+  void _scheduleGameSave() {
+    _saveGameTimer?.cancel();
+    if (!widget.settings.continueGameEnabled) return;
+    if (gameLogic.isGameOver) {
+      widget.settings.clearSavedGame();
+      return;
+    }
+    if (!gameLogic.canSaveSnapshot) return;
+    _saveGameTimer = Timer(
+      const Duration(milliseconds: 250),
+      _persistGameNow,
+    );
+  }
+
+  Future<void> _persistGameNow() async {
+    if (!widget.settings.continueGameEnabled || !gameLogic.canSaveSnapshot) {
+      return;
+    }
+    await widget.settings.saveGameSnapshot(gameLogic.createSnapshot());
+  }
+
   void _onGameStateChanged() {
+    _scheduleGameSave();
     // Consume score popup event before setState
     if (gameLogic.clearBonusLabel.isNotEmpty) {
       _popupLabel = gameLogic.clearBonusLabel;
@@ -350,6 +394,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
     if (confirmed == true && mounted) {
       setState(() => _practiceLevel = selectedLevel);
+      widget.settings.clearSavedGame();
       gameLogic.startGame(practiceLevel: selectedLevel);
       if (widget.settings.musicEnabled) _audioService.startMusic();
     }
@@ -428,6 +473,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
   @override
   void dispose() {
+    _saveGameTimer?.cancel();
+    if (widget.settings.continueGameEnabled && gameLogic.canSaveSnapshot) {
+      widget.settings.saveGameSnapshot(gameLogic.createSnapshot());
+    }
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     _popupController.dispose();
     widget.settings.removeListener(_onSettingsChanged);
@@ -445,8 +494,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
+        _persistGameNow();
         _audioService.pauseMusic();
       case AppLifecycleState.detached:
+        _persistGameNow();
         // App is going to background or being minimized - pause the game
         if (gameLogic.isGameRunning &&
             !gameLogic.isGameOver &&
@@ -466,6 +517,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         }
         break;
       case AppLifecycleState.hidden:
+        _persistGameNow();
         // App is hidden but still running - pause the game
         if (gameLogic.isGameRunning &&
             !gameLogic.isGameOver &&

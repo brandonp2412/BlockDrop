@@ -22,6 +22,7 @@ void main() {
           'lines_per_level': 10,
           'soft_drop_enabled': true,
           'hold_enabled': false,
+          'swipe_up_hold_enabled': false,
           'hold_interaction_mode': 'panel_and_back',
         },
       });
@@ -35,6 +36,7 @@ void main() {
         linesPerLevel: 6,
         softDropEnabled: false,
         holdEnabled: true,
+        swipeUpHoldEnabled: true,
         holdInteractionMode: HoldInteractionMode.panelOnly,
       );
       const sent = MultiplayerGameConfig.independent(
@@ -50,6 +52,7 @@ void main() {
       expect(received.gameplaySettings.maximumLevel, 0);
       expect(received.gameplaySettings.linesPerLevel, 6);
       expect(received.gameplaySettings.softDropEnabled, false);
+      expect(received.gameplaySettings.swipeUpHoldEnabled, true);
       expect(
         received.gameplaySettings.holdInteractionMode,
         HoldInteractionMode.panelOnly,
