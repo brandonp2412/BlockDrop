@@ -14,16 +14,25 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    await tester.tap(find.byKey(const ValueKey('settings-search-button')));
+    await tester.pump();
+
     for (final label in [
       'Starting Speed',
       'Speed per Level',
       'Maximum Level',
       'Lines per Level',
       'Enable Soft Drop',
+      'Swipe Up to Hold',
+      'Continue Saved Game',
       'Back Gesture Holds',
     ]) {
-      await tester.scrollUntilVisible(find.text(label), 120);
-      expect(find.text(label), findsOneWidget);
+      await tester.enterText(
+        find.byKey(const ValueKey('settings-search')),
+        label,
+      );
+      await tester.pump();
+      expect(find.text(label), findsNWidgets(2));
     }
   });
 

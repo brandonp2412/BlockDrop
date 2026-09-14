@@ -30,6 +30,7 @@ class _SwipeDetectorState extends State<SwipeDetector> {
   bool _lockedHorizontal = false;
   double _pointerDownX = 0.0;
   double _consumedDx = 0.0;
+  int _horizontalMovesThisGesture = 0;
   static const Duration _moveDelay = Duration(milliseconds: 150);
   static const double _lockThreshold = 10.0;
 
@@ -44,6 +45,7 @@ class _SwipeDetectorState extends State<SwipeDetector> {
         _totalDx = 0.0;
         _totalDy = 0.0;
         _consumedDx = 0.0;
+        _horizontalMovesThisGesture = 0;
         _directionLocked = false;
         _lockedHorizontal = false;
         _lastMoveTime = DateTime.now();
@@ -79,6 +81,7 @@ class _SwipeDetectorState extends State<SwipeDetector> {
             } else {
               widget.gameLogic.movePieceLeft();
             }
+            _horizontalMovesThisGesture++;
             _totalDx +=
                 movingRight ? -widget.moveThreshold : widget.moveThreshold;
             _consumedDx +=
@@ -108,10 +111,36 @@ class _SwipeDetectorState extends State<SwipeDetector> {
           return;
         }
 
-        if (widget.gameLogic.gameplaySettings.softDropEnabled &&
-            details.velocity.pixelsPerSecond.dy > widget.fastSwipeVelocity &&
-            details.velocity.pixelsPerSecond.dy >
-                details.velocity.pixelsPerSecond.dx.abs() * 2 &&
+        final velocity = details.velocity.pixelsPerSecond;
+        final upwardHold =
+            widget.gameLogic.gameplaySettings.swipeUpHoldEnabled &&
+                widget.gameLogic.enableHold &&
+                widget.gameLogic.canHold &&
+                !_lockedHorizontal &&
+                (_totalDy <= -widget.moveThreshold * 1.5 ||
+                    (velocity.dy < -widget.fastSwipeVelocity * 0.5 &&
+                        velocity.dy.abs() > velocity.dx.abs() * 1.5));
+
+        if (upwardHold) {
+          widget.gameLogic.holdPiece();
+        } else if (_lockedHorizontal && _horizontalMovesThisGesture == 0) {
+          // A short, fast flick can end between pointer samples before it reaches
+          // a full column threshold. Honour one final horizontal move so pieces
+          // remain responsive right up to the end of their lock delay.
+          final lateHorizontalFlick =
+              _totalDx.abs() >= widget.moveThreshold * 0.55 ||
+                  (velocity.dx.abs() >= widget.fastSwipeVelocity * 0.35 &&
+                      velocity.dx.abs() > velocity.dy.abs() * 1.5);
+          if (lateHorizontalFlick) {
+            if (_totalDx > 0 || (_totalDx == 0 && velocity.dx > 0)) {
+              widget.gameLogic.movePieceRight();
+            } else {
+              widget.gameLogic.movePieceLeft();
+            }
+          }
+        } else if (widget.gameLogic.gameplaySettings.softDropEnabled &&
+            velocity.dy > widget.fastSwipeVelocity &&
+            velocity.dy > velocity.dx.abs() * 2 &&
             !widget.gameLogic.isNewPieceGracePeriod) {
           widget.gameLogic.dropPiece();
         }
@@ -119,6 +148,7 @@ class _SwipeDetectorState extends State<SwipeDetector> {
         _totalDx = 0.0;
         _totalDy = 0.0;
         _consumedDx = 0.0;
+        _horizontalMovesThisGesture = 0;
         _directionLocked = false;
         _lockedHorizontal = false;
       },

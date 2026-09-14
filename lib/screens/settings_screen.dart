@@ -179,6 +179,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final showGameplay = _sectionMatches('Gameplay', [
       'Ghost Tile',
       'Enable Hold Piece',
+      'Swipe Up to Hold',
+      'Continue Saved Game',
       'On-Screen Controls',
       'Large Board',
       'Starting Speed',
@@ -264,7 +266,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding: const EdgeInsets.only(top: 8, bottom: 48),
                   // Large scrollCacheExtent ensures all children are laid out off-screen so
                   // Android TV D-pad focus traversal can reach items below the viewport.
-                  scrollCacheExtent: const ScrollCacheExtent.pixels(3000),
+                  scrollCacheExtent: const ScrollCacheExtent.pixels(5000),
                   children: [
                     if ((widget.onRestart != null || widget.onQuit != null) &&
                         showGame) ...[
@@ -384,6 +386,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           value: widget.settings.enableHold,
                           onChanged: (value) =>
                               widget.settings.setEnableHold(value),
+                        ),
+                      ),
+                    if (widget.settings.enableHold &&
+                        _matchesSearch(
+                          'Swipe Up to Hold',
+                          section: 'Gameplay',
+                        ))
+                      _SettingTile(
+                        label: 'Swipe Up to Hold',
+                        colorScheme: colorScheme,
+                        style: widget.settings.style,
+                        child: Switch(
+                          key: const Key('settingsSwipeUpHoldSwitch'),
+                          value: widget.settings.gameplay.swipeUpHoldEnabled,
+                          onChanged: (value) =>
+                              widget.settings.setGameplaySettings(
+                            widget.settings.gameplay.copyWith(
+                              swipeUpHoldEnabled: value,
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (_matchesSearch(
+                      'Continue Saved Game',
+                      section: 'Gameplay',
+                    ))
+                      _SettingTile(
+                        label: 'Continue Saved Game',
+                        colorScheme: colorScheme,
+                        style: widget.settings.style,
+                        child: Switch(
+                          key: const Key('settingsContinueGameSwitch'),
+                          value: widget.settings.continueGameEnabled,
+                          onChanged: widget.settings.setContinueGameEnabled,
                         ),
                       ),
                     if (_matchesSearch(

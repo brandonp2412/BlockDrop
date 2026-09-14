@@ -44,6 +44,9 @@ class GameplaySettings {
   /// Whether pieces can be stored and swapped.
   final bool holdEnabled;
 
+  /// Whether an upward playfield swipe (and Android TV D-pad up) invokes hold.
+  final bool swipeUpHoldEnabled;
+
   /// Surfaces that invoke hold when [holdEnabled] is true.
   final HoldInteractionMode holdInteractionMode;
 
@@ -54,6 +57,7 @@ class GameplaySettings {
     this.linesPerLevel = GameConstants.linesPerLevel,
     this.softDropEnabled = true,
     this.holdEnabled = true,
+    this.swipeUpHoldEnabled = false,
     this.holdInteractionMode = HoldInteractionMode.panelAndBackGesture,
   });
 
@@ -95,6 +99,7 @@ class GameplaySettings {
       linesPerLevel: integer('lines_per_level', 10, 1, 50),
       softDropEnabled: boolean('soft_drop_enabled', true),
       holdEnabled: holdEnabled,
+      swipeUpHoldEnabled: boolean('swipe_up_hold_enabled', false),
       holdInteractionMode: HoldInteractionMode.fromWireName(
         values['hold_interaction_mode'],
       ),
@@ -109,6 +114,7 @@ class GameplaySettings {
         'lines_per_level': linesPerLevel,
         'soft_drop_enabled': softDropEnabled,
         'hold_enabled': holdEnabled,
+        'swipe_up_hold_enabled': swipeUpHoldEnabled,
         'hold_interaction_mode': holdInteractionMode.wireName,
       };
 
@@ -120,6 +126,7 @@ class GameplaySettings {
     int? linesPerLevel,
     bool? softDropEnabled,
     bool? holdEnabled,
+    bool? swipeUpHoldEnabled,
     HoldInteractionMode? holdInteractionMode,
   }) =>
       GameplaySettings(
@@ -129,6 +136,7 @@ class GameplaySettings {
         linesPerLevel: linesPerLevel ?? this.linesPerLevel,
         softDropEnabled: softDropEnabled ?? this.softDropEnabled,
         holdEnabled: holdEnabled ?? this.holdEnabled,
+        swipeUpHoldEnabled: swipeUpHoldEnabled ?? this.swipeUpHoldEnabled,
         holdInteractionMode: holdInteractionMode ?? this.holdInteractionMode,
       );
 }
