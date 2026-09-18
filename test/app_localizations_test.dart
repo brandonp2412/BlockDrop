@@ -14,7 +14,7 @@ void main() {
     expect(appTranslations.keys.toSet(), supportedLanguages);
 
     final referenceKeys = appTranslations['de']!.keys.toSet();
-    expect(referenceKeys, hasLength(188));
+    expect(referenceKeys, hasLength(190));
 
     for (final entry in appTranslations.entries) {
       expect(
@@ -41,6 +41,21 @@ void main() {
         containsAll(labels),
         reason: '${locale.key} must translate every dynamic user-facing label',
       );
+    }
+  });
+
+  test('keyboard instruction labels do not fall back to English', () {
+    const labels = <String>{'Space', '↑ or Z / X'};
+
+    for (final locale in appTranslations.entries) {
+      for (final label in labels) {
+        expect(locale.value, contains(label));
+        expect(
+          locale.value[label],
+          isNot(label),
+          reason: '${locale.key} must translate "$label"',
+        );
+      }
     }
   });
 
