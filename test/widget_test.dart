@@ -1,8 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:block_drop/main.dart';
+import 'package:block_drop/settings/settings_provider.dart';
 
 void main() {
   group('Block Drop App', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
     testWidgets('shows initial HUD stats at zero', (WidgetTester tester) async {
       await tester.pumpWidget(const TetrisApp());
 
@@ -42,6 +49,21 @@ void main() {
       await tester.pumpWidget(const TetrisApp());
 
       expect(find.text('DEBUG'), findsNothing);
+    });
+
+    testWidgets('language override updates the app immediately', (
+      WidgetTester tester,
+    ) async {
+      final settings = SettingsProvider();
+      await tester.pumpWidget(TetrisApp(settings: settings));
+
+      expect(find.text('Score: 0'), findsOneWidget);
+
+      await settings.setLocaleCode('de');
+      await tester.pump();
+
+      expect(find.text('Punkte: 0'), findsOneWidget);
+      expect(find.text('Score: 0'), findsNothing);
     });
   });
 }

@@ -36,6 +36,25 @@ void main() {
     }
   });
 
+  testWidgets('language picker exposes and persists explicit locale override',
+      (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('settingsLanguageDropdown')),
+      120,
+    );
+    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Deutsch').last);
+    await tester.pump();
+
+    expect(settings.localeCode, 'de');
+  });
+
   testWidgets('maximum level picker offers unlimited progression',
       (tester) async {
     final settings = SettingsProvider();

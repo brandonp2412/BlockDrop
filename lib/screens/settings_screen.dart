@@ -33,6 +33,17 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  static const _languageNames = <String, String>{
+    'en': 'English',
+    'de': 'Deutsch',
+    'es': 'Español',
+    'fr': 'Français',
+    'pt': 'Português',
+    'ja': '日本語',
+    'ko': '한국어',
+    'zh': '中文',
+  };
+
   String _searchQuery = '';
   bool _isSearching = false;
 
@@ -211,6 +222,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       'Light',
       'Pure Black AMOLED',
       'Style',
+      'Language',
+      'System default',
+      ..._languageNames.values,
     ]);
     final showMultiplayer = _sectionMatches('Multiplayer', [
       'Show Opponent Board',
@@ -652,6 +666,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                           onSelectionChanged: (selection) =>
                               widget.settings.setThemeMode(selection.first),
+                        ),
+                      ),
+                    if (_matchesSearch(
+                      'Language System default ${_languageNames.values.join(' ')}',
+                      section: 'Appearance',
+                    ))
+                      _SettingTile(
+                        label: 'Language',
+                        colorScheme: colorScheme,
+                        style: widget.settings.style,
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            key: const Key('settingsLanguageDropdown'),
+                            isExpanded: true,
+                            value: widget.settings.localeCode ?? 'system',
+                            items: [
+                              DropdownMenuItem(
+                                value: 'system',
+                                child: Text(
+                                  context.l10n.text('System default'),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              for (final entry in _languageNames.entries)
+                                DropdownMenuItem(
+                                  value: entry.key,
+                                  child: Text(
+                                    entry.value,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                            ],
+                            onChanged: (value) {
+                              if (value == null) return;
+                              widget.settings.setLocaleCode(
+                                value == 'system' ? null : value,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     if (_matchesSearch(

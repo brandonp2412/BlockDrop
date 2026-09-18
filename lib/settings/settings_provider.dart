@@ -14,6 +14,7 @@ enum AppStyle { classic, modern, bubbles, neon, retro }
 class SettingsProvider extends ChangeNotifier {
   static const _themeKey = 'theme_mode';
   static const _styleKey = 'app_style';
+  static const _localeKey = 'locale';
   static const _musicEnabledKey = 'music_enabled';
   static const _sfxEnabledKey = 'sfx_enabled';
   static const _highScoreKey = 'high_score';
@@ -37,6 +38,7 @@ class SettingsProvider extends ChangeNotifier {
 
   AppThemeMode _themeMode = AppThemeMode.system;
   AppStyle _style = AppStyle.classic;
+  String? _localeCode;
   bool _musicEnabled = false;
   bool _sfxEnabled = false;
   int _highScore = 0;
@@ -54,6 +56,8 @@ class SettingsProvider extends ChangeNotifier {
 
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
+  String? get localeCode => _localeCode;
+  Locale? get locale => _localeCode == null ? null : Locale(_localeCode!);
   bool get musicEnabled => _musicEnabled;
   bool get sfxEnabled => _sfxEnabled;
   int get highScore => _highScore;
@@ -114,6 +118,11 @@ class SettingsProvider extends ChangeNotifier {
     _themeMode = AppThemeMode
         .values[themeIndex.clamp(0, AppThemeMode.values.length - 1)];
     _style = AppStyle.values[styleIndex.clamp(0, AppStyle.values.length - 1)];
+    final storedLocale = prefs.getString(_localeKey);
+    _localeCode = const {'en', 'de', 'es', 'fr', 'pt', 'ja', 'ko', 'zh'}
+            .contains(storedLocale)
+        ? storedLocale
+        : null;
     _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
     _highScore = prefs.getInt(_highScoreKey) ?? 0;
@@ -201,6 +210,18 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_styleKey, newStyle.index);
+  }
+
+  Future<void> setLocaleCode(String? value) async {
+    const supported = {'en', 'de', 'es', 'fr', 'pt', 'ja', 'ko', 'zh'};
+    _localeCode = value != null && supported.contains(value) ? value : null;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    if (_localeCode == null) {
+      await prefs.remove(_localeKey);
+    } else {
+      await prefs.setString(_localeKey, _localeCode!);
+    }
   }
 
   Future<void> setMusicEnabled(bool value) async {

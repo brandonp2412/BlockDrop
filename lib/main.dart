@@ -88,6 +88,7 @@ class _TetrisAppState extends State<TetrisApp> {
       onGenerateTitle: (context) => context.l10n.text('Block Drop - Tetris'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: _settings.locale,
       // Neon style requires a dark background everywhere — override theme mode
       themeMode: _settings.style == AppStyle.neon
           ? ThemeMode.dark

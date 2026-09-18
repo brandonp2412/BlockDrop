@@ -17,6 +17,8 @@ void main() {
 
       expect(settings.themeMode, AppThemeMode.system);
       expect(settings.style, AppStyle.classic);
+      expect(settings.localeCode, isNull);
+      expect(settings.locale, isNull);
       expect(settings.musicEnabled, false);
       expect(settings.sfxEnabled, false);
       expect(settings.highScore, 0);
@@ -119,6 +121,34 @@ void main() {
 
       await settings.setStyle(AppStyle.retro);
       expect(settings.style, AppStyle.retro);
+    });
+
+    test('persists language override and supports system default', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('de');
+      expect(settings.localeCode, 'de');
+      expect(settings.locale, const Locale('de'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'de');
+
+      await reloaded.setLocaleCode(null);
+      final systemDefault = SettingsProvider();
+      await systemDefault.load();
+      expect(systemDefault.localeCode, isNull);
+      expect(systemDefault.locale, isNull);
+    });
+
+    test('ignores unsupported persisted language overrides', () async {
+      SharedPreferences.setMockInitialValues({'locale': 'xx'});
+      final settings = SettingsProvider();
+
+      await settings.load();
+
+      expect(settings.localeCode, isNull);
+      expect(settings.locale, isNull);
     });
 
     test('setEnableHold updates the current hold preference', () async {
