@@ -822,7 +822,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                            _popupLabel,
+                                            context.l10n.text(_popupLabel),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: _popupLabel.startsWith(

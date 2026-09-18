@@ -1,3 +1,4 @@
+import 'package:block_drop/constants/game_constants.dart';
 import 'package:block_drop/l10n/app_localizations.dart';
 import 'package:block_drop/l10n/translations.dart';
 import 'package:flutter/material.dart';
@@ -13,13 +14,32 @@ void main() {
     expect(appTranslations.keys.toSet(), supportedLanguages);
 
     final referenceKeys = appTranslations['de']!.keys.toSet();
-    expect(referenceKeys, hasLength(183));
+    expect(referenceKeys, hasLength(188));
 
     for (final entry in appTranslations.entries) {
       expect(
         entry.value.keys.toSet(),
         referenceKeys,
         reason: '${entry.key} must have the complete translation key set',
+      );
+    }
+  });
+
+  test('dynamic user-facing labels have explicit translations', () {
+    final labels = <String>{
+      'Player',
+      'Unknown',
+      'Someone',
+      'Opponent',
+      ...GameConstants.lineClearLabels.where((label) => label.isNotEmpty),
+      ...GameConstants.tSpinLabels,
+    };
+
+    for (final locale in appTranslations.entries) {
+      expect(
+        locale.value.keys,
+        containsAll(labels),
+        reason: '${locale.key} must translate every dynamic user-facing label',
       );
     }
   });

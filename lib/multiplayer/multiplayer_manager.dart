@@ -27,6 +27,9 @@ class MultiplayerManager extends ChangeNotifier {
 
   final String playerId;
   final String playerName;
+  final String _unknownPlayerName;
+  final String _someonePlayerName;
+  final String _opponentFallbackName;
 
   MultiplayerState state = MultiplayerState.idle;
   List<Peer> peers = [];
@@ -94,7 +97,13 @@ class MultiplayerManager extends ChangeNotifier {
   MultiplayerManager({
     required this.playerName,
     GameplaySettings gameplaySettings = GameplaySettings.defaults,
-  }) : playerId = _generateId() {
+    String unknownPlayerName = 'Unknown',
+    String someonePlayerName = 'Someone',
+    String opponentFallbackName = 'Opponent',
+  })  : playerId = _generateId(),
+        _unknownPlayerName = unknownPlayerName,
+        _someonePlayerName = someonePlayerName,
+        _opponentFallbackName = opponentFallbackName {
     this.gameplaySettings = gameplaySettings;
     _localGameplaySettings = gameplaySettings;
     enableHold = gameplaySettings.holdEnabled;
@@ -274,7 +283,7 @@ class MultiplayerManager extends ChangeNotifier {
       // adapter) and caused stale entries that pointed at unreachable IPs.
       final ip = dg.address.address;
       final port = msg['port'] as int? ?? _tcpPort;
-      final name = msg['name'] as String? ?? 'Unknown';
+      final name = msg['name'] as String? ?? _unknownPlayerName;
       final status = msg['status'] as String? ?? 'idle';
       final isAvailable = status == 'idle' || status == 'discovering';
 
@@ -502,7 +511,7 @@ class MultiplayerManager extends ChangeNotifier {
           if (state == MultiplayerState.discovering) {
             state = MultiplayerState.invited;
             _isHost = false;
-            opponentName = msg['name'] as String? ?? 'Someone';
+            opponentName = msg['name'] as String? ?? _someonePlayerName;
             notifyListeners();
             onInviteReceived?.call(opponentName!);
           } else {
@@ -585,7 +594,8 @@ class MultiplayerManager extends ChangeNotifier {
     if (prevState == MultiplayerState.inGame ||
         prevState == MultiplayerState.inLobby) {
       talker.warning('Multiplayer peer disconnected during ${prevState.name}');
-      onError?.call('${prevOpponentName ?? 'Opponent'} disconnected');
+      onError
+          ?.call('${prevOpponentName ?? _opponentFallbackName} disconnected');
     }
 
     if (prevState != MultiplayerState.discovering &&

@@ -26,27 +26,37 @@ class _MultiplayerDiscoveryScreenState
   late final MultiplayerManager _manager;
   bool _navigatingToGame = false;
 
-  @override
-  void initState() {
-    super.initState();
+  bool _managerInitialized = false;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_managerInitialized) return;
+
+    final l10n = context.l10n;
     _manager = MultiplayerManager(
-      playerName: _defaultPlayerName(),
+      playerName: _defaultPlayerName(l10n),
       gameplaySettings: widget.settings.gameplay,
+      unknownPlayerName: l10n.text('Unknown'),
+      someonePlayerName: l10n.text('Someone'),
+      opponentFallbackName: l10n.text('Opponent'),
     );
     _manager.onError = _showError;
     _manager.onInviteReceived = _showInviteDialog;
     _manager.addListener(_onManagerChanged);
     _manager.startDiscovery();
+    _managerInitialized = true;
   }
 
-  String _defaultPlayerName() {
+  String _defaultPlayerName(AppLocalizations l10n) {
     try {
       final h = Platform.localHostname.split('.').first;
-      if (h.isEmpty || h.toLowerCase() == 'localhost') return 'Player';
+      if (h.isEmpty || h.toLowerCase() == 'localhost') {
+        return l10n.text('Player');
+      }
       return h;
     } catch (_) {
-      return 'Player';
+      return l10n.text('Player');
     }
   }
 
