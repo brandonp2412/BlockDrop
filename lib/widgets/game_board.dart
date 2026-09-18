@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+
+import '../l10n/app_localizations.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 import '../settings/settings_provider.dart';
@@ -515,7 +517,10 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                   board,
                   if (widget.gameLogic.isAnimatingClear && streak >= 2)
                     Semantics(
-                      label: '$streak-line combo clear effect',
+                      label: context.l10n.text(
+                        '{streak}-line combo clear effect',
+                        {'streak': streak},
+                      ),
                       child: IgnorePointer(
                         child: CustomPaint(
                           key: const ValueKey('combo-clear-effects'),

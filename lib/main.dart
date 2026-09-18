@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'logging.dart';
 import 'screens/tetris_game_screen.dart';
 import 'settings/settings_provider.dart';
@@ -84,7 +85,9 @@ class _TetrisAppState extends State<TetrisApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Block Drop - Tetris',
+      onGenerateTitle: (context) => context.l10n.text('Block Drop - Tetris'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       // Neon style requires a dark background everywhere — override theme mode
       themeMode: _settings.style == AppStyle.neon
           ? ThemeMode.dark

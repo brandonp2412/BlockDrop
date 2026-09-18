@@ -11,6 +11,7 @@ import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 import '../game/gameplay_settings.dart';
+import '../l10n/app_localizations.dart';
 import '../settings/settings_provider.dart';
 import '../settings/controller_bindings.dart';
 import '../widgets/game_board.dart';
@@ -53,7 +54,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   static const double _fastSwipeVelocity =
       1000.0; // Velocity threshold for hard drop (increased significantly)
 
-  final formatter = NumberFormat.decimalPattern('en_US');
+  NumberFormat get formatter => NumberFormat.decimalPattern(
+        Localizations.localeOf(context).toLanguageTag(),
+      );
 
   @override
   void initState() {
@@ -195,17 +198,17 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Quit Game?'),
-        content: const Text('Your current progress will be lost.'),
+        title: Text(context.l10n.text('Quit Game?')),
+        content: Text(context.l10n.text('Your current progress will be lost.')),
         actions: [
           TextButton(
             autofocus: true,
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.text('Cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Quit'),
+            child: Text(context.l10n.text('Quit')),
           ),
         ],
       ),
@@ -337,12 +340,14 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         builder: (ctx, setDialogState) => AlertDialog(
           backgroundColor: cs.surface,
           shape: styledDialogShape(style, cs),
-          title: const Text('Practice Mode'),
+          title: Text(context.l10n.text('Practice Mode')),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Choose a starting level. Speed stays fixed throughout the session.',
+                context.l10n.text(
+                  'Choose a starting level. Speed stays fixed throughout the session.',
+                ),
                 style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 16),
@@ -358,7 +363,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                   SizedBox(
                     width: 60,
                     child: Text(
-                      'Lv $selectedLevel',
+                      context.l10n.text('Lv {level}', {'level': selectedLevel}),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 22,
@@ -380,12 +385,12 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.text('Cancel')),
             ),
             FilledButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               style: FilledButton.styleFrom(shape: buttonBorderShape(style)),
-              child: const Text('Start'),
+              child: Text(context.l10n.text('Start')),
             ),
           ],
         ),
@@ -415,7 +420,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           backgroundColor: cs.surface,
           shape: styledDialogShape(style, cs, accentColor: cs.error),
           title: Text(
-            'Game Over!',
+            context.l10n.text('Game Over!'),
             style: TextStyle(
               color: cs.error,
               fontSize: 24,
@@ -428,21 +433,33 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             children: [
               if (!gameLogic.practiceMode)
                 Text(
-                  'Final Score: ${formatter.format(gameLogic.score)}',
+                  context.l10n.text(
+                    'Final Score: {score}',
+                    {'score': formatter.format(gameLogic.score)},
+                  ),
                   style: TextStyle(color: cs.onSurface, fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
               if (!gameLogic.practiceMode) const SizedBox(height: 8),
               Text(
                 gameLogic.practiceMode
-                    ? 'Practice Lv ${gameLogic.level}'
-                    : 'Level: ${gameLogic.level}',
+                    ? context.l10n.text(
+                        'Practice Lv {level}',
+                        {'level': gameLogic.level},
+                      )
+                    : context.l10n.text(
+                        'Level: {level}',
+                        {'level': gameLogic.level},
+                      ),
                 style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                'Lines Cleared: ${gameLogic.linesCleared}',
+                context.l10n.text(
+                  'Lines Cleared: {lines}',
+                  {'lines': gameLogic.linesCleared},
+                ),
                 style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -460,7 +477,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 shape: buttonBorderShape(style),
                 minimumSize: const Size(double.infinity, 48),
               ),
-              child: const Text('Play Again'),
+              child: Text(context.l10n.text('Play Again')),
             ),
           ],
         );
@@ -618,8 +635,14 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             const SizedBox(width: 8),
                             Text(
                               gameLogic.practiceMode
-                                  ? 'PRACTICE'
-                                  : 'Score: ${formatter.format(gameLogic.score)}',
+                                  ? context.l10n.text('PRACTICE')
+                                  : context.l10n.text(
+                                      'Score: {score}',
+                                      {
+                                        'score':
+                                            formatter.format(gameLogic.score)
+                                      },
+                                    ),
                               style: TextStyle(
                                 color: gameLogic.practiceMode
                                     ? cs.tertiary
@@ -632,7 +655,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             ),
                             const Spacer(),
                             Text(
-                              'Level: ${gameLogic.level}',
+                              context.l10n.text(
+                                'Level: {level}',
+                                {'level': gameLogic.level},
+                              ),
                               style: TextStyle(
                                 color: cs.onSurface,
                                 fontSize: 18,
@@ -640,7 +666,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             ),
                             const Spacer(),
                             Text(
-                              'Lines: ${gameLogic.linesCleared}',
+                              context.l10n.text(
+                                'Lines: {lines}',
+                                {'lines': gameLogic.linesCleared},
+                              ),
                               style: TextStyle(
                                 color: cs.onSurface,
                                 fontSize: 18,
@@ -676,7 +705,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                 child: Column(
                                   children: [
                                     Text(
-                                      'Hold:',
+                                      context.l10n.text('Hold:'),
                                       style: TextStyle(
                                         color: cs.onSurface,
                                         fontSize: 16,
@@ -710,7 +739,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             Column(
                               children: [
                                 Text(
-                                  'Next:',
+                                  context.l10n.text('Next:'),
                                   style: TextStyle(
                                     color: cs.onSurface,
                                     fontSize: 16,
@@ -950,7 +979,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
               left: boardLeft + 4,
               top: boardTop + 4,
               child: pieceOverlay(
-                label: 'HOLD',
+                label: context.l10n.text('HOLD'),
                 onTap: () {
                   if (gameLogic.isGameRunning &&
                       !gameLogic.isGameOver &&
@@ -970,7 +999,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 4 +
                 (widget.settings.enableHold ? overlaySize + 24 : 0),
             child: pieceOverlay(
-              label: 'NEXT',
+              label: context.l10n.text('NEXT'),
               child: gameLogic.nextPiece == null
                   ? const SizedBox.shrink()
                   : NextPieceDisplay(
@@ -993,13 +1022,26 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 children: [
                   Text(
                     gameLogic.practiceMode
-                        ? 'PRACTICE'
-                        : 'Score ${formatter.format(gameLogic.score)}',
+                        ? context.l10n.text('PRACTICE')
+                        : context.l10n.text(
+                            'Score {score}',
+                            {'score': formatter.format(gameLogic.score)},
+                          ),
                   ),
-                  Text('Level ${gameLogic.level}'),
-                  Text('Lines ${gameLogic.linesCleared}'),
+                  Text(
+                    context.l10n.text(
+                      'Level {level}',
+                      {'level': gameLogic.level},
+                    ),
+                  ),
+                  Text(
+                    context.l10n.text(
+                      'Lines {lines}',
+                      {'lines': gameLogic.linesCleared},
+                    ),
+                  ),
                   IconButton(
-                    tooltip: 'Settings',
+                    tooltip: context.l10n.text('Settings'),
                     icon: const Icon(Icons.settings),
                     iconSize: 20,
                     visualDensity: VisualDensity.compact,
@@ -1021,7 +1063,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                   child: Opacity(
                     opacity: _popupOpacity.value,
                     child: Text(
-                      '$_popupLabel\n+$_popupDelta',
+                      '${context.l10n.text(_popupLabel)}\n+$_popupDelta',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -1081,7 +1123,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Hold',
+                  context.l10n.text('Hold'),
                   style: TextStyle(color: cs.onSurface, fontSize: 18),
                 ),
                 const SizedBox(height: 6),
@@ -1103,7 +1145,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     Widget nextPanel = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Next', style: TextStyle(color: cs.onSurface, fontSize: 18)),
+        Text(
+          context.l10n.text('Next'),
+          style: TextStyle(color: cs.onSurface, fontSize: 18),
+        ),
         const SizedBox(height: 6),
         Container(
           width: boxSize,
@@ -1167,7 +1212,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _popupLabel,
+                          context.l10n.text(_popupLabel),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: _popupLabel.startsWith('T-SPIN')
@@ -1216,8 +1261,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
               children: [
                 Text(
                   gameLogic.practiceMode
-                      ? 'PRACTICE'
-                      : 'Score: ${formatter.format(gameLogic.score)}',
+                      ? context.l10n.text('PRACTICE')
+                      : context.l10n.text(
+                          'Score: {score}',
+                          {'score': formatter.format(gameLogic.score)},
+                        ),
                   style: TextStyle(
                     color: gameLogic.practiceMode ? cs.tertiary : cs.onSurface,
                     fontSize: 20,
@@ -1228,12 +1276,18 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 ),
                 const Spacer(),
                 Text(
-                  'Level: ${gameLogic.level}',
+                  context.l10n.text(
+                    'Level: {level}',
+                    {'level': gameLogic.level},
+                  ),
                   style: TextStyle(color: cs.onSurface, fontSize: 20),
                 ),
                 const Spacer(),
                 Text(
-                  'Lines: ${gameLogic.linesCleared}',
+                  context.l10n.text(
+                    'Lines: {lines}',
+                    {'lines': gameLogic.linesCleared},
+                  ),
                   style: TextStyle(color: cs.onSurface, fontSize: 20),
                 ),
                 const SizedBox(width: 8),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/tetromino.dart';
 import '../constants/game_constants.dart';
 import '../settings/settings_provider.dart';
@@ -84,11 +85,14 @@ class HoldPieceDisplay extends StatelessWidget {
     );
 
     if (isAvailable) {
-      return Semantics(label: 'Held piece available', child: preview);
+      return Semantics(
+        label: context.l10n.text('Held piece available'),
+        child: preview,
+      );
     }
 
     return Semantics(
-      label: 'Held piece unavailable',
+      label: context.l10n.text('Held piece unavailable'),
       child: Opacity(
         opacity: 0.45,
         child: ColorFiltered(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// A compact touch controller for players who prefer discrete game inputs.
 class OnScreenGameControls extends StatelessWidget {
   final VoidCallback onMoveLeft;
@@ -25,7 +27,7 @@ class OnScreenGameControls extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: 'Game controls',
+      label: context.l10n.text('Game controls'),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -120,7 +122,7 @@ class _ControlButton extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Semantics(
       button: true,
-      label: label,
+      label: context.l10n.text(label),
       child: Material(
         color: colorScheme.surfaceContainerHighest,
         shape: const CircleBorder(),

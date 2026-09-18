@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../multiplayer/multiplayer_game_config.dart';
 import '../multiplayer/multiplayer_manager.dart';
 import '../widgets/empty_state.dart';
@@ -92,32 +93,34 @@ class _MultiplayerDiscoveryScreenState
       context: context,
       builder: (ctx) => AlertDialog(
         shape: styledDialogShape(style, cs),
-        title: const Text('Windows Firewall'),
-        content: const Text(
-          'Windows Firewall may be blocking other players from connecting to '
-          'this device.\n\n'
-          'Tap "Add Rule" to automatically allow Block Drop through the '
-          'firewall (works for both Private and Public network profiles). '
-          'Windows will ask for administrator permission.',
+        title: Text(context.l10n.text('Windows Firewall')),
+        content: Text(
+          context.l10n.text(
+            'Windows Firewall may be blocking other players from connecting to '
+            'this device.\n\n'
+            'Tap "Add Rule" to automatically allow Block Drop through the '
+            'firewall (works for both Private and Public network profiles). '
+            'Windows will ask for administrator permission.',
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Dismiss'),
+            child: Text(context.l10n.text('Dismiss')),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               Process.run('control', ['firewall.cpl']);
             },
-            child: const Text('Open Settings'),
+            child: Text(context.l10n.text('Open Settings')),
           ),
           FilledButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               _addFirewallRule();
             },
-            child: const Text('Add Rule'),
+            child: Text(context.l10n.text('Add Rule')),
           ),
         ],
       ),
@@ -144,8 +147,10 @@ class _MultiplayerDiscoveryScreenState
     await vbs.delete().catchError((_) => vbs);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Firewall rule added — try connecting again.'),
+      SnackBar(
+        content: Text(
+          context.l10n.text('Firewall rule added — try connecting again.'),
+        ),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -154,7 +159,10 @@ class _MultiplayerDiscoveryScreenState
   void _showError(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        content: Text(context.l10n.runtimeText(msg)),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -167,15 +175,20 @@ class _MultiplayerDiscoveryScreenState
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         shape: styledDialogShape(style, cs),
-        title: const Text('Game Invite'),
-        content: Text('$fromName wants to play Block Drop with you!'),
+        title: Text(context.l10n.text('Game Invite')),
+        content: Text(
+          context.l10n.text(
+            '{name} wants to play Block Drop with you!',
+            {'name': fromName},
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               _manager.rejectInvite();
             },
-            child: const Text('Decline'),
+            child: Text(context.l10n.text('Decline')),
           ),
           FilledButton(
             autofocus: true,
@@ -183,7 +196,7 @@ class _MultiplayerDiscoveryScreenState
               Navigator.of(ctx).pop();
               _manager.acceptInvite();
             },
-            child: const Text('Accept'),
+            child: Text(context.l10n.text('Accept')),
           ),
         ],
       ),
@@ -195,7 +208,10 @@ class _MultiplayerDiscoveryScreenState
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Multiplayer'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(context.l10n.text('Multiplayer')),
+        centerTitle: true,
+      ),
       body: SafeArea(child: _buildBody(cs)),
     );
   }
@@ -247,7 +263,7 @@ class _MultiplayerDiscoveryScreenState
               ),
               const SizedBox(width: 10),
               Text(
-                'Searching on your network…',
+                context.l10n.text('Searching on your network…'),
                 style: TextStyle(color: cs.onSurfaceVariant),
               ),
             ],
@@ -258,11 +274,16 @@ class _MultiplayerDiscoveryScreenState
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: localIp == null
               ? Text(
-                  '⚠ Could not detect LAN IP – make sure Wi-Fi is on.',
+                  context.l10n.text(
+                    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.',
+                  ),
                   style: TextStyle(fontSize: 12, color: cs.error),
                 )
               : Text(
-                  'Your IP: $localIp  ·  broadcasting to: $bcast',
+                  context.l10n.text(
+                    'Your IP: {ip}  ·  broadcasting to: {broadcast}',
+                    {'ip': localIp, 'broadcast': bcast},
+                  ),
                   style: TextStyle(
                     fontSize: 11,
                     color: cs.onSurfaceVariant,
@@ -281,7 +302,9 @@ class _MultiplayerDiscoveryScreenState
                   Icon(Icons.shield_outlined, size: 13, color: cs.tertiary),
                   const SizedBox(width: 5),
                   Text(
-                    'Windows Firewall may block connections — tap to configure',
+                    context.l10n.text(
+                      'Windows Firewall may block connections — tap to configure',
+                    ),
                     style: TextStyle(
                       fontSize: 11,
                       color: cs.tertiary,
@@ -297,7 +320,7 @@ class _MultiplayerDiscoveryScreenState
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'OTHER PLAYERS',
+            context.l10n.text('OTHER PLAYERS'),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -339,7 +362,10 @@ class _MultiplayerDiscoveryScreenState
             const CircularProgressIndicator(),
             const SizedBox(height: 24),
             Text(
-              'Waiting for ${_manager.opponentName ?? '…'} to respond…',
+              context.l10n.text(
+                'Waiting for {name} to respond…',
+                {'name': _manager.opponentName ?? '…'},
+              ),
               style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
@@ -349,7 +375,7 @@ class _MultiplayerDiscoveryScreenState
               style: OutlinedButton.styleFrom(
                 shape: buttonBorderShape(widget.settings.style),
               ),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.text('Cancel')),
             ),
           ],
         ),
@@ -364,14 +390,14 @@ class _MultiplayerDiscoveryScreenState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Lobby',
+            context.l10n.text('Lobby'),
             style: Theme.of(context).textTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           _LobbyPlayerTile(
             name: _manager.playerName,
-            label: 'You',
+            label: context.l10n.text('You'),
             isYou: true,
             colorScheme: cs,
             style: widget.settings.style,
@@ -379,7 +405,7 @@ class _MultiplayerDiscoveryScreenState
           const SizedBox(height: 8),
           _LobbyPlayerTile(
             name: _manager.opponentName ?? '…',
-            label: 'Opponent',
+            label: context.l10n.text('Opponent'),
             isYou: false,
             colorScheme: cs,
             style: widget.settings.style,
@@ -403,7 +429,7 @@ class _MultiplayerDiscoveryScreenState
           const Spacer(),
           if (_manager.isHost) ...[
             Text(
-              'You are the host',
+              context.l10n.text('You are the host'),
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
             ),
@@ -411,14 +437,14 @@ class _MultiplayerDiscoveryScreenState
             FilledButton.icon(
               onPressed: _manager.startGame,
               icon: const Icon(Icons.play_arrow),
-              label: const Text('Start Game'),
+              label: Text(context.l10n.text('Start Game')),
               style: FilledButton.styleFrom(
                 shape: buttonBorderShape(widget.settings.style),
               ),
             ),
           ] else
             Text(
-              'Waiting for host to start…',
+              context.l10n.text('Waiting for host to start…'),
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant),
             ),
@@ -428,7 +454,7 @@ class _MultiplayerDiscoveryScreenState
             style: OutlinedButton.styleFrom(
               shape: buttonBorderShape(widget.settings.style),
             ),
-            child: const Text('Leave Lobby'),
+            child: Text(context.l10n.text('Leave Lobby')),
           ),
         ],
       ),
@@ -461,22 +487,22 @@ class _LobbyModeSelector extends StatelessWidget {
     return Column(
       children: [
         Text(
-          'Mode',
+          context.l10n.text('Mode'),
           style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
         ),
         const SizedBox(height: 8),
         SegmentedButton<MultiplayerGameMode>(
           showSelectedIcon: false,
-          segments: const [
+          segments: [
             ButtonSegment(
               value: MultiplayerGameMode.independent,
-              icon: Icon(Icons.shuffle),
-              label: Text('Random'),
+              icon: const Icon(Icons.shuffle),
+              label: Text(context.l10n.text('Random')),
             ),
             ButtonSegment(
               value: MultiplayerGameMode.sharedPieces,
-              icon: Icon(Icons.sync),
-              label: Text('Fair'),
+              icon: const Icon(Icons.sync),
+              label: Text(context.l10n.text('Fair')),
             ),
           ],
           selected: {mode},
@@ -503,7 +529,10 @@ class _LobbyModeStatus extends StatelessWidget {
         Icon(_gameModeIcon(mode), size: 18, color: colorScheme.primary),
         const SizedBox(width: 8),
         Text(
-          '${mode.label} mode',
+          context.l10n.text(
+            '{mode} mode',
+            {'mode': context.l10n.text(mode.label)},
+          ),
           style: TextStyle(color: colorScheme.onSurfaceVariant),
         ),
       ],
@@ -530,7 +559,7 @@ class _LobbyHoldSelector extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Hold Piece',
+          context.l10n.text('Hold Piece'),
           style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
         ),
         const SizedBox(width: 12),
@@ -591,7 +620,7 @@ class _PeerTile extends StatelessWidget {
               textStyle: const TextStyle(fontSize: 13),
               shape: buttonBorderShape(style),
             ),
-            child: const Text('Invite'),
+            child: Text(context.l10n.text('Invite')),
           ),
         ],
       ),
@@ -657,7 +686,7 @@ class _LobbyPlayerTile extends StatelessWidget {
               borderRadius: panelBorderRadius(style),
             ),
             child: Text(
-              label,
+              context.l10n.text(label),
               style: TextStyle(
                 fontSize: 12,
                 color:

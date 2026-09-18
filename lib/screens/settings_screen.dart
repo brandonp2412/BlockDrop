@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/app_localizations.dart';
 import '../settings/settings_provider.dart';
 import '../game/gameplay_settings.dart';
 import '../settings/controller_bindings.dart';
@@ -51,15 +52,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   bool _matchesSearch(String label, {String? section}) {
     if (_searchQuery.isEmpty) return true;
-    return label.toLowerCase().contains(_searchQuery) ||
-        (section?.toLowerCase().contains(_searchQuery) ?? false);
+    final localizedLabel = context.l10n.text(label).toLowerCase();
+    final localizedSection =
+        section == null ? null : context.l10n.text(section).toLowerCase();
+    return localizedLabel.contains(_searchQuery) ||
+        (localizedSection?.contains(_searchQuery) ?? false);
   }
 
   bool _sectionMatches(String section, Iterable<String> labels) {
-    if (_searchQuery.isEmpty || section.toLowerCase().contains(_searchQuery)) {
+    if (_searchQuery.isEmpty ||
+        context.l10n.text(section).toLowerCase().contains(_searchQuery)) {
       return true;
     }
-    return labels.any((label) => label.toLowerCase().contains(_searchQuery));
+    return labels.any(
+      (label) => context.l10n.text(label).toLowerCase().contains(_searchQuery),
+    );
   }
 
   static String _styleLabel(AppStyle style) => switch (style) {
@@ -76,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: styledDialogShape(widget.settings.style, cs),
-        title: const Text('Style'),
+        title: Text(context.l10n.text('Style')),
         contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -86,7 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: _StyleOption(
                 style: s,
-                label: _styleLabel(s),
+                label: context.l10n.text(_styleLabel(s)),
                 isSelected: isSelected,
                 colorScheme: cs,
                 onTap: () => Navigator.pop(ctx, s),
@@ -120,18 +127,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) {
           final current = selected.round();
-          final label =
-              current == 0 && zeroLabel != null ? zeroLabel : '$current$suffix';
+          final label = current == 0 && zeroLabel != null
+              ? context.l10n.text(zeroLabel)
+              : suffix == ' lines'
+                  ? context.l10n.text('{lines} lines', {'lines': current})
+                  : '$current$suffix';
           return AlertDialog(
             shape: styledDialogShape(
               widget.settings.style,
               Theme.of(ctx).colorScheme,
             ),
-            title: Text(title),
+            title: Text(context.l10n.text(title)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(help),
+                Text(context.l10n.text(help)),
                 const SizedBox(height: 16),
                 Text(label, style: Theme.of(ctx).textTheme.titleLarge),
                 Slider(
@@ -147,11 +157,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel'),
+                child: Text(context.l10n.text('Cancel')),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, current),
-                child: const Text('Save'),
+                child: Text(context.l10n.text('Save')),
               ),
             ],
           );
@@ -226,19 +236,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ? TextField(
                 autofocus: true,
                 key: const ValueKey('settings-search'),
-                decoration: const InputDecoration(
-                  hintText: 'Search settings',
+                decoration: InputDecoration(
+                  hintText: context.l10n.text('Search settings'),
                   border: InputBorder.none,
                 ),
                 onChanged: (value) =>
                     setState(() => _searchQuery = value.trim().toLowerCase()),
               )
-            : const Text('Settings'),
+            : Text(context.l10n.text('Settings')),
         centerTitle: true,
         actions: [
           IconButton(
             key: const ValueKey('settings-search-button'),
-            tooltip: 'Search settings',
+            tooltip: context.l10n.text('Search settings'),
             icon: Icon(_isSearching ? Icons.close : Icons.search),
             onPressed: () => setState(() {
               _isSearching = !_isSearching;
@@ -493,7 +503,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: 'Maximum Level',
                         value: widget.settings.gameplay.maximumLevel ==
                                 GameplaySettings.unlimitedLevels
-                            ? 'Unlimited'
+                            ? context.l10n.text('Unlimited')
                             : '${widget.settings.gameplay.maximumLevel}',
                         colorScheme: colorScheme,
                         style: widget.settings.style,
@@ -614,18 +624,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           segments: [
                             ButtonSegment(
                               value: AppThemeMode.system,
-                              label: const Text('System'),
+                              label: Text(context.l10n.text('System')),
                               icon: const Icon(Icons.brightness_auto),
                               enabled: widget.settings.style != AppStyle.neon,
                             ),
-                            const ButtonSegment(
+                            ButtonSegment(
                               value: AppThemeMode.dark,
-                              label: Text('Dark'),
-                              icon: Icon(Icons.dark_mode),
+                              label: Text(context.l10n.text('Dark')),
+                              icon: const Icon(Icons.dark_mode),
                             ),
                             ButtonSegment(
                               value: AppThemeMode.light,
-                              label: const Text('Light'),
+                              label: Text(context.l10n.text('Light')),
                               icon: const Icon(Icons.light_mode),
                               enabled: widget.settings.style != AppStyle.neon,
                             ),
@@ -674,7 +684,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           child: Row(
                             children: [
                               Expanded(
-                                child: Text(_styleLabel(widget.settings.style)),
+                                child: Text(
+                                  context.l10n.text(
+                                    _styleLabel(widget.settings.style),
+                                  ),
+                                ),
                               ),
                               const Icon(Icons.arrow_drop_down, size: 20),
                             ],
@@ -737,7 +751,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    'Play on LAN',
+                                    context.l10n.text('Play on LAN'),
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: colorScheme.onSurface,
@@ -763,7 +777,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         style: widget.settings.style,
                         child: Text(
                           NumberFormat.decimalPattern(
-                            'en_US',
+                            Localizations.localeOf(context).toLanguageTag(),
                           ).format(widget.settings.highScore),
                           textAlign: TextAlign.end,
                           style: TextStyle(
@@ -836,7 +850,7 @@ class _SectionHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Text(
-        label.toUpperCase(),
+        context.l10n.text(label).toUpperCase(),
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
@@ -896,7 +910,7 @@ class _SettingTile extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  label,
+                  context.l10n.text(label),
                   style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
                 ),
               ],
@@ -966,7 +980,10 @@ class _ActionButton extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, size: 16, color: color),
-      label: Text(label, style: TextStyle(color: color, fontSize: 13)),
+      label: Text(
+        context.l10n.text(label),
+        style: TextStyle(color: color, fontSize: 13),
+      ),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 10),
         backgroundColor: color.withValues(
@@ -1014,12 +1031,14 @@ class _ControllerBindingsPanel extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               dense: true,
-              title: Text(action.label),
+              title: Text(context.l10n.text(action.label)),
               trailing: OutlinedButton(
                 key: Key('controller-binding-${action.name}'),
                 onPressed: () => _captureBinding(context, action),
                 child: Text(
-                  controllerKeyLabel(settings.controllerBindings[action]!),
+                  context.l10n.text(
+                    controllerKeyLabel(settings.controllerBindings[action]!),
+                  ),
                 ),
               ),
             ),
@@ -1029,7 +1048,7 @@ class _ControllerBindingsPanel extends StatelessWidget {
               key: const Key('reset-controller-bindings'),
               onPressed: settings.resetControllerBindings,
               icon: const Icon(Icons.restart_alt, size: 18),
-              label: const Text('Reset controller layout'),
+              label: Text(context.l10n.text('Reset controller layout')),
             ),
           ),
         ],
@@ -1072,15 +1091,21 @@ class _ControllerKeyDialogState extends State<_ControllerKeyDialog> {
         }
       },
       child: AlertDialog(
-        title: Text('Bind ${widget.action.label}'),
-        content: const Text(
-          'Press a button or direction on your connected controller.\n\n'
-          'Press Escape to cancel.',
+        title: Text(
+          context.l10n.text('Bind {action}', {
+            'action': context.l10n.text(widget.action.label),
+          }),
+        ),
+        content: Text(
+          context.l10n.text(
+            'Press a button or direction on your connected controller.\n\n'
+            'Press Escape to cancel.',
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.text('Cancel')),
           ),
         ],
       ),
@@ -1179,7 +1204,7 @@ class _AboutCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Block Drop',
+            context.l10n.text('Block Drop'),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -1188,8 +1213,10 @@ class _AboutCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'A free and open-source Tetris clone built with Flutter. '
-            'Drop, rotate, and clear lines in this classic puzzle game.',
+            context.l10n.text(
+              'A free and open-source Tetris clone built with Flutter. '
+              'Drop, rotate, and clear lines in this classic puzzle game.',
+            ),
             style: TextStyle(
               fontSize: 13,
               color: colorScheme.onSurfaceVariant,
@@ -1244,7 +1271,7 @@ class _LinkRow extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              label,
+              context.l10n.text(label),
               style: TextStyle(
                 fontSize: 13,
                 color: colorScheme.primary,
@@ -1297,7 +1324,7 @@ class _StyleOption extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  label,
+                  context.l10n.text(label),
                   style: TextStyle(
                     fontSize: 15,
                     color: colorScheme.onSurface,
@@ -1341,7 +1368,7 @@ class _InstructionRow extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                label,
+                context.l10n.text(label),
                 style: TextStyle(
                   fontSize: 13,
                   color: colorScheme.onSurface,
@@ -1350,7 +1377,7 @@ class _InstructionRow extends StatelessWidget {
               ),
             ),
             Text(
-              description,
+              context.l10n.text(description),
               style: TextStyle(
                 fontSize: 13,
                 color: colorScheme.onSurfaceVariant,

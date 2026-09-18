@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// A compact, read-only rendering of an opponent's Tetris board.
 ///
 /// [cells] is a flat list of 200 palette indices (20 rows × 10 cols, row-major).
@@ -35,10 +37,10 @@ class OpponentBoard extends StatelessWidget {
               height: height,
               color: Colors.black54,
               alignment: Alignment.center,
-              child: const Text(
-                'GAME\nOVER',
+              child: Text(
+                context.l10n.text('GAME\nOVER'),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,

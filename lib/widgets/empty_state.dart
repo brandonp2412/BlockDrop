@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 class AppEmptyState extends StatelessWidget {
   const AppEmptyState({
     super.key,
@@ -30,7 +32,7 @@ class AppEmptyState extends StatelessWidget {
           Icon(icon, size: 64, color: colors.primary),
           const SizedBox(height: 16),
           Text(
-            title,
+            context.l10n.text(title),
             textAlign: TextAlign.center,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
@@ -39,7 +41,7 @@ class AppEmptyState extends StatelessWidget {
           if (message != null) ...[
             const SizedBox(height: 8),
             Text(
-              message!,
+              context.l10n.text(message!),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colors.onSurfaceVariant,
@@ -51,7 +53,7 @@ class AppEmptyState extends StatelessWidget {
             FilledButton.icon(
               onPressed: onAction,
               icon: Icon(actionIcon),
-              label: Text(actionLabel!),
+              label: Text(context.l10n.text(actionLabel!)),
             ),
           ],
         ],
@@ -63,7 +65,7 @@ class AppEmptyState extends StatelessWidget {
           ? content
           : Semantics(
               button: true,
-              label: actionLabel ?? title,
+              label: context.l10n.text(actionLabel ?? title),
               child: InkWell(
                 borderRadius: BorderRadius.circular(24),
                 onTap: onAction,
