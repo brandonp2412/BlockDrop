@@ -1,0 +1,1 @@
+Puzle clásico sin conexión con reserva de pieza, vista previa y temas.

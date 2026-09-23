@@ -1,0 +1,18 @@
+Faites tomber des blocs, complétez des lignes et battez votre meilleur score dans un puzzle classique de blocs qui tombent.
+
+BlockDrop est un jeu de puzzle arcade rapide et épuré, centré sur le défi familier du placement de tétriminos. Déplacez et faites pivoter chaque pièce, complétez des lignes horizontales et gardez le plateau dégagé tandis que la vitesse augmente.
+
+JOUEZ À VOTRE FAÇON
+
+• Utilisez les sept tétriminos classiques
+• Déplacez, faites pivoter et utilisez la chute lente ou instantanée avec des commandes réactives
+• Mettez une pièce en réserve pour le bon moment
+• Anticipez grâce à l’aperçu de la prochaine pièce
+• Suivez votre score et les lignes effacées à mesure que le jeu accélère
+• Choisissez des thèmes clairs, sombres ou adaptés aux écrans AMOLED
+
+CONÇU POUR DES SESSIONS RAPIDES
+
+Que vous ayez quelques minutes ou que vous visiez un nouveau record personnel, BlockDrop propose un jeu d’empilement de blocs épuré, sans distractions inutiles. Il fonctionne hors ligne et est disponible sur mobile comme sur ordinateur.
+
+BlockDrop est gratuit et open source. Il ne contient aucune publicité, aucun achat intégré, aucun suivi et aucune collecte de données.
