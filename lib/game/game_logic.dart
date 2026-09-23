@@ -24,6 +24,9 @@ class GameLogic extends ChangeNotifier {
   Duration _remainingLockDelay = Duration.zero;
   DateTime? _lockDelayDeadline;
 
+  /// True when a pending lock delay was interrupted by [pauseGame].
+  bool _lockDelayPaused = false;
+
   /// Delay between a piece touching the stack and becoming fixed in place.
   final Duration lockDelay;
 
@@ -300,10 +303,13 @@ class GameLogic extends ChangeNotifier {
     if (isGameRunning && !isGameOver && !isPaused) {
       isPaused = true;
       gameTimer?.cancel();
-
+      gameTimer = null;
       clearAnimationTimer?.cancel();
+      clearAnimationTimer = null;
       trailAnimationTimer?.cancel();
+      trailAnimationTimer = null;
       gracePeriodTimer?.cancel();
+      gracePeriodTimer = null;
       _pauseLockDelay();
 
       notifyListeners();
@@ -797,13 +803,19 @@ class GameLogic extends ChangeNotifier {
     if (_remainingLockDelay.isNegative) {
       _remainingLockDelay = Duration.zero;
     }
+    _lockDelayPaused = true;
     _lockDelayTimer?.cancel();
     _lockDelayTimer = null;
     _lockDelayDeadline = null;
   }
 
   void _resumeLockDelay() {
-    if (_remainingLockDelay == Duration.zero || currentPiece == null) return;
+    if (!_lockDelayPaused) return;
+    _lockDelayPaused = false;
+    if (currentPiece == null) {
+      _remainingLockDelay = Duration.zero;
+      return;
+    }
 
     final remaining = _remainingLockDelay;
     _lockDelayDeadline = DateTime.now().add(remaining);
@@ -811,6 +823,7 @@ class GameLogic extends ChangeNotifier {
   }
 
   void _cancelLockDelay() {
+    _lockDelayPaused = false;
     _lockDelayTimer?.cancel();
     _lockDelayTimer = null;
     _lockDelayDeadline = null;

@@ -525,12 +525,12 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         break;
       case AppLifecycleState.resumed:
         // App is coming back to foreground - resume the game
+        if (widget.settings.musicEnabled) _audioService.resumeMusic();
         if (!_isSettingsOpen &&
             gameLogic.isGameRunning &&
             !gameLogic.isGameOver &&
             gameLogic.isPaused) {
           gameLogic.resumeGame();
-          _audioService.resumeMusic();
         }
         break;
       case AppLifecycleState.hidden:
