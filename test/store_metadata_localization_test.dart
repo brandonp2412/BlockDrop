@@ -12,6 +12,7 @@ const _playStoreLocales = <String, String>{
   'ja': 'ja-JP',
   'ko': 'ko-KR',
   'zh': 'zh-CN',
+  'ru': 'ru-RU',
 };
 
 const _appStoreLocales = <String, String>{
@@ -22,6 +23,7 @@ const _appStoreLocales = <String, String>{
   'ja': 'ja',
   'ko': 'ko',
   'zh': 'zh-Hans',
+  'ru': 'ru',
 };
 
 String _read(String path) => File(path).readAsStringSync().trim();
