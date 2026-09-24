@@ -20,6 +20,7 @@ class AppLocalizations {
     Locale('ko'),
     Locale('zh'),
     Locale('ru'),
+    Locale('hi'),
   ];
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
