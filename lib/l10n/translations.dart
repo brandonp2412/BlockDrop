@@ -2055,7 +2055,8 @@ const appTranslations = <String, Map<String, String>>{
     "Controls": "عناصر التحكم",
     "BlockDrop": "BlockDrop",
     "Theme System Dark Light": "السمة النظام داكن فاتح",
-    "A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.": "نسخة مجانية ومفتوحة المصدر من Tetris مبنية باستخدام Flutter. أسقط القطع ودوّرها وأكمل الخطوط في لعبة الألغاز الكلاسيكية هذه.",
+    "A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.":
+        "نسخة مجانية ومفتوحة المصدر من Tetris مبنية باستخدام Flutter. أسقط القطع ودوّرها وأكمل الخطوط في لعبة الألغاز الكلاسيكية هذه.",
     "Bind {action}": "تعيين {action}",
     "Choose a starting level. Speed stays fixed throughout the session.":
         "اختر مستوى بدء. تبقى السرعة ثابتة طوال الجلسة.",
@@ -2074,7 +2075,8 @@ const appTranslations = <String, Map<String, String>>{
     "Score {score}": "النتيجة {score}",
     "Score: {score}": "النتيجة: {score}",
     "Waiting for {name} to respond…": "في انتظار رد {name}…",
-    "Windows Firewall may be blocking other players from connecting to this device.\n\nTap \"Add Rule\" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.": "قد يمنع جدار حماية Windows اللاعبين الآخرين من الاتصال بهذا الجهاز.\n\nاضغط \"إضافة قاعدة\" للسماح تلقائيًا لـ Block Drop عبر جدار الحماية (يعمل مع ملفات تعريف الشبكة الخاصة والعامة). سيطلب Windows إذن المسؤول.",
+    "Windows Firewall may be blocking other players from connecting to this device.\n\nTap \"Add Rule\" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.":
+        "قد يمنع جدار حماية Windows اللاعبين الآخرين من الاتصال بهذا الجهاز.\n\nاضغط \"إضافة قاعدة\" للسماح تلقائيًا لـ Block Drop عبر جدار الحماية (يعمل مع ملفات تعريف الشبكة الخاصة والعامة). سيطلب Windows إذن المسؤول.",
     "Windows Firewall may block connections — tap to configure":
         "قد يمنع جدار حماية Windows الاتصالات — اضغط للإعداد",
     "Your IP: {ip}  ·  broadcasting to: {broadcast}":
@@ -2089,7 +2091,8 @@ const appTranslations = <String, Map<String, String>>{
     "⚠ +{count} garbage": "⚠ +{count} خطوط عقوبة",
     "⚠ Could not detect LAN IP – make sure Wi-Fi is on.":
         "⚠ تعذّر اكتشاف عنوان IP للشبكة المحلية — تأكد من تشغيل Wi-Fi.",
-    "Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.": "أبقِ Block Drop مفتوحة على جهاز آخر متصل بشبكة Wi-Fi نفسها وستظهر هنا تلقائيًا.",
+    "Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.":
+        "أبقِ Block Drop مفتوحة على جهاز آخر متصل بشبكة Wi-Fi نفسها وستظهر هنا تلقائيًا.",
     "Time between automatic downward moves at level 1. Lower values are faster.":
         "الوقت بين الحركات التلقائية إلى أسفل في المستوى 1. القيم الأقل أسرع.",
     "Milliseconds removed from the drop delay each level.":
@@ -2103,7 +2106,8 @@ const appTranslations = <String, Map<String, String>>{
     "Button X": "الزر X",
     "Button Y": "الزر Y",
     "Button {id}": "الزر {id}",
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": "تأكد من السماح لـ Block Drop في جدار حماية Windows Defender على جهاز {name}.",
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
+        "تأكد من السماح لـ Block Drop في جدار حماية Windows Defender على جهاز {name}.",
     "Could not connect to {name}. Make sure they have Block Drop open.":
         "تعذّر الاتصال بـ {name}. تأكد من أن Block Drop مفتوحة لديه.",
   },
