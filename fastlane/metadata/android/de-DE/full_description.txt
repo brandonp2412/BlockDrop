@@ -1,0 +1,18 @@
+Blöcke fallen lassen, Reihen vervollständigen und den eigenen Highscore knacken – in einem klassischen Fallblock-Puzzle.
+
+BlockDrop ist ein schnelles, fokussiertes Arcade-Puzzlespiel rund um die vertraute Herausforderung, fallende Tetrominos zu platzieren. Drehe und bewege jeden Stein, vervollständige horizontale Reihen und halte das Spielfeld frei, während das Tempo steigt.
+
+SPIELE AUF DEINE ART
+
+• Nutze alle sieben klassischen Tetromino-Steine
+• Bewege und drehe Steine oder nutze Soft- und Hard-Drop mit reaktionsschneller Steuerung
+• Halte einen Stein für den richtigen Moment zurück
+• Plane mit der Vorschau des nächsten Steins
+• Verfolge Punktestand und gelöschte Reihen, während das Spiel schneller wird
+• Wähle zwischen hellen, dunklen und AMOLED-freundlichen Designs
+
+FÜR KURZE PUZZLE-RUNDEN GEMACHT
+
+Egal, ob du nur ein paar Minuten hast oder einen neuen persönlichen Rekord jagst: BlockDrop bietet ein klares Blockstapel-Spiel ohne unnötige Ablenkungen. Es funktioniert offline und ist für Mobilgeräte und Desktop-Plattformen verfügbar.
+
+BlockDrop ist kostenlos und Open Source. Es enthält keine Werbung, In-App-Käufe, Tracking oder Datenerfassung.

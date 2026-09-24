@@ -1,0 +1,1 @@
+• create-github-release に不足していた依存関係を追加

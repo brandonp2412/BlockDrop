@@ -1,0 +1,18 @@
+Solte blocos, complete linhas e supere seu recorde em um clássico quebra-cabeça de blocos em queda.
+
+BlockDrop é um jogo de quebra-cabeça arcade rápido e direto, baseado no desafio conhecido de posicionar tetraminós em queda. Mova e gire cada peça, complete linhas horizontais e mantenha o tabuleiro livre enquanto a velocidade aumenta.
+
+JOGUE DO SEU JEITO
+
+• Use as sete peças clássicas de tetraminó
+• Mova, gire e use queda suave ou queda rápida com controles responsivos
+• Guarde uma peça para o momento certo
+• Planeje com a prévia da próxima peça
+• Acompanhe a pontuação e as linhas eliminadas enquanto o jogo acelera
+• Escolha entre temas claros, escuros ou otimizados para AMOLED
+
+FEITO PARA PARTIDAS RÁPIDAS
+
+Seja para jogar por alguns minutos ou buscar um novo recorde pessoal, BlockDrop oferece um jogo limpo de empilhar blocos, sem distrações desnecessárias. Funciona offline e está disponível em plataformas móveis e de desktop.
+
+BlockDrop é gratuito e de código aberto. Não contém anúncios, compras no aplicativo, rastreamento nem coleta de dados.
