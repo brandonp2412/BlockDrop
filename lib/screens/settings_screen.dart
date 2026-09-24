@@ -44,6 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'zh': '中文',
     'ru': 'Русский',
     'hi': 'हिन्दी',
+    'ar': 'العربية',
   };
 
   String _searchQuery = '';
