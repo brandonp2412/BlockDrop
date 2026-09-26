@@ -5,6 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('Brazilian Portuguese uses the pt-BR locale', () {
+    expect(
+      AppLocalizations.supportedLocales,
+      contains(const Locale('pt', 'BR')),
+    );
+  });
+
+
   test('every supported non-English locale has the same translation keys', () {
     final supportedLanguages = AppLocalizations.supportedLocales
         .map((locale) => locale.languageCode)

@@ -40,6 +40,24 @@ Set<String> _textFileNames(String path) => Directory(path)
     .toSet();
 
 void main() {
+  test('Brazilian Portuguese F-Droid metadata is localized', () {
+    const englishDir = 'metadata/en-US';
+    const portugueseDir = 'metadata/pt-BR';
+
+    expect(Directory(portugueseDir).existsSync(), isTrue);
+    for (final filename in const [
+      'short_description.txt',
+      'full_description.txt',
+      'changelogs/1.txt',
+    ]) {
+      final english = _read('$englishDir/$filename');
+      final localized = _read('$portugueseDir/$filename');
+      expect(localized, isNotEmpty);
+      expect(localized, isNot(equals(english)));
+    }
+  });
+
+
   final supportedLanguages = AppLocalizations.supportedLocales
       .map((locale) => locale.languageCode)
       .where((language) => language != 'en')
