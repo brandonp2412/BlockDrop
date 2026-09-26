@@ -32,31 +32,33 @@ const _appStoreLocales = <String, String>{
 
 String _read(String path) => File(path).readAsStringSync().trim();
 
-Set<String> _textFileNames(String path) => Directory(path)
-    .listSync()
-    .whereType<File>()
-    .where((file) => file.path.endsWith('.txt'))
-    .map((file) => file.uri.pathSegments.last)
-    .toSet();
+Set<String> _textFileNames(String path) =>
+    Directory(path)
+        .listSync()
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.txt'))
+        .map((file) => file.uri.pathSegments.last)
+        .toSet();
 
 void main() {
-  test('Brazilian Portuguese F-Droid metadata is localized', () {
+  test('localized F-Droid metadata is translated', () {
     const englishDir = 'metadata/en-US';
-    const portugueseDir = 'metadata/pt-BR';
+    const localizedDirs = ['metadata/fr-FR', 'metadata/pt-BR'];
 
-    expect(Directory(portugueseDir).existsSync(), isTrue);
-    for (final filename in const [
-      'short_description.txt',
-      'full_description.txt',
-      'changelogs/1.txt',
-    ]) {
-      final english = _read('$englishDir/$filename');
-      final localized = _read('$portugueseDir/$filename');
-      expect(localized, isNotEmpty);
-      expect(localized, isNot(equals(english)));
+    for (final localizedDir in localizedDirs) {
+      expect(Directory(localizedDir).existsSync(), isTrue);
+      for (final filename in const [
+        'short_description.txt',
+        'full_description.txt',
+        'changelogs/1.txt',
+      ]) {
+        final english = _read('$englishDir/$filename');
+        final localized = _read('$localizedDir/$filename');
+        expect(localized, isNotEmpty);
+        expect(localized, isNot(equals(english)));
+      }
     }
   });
-
 
   final supportedLanguages = AppLocalizations.supportedLocales
       .map((locale) => locale.languageCode)
