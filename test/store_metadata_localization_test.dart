@@ -43,7 +43,11 @@ Set<String> _textFileNames(String path) =>
 void main() {
   test('localized F-Droid metadata is translated', () {
     const englishDir = 'metadata/en-US';
-    const localizedDirs = ['metadata/fr-FR', 'metadata/pt-BR'];
+    const localizedDirs = [
+      'metadata/de-DE',
+      'metadata/fr-FR',
+      'metadata/pt-BR',
+    ];
 
     for (final localizedDir in localizedDirs) {
       expect(Directory(localizedDir).existsSync(), isTrue);
