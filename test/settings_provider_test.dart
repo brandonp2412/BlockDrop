@@ -141,6 +141,19 @@ void main() {
       expect(systemDefault.locale, isNull);
     });
 
+    test('persists Hindi language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('hi');
+      expect(settings.localeCode, 'hi');
+      expect(settings.locale, const Locale('hi'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'hi');
+      expect(reloaded.locale, const Locale('hi'));
+    });
+
     test('ignores unsupported persisted language overrides', () async {
       SharedPreferences.setMockInitialValues({'locale': 'xx'});
       final settings = SettingsProvider();

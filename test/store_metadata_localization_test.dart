@@ -52,6 +52,7 @@ void main() {
       'metadata/ko-KR',
       'metadata/zh-CN',
       'metadata/zh-TW',
+      'metadata/hi-IN',
     ];
 
     for (final localizedDir in localizedDirs) {
