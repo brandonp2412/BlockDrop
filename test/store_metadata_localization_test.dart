@@ -47,6 +47,7 @@ void main() {
       'metadata/de-DE',
       'metadata/fr-FR',
       'metadata/pt-BR',
+      'metadata/ja-JP',
     ];
 
     for (final localizedDir in localizedDirs) {
