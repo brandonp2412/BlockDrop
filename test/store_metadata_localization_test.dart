@@ -32,13 +32,12 @@ const _appStoreLocales = <String, String>{
 
 String _read(String path) => File(path).readAsStringSync().trim();
 
-Set<String> _textFileNames(String path) =>
-    Directory(path)
-        .listSync()
-        .whereType<File>()
-        .where((file) => file.path.endsWith('.txt'))
-        .map((file) => file.uri.pathSegments.last)
-        .toSet();
+Set<String> _textFileNames(String path) => Directory(path)
+    .listSync()
+    .whereType<File>()
+    .where((file) => file.path.endsWith('.txt'))
+    .map((file) => file.uri.pathSegments.last)
+    .toSet();
 
 void main() {
   test('localized F-Droid metadata is translated', () {
@@ -48,6 +47,7 @@ void main() {
       'metadata/fr-FR',
       'metadata/pt-BR',
       'metadata/ja-JP',
+      'metadata/ko-KR',
     ];
 
     for (final localizedDir in localizedDirs) {

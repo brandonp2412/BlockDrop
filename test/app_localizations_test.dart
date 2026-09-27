@@ -12,7 +12,6 @@ void main() {
     );
   });
 
-
   test('every supported non-English locale has the same translation keys', () {
     final supportedLanguages = AppLocalizations.supportedLocales
         .map((locale) => locale.languageCode)
