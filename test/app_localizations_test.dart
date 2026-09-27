@@ -14,8 +14,13 @@ void main() {
 
   test('every supported non-English locale has the same translation keys', () {
     final supportedLanguages = AppLocalizations.supportedLocales
-        .map((locale) => locale.languageCode)
-        .where((language) => language != 'en')
+        .where((locale) => locale.languageCode != 'en')
+        .map(
+          (locale) => locale.languageCode == 'zh' &&
+                  locale.scriptCode == 'Hant'
+              ? 'zh-Hant'
+              : locale.languageCode,
+        )
         .toSet();
 
     expect(appTranslations.keys.toSet(), supportedLanguages);
@@ -30,6 +35,34 @@ void main() {
         reason: '${entry.key} must have the complete translation key set',
       );
     }
+  });
+
+  test('Traditional Chinese uses the Hant translation set', () {
+    const simplified = AppLocalizations(
+      Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    );
+    const traditional = AppLocalizations(
+      Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+    );
+
+    expect(simplified.text('Settings'), '设置');
+    expect(traditional.text('Settings'), '設置');
+    expect(traditional.text('Game Over'), '遊戲結束');
+  });
+
+  test('Traditional Chinese regions resolve to Hant', () {
+    expect(
+      AppLocalizations.resolveLocale(const [Locale('zh', 'TW')]),
+      const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+    );
+    expect(
+      AppLocalizations.resolveLocale(const [Locale('zh', 'HK')]),
+      const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+    );
+    expect(
+      AppLocalizations.resolveLocale(const [Locale('zh', 'CN')]),
+      const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    );
   });
 
   test('dynamic user-facing labels have explicit translations', () {

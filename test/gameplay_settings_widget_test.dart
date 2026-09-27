@@ -55,6 +55,23 @@ void main() {
     expect(settings.localeCode, 'de');
   });
 
+  testWidgets('language picker exposes Traditional Chinese', (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('settingsLanguageDropdown')),
+      120,
+    );
+    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('中文（简体）'), findsOneWidget);
+    expect(find.text('中文（繁體）'), findsOneWidget);
+  });
+
   testWidgets('maximum level picker offers unlimited progression',
       (tester) async {
     final settings = SettingsProvider();

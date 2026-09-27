@@ -57,7 +57,18 @@ class SettingsProvider extends ChangeNotifier {
   AppThemeMode get themeMode => _themeMode;
   AppStyle get style => _style;
   String? get localeCode => _localeCode;
-  Locale? get locale => _localeCode == null ? null : Locale(_localeCode!);
+  Locale? get locale => switch (_localeCode) {
+        'zh-Hans' => const Locale.fromSubtags(
+            languageCode: 'zh',
+            scriptCode: 'Hans',
+          ),
+        'zh-Hant' => const Locale.fromSubtags(
+            languageCode: 'zh',
+            scriptCode: 'Hant',
+          ),
+        final code? => Locale(code),
+        null => null,
+      };
   bool get musicEnabled => _musicEnabled;
   bool get sfxEnabled => _sfxEnabled;
   int get highScore => _highScore;
@@ -119,10 +130,14 @@ class SettingsProvider extends ChangeNotifier {
         .values[themeIndex.clamp(0, AppThemeMode.values.length - 1)];
     _style = AppStyle.values[styleIndex.clamp(0, AppStyle.values.length - 1)];
     final storedLocale = prefs.getString(_localeKey);
-    _localeCode = const {'en', 'de', 'es', 'fr', 'pt', 'ja', 'ko', 'zh'}
-            .contains(storedLocale)
-        ? storedLocale
-        : null;
+    const supportedLocales = {
+      'en', 'de', 'es', 'fr', 'pt', 'ja', 'ko', 'zh-Hans', 'zh-Hant',
+    };
+    _localeCode = storedLocale == 'zh'
+        ? 'zh-Hans'
+        : supportedLocales.contains(storedLocale)
+            ? storedLocale
+            : null;
     _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
     _highScore = prefs.getInt(_highScoreKey) ?? 0;
@@ -213,7 +228,9 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> setLocaleCode(String? value) async {
-    const supported = {'en', 'de', 'es', 'fr', 'pt', 'ja', 'ko', 'zh'};
+    const supported = {
+      'en', 'de', 'es', 'fr', 'pt', 'ja', 'ko', 'zh-Hans', 'zh-Hant',
+    };
     _localeCode = value != null && supported.contains(value) ? value : null;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();

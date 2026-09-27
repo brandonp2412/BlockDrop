@@ -18,7 +18,8 @@ class AppLocalizations {
     Locale('pt', 'BR'),
     Locale('ja'),
     Locale('ko'),
-    Locale('zh'),
+    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
     Locale('ru'),
     Locale('hi'),
     Locale('ar'),
@@ -40,12 +41,35 @@ class AppLocalizations {
         const AppLocalizations(Locale('en'));
   }
 
+  String get _translationKey {
+    if (locale.languageCode != 'zh') return locale.languageCode;
+    final traditionalRegion = const {'TW', 'HK', 'MO'}.contains(locale.countryCode);
+    return locale.scriptCode == 'Hant' || traditionalRegion ? 'zh-Hant' : 'zh';
+  }
+
+  /// Resolves platform Chinese locales to the matching script variant.
+  static Locale resolveLocale(Iterable<Locale>? preferredLocales) {
+    for (final locale in preferredLocales ?? const <Locale>[]) {
+      if (locale.languageCode == 'zh') {
+        final traditionalRegion =
+            const {'TW', 'HK', 'MO'}.contains(locale.countryCode);
+        return locale.scriptCode == 'Hant' || traditionalRegion
+            ? const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
+            : const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans');
+      }
+      for (final supported in supportedLocales) {
+        if (supported.languageCode == locale.languageCode) return supported;
+      }
+    }
+    return const Locale('en');
+  }
+
   /// Translates [source] and substitutes named brace placeholders.
   String text(
     String source, [
     Map<String, Object?> values = const <String, Object?>{},
   ]) {
-    final translations = appTranslations[locale.languageCode];
+    final translations = appTranslations[_translationKey];
     var template = translations?[source];
     if (template == null) {
       final button = RegExp(r'^Button (.+)$').firstMatch(source);
@@ -66,7 +90,7 @@ class AppLocalizations {
 
   /// Translates runtime network messages containing dynamic values.
   String runtimeText(String source) {
-    final direct = appTranslations[locale.languageCode]?[source];
+    final direct = appTranslations[_translationKey]?[source];
     if (direct != null) return direct;
 
     final discovery =

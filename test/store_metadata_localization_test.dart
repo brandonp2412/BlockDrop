@@ -11,7 +11,8 @@ const _playStoreLocales = <String, String>{
   'pt': 'pt-BR',
   'ja': 'ja-JP',
   'ko': 'ko-KR',
-  'zh': 'zh-CN',
+  'zh-Hans': 'zh-CN',
+  'zh-Hant': 'zh-TW',
   'ru': 'ru-RU',
   'hi': 'hi-IN',
   'ar': 'ar',
@@ -24,7 +25,8 @@ const _appStoreLocales = <String, String>{
   'pt': 'pt-BR',
   'ja': 'ja',
   'ko': 'ko',
-  'zh': 'zh-Hans',
+  'zh-Hans': 'zh-Hans',
+  'zh-Hant': 'zh-Hant',
   'ru': 'ru',
   'hi': 'hi',
   'ar': 'ar-SA',
@@ -49,6 +51,7 @@ void main() {
       'metadata/ja-JP',
       'metadata/ko-KR',
       'metadata/zh-CN',
+      'metadata/zh-TW',
     ];
 
     for (final localizedDir in localizedDirs) {
@@ -67,8 +70,12 @@ void main() {
   });
 
   final supportedLanguages = AppLocalizations.supportedLocales
-      .map((locale) => locale.languageCode)
-      .where((language) => language != 'en')
+      .where((locale) => locale.languageCode != 'en')
+      .map(
+        (locale) => locale.languageCode == 'zh'
+            ? 'zh-${locale.scriptCode}'
+            : locale.languageCode,
+      )
       .toSet();
 
   test('store locale mappings cover every translated app locale', () {

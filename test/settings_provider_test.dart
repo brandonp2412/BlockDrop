@@ -306,4 +306,32 @@ void main() {
       expect(settings.controllerBindings, defaultControllerBindings);
     });
   });
+  test('Traditional Chinese locale persists with Hant script', () async {
+    final settings = SettingsProvider();
+    await settings.load();
+
+    await settings.setLocaleCode('zh-Hant');
+    expect(settings.localeCode, 'zh-Hant');
+    expect(
+      settings.locale,
+      const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+    );
+
+    final reloaded = SettingsProvider();
+    await reloaded.load();
+    expect(reloaded.localeCode, 'zh-Hant');
+  });
+
+  test('legacy Chinese locale migrates to Simplified Chinese', () async {
+    SharedPreferences.setMockInitialValues({'locale': 'zh'});
+    final settings = SettingsProvider();
+    await settings.load();
+
+    expect(settings.localeCode, 'zh-Hans');
+    expect(
+      settings.locale,
+      const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    );
+  });
+
 }

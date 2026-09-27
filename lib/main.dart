@@ -89,6 +89,8 @@ class _TetrisAppState extends State<TetrisApp> {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: _settings.locale,
+      localeListResolutionCallback: (locales, _) =>
+          AppLocalizations.resolveLocale(locales),
       // Neon style requires a dark background everywhere — override theme mode
       themeMode: _settings.style == AppStyle.neon
           ? ThemeMode.dark
