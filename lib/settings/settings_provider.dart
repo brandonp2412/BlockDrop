@@ -143,6 +143,7 @@ class SettingsProvider extends ChangeNotifier {
       'ru',
       'hi',
       'ar',
+      'id',
     };
     _localeCode = storedLocale == 'zh'
         ? 'zh-Hans'
@@ -252,6 +253,7 @@ class SettingsProvider extends ChangeNotifier {
       'ru',
       'hi',
       'ar',
+      'id',
     };
     _localeCode = value != null && supported.contains(value) ? value : null;
     notifyListeners();

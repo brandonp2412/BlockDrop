@@ -46,6 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'ru': 'Русский',
     'hi': 'हिन्दी',
     'ar': 'العربية',
+    'id': 'Bahasa Indonesia',
   };
 
   String _searchQuery = '';

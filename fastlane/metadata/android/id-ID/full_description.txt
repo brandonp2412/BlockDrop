@@ -1,0 +1,18 @@
+Jatuhkan balok, hapus baris, dan pecahkan skor tertinggi Anda dalam teka-teki balok jatuh klasik.
+
+BlockDrop adalah permainan teka-teki arkade yang cepat dan fokus, dibangun di atas tantangan familier untuk menempatkan tetromino yang jatuh. Putar dan gerakkan setiap balok, lengkapi baris horizontal, dan jaga papan tetap bersih saat permainan semakin cepat.
+
+MAIN DENGAN CARA ANDA
+
+• Gunakan tujuh balok tetromino klasik
+• Gerakkan, putar, turunkan perlahan, dan jatuhkan cepat dengan kontrol responsif
+• Simpan satu balok untuk saat yang tepat
+• Rencanakan langkah dengan pratinjau balok berikutnya
+• Pantau skor dan baris yang dihapus saat permainan semakin cepat
+• Pilih tema terang, gelap, atau ramah AMOLED
+
+COCOK UNTUK SESI TEKA-TEKI SINGKAT
+
+Baik Anda hanya punya beberapa menit maupun ingin mengejar rekor pribadi baru, BlockDrop memberi Anda permainan susun balok yang bersih tanpa gangguan yang tidak perlu. Permainan ini bekerja offline dan tersedia di platform seluler serta desktop.
+
+BlockDrop gratis dan sumber terbuka. Tidak ada iklan, pembelian dalam aplikasi, pelacakan, atau pengumpulan data.

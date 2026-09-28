@@ -167,6 +167,19 @@ void main() {
       expect(reloaded.locale, const Locale('hi'));
     });
 
+    test('persists Indonesian language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('id');
+      expect(settings.localeCode, 'id');
+      expect(settings.locale, const Locale('id'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'id');
+      expect(reloaded.locale, const Locale('id'));
+    });
+
     test('persists Arabic language override', () async {
       final settings = SettingsProvider();
       await settings.setLocaleCode('ar');
