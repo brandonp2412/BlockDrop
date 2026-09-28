@@ -1,0 +1,1 @@
+• เพิ่ม dependency ที่ขาดหายไปสำหรับ create-github-release

@@ -5,6 +5,7 @@ import 'package:block_drop/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _playStoreLocales = <String, String>{
+  'th': 'th-TH',
   'tr': 'tr-TR',
   'vi': 'vi-VN',
   'de': 'de-DE',
@@ -22,6 +23,7 @@ const _playStoreLocales = <String, String>{
 };
 
 const _appStoreLocales = <String, String>{
+  'th': 'th',
   'tr': 'tr',
   'vi': 'vi',
   'de': 'de-DE',
@@ -52,6 +54,7 @@ void main() {
   test('localized F-Droid metadata is translated', () {
     const englishDir = 'metadata/en-US';
     const localizedDirs = [
+      'metadata/th-TH',
       'metadata/tr-TR',
       'metadata/vi-VN',
       'metadata/de-DE',

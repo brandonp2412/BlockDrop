@@ -167,6 +167,19 @@ void main() {
       expect(reloaded.locale, const Locale('hi'));
     });
 
+    test('persists Thai language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('th');
+      expect(settings.localeCode, 'th');
+      expect(settings.locale, const Locale('th'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'th');
+      expect(reloaded.locale, const Locale('th'));
+    });
+
     test('persists Vietnamese language override', () async {
       final settings = SettingsProvider();
 

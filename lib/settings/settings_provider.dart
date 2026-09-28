@@ -132,6 +132,7 @@ class SettingsProvider extends ChangeNotifier {
     final storedLocale = prefs.getString(_localeKey);
     const supportedLocales = {
       'en',
+      'th',
       'de',
       'es',
       'fr',
@@ -244,6 +245,7 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setLocaleCode(String? value) async {
     const supported = {
       'en',
+      'th',
       'de',
       'es',
       'fr',

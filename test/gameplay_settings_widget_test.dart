@@ -49,10 +49,10 @@ void main() {
     );
     await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Tiếng Việt').last);
+    await tester.tap(find.text('ไทย').last);
     await tester.pump();
 
-    expect(settings.localeCode, 'vi');
+    expect(settings.localeCode, 'th');
   });
 
   testWidgets('language picker exposes Traditional Chinese', (tester) async {
@@ -68,9 +68,17 @@ void main() {
     await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.text('中文（简体）'),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.text('中文（简体）'), findsOneWidget);
-    await tester.drag(find.byType(Scrollable).last, const Offset(0, -240));
-    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('中文（繁體）'),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.text('中文（繁體）'), findsOneWidget);
   });
 

@@ -12,6 +12,7 @@ class AppLocalizations {
 
   static const supportedLocales = <Locale>[
     Locale('en'),
+    Locale('th'),
     Locale('tr'),
     Locale('vi'),
     Locale('id'),

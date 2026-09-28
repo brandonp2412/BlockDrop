@@ -35,6 +35,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   static const _languageNames = <String, String>{
     'en': 'English',
+    'th': 'ไทย',
     'tr': 'Türkçe',
     'vi': 'Tiếng Việt',
     'de': 'Deutsch',
