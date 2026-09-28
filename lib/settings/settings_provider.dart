@@ -140,6 +140,7 @@ class SettingsProvider extends ChangeNotifier {
       'ko',
       'zh-Hans',
       'zh-Hant',
+      'ru',
       'hi',
       'ar',
     };
@@ -248,6 +249,7 @@ class SettingsProvider extends ChangeNotifier {
       'ko',
       'zh-Hans',
       'zh-Hant',
+      'ru',
       'hi',
       'ar',
     };

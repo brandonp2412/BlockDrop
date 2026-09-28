@@ -52,6 +52,7 @@ void main() {
       'metadata/ko-KR',
       'metadata/zh-CN',
       'metadata/zh-TW',
+      'metadata/ru-RU',
       'metadata/hi-IN',
       'metadata/ar-SA',
     ];
