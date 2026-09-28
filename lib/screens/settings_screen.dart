@@ -36,6 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const _languageNames = <String, String>{
     'en': 'English',
     'tr': 'Türkçe',
+    'vi': 'Tiếng Việt',
     'de': 'Deutsch',
     'es': 'Español',
     'fr': 'Français',

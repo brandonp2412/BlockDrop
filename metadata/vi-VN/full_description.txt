@@ -1,0 +1,8 @@
+Block Drop là trò chơi xếp khối hiện đại được xây dựng bằng Flutter, mang lại trải nghiệm giải đố cổ điển với phong cách mới. Hãy thử tài khéo léo của bạn bằng cách thả, xoay và xóa các hàng trong trò chơi hấp dẫn này.
+
+Tính năng:
+* Lối chơi xếp khối cổ điển
+* Điều khiển mượt mà và phản hồi nhanh
+* Giao diện sạch sẽ, hiện đại
+* Giữ và đổi khối
+* Xem trước các khối sắp tới

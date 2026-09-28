@@ -167,6 +167,19 @@ void main() {
       expect(reloaded.locale, const Locale('hi'));
     });
 
+    test('persists Vietnamese language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('vi');
+      expect(settings.localeCode, 'vi');
+      expect(settings.locale, const Locale('vi'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'vi');
+      expect(reloaded.locale, const Locale('vi'));
+    });
+
     test('persists Indonesian language override', () async {
       final settings = SettingsProvider();
 
@@ -238,10 +251,7 @@ void main() {
 
     test('persists and clears a resumable game snapshot', () async {
       final settings = SettingsProvider();
-      final snapshot = <String, Object?>{
-        'version': 1,
-        'score': 321,
-      };
+      final snapshot = <String, Object?>{'version': 1, 'score': 321};
 
       await settings.saveGameSnapshot(snapshot);
       final reloaded = SettingsProvider();

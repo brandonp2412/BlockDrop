@@ -1,0 +1,18 @@
+Thả khối, xóa hàng và phá kỷ lục của bạn trong trò chơi xếp khối cổ điển.
+
+BlockDrop là trò chơi giải đố arcade nhanh gọn, xoay quanh thử thách quen thuộc: sắp xếp các tetromino đang rơi. Xoay và di chuyển từng khối, hoàn thành các hàng ngang và giữ bàn chơi thông thoáng khi tốc độ tăng dần.
+
+CHƠI THEO CÁCH CỦA BẠN
+
+• Sử dụng đủ bảy khối tetromino cổ điển
+• Di chuyển, xoay, thả chậm và thả nhanh với điều khiển nhạy
+• Giữ một khối để dùng đúng lúc
+• Lên kế hoạch với phần xem trước khối tiếp theo
+• Theo dõi điểm số và số hàng đã xóa khi trò chơi tăng tốc
+• Chọn chủ đề sáng, tối hoặc thân thiện với màn hình AMOLED
+
+PHÙ HỢP CHO NHỮNG PHIÊN CHƠI NGẮN
+
+Dù bạn chỉ có vài phút hay muốn chinh phục kỷ lục cá nhân mới, BlockDrop mang đến trải nghiệm xếp khối gọn gàng, không có những yếu tố gây xao nhãng. Trò chơi hoạt động offline và có mặt trên cả nền tảng di động lẫn máy tính.
+
+BlockDrop miễn phí và mã nguồn mở. Trò chơi không có quảng cáo, mua hàng trong ứng dụng, theo dõi hay thu thập dữ liệu.

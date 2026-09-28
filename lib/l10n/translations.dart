@@ -158,8 +158,7 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': 'Kontroller',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistem Koyu Açık',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Flutter ile geliştirilmiş ücretsiz ve açık kaynaklı bir Tetris klonu. Bu klasik bulmaca oyununda parçaları düşürün, döndürün ve satırları temizleyin.',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Flutter ile geliştirilmiş ücretsiz ve açık kaynaklı bir Tetris klonu. Bu klasik bulmaca oyununda parçaları düşürün, döndürün ve satırları temizleyin.',
     'Bind {action}': '{action} ata',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Bir başlangıç seviyesi seçin. Hız oturum boyunca sabit kalır.',
@@ -173,16 +172,13 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': 'Sv {level}  ·  {lines} satır',
     'OPP': 'RAKİP',
     'Practice Lv {level}': 'Alıştırma Sv {level}',
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
-        'Bağlı kumandanızda bir düğmeye veya yön tuşuna basın.\n\nİptal etmek için Escape tuşuna basın.',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'Bağlı kumandanızda bir düğmeye veya yön tuşuna basın.\n\nİptal etmek için Escape tuşuna basın.',
     'Score {score}': 'Skor {score}',
     'Score: {score}': 'Skor: {score}',
     'Waiting for {name} to respond…':
         '{name} adlı oyuncunun yanıtı bekleniyor…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Windows Güvenlik Duvarı diğer oyuncuların bu cihaza bağlanmasını engelliyor olabilir.\n\nBlock Drop uygulamasına güvenlik duvarından otomatik olarak izin vermek için "Kural Ekle"ye dokunun (Özel ve Genel ağ profillerinde çalışır). Windows yönetici izni isteyecektir.',
-    'Windows Firewall may block connections — tap to configure':
-        'Windows Güvenlik Duvarı bağlantıları engelleyebilir — yapılandırmak için dokunun',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Windows Güvenlik Duvarı diğer oyuncuların bu cihaza bağlanmasını engelliyor olabilir.\n\nBlock Drop uygulamasına güvenlik duvarından otomatik olarak izin vermek için "Kural Ekle"ye dokunun (Özel ve Genel ağ profillerinde çalışır). Windows yönetici izni isteyecektir.',
+    'Windows Firewall may block connections — tap to configure': 'Windows Güvenlik Duvarı bağlantıları engelleyebilir — yapılandırmak için dokunun',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
         'IP adresiniz: {ip}  ·  yayın hedefi: {broadcast}',
     'vs {name}': '{name} ile',
@@ -196,10 +192,8 @@ const appTranslations = <String, Map<String, String>>{
     '⚠ +{count} garbage': '⚠ +{count} çöp satırı',
     '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
         '⚠ LAN IP adresi algılanamadı – Wi-Fi açık olduğundan emin olun.',
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
-        'Block Drop uygulamasını aynı Wi-Fi ağındaki başka bir cihazda açık tutun; cihaz burada otomatik olarak görünecektir.',
-    'Time between automatic downward moves at level 1. Lower values are faster.':
-        '1. seviyedeki otomatik aşağı hareketler arasındaki süre. Daha düşük değerler daha hızlıdır.',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'Block Drop uygulamasını aynı Wi-Fi ağındaki başka bir cihazda açık tutun; cihaz burada otomatik olarak görünecektir.',
+    'Time between automatic downward moves at level 1. Lower values are faster.': '1. seviyedeki otomatik aşağı hareketler arasındaki süre. Daha düşük değerler daha hızlıdır.',
     'Milliseconds removed from the drop delay each level.':
         'Her seviyede düşme gecikmesinden çıkarılan milisaniye.',
     'Choose 0 for unlimited level progression.':
@@ -211,10 +205,214 @@ const appTranslations = <String, Map<String, String>>{
     'Button X': 'X Düğmesi',
     'Button Y': 'Y Düğmesi',
     'Button {id}': '{id} Düğmesi',
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        'Block Drop uygulamasına {name} adlı oyuncunun cihazındaki Windows Defender Güvenlik Duvarı üzerinden izin verildiğini kontrol edin.',
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": 'Block Drop uygulamasına {name} adlı oyuncunun cihazındaki Windows Defender Güvenlik Duvarı üzerinden izin verildiğini kontrol edin.',
+    'Could not connect to {name}. Make sure they have Block Drop open.': '{name} adlı oyuncuya bağlanılamadı. Block Drop uygulamasının açık olduğundan emin olun.',
+  },
+  'vi': {
+    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Settings': 'Cài đặt',
+    'Search settings': 'Tìm kiếm cài đặt',
+    'No settings found': 'Không tìm thấy cài đặt',
+    'Try another search term.': 'Hãy thử từ khóa khác.',
+    'Clear search': 'Xóa tìm kiếm',
+    'Cancel': 'Hủy',
+    'Save': 'Lưu',
+    'Start': 'Bắt đầu',
+    'Quit': 'Thoát',
+    'Leave': 'Rời đi',
+    'Stay': 'Ở lại',
+    'Play Again': 'Chơi lại',
+    'Dismiss': 'Đóng',
+    'Open Settings': 'Mở cài đặt',
+    'Add Rule': 'Thêm quy tắc',
+    'Accept': 'Chấp nhận',
+    'Decline': 'Từ chối',
+    'Invite': 'Mời',
+    'Start Game': 'Bắt đầu trò chơi',
+    'Leave Lobby': 'Rời phòng chờ',
+    'Game': 'Trò chơi',
+    'Resume': 'Tiếp tục',
+    'Restart': 'Khởi động lại',
+    'Practice Mode': 'Chế độ luyện tập',
+    'Sound': 'Âm thanh',
+    'Music': 'Nhạc',
+    'Sound Effects': 'Hiệu ứng âm thanh',
+    'Gameplay': 'Lối chơi',
+    'Ghost Tile': 'Khối bóng',
+    'Enable Hold Piece': 'Bật giữ khối',
+    'Swipe Up to Hold': 'Vuốt lên để giữ',
+    'Continue Saved Game': 'Tiếp tục trò chơi đã lưu',
+    'On-Screen Controls': 'Điều khiển trên màn hình',
+    'Large Board': 'Bàn chơi lớn',
+    'Starting Speed': 'Tốc độ ban đầu',
+    'Speed per Level': 'Tốc độ mỗi cấp',
+    'Maximum Level': 'Cấp tối đa',
+    'Lines per Level': 'Số hàng mỗi cấp',
+    'Enable Soft Drop': 'Bật thả chậm',
+    'Back Gesture Holds': 'Cử chỉ quay lại để giữ',
+    'Controller': 'Tay cầm',
+    'Appearance': 'Giao diện',
+    'Language': 'Ngôn ngữ',
+    'System default': 'Mặc định hệ thống',
+    'Theme': 'Chủ đề',
+    'System': 'Hệ thống',
+    'Dark': 'Tối',
+    'Light': 'Sáng',
+    'Pure Black AMOLED': 'Đen tuyệt đối AMOLED',
+    'Pure Black (AMOLED)': 'Đen tuyệt đối (AMOLED)',
+    'Style': 'Kiểu',
+    'Classic': 'Cổ điển',
+    'Modern': 'Hiện đại',
+    'Bubbles': 'Bong bóng',
+    'Neon': 'Neon',
+    'Retro': 'Retro',
+    'Multiplayer': 'Nhiều người chơi',
+    'Show Opponent Board': 'Hiện bàn của đối thủ',
+    'Play on LAN': 'Chơi qua LAN',
+    'Stats': 'Thống kê',
+    'High Score': 'Điểm cao nhất',
+    'Instructions': 'Hướng dẫn',
+    'About': 'Giới thiệu',
+    'Unlimited': 'Không giới hạn',
+    'Reset controller layout': 'Đặt lại bố cục tay cầm',
+    'Move left': 'Di chuyển sang trái',
+    'Move right': 'Di chuyển sang phải',
+    'Soft drop': 'Thả chậm',
+    'Rotate left': 'Xoay trái',
+    'Rotate right': 'Xoay phải',
+    'Hard drop': 'Thả nhanh',
+    'Hold': 'Giữ',
+    'Hold piece': 'Giữ khối',
+    'Rotate': 'Xoay',
+    'Move piece': 'Di chuyển khối',
+    'Rotate piece': 'Xoay khối',
+    'Swipe left / right': 'Vuốt trái / phải',
+    'Swipe down': 'Vuốt xuống',
+    'Fast swipe down': 'Vuốt nhanh xuống',
+    'Tap left / right side': 'Chạm bên trái / phải',
+    'Tap Hold area': 'Chạm vùng Giữ',
+    'Space': 'Phím cách',
+    '↑ or Z / X': '↑ hoặc Z / X',
+    'Source Code': 'Mã nguồn',
+    'Support Development': 'Hỗ trợ phát triển',
+    'Quit Game?': 'Thoát trò chơi?',
+    'Your current progress will be lost.': 'Tiến trình hiện tại sẽ bị mất.',
+    'Game Over!': 'Trò chơi kết thúc!',
+    'Game Over': 'Trò chơi kết thúc',
+    'PRACTICE': 'LUYỆN TẬP',
+    'Hold:': 'Giữ:',
+    'Next:': 'Tiếp theo:',
+    'HOLD': 'GIỮ',
+    'NEXT': 'TIẾP THEO',
+    'Next': 'Tiếp theo',
+    'Game controls': 'Điều khiển trò chơi',
+    'Held piece available': 'Có thể dùng khối đang giữ',
+    'Held piece unavailable': 'Không thể dùng khối đang giữ',
+    'Windows Firewall': 'Tường lửa Windows',
+    'Firewall rule added — try connecting again.':
+        'Đã thêm quy tắc tường lửa — hãy thử kết nối lại.',
+    'Game Invite': 'Lời mời chơi',
+    'Searching on your network…': 'Đang tìm trên mạng của bạn…',
+    'OTHER PLAYERS': 'NGƯỜI CHƠI KHÁC',
+    'No players found yet': 'Chưa tìm thấy người chơi',
+    'Lobby': 'Phòng chờ',
+    'You': 'Bạn',
+    'Opponent': 'Đối thủ',
+    'Player': 'Người chơi',
+    'Unknown': 'Không xác định',
+    'Someone': 'Ai đó',
+    'You are the host': 'Bạn là chủ phòng',
+    'Waiting for host to start…': 'Đang chờ chủ phòng bắt đầu…',
+    'Mode': 'Chế độ',
+    'Random': 'Ngẫu nhiên',
+    'Fair': 'Cân bằng',
+    'Hold Piece': 'Giữ khối',
+    'Get Ready': 'Sẵn sàng',
+    'GO!': 'BẮT ĐẦU!',
+    '🎉 You Win!': '🎉 Bạn thắng!',
+    'Your score': 'Điểm của bạn',
+    'Leave Game?': 'Rời trò chơi?',
+    'Your opponent will be disconnected.':
+        'Đối thủ của bạn sẽ bị ngắt kết nối.',
+    'YOU': 'BẠN',
+    'OPPONENT': 'ĐỐI THỦ',
+    'Invite was declined': 'Lời mời đã bị từ chối',
+    'SINGLE': 'MỘT HÀNG',
+    'DOUBLE': 'HAI HÀNG',
+    'TRIPLE': 'BA HÀNG',
+    'T-SPIN': 'T-SPIN',
+    'T-SPIN SINGLE': 'T-SPIN MỘT HÀNG',
+    'T-SPIN DOUBLE': 'T-SPIN HAI HÀNG',
+    'T-SPIN TRIPLE': 'T-SPIN BA HÀNG',
+    'TETRIS!': 'TETRIS!',
+    'GAME\nOVER': 'TRÒ CHƠI\nKẾT THÚC',
+    'D-pad left': 'D-pad trái',
+    'D-pad right': 'D-pad phải',
+    'D-pad down': 'D-pad xuống',
+    'D-pad up': 'D-pad lên',
+    'Left bumper': 'Nút vai trái',
+    'Left trigger': 'Cò trái',
+    'Right bumper': 'Nút vai phải',
+    'Right trigger': 'Cò phải',
+    'Select': 'Chọn',
+    'Left stick': 'Cần trái',
+    'Right stick': 'Cần phải',
+    'Could not start network discovery: {error}':
+        'Không thể bắt đầu dò tìm mạng: {error}',
+    '{name} disconnected': '{name} đã ngắt kết nối',
+    'Block Drop': 'Block Drop',
+    'Controls': 'Điều khiển',
+    'BlockDrop': 'BlockDrop',
+    'Theme System Dark Light': 'Chủ đề Hệ thống Tối Sáng',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Một bản sao Tetris miễn phí và mã nguồn mở được xây dựng bằng Flutter. Thả, xoay và xóa hàng trong trò chơi xếp hình cổ điển này.',
+    'Bind {action}': 'Gán {action}',
+    'Choose a starting level. Speed stays fixed throughout the session.':
+        'Chọn cấp bắt đầu. Tốc độ sẽ giữ nguyên trong suốt phiên chơi.',
+    'Final Score: {score}': 'Điểm cuối: {score}',
+    'Level {level}': 'Cấp {level}',
+    'Level: {level}': 'Cấp: {level}',
+    'Lines Cleared: {lines}': 'Hàng đã xóa: {lines}',
+    'Lines {lines}': 'Hàng {lines}',
+    'Lines: {lines}': 'Hàng: {lines}',
+    'Lv {level}': 'Cấp {level}',
+    'Lv {level}  ·  {lines} lines': 'Cấp {level}  ·  {lines} hàng',
+    'OPP': 'ĐỐI THỦ',
+    'Practice Lv {level}': 'Luyện tập cấp {level}',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'Nhấn một nút hoặc hướng trên tay cầm đã kết nối.\n\nNhấn Escape để hủy.',
+    'Score {score}': 'Điểm {score}',
+    'Score: {score}': 'Điểm: {score}',
+    'Waiting for {name} to respond…': 'Đang chờ {name} phản hồi…',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Tường lửa Windows có thể đang chặn người chơi khác kết nối với thiết bị này.\n\nNhấn "Thêm quy tắc" để tự động cho phép Block Drop qua tường lửa (áp dụng cho cả cấu hình mạng Riêng tư và Công khai). Windows sẽ yêu cầu quyền quản trị viên.',
+    'Windows Firewall may block connections — tap to configure':
+        'Tường lửa Windows có thể chặn kết nối — nhấn để cấu hình',
+    'Your IP: {ip}  ·  broadcasting to: {broadcast}':
+        'IP của bạn: {ip}  ·  đang phát tới: {broadcast}',
+    'vs {name}': 'đấu với {name}',
+    '{lines} lines': '{lines} hàng',
+    '{mode} mode': 'chế độ {mode}',
+    '{name} wants to play Block Drop with you!':
+        '{name} muốn chơi Block Drop với bạn!',
+    '{name}\'s score': 'Điểm của {name}',
+    '{streak}-line combo clear effect': 'Hiệu ứng combo xóa {streak} hàng',
+    '⚠ +{count} garbage': '⚠ +{count} hàng rác',
+    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
+        '⚠ Không thể phát hiện IP LAN – hãy đảm bảo Wi-Fi đang bật.',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'Giữ Block Drop mở trên thiết bị khác cùng mạng Wi-Fi và thiết bị đó sẽ tự động xuất hiện ở đây.',
+    'Time between automatic downward moves at level 1. Lower values are faster.': 'Khoảng thời gian giữa các lần tự động di chuyển xuống ở cấp 1. Giá trị thấp hơn sẽ nhanh hơn.',
+    'Milliseconds removed from the drop delay each level.':
+        'Số mili giây được giảm khỏi độ trễ thả ở mỗi cấp.',
+    'Choose 0 for unlimited level progression.':
+        'Chọn 0 để tăng cấp không giới hạn.',
+    'Cleared lines required to advance one level.':
+        'Số hàng cần xóa để tăng một cấp.',
+    'Button A': 'Nút A',
+    'Button B': 'Nút B',
+    'Button X': 'Nút X',
+    'Button Y': 'Nút Y',
+    'Button {id}': 'Nút {id}',
+    'Check that Block Drop is allowed in Windows Defender Firewall on {name}\'s device.': 'Kiểm tra rằng Block Drop được cho phép trong Tường lửa Windows Defender trên thiết bị của {name}.',
     'Could not connect to {name}. Make sure they have Block Drop open.':
-        '{name} adlı oyuncuya bağlanılamadı. Block Drop uygulamasının açık olduğundan emin olun.',
+        'Không thể kết nối với {name}. Hãy đảm bảo họ đang mở Block Drop.',
   },
   'id': {
     'Block Drop - Tetris': "Block Drop - Tetris",
@@ -371,8 +569,7 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': "Kontrol",
     'BlockDrop': "BlockDrop",
     'Theme System Dark Light': "Tema Sistem Gelap Terang",
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        "Klon Tetris gratis dan sumber terbuka yang dibuat dengan Flutter. Jatuhkan, putar, dan hapus baris dalam permainan teka-teki klasik ini.",
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': "Klon Tetris gratis dan sumber terbuka yang dibuat dengan Flutter. Jatuhkan, putar, dan hapus baris dalam permainan teka-teki klasik ini.",
     'Bind {action}': "Atur {action}",
     'Choose a starting level. Speed stays fixed throughout the session.':
         "Pilih level awal. Kecepatan tetap sama sepanjang sesi.",
@@ -386,13 +583,11 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': "Lv {level}  ·  {lines} baris",
     'OPP': "LAWAN",
     'Practice Lv {level}': "Latihan Lv {level}",
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
-        "Tekan tombol atau arah pada kontroler yang terhubung.\\n\\nTekan Escape untuk membatalkan.",
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': "Tekan tombol atau arah pada kontroler yang terhubung.\\n\\nTekan Escape untuk membatalkan.",
     'Score {score}': "Skor {score}",
     'Score: {score}': "Skor: {score}",
     'Waiting for {name} to respond…': "Menunggu respons {name}…",
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        "Firewall Windows mungkin memblokir pemain lain agar tidak terhubung ke perangkat ini.\\n\\nKetuk \"Tambahkan Aturan\" untuk otomatis mengizinkan Block Drop melalui firewall (berlaku untuk profil jaringan Privat dan Publik). Windows akan meminta izin administrator.",
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': "Firewall Windows mungkin memblokir pemain lain agar tidak terhubung ke perangkat ini.\\n\\nKetuk \"Tambahkan Aturan\" untuk otomatis mengizinkan Block Drop melalui firewall (berlaku untuk profil jaringan Privat dan Publik). Windows akan meminta izin administrator.",
     'Windows Firewall may block connections — tap to configure':
         "Firewall Windows mungkin memblokir koneksi — ketuk untuk mengatur",
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
@@ -407,10 +602,8 @@ const appTranslations = <String, Map<String, String>>{
     '⚠ +{count} garbage': "⚠ +{count} baris sampah",
     '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
         "⚠ Tidak dapat mendeteksi IP LAN – pastikan Wi-Fi aktif.",
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
-        "Biarkan Block Drop tetap terbuka di perangkat lain pada Wi-Fi yang sama dan perangkat tersebut akan muncul di sini secara otomatis.",
-    'Time between automatic downward moves at level 1. Lower values are faster.':
-        "Waktu antara gerakan turun otomatis pada level 1. Nilai yang lebih rendah berarti lebih cepat.",
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': "Biarkan Block Drop tetap terbuka di perangkat lain pada Wi-Fi yang sama dan perangkat tersebut akan muncul di sini secara otomatis.",
+    'Time between automatic downward moves at level 1. Lower values are faster.': "Waktu antara gerakan turun otomatis pada level 1. Nilai yang lebih rendah berarti lebih cepat.",
     'Milliseconds removed from the drop delay each level.':
         "Milidetik yang dikurangi dari jeda jatuh pada setiap level.",
     'Choose 0 for unlimited level progression.':
@@ -422,10 +615,8 @@ const appTranslations = <String, Map<String, String>>{
     'Button X': "Tombol X",
     'Button Y': "Tombol Y",
     'Button {id}': "Tombol {id}",
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        "Pastikan Block Drop diizinkan di Windows Defender Firewall pada perangkat {name}.",
-    'Could not connect to {name}. Make sure they have Block Drop open.':
-        "Tidak dapat terhubung ke {name}. Pastikan Block Drop terbuka di perangkat mereka.",
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": "Pastikan Block Drop diizinkan di Windows Defender Firewall pada perangkat {name}.",
+    'Could not connect to {name}. Make sure they have Block Drop open.': "Tidak dapat terhubung ke {name}. Pastikan Block Drop terbuka di perangkat mereka.",
   },
   'de': {
     'Block Drop - Tetris': 'Block Drop - Tetris',
@@ -584,11 +775,9 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': 'Steuerung',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Design System Dunkel Hell',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Ein freier und quelloffener Tetris-Klon, entwickelt mit Flutter. Lass Steine fallen, drehe sie und lösche Linien in diesem klassischen Puzzlespiel.',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Ein freier und quelloffener Tetris-Klon, entwickelt mit Flutter. Lass Steine fallen, drehe sie und lösche Linien in diesem klassischen Puzzlespiel.',
     'Bind {action}': '{action} zuweisen',
-    'Choose a starting level. Speed stays fixed throughout the session.':
-        'Wähle ein Startlevel. Die Geschwindigkeit bleibt während der gesamten Runde gleich.',
+    'Choose a starting level. Speed stays fixed throughout the session.': 'Wähle ein Startlevel. Die Geschwindigkeit bleibt während der gesamten Runde gleich.',
     'Final Score: {score}': 'Endpunktzahl: {score}',
     'Level {level}': 'Level {level}',
     'Level: {level}': 'Level: {level}',
@@ -599,15 +788,12 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': 'Lv. {level}  ·  {lines} Linien',
     'OPP': 'GEG.',
     'Practice Lv {level}': 'Übung Lv. {level}',
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
-        'Drücke eine Taste oder Richtung auf deinem verbundenen Controller.\n\nDrücke Escape zum Abbrechen.',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'Drücke eine Taste oder Richtung auf deinem verbundenen Controller.\n\nDrücke Escape zum Abbrechen.',
     'Score {score}': 'Punkte {score}',
     'Score: {score}': 'Punkte: {score}',
     'Waiting for {name} to respond…': 'Warte auf Antwort von {name}…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Die Windows-Firewall blockiert möglicherweise Verbindungen anderer Spieler zu diesem Gerät.\n\nTippe auf "Regel hinzufügen", um Block Drop automatisch durch die Firewall zuzulassen (für private und öffentliche Netzwerkprofile). Windows fragt nach Administratorrechten.',
-    'Windows Firewall may block connections — tap to configure':
-        'Die Windows-Firewall könnte Verbindungen blockieren — tippe zum Konfigurieren',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Die Windows-Firewall blockiert möglicherweise Verbindungen anderer Spieler zu diesem Gerät.\n\nTippe auf "Regel hinzufügen", um Block Drop automatisch durch die Firewall zuzulassen (für private und öffentliche Netzwerkprofile). Windows fragt nach Administratorrechten.',
+    'Windows Firewall may block connections — tap to configure': 'Die Windows-Firewall könnte Verbindungen blockieren — tippe zum Konfigurieren',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
         'Deine IP: {ip}  ·  Broadcast an: {broadcast}',
     'vs {name}': 'gegen {name}',
@@ -618,27 +804,20 @@ const appTranslations = <String, Map<String, String>>{
     "{name}'s score": 'Punkte von {name}',
     '{streak}-line combo clear effect': '{streak}-Linien-Komboeffekt',
     '⚠ +{count} garbage': '⚠ +{count} Störlinien',
-    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
-        '⚠ LAN-IP konnte nicht erkannt werden – stelle sicher, dass WLAN eingeschaltet ist.',
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
-        'Lass Block Drop auf einem anderen Gerät im selben WLAN geöffnet; es erscheint automatisch hier.',
-    'Time between automatic downward moves at level 1. Lower values are faster.':
-        'Zeit zwischen automatischen Abwärtsbewegungen auf Level 1. Niedrigere Werte sind schneller.',
-    'Milliseconds removed from the drop delay each level.':
-        'Millisekunden, die pro Level von der Fallverzögerung abgezogen werden.',
+    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.': '⚠ LAN-IP konnte nicht erkannt werden – stelle sicher, dass WLAN eingeschaltet ist.',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'Lass Block Drop auf einem anderen Gerät im selben WLAN geöffnet; es erscheint automatisch hier.',
+    'Time between automatic downward moves at level 1. Lower values are faster.': 'Zeit zwischen automatischen Abwärtsbewegungen auf Level 1. Niedrigere Werte sind schneller.',
+    'Milliseconds removed from the drop delay each level.': 'Millisekunden, die pro Level von der Fallverzögerung abgezogen werden.',
     'Choose 0 for unlimited level progression.':
         'Wähle 0 für unbegrenzten Levelfortschritt.',
-    'Cleared lines required to advance one level.':
-        'Gelöschte Linien, die für den Aufstieg um ein Level erforderlich sind.',
+    'Cleared lines required to advance one level.': 'Gelöschte Linien, die für den Aufstieg um ein Level erforderlich sind.',
     'Button A': 'Taste A',
     'Button B': 'Taste B',
     'Button X': 'Taste X',
     'Button Y': 'Taste Y',
     'Button {id}': 'Taste {id}',
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        'Stelle sicher, dass Block Drop in der Windows Defender Firewall auf dem Gerät von {name} zugelassen ist.',
-    'Could not connect to {name}. Make sure they have Block Drop open.':
-        'Verbindung zu {name} konnte nicht hergestellt werden. Stelle sicher, dass Block Drop geöffnet ist.',
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": 'Stelle sicher, dass Block Drop in der Windows Defender Firewall auf dem Gerät von {name} zugelassen ist.',
+    'Could not connect to {name}. Make sure they have Block Drop open.': 'Verbindung zu {name} konnte nicht hergestellt werden. Stelle sicher, dass Block Drop geöffnet ist.',
   },
   'es': {
     'Block Drop - Tetris': 'Block Drop - Tetris',
@@ -795,11 +974,9 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': 'Controles',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistema Oscuro Claro',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Un clon de Tetris gratuito y de código abierto creado con Flutter. Deja caer piezas, gíralas y elimina líneas en este clásico juego de puzles.',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Un clon de Tetris gratuito y de código abierto creado con Flutter. Deja caer piezas, gíralas y elimina líneas en este clásico juego de puzles.',
     'Bind {action}': 'Asignar {action}',
-    'Choose a starting level. Speed stays fixed throughout the session.':
-        'Elige un nivel inicial. La velocidad se mantiene fija durante toda la sesión.',
+    'Choose a starting level. Speed stays fixed throughout the session.': 'Elige un nivel inicial. La velocidad se mantiene fija durante toda la sesión.',
     'Final Score: {score}': 'Puntuación final: {score}',
     'Level {level}': 'Nivel {level}',
     'Level: {level}': 'Nivel: {level}',
@@ -810,15 +987,12 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': 'Niv. {level}  ·  {lines} líneas',
     'OPP': 'RIVAL',
     'Practice Lv {level}': 'Práctica niv. {level}',
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
-        'Pulsa un botón o una dirección en el mando conectado.\n\nPulsa Escape para cancelar.',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'Pulsa un botón o una dirección en el mando conectado.\n\nPulsa Escape para cancelar.',
     'Score {score}': 'Puntuación {score}',
     'Score: {score}': 'Puntuación: {score}',
     'Waiting for {name} to respond…': 'Esperando la respuesta de {name}…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Es posible que el Firewall de Windows esté bloqueando la conexión de otros jugadores a este dispositivo.\n\nPulsa "Añadir regla" para permitir automáticamente Block Drop a través del firewall (funciona con perfiles de red privados y públicos). Windows solicitará permisos de administrador.',
-    'Windows Firewall may block connections — tap to configure':
-        'El Firewall de Windows puede bloquear conexiones — pulsa para configurarlo',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Es posible que el Firewall de Windows esté bloqueando la conexión de otros jugadores a este dispositivo.\n\nPulsa "Añadir regla" para permitir automáticamente Block Drop a través del firewall (funciona con perfiles de red privados y públicos). Windows solicitará permisos de administrador.',
+    'Windows Firewall may block connections — tap to configure': 'El Firewall de Windows puede bloquear conexiones — pulsa para configurarlo',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
         'Tu IP: {ip}  ·  difusión a: {broadcast}',
     'vs {name}': 'vs. {name}',
@@ -829,12 +1003,9 @@ const appTranslations = <String, Map<String, String>>{
     "{name}'s score": 'Puntuación de {name}',
     '{streak}-line combo clear effect': 'efecto de combo de {streak} líneas',
     '⚠ +{count} garbage': '⚠ +{count} líneas basura',
-    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
-        '⚠ No se pudo detectar la IP de la LAN – asegúrate de que el Wi-Fi esté activado.',
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
-        'Mantén Block Drop abierto en otro dispositivo conectado al mismo Wi-Fi y aparecerá aquí automáticamente.',
-    'Time between automatic downward moves at level 1. Lower values are faster.':
-        'Tiempo entre movimientos automáticos hacia abajo en el nivel 1. Los valores más bajos son más rápidos.',
+    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.': '⚠ No se pudo detectar la IP de la LAN – asegúrate de que el Wi-Fi esté activado.',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'Mantén Block Drop abierto en otro dispositivo conectado al mismo Wi-Fi y aparecerá aquí automáticamente.',
+    'Time between automatic downward moves at level 1. Lower values are faster.': 'Tiempo entre movimientos automáticos hacia abajo en el nivel 1. Los valores más bajos son más rápidos.',
     'Milliseconds removed from the drop delay each level.':
         'Milisegundos que se restan del retraso de caída en cada nivel.',
     'Choose 0 for unlimited level progression.':
@@ -846,10 +1017,8 @@ const appTranslations = <String, Map<String, String>>{
     'Button X': 'Botón X',
     'Button Y': 'Botón Y',
     'Button {id}': 'Botón {id}',
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        'Comprueba que Block Drop esté permitido en el Firewall de Windows Defender del dispositivo de {name}.',
-    'Could not connect to {name}. Make sure they have Block Drop open.':
-        'No se pudo conectar con {name}. Asegúrate de que tenga Block Drop abierto.',
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": 'Comprueba que Block Drop esté permitido en el Firewall de Windows Defender del dispositivo de {name}.',
+    'Could not connect to {name}. Make sure they have Block Drop open.': 'No se pudo conectar con {name}. Asegúrate de que tenga Block Drop abierto.',
   },
   'fr': {
     'Settings': 'Paramètres',
@@ -1007,11 +1176,9 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': 'Commandes',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Thème Système Sombre Clair',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Un clone de Tetris gratuit et open source créé avec Flutter. Faites tomber et pivoter les pièces, puis effacez des lignes dans ce jeu de puzzle classique.',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Un clone de Tetris gratuit et open source créé avec Flutter. Faites tomber et pivoter les pièces, puis effacez des lignes dans ce jeu de puzzle classique.',
     'Bind {action}': 'Associer {action}',
-    'Choose a starting level. Speed stays fixed throughout the session.':
-        'Choisissez un niveau de départ. La vitesse reste fixe pendant toute la session.',
+    'Choose a starting level. Speed stays fixed throughout the session.': 'Choisissez un niveau de départ. La vitesse reste fixe pendant toute la session.',
     'Final Score: {score}': 'Score final : {score}',
     'Level {level}': 'Niveau {level}',
     'Level: {level}': 'Niveau : {level}',
@@ -1022,15 +1189,12 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': 'Niv. {level}  ·  {lines} lignes',
     'OPP': 'ADV.',
     'Practice Lv {level}': 'Entraînement niv. {level}',
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
-        'Appuyez sur un bouton ou une direction de la manette connectée.\n\nAppuyez sur Échap pour annuler.',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'Appuyez sur un bouton ou une direction de la manette connectée.\n\nAppuyez sur Échap pour annuler.',
     'Score {score}': 'Score {score}',
     'Score: {score}': 'Score : {score}',
     'Waiting for {name} to respond…': 'En attente de la réponse de {name}…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Le pare-feu Windows empêche peut-être d’autres joueurs de se connecter à cet appareil.\n\nAppuyez sur "Ajouter une règle" pour autoriser automatiquement Block Drop dans le pare-feu (pour les profils réseau privés et publics). Windows demandera une autorisation administrateur.',
-    'Windows Firewall may block connections — tap to configure':
-        'Le pare-feu Windows peut bloquer les connexions — appuyez pour le configurer',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Le pare-feu Windows empêche peut-être d’autres joueurs de se connecter à cet appareil.\n\nAppuyez sur "Ajouter une règle" pour autoriser automatiquement Block Drop dans le pare-feu (pour les profils réseau privés et publics). Windows demandera une autorisation administrateur.',
+    'Windows Firewall may block connections — tap to configure': 'Le pare-feu Windows peut bloquer les connexions — appuyez pour le configurer',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
         'Votre IP : {ip}  ·  diffusion vers : {broadcast}',
     'vs {name}': 'contre {name}',
@@ -1041,12 +1205,9 @@ const appTranslations = <String, Map<String, String>>{
     "{name}'s score": 'Score de {name}',
     '{streak}-line combo clear effect': 'effet de combo après {streak} lignes',
     '⚠ +{count} garbage': '⚠ +{count} lignes de pénalité',
-    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
-        '⚠ Impossible de détecter l’IP du réseau local – vérifiez que le Wi-Fi est activé.',
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
-        'Laissez Block Drop ouvert sur un autre appareil connecté au même Wi-Fi et il apparaîtra ici automatiquement.',
-    'Time between automatic downward moves at level 1. Lower values are faster.':
-        'Temps entre les descentes automatiques au niveau 1. Les valeurs plus faibles sont plus rapides.',
+    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.': '⚠ Impossible de détecter l’IP du réseau local – vérifiez que le Wi-Fi est activé.',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'Laissez Block Drop ouvert sur un autre appareil connecté au même Wi-Fi et il apparaîtra ici automatiquement.',
+    'Time between automatic downward moves at level 1. Lower values are faster.': 'Temps entre les descentes automatiques au niveau 1. Les valeurs plus faibles sont plus rapides.',
     'Milliseconds removed from the drop delay each level.':
         'Millisecondes retirées du délai de chute à chaque niveau.',
     'Choose 0 for unlimited level progression.':
@@ -1058,10 +1219,8 @@ const appTranslations = <String, Map<String, String>>{
     'Button X': 'Bouton X',
     'Button Y': 'Bouton Y',
     'Button {id}': 'Bouton {id}',
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        'Vérifiez que Block Drop est autorisé dans le pare-feu Windows Defender sur l’appareil de {name}.',
-    'Could not connect to {name}. Make sure they have Block Drop open.':
-        'Impossible de se connecter à {name}. Vérifiez que Block Drop est ouvert sur son appareil.',
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": 'Vérifiez que Block Drop est autorisé dans le pare-feu Windows Defender sur l’appareil de {name}.',
+    'Could not connect to {name}. Make sure they have Block Drop open.': 'Impossible de se connecter à {name}. Vérifiez que Block Drop est ouvert sur son appareil.',
   },
   'pt': {
     'Settings': 'Configurações',
@@ -1218,11 +1377,9 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': 'Controles',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistema Escuro Claro',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Um clone gratuito e de código aberto de Tetris feito com Flutter. Solte e gire peças e elimine linhas neste clássico jogo de quebra-cabeça.',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Um clone gratuito e de código aberto de Tetris feito com Flutter. Solte e gire peças e elimine linhas neste clássico jogo de quebra-cabeça.',
     'Bind {action}': 'Atribuir {action}',
-    'Choose a starting level. Speed stays fixed throughout the session.':
-        'Escolha um nível inicial. A velocidade permanece fixa durante toda a sessão.',
+    'Choose a starting level. Speed stays fixed throughout the session.': 'Escolha um nível inicial. A velocidade permanece fixa durante toda a sessão.',
     'Final Score: {score}': 'Pontuação final: {score}',
     'Level {level}': 'Nível {level}',
     'Level: {level}': 'Nível: {level}',
@@ -1233,13 +1390,11 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': 'Nív. {level}  ·  {lines} linhas',
     'OPP': 'OPONENTE',
     'Practice Lv {level}': 'Prática nív. {level}',
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
-        'Pressione um botão ou uma direção no controle conectado.\n\nPressione Escape para cancelar.',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'Pressione um botão ou uma direção no controle conectado.\n\nPressione Escape para cancelar.',
     'Score {score}': 'Pontuação {score}',
     'Score: {score}': 'Pontuação: {score}',
     'Waiting for {name} to respond…': 'Aguardando a resposta de {name}…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'O Firewall do Windows pode estar impedindo que outros jogadores se conectem a este dispositivo.\n\nToque em "Adicionar regra" para permitir automaticamente o Block Drop no firewall (funciona em perfis de rede privados e públicos). O Windows solicitará permissão de administrador.',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'O Firewall do Windows pode estar impedindo que outros jogadores se conectem a este dispositivo.\n\nToque em "Adicionar regra" para permitir automaticamente o Block Drop no firewall (funciona em perfis de rede privados e públicos). O Windows solicitará permissão de administrador.',
     'Windows Firewall may block connections — tap to configure':
         'O Firewall do Windows pode bloquear conexões — toque para configurar',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
@@ -1252,12 +1407,9 @@ const appTranslations = <String, Map<String, String>>{
     "{name}'s score": 'Pontuação de {name}',
     '{streak}-line combo clear effect': 'efeito de combo de {streak} linhas',
     '⚠ +{count} garbage': '⚠ +{count} linhas de penalidade',
-    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
-        '⚠ Não foi possível detectar o IP da LAN – verifique se o Wi-Fi está ligado.',
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
-        'Mantenha o Block Drop aberto em outro dispositivo na mesma rede Wi-Fi e ele aparecerá aqui automaticamente.',
-    'Time between automatic downward moves at level 1. Lower values are faster.':
-        'Tempo entre movimentos automáticos para baixo no nível 1. Valores menores são mais rápidos.',
+    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.': '⚠ Não foi possível detectar o IP da LAN – verifique se o Wi-Fi está ligado.',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'Mantenha o Block Drop aberto em outro dispositivo na mesma rede Wi-Fi e ele aparecerá aqui automaticamente.',
+    'Time between automatic downward moves at level 1. Lower values are faster.': 'Tempo entre movimentos automáticos para baixo no nível 1. Valores menores são mais rápidos.',
     'Milliseconds removed from the drop delay each level.':
         'Milissegundos removidos do atraso de queda a cada nível.',
     'Choose 0 for unlimited level progression.':
@@ -1269,10 +1421,8 @@ const appTranslations = <String, Map<String, String>>{
     'Button X': 'Botão X',
     'Button Y': 'Botão Y',
     'Button {id}': 'Botão {id}',
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        'Verifique se o Block Drop está permitido no Firewall do Windows Defender no dispositivo de {name}.',
-    'Could not connect to {name}. Make sure they have Block Drop open.':
-        'Não foi possível conectar a {name}. Verifique se o Block Drop está aberto no dispositivo.',
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": 'Verifique se o Block Drop está permitido no Firewall do Windows Defender no dispositivo de {name}.',
+    'Could not connect to {name}. Make sure they have Block Drop open.': 'Não foi possível conectar a {name}. Verifique se o Block Drop está aberto no dispositivo.',
   },
   'ja': {
     'Settings': '設定',
@@ -1449,8 +1599,7 @@ const appTranslations = <String, Map<String, String>>{
     'Score {score}': 'スコア {score}',
     'Score: {score}': 'スコア: {score}',
     'Waiting for {name} to respond…': '{name} の応答を待っています…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Windowsファイアウォールにより、他のプレイヤーがこのデバイスへ接続できない可能性があります。\n\n「ルールを追加」をタップすると、Block Dropをファイアウォールで自動的に許可します（プライベートとパブリックの両方のネットワークプロファイルに対応）。Windowsが管理者権限を求めます。',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Windowsファイアウォールにより、他のプレイヤーがこのデバイスへ接続できない可能性があります。\n\n「ルールを追加」をタップすると、Block Dropをファイアウォールで自動的に許可します（プライベートとパブリックの両方のネットワークプロファイルに対応）。Windowsが管理者権限を求めます。',
     'Windows Firewall may block connections — tap to configure':
         'Windowsファイアウォールが接続をブロックする可能性があります — タップして設定',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
@@ -1478,8 +1627,7 @@ const appTranslations = <String, Map<String, String>>{
     'Button X': 'Xボタン',
     'Button Y': 'Yボタン',
     'Button {id}': '{id}ボタン',
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        '{name} のデバイスで、Windows DefenderファイアウォールによるBlock Dropの通信が許可されていることを確認してください。',
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": '{name} のデバイスで、Windows DefenderファイアウォールによるBlock Dropの通信が許可されていることを確認してください。',
     'Could not connect to {name}. Make sure they have Block Drop open.':
         '{name} に接続できませんでした。相手がBlock Dropを開いていることを確認してください。',
   },
@@ -1638,8 +1786,7 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': '조작',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': '테마 시스템 다크 라이트',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Flutter로 만든 무료 오픈 소스 Tetris 클론입니다. 이 클래식 퍼즐 게임에서 블록을 떨어뜨리고 회전해 줄을 지우세요.',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Flutter로 만든 무료 오픈 소스 Tetris 클론입니다. 이 클래식 퍼즐 게임에서 블록을 떨어뜨리고 회전해 줄을 지우세요.',
     'Bind {action}': '{action} 지정',
     'Choose a starting level. Speed stays fixed throughout the session.':
         '시작 레벨을 선택하세요. 세션 동안 속도는 고정됩니다.',
@@ -1658,8 +1805,7 @@ const appTranslations = <String, Map<String, String>>{
     'Score {score}': '점수 {score}',
     'Score: {score}': '점수: {score}',
     'Waiting for {name} to respond…': '{name}의 응답을 기다리는 중…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Windows 방화벽이 다른 플레이어의 이 기기 연결을 막고 있을 수 있습니다.\n\n"규칙 추가"를 탭하면 Block Drop을 방화벽에서 자동으로 허용합니다(개인 및 공용 네트워크 프로필 모두 적용). Windows가 관리자 권한을 요청합니다.',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Windows 방화벽이 다른 플레이어의 이 기기 연결을 막고 있을 수 있습니다.\n\n"규칙 추가"를 탭하면 Block Drop을 방화벽에서 자동으로 허용합니다(개인 및 공용 네트워크 프로필 모두 적용). Windows가 관리자 권한을 요청합니다.',
     'Windows Firewall may block connections — tap to configure':
         'Windows 방화벽이 연결을 차단할 수 있습니다 — 탭하여 설정',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
@@ -1866,8 +2012,7 @@ const appTranslations = <String, Map<String, String>>{
     'Score {score}': '得分 {score}',
     'Score: {score}': '得分：{score}',
     'Waiting for {name} to respond…': '正在等待 {name} 响应…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Windows 防火墙可能正在阻止其他玩家连接到此设备。\n\n点击“添加规则”可自动允许 Block Drop 通过防火墙（私人和公共网络配置文件均适用）。Windows 会请求管理员权限。',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Windows 防火墙可能正在阻止其他玩家连接到此设备。\n\n点击“添加规则”可自动允许 Block Drop 通过防火墙（私人和公共网络配置文件均适用）。Windows 会请求管理员权限。',
     'Windows Firewall may block connections — tap to configure':
         'Windows 防火墙可能会阻止连接 — 点击进行配置',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
@@ -2071,8 +2216,7 @@ const appTranslations = <String, Map<String, String>>{
     'Score {score}': '得分 {score}',
     'Score: {score}': '得分：{score}',
     'Waiting for {name} to respond…': '正在等待 {name} 響應…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Windows 防火牆可能正在阻止其他玩家連接到此設備。\n\n點擊“添加規則”可自動允許 Block Drop 通過防火牆（私人和公共網絡配置文件均適用）。Windows 會請求管理員權限。',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Windows 防火牆可能正在阻止其他玩家連接到此設備。\n\n點擊“添加規則”可自動允許 Block Drop 通過防火牆（私人和公共網絡配置文件均適用）。Windows 會請求管理員權限。',
     'Windows Firewall may block connections — tap to configure':
         'Windows 防火牆可能會阻止連接 — 點擊進行配置',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
@@ -2259,8 +2403,7 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': 'Управление',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Тема Системная Тёмная Светлая',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Бесплатный Tetris-клон с открытым исходным кодом на Flutter. Роняйте и поворачивайте фигуры, очищайте линии в этой классической головоломке.',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Бесплатный Tetris-клон с открытым исходным кодом на Flutter. Роняйте и поворачивайте фигуры, очищайте линии в этой классической головоломке.',
     'Bind {action}': 'Назначить: {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Выберите начальный уровень. Скорость не меняется в течение игры.',
@@ -2274,15 +2417,12 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': 'Ур. {level}  ·  линий: {lines}',
     'OPP': 'СОП.',
     'Practice Lv {level}': 'Тренировка, ур. {level}',
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
-        'Нажмите кнопку или направление на подключённом контроллере.\n\nНажмите Escape для отмены.',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'Нажмите кнопку или направление на подключённом контроллере.\n\nНажмите Escape для отмены.',
     'Score {score}': 'Счёт: {score}',
     'Score: {score}': 'Счёт: {score}',
     'Waiting for {name} to respond…': 'Ожидание ответа от {name}…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
-        'Брандмауэр Windows может блокировать подключения других игроков к этому устройству.\n\nНажмите «Добавить правило», чтобы автоматически разрешить Block Drop в брандмауэре (работает для частных и общедоступных сетей). Windows запросит права администратора.',
-    'Windows Firewall may block connections — tap to configure':
-        'Брандмауэр Windows может блокировать подключения — нажмите для настройки',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Брандмауэр Windows может блокировать подключения других игроков к этому устройству.\n\nНажмите «Добавить правило», чтобы автоматически разрешить Block Drop в брандмауэре (работает для частных и общедоступных сетей). Windows запросит права администратора.',
+    'Windows Firewall may block connections — tap to configure': 'Брандмауэр Windows может блокировать подключения — нажмите для настройки',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
         'Ваш IP: {ip}  ·  широковещательный адрес: {broadcast}',
     'vs {name}': 'против {name}',
@@ -2296,12 +2436,9 @@ const appTranslations = <String, Map<String, String>>{
     '⚠ +{count} garbage': '⚠ +{count} мусорных линий',
     '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
         '⚠ Не удалось определить IP в LAN — убедитесь, что Wi-Fi включён.',
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
-        'Откройте Block Drop на другом устройстве в той же сети Wi-Fi — оно появится здесь автоматически.',
-    'Time between automatic downward moves at level 1. Lower values are faster.':
-        'Интервал автоматического падения на уровне 1. Меньшие значения означают большую скорость.',
-    'Milliseconds removed from the drop delay each level.':
-        'Количество миллисекунд, вычитаемое из задержки падения на каждом уровне.',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'Откройте Block Drop на другом устройстве в той же сети Wi-Fi — оно появится здесь автоматически.',
+    'Time between automatic downward moves at level 1. Lower values are faster.': 'Интервал автоматического падения на уровне 1. Меньшие значения означают большую скорость.',
+    'Milliseconds removed from the drop delay each level.': 'Количество миллисекунд, вычитаемое из задержки падения на каждом уровне.',
     'Choose 0 for unlimited level progression.':
         'Выберите 0 для неограниченного повышения уровня.',
     'Cleared lines required to advance one level.':
@@ -2311,10 +2448,8 @@ const appTranslations = <String, Map<String, String>>{
     'Button X': 'Кнопка X',
     'Button Y': 'Кнопка Y',
     'Button {id}': 'Кнопка {id}',
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        'Убедитесь, что Block Drop разрешён в брандмауэре Windows Defender на устройстве {name}.',
-    'Could not connect to {name}. Make sure they have Block Drop open.':
-        'Не удалось подключиться к {name}. Убедитесь, что у него открыт Block Drop.',
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": 'Убедитесь, что Block Drop разрешён в брандмауэре Windows Defender на устройстве {name}.',
+    'Could not connect to {name}. Make sure they have Block Drop open.': 'Не удалось подключиться к {name}. Убедитесь, что у него открыт Block Drop.',
   },
   'hi': {
     "Block Drop - Tetris": "Block Drop — Tetris",
@@ -2472,8 +2607,7 @@ const appTranslations = <String, Map<String, String>>{
     "Controls": "नियंत्रण",
     "BlockDrop": "BlockDrop",
     "Theme System Dark Light": "थीम सिस्टम डार्क लाइट",
-    "A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.":
-        "Flutter से बना एक मुफ़्त और ओपन-सोर्स Tetris क्लोन। इस क्लासिक पहेली गेम में पीस गिराएँ, घुमाएँ और लाइनें साफ़ करें।",
+    "A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.": "Flutter से बना एक मुफ़्त और ओपन-सोर्स Tetris क्लोन। इस क्लासिक पहेली गेम में पीस गिराएँ, घुमाएँ और लाइनें साफ़ करें।",
     "Bind {action}": "{action} असाइन करें",
     "Choose a starting level. Speed stays fixed throughout the session.":
         "शुरुआती स्तर चुनें। पूरे सत्र में गति स्थिर रहती है।",
@@ -2487,13 +2621,11 @@ const appTranslations = <String, Map<String, String>>{
     "Lv {level}  ·  {lines} lines": "स्तर {level}  ·  {lines} लाइनें",
     "OPP": "प्रतिद्व.",
     "Practice Lv {level}": "अभ्यास स्तर {level}",
-    "Press a button or direction on your connected controller.\n\nPress Escape to cancel.":
-        "अपने जुड़े कंट्रोलर पर कोई बटन या दिशा दबाएँ।\n\nरद्द करने के लिए Escape दबाएँ।",
+    "Press a button or direction on your connected controller.\n\nPress Escape to cancel.": "अपने जुड़े कंट्रोलर पर कोई बटन या दिशा दबाएँ।\n\nरद्द करने के लिए Escape दबाएँ।",
     "Score {score}": "स्कोर {score}",
     "Score: {score}": "स्कोर: {score}",
     "Waiting for {name} to respond…": "{name} के जवाब की प्रतीक्षा…",
-    "Windows Firewall may be blocking other players from connecting to this device.\n\nTap \"Add Rule\" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.":
-        "Windows फ़ायरवॉल अन्य खिलाड़ियों को इस डिवाइस से कनेक्ट होने से रोक सकता है।\n\nफ़ायरवॉल में Block Drop को स्वचालित रूप से अनुमति देने के लिए \"नियम जोड़ें\" पर टैप करें (यह निजी और सार्वजनिक दोनों नेटवर्क प्रोफ़ाइल पर काम करता है)। Windows प्रशासक अनुमति माँगेगा।",
+    "Windows Firewall may be blocking other players from connecting to this device.\n\nTap \"Add Rule\" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.": "Windows फ़ायरवॉल अन्य खिलाड़ियों को इस डिवाइस से कनेक्ट होने से रोक सकता है।\n\nफ़ायरवॉल में Block Drop को स्वचालित रूप से अनुमति देने के लिए \"नियम जोड़ें\" पर टैप करें (यह निजी और सार्वजनिक दोनों नेटवर्क प्रोफ़ाइल पर काम करता है)। Windows प्रशासक अनुमति माँगेगा।",
     "Windows Firewall may block connections — tap to configure":
         "Windows फ़ायरवॉल कनेक्शन रोक सकता है — कॉन्फ़िगर करने के लिए टैप करें",
     "Your IP: {ip}  ·  broadcasting to: {broadcast}":
@@ -2509,10 +2641,8 @@ const appTranslations = <String, Map<String, String>>{
     "⚠ +{count} garbage": "⚠ +{count} कचरा लाइनें",
     "⚠ Could not detect LAN IP – make sure Wi-Fi is on.":
         "⚠ LAN IP का पता नहीं चला — सुनिश्चित करें कि Wi-Fi चालू है।",
-    "Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.":
-        "दूसरे डिवाइस पर उसी Wi-Fi में Block Drop खुला रखें; वह यहाँ अपने-आप दिखाई देगा।",
-    "Time between automatic downward moves at level 1. Lower values are faster.":
-        "स्तर 1 पर स्वचालित नीचे की चालों के बीच का समय। कम मान का मतलब अधिक गति है।",
+    "Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.": "दूसरे डिवाइस पर उसी Wi-Fi में Block Drop खुला रखें; वह यहाँ अपने-आप दिखाई देगा।",
+    "Time between automatic downward moves at level 1. Lower values are faster.": "स्तर 1 पर स्वचालित नीचे की चालों के बीच का समय। कम मान का मतलब अधिक गति है।",
     "Milliseconds removed from the drop delay each level.":
         "हर स्तर पर ड्रॉप विलंब से हटाई जाने वाली मिलीसेकंड की संख्या।",
     "Choose 0 for unlimited level progression.":
@@ -2524,10 +2654,8 @@ const appTranslations = <String, Map<String, String>>{
     "Button X": "बटन X",
     "Button Y": "बटन Y",
     "Button {id}": "बटन {id}",
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        "जाँचें कि {name} के डिवाइस पर Windows Defender फ़ायरवॉल में Block Drop की अनुमति है।",
-    "Could not connect to {name}. Make sure they have Block Drop open.":
-        "{name} से कनेक्ट नहीं हो सका। सुनिश्चित करें कि उनके डिवाइस पर Block Drop खुला है।",
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": "जाँचें कि {name} के डिवाइस पर Windows Defender फ़ायरवॉल में Block Drop की अनुमति है।",
+    "Could not connect to {name}. Make sure they have Block Drop open.": "{name} से कनेक्ट नहीं हो सका। सुनिश्चित करें कि उनके डिवाइस पर Block Drop खुला है।",
   },
   'ar': {
     "Block Drop - Tetris": "Block Drop - Tetris",
@@ -2684,8 +2812,7 @@ const appTranslations = <String, Map<String, String>>{
     "Controls": "عناصر التحكم",
     "BlockDrop": "BlockDrop",
     "Theme System Dark Light": "السمة النظام داكن فاتح",
-    "A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.":
-        "نسخة مجانية ومفتوحة المصدر من Tetris مبنية باستخدام Flutter. أسقط القطع ودوّرها وأكمل الخطوط في لعبة الألغاز الكلاسيكية هذه.",
+    "A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.": "نسخة مجانية ومفتوحة المصدر من Tetris مبنية باستخدام Flutter. أسقط القطع ودوّرها وأكمل الخطوط في لعبة الألغاز الكلاسيكية هذه.",
     "Bind {action}": "تعيين {action}",
     "Choose a starting level. Speed stays fixed throughout the session.":
         "اختر مستوى بدء. تبقى السرعة ثابتة طوال الجلسة.",
@@ -2704,8 +2831,7 @@ const appTranslations = <String, Map<String, String>>{
     "Score {score}": "النتيجة {score}",
     "Score: {score}": "النتيجة: {score}",
     "Waiting for {name} to respond…": "في انتظار رد {name}…",
-    "Windows Firewall may be blocking other players from connecting to this device.\n\nTap \"Add Rule\" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.":
-        "قد يمنع جدار حماية Windows اللاعبين الآخرين من الاتصال بهذا الجهاز.\n\nاضغط \"إضافة قاعدة\" للسماح تلقائيًا لـ Block Drop عبر جدار الحماية (يعمل مع ملفات تعريف الشبكة الخاصة والعامة). سيطلب Windows إذن المسؤول.",
+    "Windows Firewall may be blocking other players from connecting to this device.\n\nTap \"Add Rule\" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.": "قد يمنع جدار حماية Windows اللاعبين الآخرين من الاتصال بهذا الجهاز.\n\nاضغط \"إضافة قاعدة\" للسماح تلقائيًا لـ Block Drop عبر جدار الحماية (يعمل مع ملفات تعريف الشبكة الخاصة والعامة). سيطلب Windows إذن المسؤول.",
     "Windows Firewall may block connections — tap to configure":
         "قد يمنع جدار حماية Windows الاتصالات — اضغط للإعداد",
     "Your IP: {ip}  ·  broadcasting to: {broadcast}":
@@ -2720,8 +2846,7 @@ const appTranslations = <String, Map<String, String>>{
     "⚠ +{count} garbage": "⚠ +{count} خطوط عقوبة",
     "⚠ Could not detect LAN IP – make sure Wi-Fi is on.":
         "⚠ تعذّر اكتشاف عنوان IP للشبكة المحلية — تأكد من تشغيل Wi-Fi.",
-    "Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.":
-        "أبقِ Block Drop مفتوحة على جهاز آخر متصل بشبكة Wi-Fi نفسها وستظهر هنا تلقائيًا.",
+    "Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.": "أبقِ Block Drop مفتوحة على جهاز آخر متصل بشبكة Wi-Fi نفسها وستظهر هنا تلقائيًا.",
     "Time between automatic downward moves at level 1. Lower values are faster.":
         "الوقت بين الحركات التلقائية إلى أسفل في المستوى 1. القيم الأقل أسرع.",
     "Milliseconds removed from the drop delay each level.":
@@ -2735,8 +2860,7 @@ const appTranslations = <String, Map<String, String>>{
     "Button X": "الزر X",
     "Button Y": "الزر Y",
     "Button {id}": "الزر {id}",
-    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.":
-        "تأكد من السماح لـ Block Drop في جدار حماية Windows Defender على جهاز {name}.",
+    "Check that Block Drop is allowed in Windows Defender Firewall on {name}'s device.": "تأكد من السماح لـ Block Drop في جدار حماية Windows Defender على جهاز {name}.",
     "Could not connect to {name}. Make sure they have Block Drop open.":
         "تعذّر الاتصال بـ {name}. تأكد من أن Block Drop مفتوحة لديه.",
   },

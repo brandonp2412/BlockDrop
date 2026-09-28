@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _playStoreLocales = <String, String>{
   'tr': 'tr-TR',
+  'vi': 'vi-VN',
   'de': 'de-DE',
   'es': 'es-ES',
   'fr': 'fr-FR',
@@ -22,6 +23,7 @@ const _playStoreLocales = <String, String>{
 
 const _appStoreLocales = <String, String>{
   'tr': 'tr',
+  'vi': 'vi',
   'de': 'de-DE',
   'es': 'es-ES',
   'fr': 'fr-FR',
@@ -51,6 +53,7 @@ void main() {
     const englishDir = 'metadata/en-US';
     const localizedDirs = [
       'metadata/tr-TR',
+      'metadata/vi-VN',
       'metadata/de-DE',
       'metadata/fr-FR',
       'metadata/pt-BR',
