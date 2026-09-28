@@ -12,6 +12,7 @@ class AppLocalizations {
 
   static const supportedLocales = <Locale>[
     Locale('en'),
+    Locale('tr'),
     Locale('id'),
     Locale('de'),
     Locale('es'),
@@ -44,7 +45,11 @@ class AppLocalizations {
 
   String get _translationKey {
     if (locale.languageCode != 'zh') return locale.languageCode;
-    final traditionalRegion = const {'TW', 'HK', 'MO'}.contains(locale.countryCode);
+    final traditionalRegion = const {
+      'TW',
+      'HK',
+      'MO',
+    }.contains(locale.countryCode);
     return locale.scriptCode == 'Hant' || traditionalRegion ? 'zh-Hant' : 'zh';
   }
 
@@ -52,8 +57,11 @@ class AppLocalizations {
   static Locale resolveLocale(Iterable<Locale>? preferredLocales) {
     for (final locale in preferredLocales ?? const <Locale>[]) {
       if (locale.languageCode == 'zh') {
-        final traditionalRegion =
-            const {'TW', 'HK', 'MO'}.contains(locale.countryCode);
+        final traditionalRegion = const {
+          'TW',
+          'HK',
+          'MO',
+        }.contains(locale.countryCode);
         return locale.scriptCode == 'Hant' || traditionalRegion
             ? const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
             : const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans');
@@ -76,10 +84,7 @@ class AppLocalizations {
       final button = RegExp(r'^Button (.+)$').firstMatch(source);
       if (button != null) {
         template = translations?['Button {id}'];
-        values = <String, Object?>{
-          ...values,
-          'id': button.group(1),
-        };
+        values = <String, Object?>{...values, 'id': button.group(1)};
       }
     }
     var result = template ?? source;
@@ -94,8 +99,8 @@ class AppLocalizations {
     final direct = appTranslations[_translationKey]?[source];
     if (direct != null) return direct;
 
-    final discovery =
-        RegExp(r'^Could not start network discovery: (.*)$').firstMatch(source);
+    final discovery = RegExp(r'^Could not start network discovery: (.*)$')
+        .firstMatch(source);
     if (discovery != null) {
       return text('Could not start network discovery: {error}', {
         'error': discovery.group(1),

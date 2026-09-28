@@ -1,0 +1,1 @@
+oyun,bulmaca,blok,tetris,çevrimdışı

@@ -5,6 +5,7 @@ import 'package:block_drop/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _playStoreLocales = <String, String>{
+  'tr': 'tr-TR',
   'de': 'de-DE',
   'es': 'es-ES',
   'fr': 'fr-FR',
@@ -20,6 +21,7 @@ const _playStoreLocales = <String, String>{
 };
 
 const _appStoreLocales = <String, String>{
+  'tr': 'tr',
   'de': 'de-DE',
   'es': 'es-ES',
   'fr': 'fr-FR',
@@ -36,17 +38,19 @@ const _appStoreLocales = <String, String>{
 
 String _read(String path) => File(path).readAsStringSync().trim();
 
-Set<String> _textFileNames(String path) => Directory(path)
-    .listSync()
-    .whereType<File>()
-    .where((file) => file.path.endsWith('.txt'))
-    .map((file) => file.uri.pathSegments.last)
-    .toSet();
+Set<String> _textFileNames(String path) =>
+    Directory(path)
+        .listSync()
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.txt'))
+        .map((file) => file.uri.pathSegments.last)
+        .toSet();
 
 void main() {
   test('localized F-Droid metadata is translated', () {
     const englishDir = 'metadata/en-US';
     const localizedDirs = [
+      'metadata/tr-TR',
       'metadata/de-DE',
       'metadata/fr-FR',
       'metadata/pt-BR',

@@ -1,0 +1,18 @@
+Klasik düşen blok bulmacasında blokları düşürün, satırları temizleyin ve en yüksek skorunuzu geçin.
+
+BlockDrop, düşen tetrominoları yerleştirmenin tanıdık mücadelesi üzerine kurulu, hızlı ve odaklı bir arcade bulmaca oyunudur. Her parçayı döndürüp hareket ettirin, yatay satırları tamamlayın ve oyun hızlandıkça tahtayı temiz tutun.
+
+İSTEDİĞİNİZ GİBİ OYNAYIN
+
+• Yedi klasik tetromino parçasının tamamını kullanın
+• Duyarlı kontrollerle hareket edin, döndürün, yavaş ve hızlı düşürün
+• Doğru an için bir parçayı tutun
+• Sonraki parça önizlemesiyle hamlelerinizi planlayın
+• Oyun hızlandıkça skoru ve temizlenen satırları takip edin
+• Açık, koyu veya AMOLED dostu temaları seçin
+
+KISA BULMACA OTURUMLARI İÇİN
+
+İster birkaç dakikanız olsun ister yeni bir kişisel rekor peşinde olun, BlockDrop gereksiz dikkat dağıtıcılar olmadan temiz bir blok dizme deneyimi sunar. Çevrimdışı çalışır ve mobil ile masaüstü platformlarında kullanılabilir.
+
+BlockDrop ücretsiz ve açık kaynaklıdır. Reklam, uygulama içi satın alma, takip veya veri toplama içermez.

@@ -1,0 +1,1 @@
+Flutter ile geliştirilmiş modern bir Tetris klonu. Bu klasik bulmaca oyununda parçaları düşürün, döndürün ve satırları temizleyin.
