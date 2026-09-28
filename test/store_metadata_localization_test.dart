@@ -53,6 +53,7 @@ void main() {
       'metadata/zh-CN',
       'metadata/zh-TW',
       'metadata/hi-IN',
+      'metadata/ar-SA',
     ];
 
     for (final localizedDir in localizedDirs) {

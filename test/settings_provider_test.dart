@@ -154,6 +154,18 @@ void main() {
       expect(reloaded.locale, const Locale('hi'));
     });
 
+    test('persists Arabic language override', () async {
+      final settings = SettingsProvider();
+      await settings.setLocaleCode('ar');
+      expect(settings.localeCode, 'ar');
+      expect(settings.locale, const Locale('ar'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'ar');
+      expect(reloaded.locale, const Locale('ar'));
+    });
+
     test('ignores unsupported persisted language overrides', () async {
       SharedPreferences.setMockInitialValues({'locale': 'xx'});
       final settings = SettingsProvider();
@@ -346,5 +358,4 @@ void main() {
       const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
     );
   });
-
 }

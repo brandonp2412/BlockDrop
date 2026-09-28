@@ -131,7 +131,17 @@ class SettingsProvider extends ChangeNotifier {
     _style = AppStyle.values[styleIndex.clamp(0, AppStyle.values.length - 1)];
     final storedLocale = prefs.getString(_localeKey);
     const supportedLocales = {
-      'en', 'de', 'es', 'fr', 'pt', 'ja', 'ko', 'zh-Hans', 'zh-Hant', 'hi',
+      'en',
+      'de',
+      'es',
+      'fr',
+      'pt',
+      'ja',
+      'ko',
+      'zh-Hans',
+      'zh-Hant',
+      'hi',
+      'ar',
     };
     _localeCode = storedLocale == 'zh'
         ? 'zh-Hans'
@@ -229,7 +239,17 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> setLocaleCode(String? value) async {
     const supported = {
-      'en', 'de', 'es', 'fr', 'pt', 'ja', 'ko', 'zh-Hans', 'zh-Hant', 'hi',
+      'en',
+      'de',
+      'es',
+      'fr',
+      'pt',
+      'ja',
+      'ko',
+      'zh-Hans',
+      'zh-Hant',
+      'hi',
+      'ar',
     };
     _localeCode = value != null && supported.contains(value) ? value : null;
     notifyListeners();
