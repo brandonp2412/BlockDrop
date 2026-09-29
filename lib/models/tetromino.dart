@@ -12,7 +12,10 @@ class Tetromino {
     // I piece
     Tetromino(
       shape: [
+        [0, 0, 0, 0],
         [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
       ],
       color: Colors.cyan,
     ),

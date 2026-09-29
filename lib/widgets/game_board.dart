@@ -416,37 +416,34 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                               ? BorderRadius.circular(4)
                               : BorderRadius.zero;
 
-                      return Opacity(
-                        opacity: opacity,
-                        child: Transform.scale(
-                          scale: scale,
+                      return Transform.scale(
+                        scale: scale,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: borderRadius,
+                            boxShadow: glow > 0
+                                ? [
+                                    BoxShadow(
+                                      color: _colorWithAlpha(
+                                        glowColor,
+                                        glow * 0.6 * opacity,
+                                      ),
+                                      blurRadius: 8.0 * glow,
+                                      spreadRadius: 3.0 * glow,
+                                    ),
+                                  ]
+                                : null,
+                          ),
                           child: Container(
                             decoration: BoxDecoration(
+                              color: _colorWithAlpha(glowColor, opacity),
                               borderRadius: borderRadius,
-                              boxShadow: glow > 0
-                                  ? [
-                                      BoxShadow(
-                                        color: _colorWithAlpha(
-                                          glowColor,
-                                          glow * 0.6,
-                                        ),
-                                        blurRadius: 8.0 * glow,
-                                        spreadRadius: 3.0 * glow,
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: glowColor,
-                                borderRadius: borderRadius,
-                                border: Border.all(
-                                  color: _colorWithAlpha(
-                                    Colors.white,
-                                    glow * 0.8,
-                                  ),
-                                  width: 0.5 + (glow * 1.5),
+                              border: Border.all(
+                                color: _colorWithAlpha(
+                                  Colors.white,
+                                  glow * 0.8 * opacity,
                                 ),
+                                width: 0.5 + (glow * 1.5),
                               ),
                             ),
                           ),
