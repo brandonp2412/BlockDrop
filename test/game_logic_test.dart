@@ -532,7 +532,7 @@ void main() {
       final clearRow = GameConstants.previewRows;
       gameLogic.currentPiece = Tetromino.pieces[0];
       gameLogic.currentX = 0;
-      gameLogic.currentY = clearRow;
+      gameLogic.currentY = clearRow - 1;
       for (int col = 4; col < GameConstants.boardWidth; col++) {
         gameLogic.board[clearRow][col] = Colors.red;
       }

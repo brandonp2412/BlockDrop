@@ -23,19 +23,40 @@ void main() {
     test('should rotate I piece correctly', () {
       final iPiece = Tetromino(
         shape: [
+          [0, 0, 0, 0],
           [1, 1, 1, 1],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
         ],
         color: Colors.cyan,
       );
 
       final rotatedRight = iPiece.rotateRight();
       expect(rotatedRight.shape.length, 4);
-      expect(rotatedRight.shape[0].length, 1);
+      expect(rotatedRight.shape[0].length, 4);
+      expect(
+        rotatedRight.shape,
+        equals([
+          [0, 0, 1, 0],
+          [0, 0, 1, 0],
+          [0, 0, 1, 0],
+          [0, 0, 1, 0],
+        ]),
+      );
       expect(rotatedRight.color, Colors.cyan);
 
       final rotatedLeft = iPiece.rotateLeft();
       expect(rotatedLeft.shape.length, 4);
-      expect(rotatedLeft.shape[0].length, 1);
+      expect(rotatedLeft.shape[0].length, 4);
+      expect(
+        rotatedLeft.shape,
+        equals([
+          [0, 1, 0, 0],
+          [0, 1, 0, 0],
+          [0, 1, 0, 0],
+          [0, 1, 0, 0],
+        ]),
+      );
       expect(rotatedLeft.color, Colors.cyan);
     });
 
