@@ -72,9 +72,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _matchesSearch(String label, {String? section}) {
     if (_searchQuery.isEmpty) return true;
     final localizedLabel = context.l10n.text(label).toLowerCase();
-    final localizedSection = section == null
-        ? null
-        : context.l10n.text(section).toLowerCase();
+    final localizedSection =
+        section == null ? null : context.l10n.text(section).toLowerCase();
     return localizedLabel.contains(_searchQuery) ||
         (localizedSection?.contains(_searchQuery) ?? false);
   }
@@ -90,12 +89,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   static String _styleLabel(AppStyle style) => switch (style) {
-    AppStyle.classic => 'Classic',
-    AppStyle.modern => 'Modern',
-    AppStyle.bubbles => 'Bubbles',
-    AppStyle.neon => 'Neon',
-    AppStyle.retro => 'Retro',
-  };
+        AppStyle.classic => 'Classic',
+        AppStyle.modern => 'Modern',
+        AppStyle.bubbles => 'Bubbles',
+        AppStyle.neon => 'Neon',
+        AppStyle.retro => 'Retro',
+      };
 
   void _pickStyle() {
     final cs = Theme.of(context).colorScheme;
@@ -150,8 +149,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           final label = current == 0 && zeroLabel != null
               ? context.l10n.text(zeroLabel)
               : suffix == ' lines'
-              ? context.l10n.text('{lines} lines', {'lines': current})
-              : '$current$suffix';
+                  ? context.l10n.text('{lines} lines', {'lines': current})
+                  : '$current$suffix';
           return AlertDialog(
             shape: styledDialogShape(
               widget.settings.style,
@@ -242,8 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final showStats = _sectionMatches('Stats', ['High Score']);
     final showInstructions = _sectionMatches('Instructions', ['Controls']);
     final showAbout = _sectionMatches('About', ['BlockDrop']);
-    final noSearchResults =
-        _searchQuery.isNotEmpty &&
+    final noSearchResults = _searchQuery.isNotEmpty &&
         !showGame &&
         !showSound &&
         !showGameplay &&
@@ -433,10 +431,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           value: widget.settings.gameplay.swipeUpHoldEnabled,
                           onChanged: (value) =>
                               widget.settings.setGameplaySettings(
-                                widget.settings.gameplay.copyWith(
-                                  swipeUpHoldEnabled: value,
-                                ),
-                              ),
+                            widget.settings.gameplay.copyWith(
+                              swipeUpHoldEnabled: value,
+                            ),
+                          ),
                         ),
                       ),
                     if (_matchesSearch(
@@ -507,7 +505,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         style: widget.settings.style,
                         onTap: () => _pickGameplayNumber(
                           title: 'Speed per Level',
-                          help: 'Milliseconds removed from the drop delay each level.',
+                          help:
+                              'Milliseconds removed from the drop delay each level.',
                           value: widget.settings.gameplay.speedIncrement,
                           min: 0,
                           max: 200,
@@ -521,8 +520,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     if (_matchesSearch('Maximum Level', section: 'Gameplay'))
                       _GameplayValueTile(
                         label: 'Maximum Level',
-                        value:
-                            widget.settings.gameplay.maximumLevel ==
+                        value: widget.settings.gameplay.maximumLevel ==
                                 GameplaySettings.unlimitedLevels
                             ? context.l10n.text('Unlimited')
                             : '${widget.settings.gameplay.maximumLevel}',
@@ -570,10 +568,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           value: widget.settings.gameplay.softDropEnabled,
                           onChanged: (value) =>
                               widget.settings.setGameplaySettings(
-                                widget.settings.gameplay.copyWith(
-                                  softDropEnabled: value,
-                                ),
-                              ),
+                            widget.settings.gameplay.copyWith(
+                              softDropEnabled: value,
+                            ),
+                          ),
                         ),
                       ),
                     if (widget.settings.enableHold &&
@@ -586,17 +584,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         colorScheme: colorScheme,
                         style: widget.settings.style,
                         child: Switch(
-                          value:
-                              widget.settings.gameplay.holdInteractionMode ==
+                          value: widget.settings.gameplay.holdInteractionMode ==
                               HoldInteractionMode.panelAndBackGesture,
                           onChanged: (value) =>
                               widget.settings.setGameplaySettings(
-                                widget.settings.gameplay.copyWith(
-                                  holdInteractionMode: value
-                                      ? HoldInteractionMode.panelAndBackGesture
-                                      : HoldInteractionMode.panelOnly,
-                                ),
-                              ),
+                            widget.settings.gameplay.copyWith(
+                              holdInteractionMode: value
+                                  ? HoldInteractionMode.panelAndBackGesture
+                                  : HoldInteractionMode.panelOnly,
+                            ),
+                          ),
                         ),
                       ),
                     if (showController) ...[
@@ -634,12 +631,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ? 2
                                   : 1,
                             ),
-                            selectedBackgroundColor: colorScheme.primary
-                                .withValues(alpha: 0.18),
+                            selectedBackgroundColor:
+                                colorScheme.primary.withValues(alpha: 0.18),
                             selectedForegroundColor: colorScheme.primary,
                             foregroundColor: colorScheme.onSurface,
-                            disabledForegroundColor: colorScheme.onSurface
-                                .withValues(alpha: 0.65),
+                            disabledForegroundColor:
+                                colorScheme.onSurface.withValues(alpha: 0.65),
                             backgroundColor: colorScheme.surfaceContainerHighest
                                 .withValues(alpha: 0.35),
                           ),
@@ -666,11 +663,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             widget.settings.themeMode == AppThemeMode.black
                                 ? AppThemeMode.dark
                                 : widget.settings.themeMode ==
-                                          AppThemeMode.system ||
-                                      widget.settings.themeMode ==
-                                          AppThemeMode.light
-                                ? widget.settings.themeMode
-                                : AppThemeMode.dark,
+                                            AppThemeMode.system ||
+                                        widget.settings.themeMode ==
+                                            AppThemeMode.light
+                                    ? widget.settings.themeMode
+                                    : AppThemeMode.dark,
                           },
                           onSelectionChanged: (selection) =>
                               widget.settings.setThemeMode(selection.first),
@@ -1001,21 +998,21 @@ class _GameplayValueTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _SettingTile(
-    label: label,
-    colorScheme: colorScheme,
-    style: style,
-    child: TextButton(
-      onPressed: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(value),
-          const SizedBox(width: 4),
-          const Icon(Icons.tune, size: 18),
-        ],
-      ),
-    ),
-  );
+        label: label,
+        colorScheme: colorScheme,
+        style: style,
+        child: TextButton(
+          onPressed: onTap,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(value),
+              const SizedBox(width: 4),
+              const Icon(Icons.tune, size: 18),
+            ],
+          ),
+        ),
+      );
 }
 
 class _ActionButton extends StatelessWidget {

@@ -101,8 +101,8 @@ class AppLocalizations {
     final direct = appTranslations[_translationKey]?[source];
     if (direct != null) return direct;
 
-    final discovery = RegExp(r'^Could not start network discovery: (.*)$')
-        .firstMatch(source);
+    final discovery =
+        RegExp(r'^Could not start network discovery: (.*)$').firstMatch(source);
     if (discovery != null) {
       return text('Could not start network discovery: {error}', {
         'error': discovery.group(1),

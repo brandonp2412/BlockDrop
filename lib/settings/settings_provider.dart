@@ -58,17 +58,17 @@ class SettingsProvider extends ChangeNotifier {
   AppStyle get style => _style;
   String? get localeCode => _localeCode;
   Locale? get locale => switch (_localeCode) {
-    'zh-Hans' => const Locale.fromSubtags(
-      languageCode: 'zh',
-      scriptCode: 'Hans',
-    ),
-    'zh-Hant' => const Locale.fromSubtags(
-      languageCode: 'zh',
-      scriptCode: 'Hant',
-    ),
-    final code? => Locale(code),
-    null => null,
-  };
+        'zh-Hans' => const Locale.fromSubtags(
+            languageCode: 'zh',
+            scriptCode: 'Hans',
+          ),
+        'zh-Hant' => const Locale.fromSubtags(
+            languageCode: 'zh',
+            scriptCode: 'Hant',
+          ),
+        final code? => Locale(code),
+        null => null,
+      };
   bool get musicEnabled => _musicEnabled;
   bool get sfxEnabled => _sfxEnabled;
   int get highScore => _highScore;
@@ -150,8 +150,8 @@ class SettingsProvider extends ChangeNotifier {
     _localeCode = storedLocale == 'zh'
         ? 'zh-Hans'
         : supportedLocales.contains(storedLocale)
-        ? storedLocale
-        : null;
+            ? storedLocale
+            : null;
     _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
     _highScore = prefs.getInt(_highScoreKey) ?? 0;
@@ -161,9 +161,8 @@ class SettingsProvider extends ChangeNotifier {
     _showOnScreenControls = prefs.getBool(_showOnScreenControlsKey) ?? false;
     _fullscreenBoard = prefs.getBool(_fullscreenBoardKey) ?? false;
     _continueGameEnabled = prefs.getBool(_continueGameKey) ?? true;
-    _savedGameJson = _continueGameEnabled
-        ? prefs.getString(_savedGameKey)
-        : null;
+    _savedGameJson =
+        _continueGameEnabled ? prefs.getString(_savedGameKey) : null;
     _gameplay = GameplaySettings.fromMap({
       for (final key in _gameplayKeys) key: prefs.get(key),
       'hold_enabled': _enableHold,

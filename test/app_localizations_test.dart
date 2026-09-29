@@ -16,8 +16,7 @@ void main() {
     final supportedLanguages = AppLocalizations.supportedLocales
         .where((locale) => locale.languageCode != 'en')
         .map(
-          (locale) => locale.languageCode == 'zh' &&
-                  locale.scriptCode == 'Hant'
+          (locale) => locale.languageCode == 'zh' && locale.scriptCode == 'Hant'
               ? 'zh-Hant'
               : locale.languageCode,
         )
