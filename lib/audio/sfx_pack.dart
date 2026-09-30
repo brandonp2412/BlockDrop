@@ -20,10 +20,10 @@ enum SoundEffectPack {
   /// Human-readable name shown in settings.
   final String label;
 
-  /// Restores a persisted effect variant, defaulting safely to Wood.
+  /// Restores a persisted effect variant, defaulting safely to Heavy.
   static SoundEffectPack fromStoredName(String? value) =>
       SoundEffectPack.values.firstWhere(
         (pack) => pack.name == value,
-        orElse: () => SoundEffectPack.wood,
+        orElse: () => SoundEffectPack.heavy,
       );
 }

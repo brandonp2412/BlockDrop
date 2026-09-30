@@ -192,6 +192,34 @@ void main() {
     expect((source as AssetSource).path, startsWith('audio/sfx/glass_clear.'));
   });
 
+  test('Heavy clear sound escalates with consecutive clear streak', () {
+    const expected = <SoundEffectPack>[
+      SoundEffectPack.heavy,
+      SoundEffectPack.metal,
+      SoundEffectPack.power,
+      SoundEffectPack.laser,
+      SoundEffectPack.crystal,
+      SoundEffectPack.phaser,
+      SoundEffectPack.phaser,
+    ];
+
+    for (var streak = 1; streak <= expected.length; streak++) {
+      expect(
+        AudioService.clearPackForStreak(SoundEffectPack.heavy, streak),
+        expected[streak - 1],
+      );
+    }
+  });
+
+  test('non-Heavy clear variants do not change with streak', () {
+    for (final streak in [1, 2, 4, 10]) {
+      expect(
+        AudioService.clearPackForStreak(SoundEffectPack.glass, streak),
+        SoundEffectPack.glass,
+      );
+    }
+  });
+
   test(
     'changing only the clear variant reloads SFX without restarting music',
     () async {

@@ -31,7 +31,7 @@ class AudioService {
     this.sfxEnabled = true,
     this.customMusicPath,
     this.customSfxPaths = const {},
-    this.clearEffectPack = SoundEffectPack.wood,
+    this.clearEffectPack = SoundEffectPack.heavy,
     AudioPlayer? musicPlayer,
     AudioPlayer Function()? sfxPlayerFactory,
   })  : _musicPlayer = musicPlayer ?? AudioPlayer(),
@@ -209,11 +209,13 @@ class AudioService {
     if (shouldRestartMusic) await startMusic();
   }
 
-  void _playSfx(String name) {
+  void _playSfx(String name, {SoundEffectPack? packOverride}) {
     if (!sfxEnabled) return;
     final player = _sfxPlayers[name];
     if (player == null) return;
-    player.stop().then((_) => player.play(_sfxSource(name)));
+    player
+        .stop()
+        .then((_) => player.play(_sfxSource(name, packOverride: packOverride)));
   }
 
   Source _musicSource() => customMusicPath == null
@@ -224,13 +226,14 @@ class AudioService {
   static Source bundledSfxSource(SoundEffectPack pack, String name) =>
       AssetSource('audio/sfx/${pack.name}_$name.$_audioExt');
 
-  Source _sfxSource(String name) {
+  Source _sfxSource(String name, {SoundEffectPack? packOverride}) {
     final customPath = customSfxPaths[name];
     if (customPath != null) return DeviceFileSource(customPath);
 
-    final pack = name == 'clear' || name == 'tetris'
-        ? clearEffectPack
-        : SoundEffectPack.wood;
+    final pack = packOverride ??
+        (name == 'clear' || name == 'tetris'
+            ? clearEffectPack
+            : SoundEffectPack.wood);
     return bundledSfxSource(pack, name);
   }
 
@@ -246,7 +249,32 @@ class AudioService {
 
   void playRotate() => _playSfx('rotate');
   void playDrop() => _playSfx('drop');
-  void playClear(int lines) => _playSfx(lines >= 4 ? 'tetris' : 'clear');
+
+  /// Plays a line-clear cue, escalating Heavy into more fantastical sounds as
+  /// the consecutive clear [streak] grows. Other selected variants stay fixed.
+  void playClear(int lines, {required int streak}) => _playSfx(
+        lines >= 4 ? 'tetris' : 'clear',
+        packOverride: clearPackForStreak(clearEffectPack, streak),
+      );
+
+  /// Resolves the clear-sound pack for a consecutive clear streak.
+  static SoundEffectPack clearPackForStreak(
+    SoundEffectPack selectedPack,
+    int streak,
+  ) {
+    if (selectedPack != SoundEffectPack.heavy || streak <= 1) {
+      return selectedPack;
+    }
+
+    return switch (streak) {
+      2 => SoundEffectPack.metal,
+      3 => SoundEffectPack.power,
+      4 => SoundEffectPack.laser,
+      5 => SoundEffectPack.crystal,
+      _ => SoundEffectPack.phaser,
+    };
+  }
+
   void playLevelUp() => _playSfx('level_up');
   void playHold() => _playSfx('hold');
   void playGameOver() => _playSfx('game_over');

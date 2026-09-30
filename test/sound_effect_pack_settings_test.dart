@@ -18,7 +18,7 @@ void main() {
     expect(selector, findsOneWidget);
 
     final dropdown = tester.widget<DropdownButton<SoundEffectPack>>(selector);
-    expect(dropdown.value, SoundEffectPack.wood);
+    expect(dropdown.value, SoundEffectPack.heavy);
     expect(dropdown.items, hasLength(SoundEffectPack.values.length));
     expect(SoundEffectPack.values, hasLength(14));
     expect(find.text('Clear Sound'), findsOneWidget);

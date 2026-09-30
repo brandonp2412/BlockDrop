@@ -46,7 +46,7 @@ class SettingsProvider extends ChangeNotifier {
   String? _localeCode;
   bool _musicEnabled = false;
   bool _sfxEnabled = false;
-  SoundEffectPack _clearEffectPack = SoundEffectPack.wood;
+  SoundEffectPack _clearEffectPack = SoundEffectPack.heavy;
   String? _customMusicPath;
   Map<String, String> _customSfxPaths = {};
   int _highScore = 0;

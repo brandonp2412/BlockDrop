@@ -460,7 +460,7 @@ class GameLogic extends ChangeNotifier {
     clearingLines = fullLines;
     isAnimatingClear = true;
 
-    audioService?.playClear(fullLines.length);
+    audioService?.playClear(fullLines.length, streak: lineClearStreak);
 
     gameTimer?.cancel();
 
