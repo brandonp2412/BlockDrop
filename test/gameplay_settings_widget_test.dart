@@ -159,4 +159,31 @@ void main() {
     expect(
         find.text('Choose 0 for unlimited level progression.'), findsOneWidget);
   });
+
+  testWidgets(
+      'settings labels wrap instead of using ellipses on narrow screens',
+      (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('settings-search-button')));
+    await tester.pump();
+    await tester.enterText(
+      find.byKey(const ValueKey('settings-search')),
+      'continue saved game',
+    );
+    await tester.pump();
+
+    final label = tester.widget<Text>(find.text('Continue Saved Game').last);
+    expect(label.maxLines, isNull);
+    expect(label.overflow, isNull);
+    expect(tester.takeException(), isNull);
+  });
 }

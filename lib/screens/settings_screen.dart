@@ -813,7 +813,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 value: 'system',
                                 child: Text(
                                   context.l10n.text('System default'),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               for (final entry in _languageNames.entries)
@@ -821,7 +820,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   value: entry.key,
                                   child: Text(
                                     entry.value,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                             ],
@@ -1083,19 +1081,29 @@ class _SettingTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: panelDecoration(style, colorScheme),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              context.l10n.text(label),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
-            ),
-          ),
-          Expanded(flex: 3, child: child),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final label = Text(
+            context.l10n.text(this.label),
+            style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
+          );
+          if (constraints.maxWidth < 400) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                label,
+                const SizedBox(height: 4),
+                Align(alignment: Alignment.centerRight, child: child),
+              ],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(flex: 2, child: label),
+              Expanded(flex: 3, child: child),
+            ],
+          );
+        },
       ),
     );
   }
