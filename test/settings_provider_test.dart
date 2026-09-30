@@ -167,6 +167,19 @@ void main() {
       expect(reloaded.locale, const Locale('it'));
     });
 
+    test('persists Bengali language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('bn');
+      expect(settings.localeCode, 'bn');
+      expect(settings.locale, const Locale('bn'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'bn');
+      expect(reloaded.locale, const Locale('bn'));
+    });
+
     test('persists Dutch language override', () async {
       final settings = SettingsProvider();
 

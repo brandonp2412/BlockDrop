@@ -76,6 +76,27 @@ void main() {
     expect(find.text('Italiano'), findsOneWidget);
   });
 
+  testWidgets('language picker exposes Bengali', (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('settingsLanguageDropdown')),
+      120,
+    );
+    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('বাংলা'),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('বাংলা'), findsOneWidget);
+  });
+
   testWidgets('language picker exposes Dutch', (tester) async {
     final settings = SettingsProvider();
     await tester.pumpWidget(
