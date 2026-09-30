@@ -22,7 +22,7 @@ void main() {
       expect(settings.locale, isNull);
       expect(settings.musicEnabled, false);
       expect(settings.sfxEnabled, false);
-      expect(settings.soundEffectPack, SoundEffectPack.classic);
+      expect(settings.clearEffectPack, SoundEffectPack.wood);
       expect(settings.highScore, 0);
       expect(settings.enableHold, true);
       expect(settings.showOnScreenControls, false);
@@ -113,18 +113,18 @@ void main() {
       expect(settings.musicEnabled, false);
     });
 
-    test('persists the selected sound-effect pack', () async {
+    test('persists the selected clear-sound variant', () async {
       final settings = SettingsProvider();
-      await settings.setSoundEffectPack(SoundEffectPack.glass);
+      await settings.setClearEffectPack(SoundEffectPack.glass);
 
       final reloaded = SettingsProvider();
       await reloaded.load();
 
-      expect(reloaded.soundEffectPack, SoundEffectPack.glass);
+      expect(reloaded.clearEffectPack, SoundEffectPack.glass);
     });
 
     test(
-      'falls back to Classic for an unknown stored sound-effect pack',
+      'falls back to Wood for an unknown stored clear-sound variant',
       () async {
         SharedPreferences.setMockInitialValues({
           'sound_effect_pack': 'not-a-real-pack',
@@ -133,7 +133,7 @@ void main() {
         final settings = SettingsProvider();
         await settings.load();
 
-        expect(settings.soundEffectPack, SoundEffectPack.classic);
+        expect(settings.clearEffectPack, SoundEffectPack.wood);
       },
     );
 

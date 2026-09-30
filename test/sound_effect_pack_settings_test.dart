@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('sound set selector exposes every bundled theme', (tester) async {
+  testWidgets('clear sound selector exposes every bundled variant',
+      (tester) async {
     final settings = SettingsProvider();
 
     await tester.pumpWidget(
@@ -13,13 +14,13 @@ void main() {
     );
     await tester.pump();
 
-    final selector = find.byKey(const Key('settingsSoundEffectPack'));
+    final selector = find.byKey(const Key('settingsClearEffectPack'));
     expect(selector, findsOneWidget);
 
     final dropdown = tester.widget<DropdownButton<SoundEffectPack>>(selector);
-    expect(dropdown.value, SoundEffectPack.classic);
+    expect(dropdown.value, SoundEffectPack.wood);
     expect(dropdown.items, hasLength(SoundEffectPack.values.length));
     expect(SoundEffectPack.values, hasLength(14));
-    expect(find.text('Sound Set'), findsOneWidget);
+    expect(find.text('Clear Sound'), findsOneWidget);
   });
 }

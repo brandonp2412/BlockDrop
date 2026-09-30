@@ -80,7 +80,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       sfxEnabled: widget.settings.sfxEnabled,
       customMusicPath: widget.settings.customMusicPath,
       customSfxPaths: widget.settings.customSfxPaths,
-      soundEffectPack: widget.settings.soundEffectPack,
+      clearEffectPack: widget.settings.clearEffectPack,
     );
     _audioService.init();
     _audioService.startMusic();
@@ -233,7 +233,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       _audioService.setCustomSources(
         musicPath: widget.settings.customMusicPath,
         sfxPaths: widget.settings.customSfxPaths,
-        soundEffectPack: widget.settings.soundEffectPack,
+        clearEffectPack: widget.settings.clearEffectPack,
       ),
     );
     gameLogic.enableHold = widget.settings.enableHold;

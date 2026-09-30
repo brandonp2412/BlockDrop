@@ -1,6 +1,6 @@
 # Bundled sound-effect provenance
 
-All bundled BlockDrop gameplay sound effects are sourced from Kenney and are licensed under Creative Commons Zero (CC0 1.0 Universal).
+All bundled BlockDrop gameplay sound effects are sourced from Kenney and are licensed under Creative Commons Zero (CC0 1.0 Universal). Wood is the base gameplay set; the other bundled packs remain available as line-clear/Tetris sound variants.
 
 - Interface Sounds: https://kenney.nl/assets/interface-sounds
 - Digital Audio: https://kenney.nl/assets/digital-audio

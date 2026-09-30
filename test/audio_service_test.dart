@@ -174,7 +174,7 @@ void main() {
 
     await service.init();
 
-    const expectedVolumes = [0.26, 0.34, 0.42, 0.26, 0.32, 0.3, 0.32, 0.38];
+    const expectedVolumes = [0.26, 0.34, 0.42, 0.5, 0.62, 0.3, 0.32, 0.38];
     for (var index = 0; index < sfxPlayers.length; index++) {
       verify(() => sfxPlayers[index].setVolume(expectedVolumes[index]))
           .called(1);
@@ -184,15 +184,16 @@ void main() {
     await stateController.close();
   });
 
-  test('bundled sound source uses the selected theme prefix', () {
-    final source = AudioService.bundledSfxSource(SoundEffectPack.glass, 'drop');
+  test('bundled sound source uses the requested pack prefix', () {
+    final source =
+        AudioService.bundledSfxSource(SoundEffectPack.glass, 'clear');
 
     expect(source, isA<AssetSource>());
-    expect((source as AssetSource).path, startsWith('audio/sfx/glass_drop.'));
+    expect((source as AssetSource).path, startsWith('audio/sfx/glass_clear.'));
   });
 
   test(
-    'changing only the sound theme reloads SFX without restarting music',
+    'changing only the clear variant reloads SFX without restarting music',
     () async {
       final (mockMusic, stateController) = makeMusicPlayer();
       final sfxPlayers = <MockAudioPlayer>[];
@@ -215,7 +216,7 @@ void main() {
       await service.setCustomSources(
         musicPath: null,
         sfxPaths: const {},
-        soundEffectPack: SoundEffectPack.glass,
+        clearEffectPack: SoundEffectPack.glass,
       );
 
       verifyNever(() => mockMusic.stop());
@@ -227,6 +228,39 @@ void main() {
       await stateController.close();
     },
   );
+
+  test('Wood stays the base pack while clear sounds use the selected variant',
+      () async {
+    final (mockMusic, stateController) = makeMusicPlayer();
+    final sfxPlayers = <MockAudioPlayer>[];
+    final service = AudioService(
+      clearEffectPack: SoundEffectPack.glass,
+      musicPlayer: mockMusic,
+      sfxPlayerFactory: () {
+        final player = makeSfxPlayer();
+        sfxPlayers.add(player);
+        return player;
+      },
+    );
+
+    await service.init();
+
+    for (var index = 0; index < AudioService.sfxNames.length; index++) {
+      final name = AudioService.sfxNames[index];
+      final source = verify(() => sfxPlayers[index].setSource(captureAny()))
+          .captured
+          .single as AssetSource;
+      final expectedPack =
+          name == 'clear' || name == 'tetris' ? 'glass' : 'wood';
+      expect(
+        source.path,
+        startsWith('audio/sfx/${expectedPack}_$name.'),
+      );
+    }
+
+    await service.dispose();
+    await stateController.close();
+  });
 
   group('AudioService — unexpected music pause recovery', () {
     test(
@@ -327,7 +361,7 @@ void main() {
     await service.setCustomSources(
       musicPath: '/tmp/custom-track.mp3',
       sfxPaths: const {},
-      soundEffectPack: SoundEffectPack.classic,
+      clearEffectPack: SoundEffectPack.wood,
     );
 
     verify(() => mockMusic.stop()).called(1);

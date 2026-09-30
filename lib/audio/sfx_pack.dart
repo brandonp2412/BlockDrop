@@ -1,4 +1,4 @@
-/// Bundled Creative Commons sound-effect themes available to gameplay.
+/// Bundled Creative Commons variants available for line-clear sounds.
 enum SoundEffectPack {
   classic('Classic'),
   minimal('Minimal'),
@@ -20,10 +20,10 @@ enum SoundEffectPack {
   /// Human-readable name shown in settings.
   final String label;
 
-  /// Restores a persisted theme name, defaulting safely to Classic.
+  /// Restores a persisted effect variant, defaulting safely to Wood.
   static SoundEffectPack fromStoredName(String? value) =>
       SoundEffectPack.values.firstWhere(
         (pack) => pack.name == value,
-        orElse: () => SoundEffectPack.classic,
+        orElse: () => SoundEffectPack.wood,
       );
 }

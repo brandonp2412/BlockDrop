@@ -101,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (path != null) await widget.settings.setCustomSfxPath(name, path);
   }
 
-  Future<void> _previewSoundEffectPack(SoundEffectPack pack) async {
+  Future<void> _previewClearEffectPack(SoundEffectPack pack) async {
     await _sfxPreviewPlayer.stop();
     await _sfxPreviewPlayer.setVolume(0.38);
     await _sfxPreviewPlayer.play(AudioService.bundledSfxSource(pack, 'tetris'));
@@ -309,7 +309,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final showSound = _sectionMatches('Sound', [
       'Music',
       'Sound Effects',
-      'Sound Set',
+      'Clear Sound',
     ]);
     final showGameplay = _sectionMatches('Gameplay', [
       'Ghost Tile',
@@ -545,17 +545,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ],
                         ),
                       ),
-                    if (_matchesSearch('Sound Set', section: 'Sound'))
+                    if (_matchesSearch('Clear Sound', section: 'Sound'))
                       _SettingTile(
-                        label: 'Sound Set',
+                        label: 'Clear Sound',
                         colorScheme: colorScheme,
                         style: widget.settings.style,
                         labelFlex: 3,
                         controlFlex: 8,
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<SoundEffectPack>(
-                            key: const Key('settingsSoundEffectPack'),
-                            value: widget.settings.soundEffectPack,
+                            key: const Key('settingsClearEffectPack'),
+                            value: widget.settings.clearEffectPack,
                             isDense: true,
                             items: SoundEffectPack.values
                                 .map(
@@ -569,8 +569,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 .toList(),
                             onChanged: (pack) async {
                               if (pack == null) return;
-                              await widget.settings.setSoundEffectPack(pack);
-                              await _previewSoundEffectPack(pack);
+                              await widget.settings.setClearEffectPack(pack);
+                              await _previewClearEffectPack(pack);
                             },
                           ),
                         ),
@@ -1231,7 +1231,7 @@ class _SettingTile extends StatelessWidget {
 IconData _settingIcon(String label) => switch (label) {
       'Music' => Icons.music_note_rounded,
       'Sound Effects' => Icons.volume_up_rounded,
-      'Sound Set' => Icons.library_music_rounded,
+      'Clear Sound' => Icons.auto_awesome_rounded,
       'Ghost Tile' => Icons.layers_outlined,
       'Enable Hold Piece' => Icons.inventory_2_outlined,
       'Swipe Up to Hold' => Icons.swipe_up_alt_rounded,

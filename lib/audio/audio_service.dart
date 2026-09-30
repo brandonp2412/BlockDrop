@@ -17,7 +17,7 @@ class AudioService {
   bool sfxEnabled;
   String? customMusicPath;
   Map<String, String> customSfxPaths;
-  SoundEffectPack soundEffectPack;
+  SoundEffectPack clearEffectPack;
   DateTime? _lastMovePlayed;
 
   bool _musicIntentionallyPaused = true;
@@ -31,7 +31,7 @@ class AudioService {
     this.sfxEnabled = true,
     this.customMusicPath,
     this.customSfxPaths = const {},
-    this.soundEffectPack = SoundEffectPack.classic,
+    this.clearEffectPack = SoundEffectPack.wood,
     AudioPlayer? musicPlayer,
     AudioPlayer Function()? sfxPlayerFactory,
   })  : _musicPlayer = musicPlayer ?? AudioPlayer(),
@@ -53,8 +53,8 @@ class AudioService {
     'move': 0.26,
     'rotate': 0.34,
     'drop': 0.42,
-    'clear': 0.26,
-    'tetris': 0.32,
+    'clear': 0.5,
+    'tetris': 0.62,
     'level_up': 0.3,
     'hold': 0.32,
     'game_over': 0.38,
@@ -183,10 +183,10 @@ class AudioService {
   Future<void> setCustomSources({
     String? musicPath,
     required Map<String, String> sfxPaths,
-    required SoundEffectPack soundEffectPack,
+    required SoundEffectPack clearEffectPack,
   }) async {
     final musicChanged = musicPath != customMusicPath;
-    final packChanged = soundEffectPack != this.soundEffectPack;
+    final packChanged = clearEffectPack != this.clearEffectPack;
     final sfxPathsChanged = sfxPaths.length != customSfxPaths.length ||
         sfxPaths.entries.any(
           (entry) => customSfxPaths[entry.key] != entry.value,
@@ -198,7 +198,7 @@ class AudioService {
 
     customMusicPath = musicPath;
     customSfxPaths = Map.of(sfxPaths);
-    this.soundEffectPack = soundEffectPack;
+    this.clearEffectPack = clearEffectPack;
 
     if (musicChanged) await _musicPlayer.stop();
     if (packChanged || sfxPathsChanged) {
@@ -224,9 +224,15 @@ class AudioService {
   static Source bundledSfxSource(SoundEffectPack pack, String name) =>
       AssetSource('audio/sfx/${pack.name}_$name.$_audioExt');
 
-  Source _sfxSource(String name) => customSfxPaths[name] == null
-      ? bundledSfxSource(soundEffectPack, name)
-      : DeviceFileSource(customSfxPaths[name]!);
+  Source _sfxSource(String name) {
+    final customPath = customSfxPaths[name];
+    if (customPath != null) return DeviceFileSource(customPath);
+
+    final pack = name == 'clear' || name == 'tetris'
+        ? clearEffectPack
+        : SoundEffectPack.wood;
+    return bundledSfxSource(pack, name);
+  }
 
   void playMove() {
     final now = DateTime.now();
