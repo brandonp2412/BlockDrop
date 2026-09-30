@@ -1,0 +1,1 @@
+Nowoczesny klon Tetrisa zbudowany we Flutterze. Upuszczaj, obracaj i usuwaj linie w tej klasycznej grze logicznej.

@@ -141,6 +141,19 @@ void main() {
       expect(systemDefault.locale, isNull);
     });
 
+    test('persists Polish language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('pl');
+      expect(settings.localeCode, 'pl');
+      expect(settings.locale, const Locale('pl'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'pl');
+      expect(reloaded.locale, const Locale('pl'));
+    });
+
     test('persists Russian language override', () async {
       final settings = SettingsProvider();
 

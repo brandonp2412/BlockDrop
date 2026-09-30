@@ -42,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'es': 'Español',
     'fr': 'Français',
     'pt': 'Português (Brasil)',
+    'pl': 'Polski',
     'ja': '日本語',
     'ko': '한국어',
     'zh-Hans': '中文（简体）',

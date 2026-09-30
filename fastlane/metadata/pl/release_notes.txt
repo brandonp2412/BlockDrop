@@ -1,0 +1,1 @@
+• Dodano brakującą zależność dla create-github-release

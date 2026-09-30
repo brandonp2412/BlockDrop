@@ -49,10 +49,10 @@ void main() {
     );
     await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('ไทย').last);
+    await tester.tap(find.text('Polski').last);
     await tester.pump();
 
-    expect(settings.localeCode, 'th');
+    expect(settings.localeCode, 'pl');
   });
 
   testWidgets('language picker exposes Traditional Chinese', (tester) async {

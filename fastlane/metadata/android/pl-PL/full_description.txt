@@ -1,0 +1,18 @@
+Upuszczaj klocki, usuwaj linie i pobijaj swój najlepszy wynik w klasycznej układance ze spadającymi blokami.
+
+BlockDrop to szybka i skupiona na rozgrywce gra logiczna oparta na dobrze znanym wyzwaniu układania spadających tetromin. Obracaj i przesuwaj każdy klocek, wypełniaj poziome linie i utrzymuj planszę w porządku, gdy tempo rośnie.
+
+GRAJ PO SWOJEMU
+
+• Korzystaj ze wszystkich siedmiu klasycznych tetromin
+• Przesuwaj, obracaj, wykonuj miękki i twardy zrzut dzięki responsywnemu sterowaniu
+• Zachowaj klocek na odpowiedni moment
+• Planuj z wyprzedzeniem dzięki podglądowi następnego klocka
+• Śledź wynik i liczbę usuniętych linii, gdy gra przyspiesza
+• Wybieraj motywy jasne, ciemne lub przyjazne ekranom AMOLED
+
+STWORZONA DO KRÓTKICH SESJI
+
+Niezależnie od tego, czy masz kilka minut, czy chcesz pobić swój rekord, BlockDrop zapewnia przejrzystą grę w układanie klocków bez zbędnych rozpraszaczy. Działa offline i jest dostępna na urządzeniach mobilnych oraz komputerach.
+
+BlockDrop jest darmowy i otwartoźródłowy. Nie zawiera reklam, zakupów w aplikacji, śledzenia ani zbierania danych.

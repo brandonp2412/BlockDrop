@@ -36,6 +36,14 @@ void main() {
     }
   });
 
+  test('Polish locale is supported and translated', () {
+    expect(AppLocalizations.supportedLocales, contains(const Locale('pl')));
+
+    const polish = AppLocalizations(Locale('pl'));
+    expect(polish.text('Settings'), 'Ustawienia');
+    expect(polish.text('Game Over'), 'Koniec gry');
+  });
+
   test('Traditional Chinese uses the Hant translation set', () {
     const simplified = AppLocalizations(
       Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
