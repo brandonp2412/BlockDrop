@@ -714,7 +714,7 @@ class GameLogic extends ChangeNotifier {
 
   (int, int) _srsTrimOffset(Tetromino piece, int rotation) {
     if (_isIPiece(piece)) {
-      return const [(0, 1), (2, 0), (0, 2), (1, 0)][rotation];
+      return (0, 0);
     }
     return const [(0, 0), (1, 0), (0, 1), (0, 0)][rotation];
   }

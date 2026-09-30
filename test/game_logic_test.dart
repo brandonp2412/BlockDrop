@@ -388,6 +388,20 @@ void main() {
       ); // Color should remain same
     });
 
+    test('I piece keeps a stable origin while rotating in open space', () {
+      gameLogic.currentPiece = Tetromino.pieces[0];
+      gameLogic.currentX = 3;
+      gameLogic.currentY = 10;
+
+      for (var rotation = 1; rotation <= 4; rotation++) {
+        gameLogic.rotatePieceRight();
+
+        expect(gameLogic.currentX, 3);
+        expect(gameLogic.currentY, 10);
+        expect(gameLogic.currentRotation, rotation % 4);
+      }
+    });
+
     test('SRS wall kicks support S, Z, J, and L spins at the wall', () {
       for (final piece in Tetromino.pieces.where(
         (piece) => {
