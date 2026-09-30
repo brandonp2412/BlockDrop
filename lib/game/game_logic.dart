@@ -39,6 +39,7 @@ class GameLogic extends ChangeNotifier {
   Tetromino? currentPiece;
   int currentX = 0;
   int currentY = 0;
+  int currentRotation = 0;
 
   Tetromino? nextPiece;
 
@@ -121,6 +122,7 @@ class GameLogic extends ChangeNotifier {
       'held_piece': _pieceToSnapshot(heldPiece),
       'current_x': currentX,
       'current_y': currentY,
+      'current_rotation': currentRotation,
       'score': score,
       'level': level,
       'lines_cleared': linesCleared,
@@ -204,6 +206,9 @@ class GameLogic extends ChangeNotifier {
       heldPiece = restoredHeld;
       currentX = _snapshotInt(snapshot, 'current_x');
       currentY = _snapshotInt(snapshot, 'current_y');
+      currentRotation = snapshot['current_rotation'] is num
+          ? (snapshot['current_rotation']! as num).toInt() % 4
+          : 0;
       score = _snapshotInt(snapshot, 'score').clamp(0, 1 << 31);
       level = _snapshotInt(snapshot, 'level').clamp(1, 1000000);
       linesCleared = _snapshotInt(snapshot, 'lines_cleared').clamp(0, 1 << 31);
@@ -349,6 +354,7 @@ class GameLogic extends ChangeNotifier {
     nextPiece = pieceBag.next();
     currentX = GameConstants.boardWidth ~/ 2 - 1;
     currentY = GameConstants.previewRows;
+    currentRotation = 0;
 
     isSlamming = false;
 
@@ -483,8 +489,8 @@ class GameLogic extends ChangeNotifier {
     }
 
     // Calculate score using Tetris guideline multipliers
-    final int delta;
-    final String label;
+    int delta;
+    String label;
     if (wasTSpin) {
       final int idx = clearedLinesCount.clamp(
         0,
@@ -502,6 +508,18 @@ class GameLogic extends ChangeNotifier {
     } else {
       delta = 0;
       label = '';
+    }
+
+    final isPerfectClear = board
+        .skip(GameConstants.previewRows)
+        .every((row) => row.every((cell) => cell == null));
+    if (isPerfectClear) {
+      final perfectClearIndex = clearedLinesCount.clamp(
+        0,
+        GameConstants.perfectClearScores.length - 1,
+      );
+      delta += GameConstants.perfectClearScores[perfectClearIndex] * level;
+      label = 'PERFECT CLEAR!';
     }
 
     linesCleared += clearedLinesCount;
@@ -654,65 +672,33 @@ class GameLogic extends ChangeNotifier {
   }
 
   void rotatePieceRight() {
-    if (currentPiece == null || isAnimatingClear) return;
-
-    Tetromino rotatedPiece = currentPiece!.rotateRight();
-
-    // Try wall kicks - test different positions to see if rotation is possible
-    List<List<int>> wallKickOffsets = [
-      [0, 0], // Try current position first
-      [-1, 0], // Try one left
-      [1, 0], // Try one right
-      [-2, 0], // Try two left
-      [2, 0], // Try two right
-      [0, -1], // Try one up
-      [-1, -1], // Try one left and up
-      [1, -1], // Try one right and up
-    ];
-
-    for (List<int> offset in wallKickOffsets) {
-      int testX = currentX + offset[0];
-      int testY = currentY + offset[1];
-
-      if (canPlacePiece(testX, testY, rotatedPiece)) {
-        currentPiece = rotatedPiece;
-        currentX = testX;
-        currentY = testY;
-        _lastMoveWasRotation = true;
-        _updateLockDelayAfterAction(resetWhenGrounded: true);
-        audioService?.playRotate();
-        notifyListeners();
-        return;
-      }
-    }
-    // If no wall kick worked, rotation fails silently
+    _rotate(clockwise: true);
   }
 
   void rotatePieceLeft() {
+    _rotate(clockwise: false);
+  }
+
+  void _rotate({required bool clockwise}) {
     if (currentPiece == null || isAnimatingClear) return;
+    final piece = currentPiece!;
+    if (_isOPiece(piece)) return;
+    final nextRotation = (currentRotation + (clockwise ? 1 : 3)) % 4;
+    final rotatedPiece = clockwise ? piece.rotateRight() : piece.rotateLeft();
+    final oldTrim = _srsTrimOffset(piece, currentRotation);
+    final newTrim = _srsTrimOffset(piece, nextRotation);
+    final fixedOriginX = currentX - oldTrim.$1;
+    final fixedOriginY = currentY - oldTrim.$2;
 
-    Tetromino rotatedPiece = currentPiece!.rotateLeft();
-
-    // Try wall kicks - test different positions to see if rotation is possible
-    List<List<int>> wallKickOffsets = [
-      [0, 0], // Try current position first
-      [-1, 0], // Try one left
-      [1, 0], // Try one right
-      [-2, 0], // Try two left
-      [2, 0], // Try two right
-      [0, -1], // Try one up
-      [-1, -1], // Try one left and up
-      [1, -1], // Try one right and up
-    ];
-
-    for (List<int> offset in wallKickOffsets) {
-      int testX = currentX + offset[0];
-      int testY = currentY + offset[1];
-
+    // SRS kick data: https://tetris.wiki/Super_Rotation_System
+    for (final kick in _wallKicks(piece, currentRotation, nextRotation)) {
+      final testX = fixedOriginX + newTrim.$1 + kick.$1;
+      final testY = fixedOriginY + newTrim.$2 - kick.$2;
       if (canPlacePiece(testX, testY, rotatedPiece)) {
         currentPiece = rotatedPiece;
         currentX = testX;
         currentY = testY;
+        currentRotation = nextRotation;
         _lastMoveWasRotation = true;
         _updateLockDelayAfterAction(resetWhenGrounded: true);
         audioService?.playRotate();
@@ -720,7 +706,41 @@ class GameLogic extends ChangeNotifier {
         return;
       }
     }
-    // If no wall kick worked, rotation fails silently
+  }
+
+  bool _isOPiece(Tetromino piece) => piece.color == Colors.yellow;
+
+  bool _isIPiece(Tetromino piece) => piece.color == Colors.cyan;
+
+  (int, int) _srsTrimOffset(Tetromino piece, int rotation) {
+    if (_isIPiece(piece)) {
+      return const [(0, 1), (2, 0), (0, 2), (1, 0)][rotation];
+    }
+    return const [(0, 0), (1, 0), (0, 1), (0, 0)][rotation];
+  }
+
+  List<(int, int)> _wallKicks(Tetromino piece, int from, int to) {
+    const jlstz = <String, List<(int, int)>>{
+      '0>1': [(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)],
+      '1>0': [(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)],
+      '1>2': [(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)],
+      '2>1': [(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)],
+      '2>3': [(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)],
+      '3>2': [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)],
+      '3>0': [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)],
+      '0>3': [(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)],
+    };
+    const i = <String, List<(int, int)>>{
+      '0>1': [(0, 0), (-2, 0), (1, 0), (-2, -1), (1, 2)],
+      '1>0': [(0, 0), (2, 0), (-1, 0), (2, 1), (-1, -2)],
+      '1>2': [(0, 0), (-1, 0), (2, 0), (-1, 2), (2, -1)],
+      '2>1': [(0, 0), (1, 0), (-2, 0), (1, -2), (-2, 1)],
+      '2>3': [(0, 0), (2, 0), (-1, 0), (2, 1), (-1, -2)],
+      '3>2': [(0, 0), (-2, 0), (1, 0), (-2, -1), (1, 2)],
+      '3>0': [(0, 0), (1, 0), (-2, 0), (1, -2), (-2, 1)],
+      '0>3': [(0, 0), (-1, 0), (2, 0), (-1, 2), (2, -1)],
+    };
+    return (_isIPiece(piece) ? i : jlstz)['$from>$to'] ?? const [(0, 0)];
   }
 
   void dropPiece() {
@@ -731,7 +751,6 @@ class GameLogic extends ChangeNotifier {
 
     // Set slamming flag to lock horizontal position
     isSlamming = true;
-    _lastMoveWasRotation = false;
 
     // Store the starting position for trail animation
     int startY = currentY;
@@ -740,6 +759,7 @@ class GameLogic extends ChangeNotifier {
     while (canPlacePiece(currentX, currentY + 1, currentPiece!)) {
       currentY++;
     }
+    if (currentY != startY) _lastMoveWasRotation = false;
 
     audioService?.playDrop();
 
@@ -923,6 +943,7 @@ class GameLogic extends ChangeNotifier {
       // Reset position for the swapped piece
       currentX = GameConstants.boardWidth ~/ 2 - 1;
       currentY = GameConstants.previewRows;
+      currentRotation = 0;
 
       // Check if the swapped piece can be placed
       if (!canPlacePiece(currentX, currentY, currentPiece!)) {

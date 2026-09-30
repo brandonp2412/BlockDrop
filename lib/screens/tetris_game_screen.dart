@@ -78,6 +78,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     _audioService = AudioService(
       musicEnabled: widget.settings.musicEnabled,
       sfxEnabled: widget.settings.sfxEnabled,
+      customMusicPath: widget.settings.customMusicPath,
+      customSfxPaths: widget.settings.customSfxPaths,
     );
     _audioService.init();
     _audioService.startMusic();
@@ -226,6 +228,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   void _onSettingsChanged() {
     _audioService.musicEnabled = widget.settings.musicEnabled;
     _audioService.sfxEnabled = widget.settings.sfxEnabled;
+    unawaited(_audioService.setCustomSources(
+      musicPath: widget.settings.customMusicPath,
+      sfxPaths: widget.settings.customSfxPaths,
+    ));
     gameLogic.enableHold = widget.settings.enableHold;
     gameLogic.gameplaySettings = widget.settings.gameplay;
     if (widget.settings.continueGameEnabled) {

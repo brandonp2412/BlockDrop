@@ -17,6 +17,8 @@ class SettingsProvider extends ChangeNotifier {
   static const _localeKey = 'locale';
   static const _musicEnabledKey = 'music_enabled';
   static const _sfxEnabledKey = 'sfx_enabled';
+  static const _customMusicPathKey = 'custom_music_path';
+  static const _customSfxPathsKey = 'custom_sfx_paths';
   static const _highScoreKey = 'high_score';
   static const _showGhostTileKey = 'show_ghost_tile';
   static const _showOpponentBoardKey = 'show_opponent_board';
@@ -41,6 +43,8 @@ class SettingsProvider extends ChangeNotifier {
   String? _localeCode;
   bool _musicEnabled = false;
   bool _sfxEnabled = false;
+  String? _customMusicPath;
+  Map<String, String> _customSfxPaths = {};
   int _highScore = 0;
   bool _showGhostTile = true;
   bool _showOpponentBoard = true;
@@ -71,6 +75,8 @@ class SettingsProvider extends ChangeNotifier {
       };
   bool get musicEnabled => _musicEnabled;
   bool get sfxEnabled => _sfxEnabled;
+  String? get customMusicPath => _customMusicPath;
+  Map<String, String> get customSfxPaths => Map.unmodifiable(_customSfxPaths);
   int get highScore => _highScore;
   bool get showGhostTile => _showGhostTile;
   bool get showOpponentBoard => _showOpponentBoard;
@@ -158,6 +164,10 @@ class SettingsProvider extends ChangeNotifier {
             : null;
     _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
+    _customMusicPath = prefs.getString(_customMusicPathKey);
+    _customSfxPaths = _decodeCustomSfxPaths(
+      prefs.getString(_customSfxPathsKey),
+    );
     _highScore = prefs.getInt(_highScoreKey) ?? 0;
     _showGhostTile = prefs.getBool(_showGhostTileKey) ?? true;
     _showOpponentBoard = prefs.getBool(_showOpponentBoardKey) ?? true;
@@ -175,6 +185,19 @@ class SettingsProvider extends ChangeNotifier {
       prefs.getStringList(_controllerBindingsKey),
     );
     notifyListeners();
+  }
+
+  Map<String, String> _decodeCustomSfxPaths(String? stored) {
+    if (stored == null) return {};
+    try {
+      final decoded = jsonDecode(stored);
+      if (decoded is! Map) return {};
+      return decoded.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
+    } on FormatException {
+      return {};
+    }
   }
 
   Map<GameplayAction, LogicalKeyboardKey> _decodeControllerBindings(
@@ -289,6 +312,30 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_sfxEnabledKey, value);
+  }
+
+  /// Selects a persistent custom music file, or restores the bundled track.
+  Future<void> setCustomMusicPath(String? value) async {
+    _customMusicPath = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_customMusicPathKey);
+    } else {
+      await prefs.setString(_customMusicPathKey, value);
+    }
+  }
+
+  /// Selects a persistent custom sound for [name], or restores its default.
+  Future<void> setCustomSfxPath(String name, String? value) async {
+    if (value == null) {
+      _customSfxPaths.remove(name);
+    } else {
+      _customSfxPaths[name] = value;
+    }
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_customSfxPathsKey, jsonEncode(_customSfxPaths));
   }
 
   Future<void> setShowGhostTile(bool value) async {

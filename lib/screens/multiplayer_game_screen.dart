@@ -69,6 +69,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     _audioService = AudioService(
       musicEnabled: widget.settings.musicEnabled,
       sfxEnabled: widget.settings.sfxEnabled,
+      customMusicPath: widget.settings.customMusicPath,
+      customSfxPaths: widget.settings.customSfxPaths,
     );
     _audioService.init();
     _audioService.startMusic();

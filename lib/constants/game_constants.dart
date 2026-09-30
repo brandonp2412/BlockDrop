@@ -34,6 +34,9 @@ class GameConstants {
     'T-SPIN TRIPLE'
   ];
 
+  /// Guideline perfect-clear bonuses for clearing one through four lines.
+  static const List<int> perfectClearScores = [0, 800, 1200, 1800, 2000];
+
   // Ghost piece sentinel colour (used to identify ghost cells in the board)
   static const Color ghostPieceColor = Color(0xFF87CEEB);
 

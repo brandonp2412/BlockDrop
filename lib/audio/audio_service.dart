@@ -13,6 +13,8 @@ class AudioService {
 
   bool musicEnabled;
   bool sfxEnabled;
+  String? customMusicPath;
+  Map<String, String> customSfxPaths;
   DateTime? _lastMovePlayed;
 
   bool _musicIntentionallyPaused = true;
@@ -24,12 +26,15 @@ class AudioService {
   AudioService({
     this.musicEnabled = true,
     this.sfxEnabled = true,
+    this.customMusicPath,
+    this.customSfxPaths = const {},
     AudioPlayer? musicPlayer,
     AudioPlayer Function()? sfxPlayerFactory,
   })  : _musicPlayer = musicPlayer ?? AudioPlayer(),
         _sfxPlayerFactory = sfxPlayerFactory;
 
-  static const _sfxNames = [
+  /// Sound-effect slots that can be replaced with user-selected audio.
+  static const sfxNames = [
     'move',
     'rotate',
     'drop',
@@ -94,7 +99,7 @@ class AudioService {
   }
 
   Future<void> _initializeSfx() async {
-    for (final name in _sfxNames) {
+    for (final name in sfxNames) {
       final player = _sfxPlayerFactory?.call() ?? AudioPlayer();
       if (Platform.isAndroid) {
         await player.setAudioContext(
@@ -110,7 +115,7 @@ class AudioService {
         );
       }
       await player.setVolume(_sfxVolumes[name] ?? 0.5);
-      await player.setSource(AssetSource('audio/sfx/$name.$_audioExt'));
+      await player.setSource(_sfxSource(name));
       _sfxPlayers[name] = player;
     }
   }
@@ -126,7 +131,7 @@ class AudioService {
     if (_musicPlayer.state == PlayerState.playing) return;
     _isIntentionallyStarting = true;
     try {
-      await _musicPlayer.play(AssetSource('audio/music/theme.$_audioExt'));
+      await _musicPlayer.play(_musicSource());
     } finally {
       if (_musicPlayer.state != PlayerState.playing) {
         _isIntentionallyStarting = false;
@@ -166,14 +171,42 @@ class AudioService {
     }
   }
 
+  /// Reloads user-selected music and effects without recreating the service.
+  Future<void> setCustomSources({
+    String? musicPath,
+    required Map<String, String> sfxPaths,
+  }) async {
+    if (musicPath == customMusicPath &&
+        sfxPaths.length == customSfxPaths.length &&
+        sfxPaths.entries.every(
+          (entry) => customSfxPaths[entry.key] == entry.value,
+        )) {
+      return;
+    }
+    final wasPlaying = _musicPlayer.state == PlayerState.playing;
+    customMusicPath = musicPath;
+    customSfxPaths = Map.of(sfxPaths);
+    await _musicPlayer.stop();
+    for (final entry in _sfxPlayers.entries) {
+      await entry.value.setSource(_sfxSource(entry.key));
+    }
+    if (wasPlaying) await startMusic();
+  }
+
   void _playSfx(String name) {
     if (!sfxEnabled) return;
     final player = _sfxPlayers[name];
     if (player == null) return;
-    player
-        .stop()
-        .then((_) => player.play(AssetSource('audio/sfx/$name.$_audioExt')));
+    player.stop().then((_) => player.play(_sfxSource(name)));
   }
+
+  Source _musicSource() => customMusicPath == null
+      ? AssetSource('audio/music/theme.$_audioExt')
+      : DeviceFileSource(customMusicPath!);
+
+  Source _sfxSource(String name) => customSfxPaths[name] == null
+      ? AssetSource('audio/sfx/$name.$_audioExt')
+      : DeviceFileSource(customSfxPaths[name]!);
 
   void playMove() {
     final now = DateTime.now();

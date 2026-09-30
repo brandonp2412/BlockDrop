@@ -111,6 +111,22 @@ void main() {
       expect(settings.musicEnabled, false);
     });
 
+    test('persists custom music and sound-effect paths', () async {
+      final settings = SettingsProvider();
+      await settings.setCustomMusicPath('/audio/theme.flac');
+      await settings.setCustomSfxPath('drop', '/audio/drop.wav');
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.customMusicPath, '/audio/theme.flac');
+      expect(reloaded.customSfxPaths['drop'], '/audio/drop.wav');
+
+      await reloaded.setCustomMusicPath(null);
+      await reloaded.setCustomSfxPath('drop', null);
+      expect(reloaded.customMusicPath, isNull);
+      expect(reloaded.customSfxPaths, isEmpty);
+    });
+
     test('setStyle updates the current style', () async {
       final settings = SettingsProvider();
 

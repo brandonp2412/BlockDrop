@@ -120,9 +120,18 @@ class _SwipeDetectorState extends State<SwipeDetector> {
                 (_totalDy <= -widget.moveThreshold * 1.5 ||
                     (velocity.dy < -widget.fastSwipeVelocity * 0.5 &&
                         velocity.dy.abs() > velocity.dx.abs() * 1.5));
+        final upwardHardDrop =
+            !widget.gameLogic.gameplaySettings.swipeUpHoldEnabled &&
+                !_lockedHorizontal &&
+                !widget.gameLogic.isNewPieceGracePeriod &&
+                (_totalDy <= -widget.moveThreshold * 1.5 ||
+                    (velocity.dy < -widget.fastSwipeVelocity * 0.5 &&
+                        velocity.dy.abs() > velocity.dx.abs() * 1.5));
 
         if (upwardHold) {
           widget.gameLogic.holdPiece();
+        } else if (upwardHardDrop) {
+          widget.gameLogic.dropPiece();
         } else if (_lockedHorizontal && _horizontalMovesThisGesture == 0) {
           // A short, fast flick can end between pointer samples before it reaches
           // a full column threshold. Honour one final horizontal move so pieces

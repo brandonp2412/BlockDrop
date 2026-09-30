@@ -388,6 +388,28 @@ void main() {
       ); // Color should remain same
     });
 
+    test('SRS wall kicks support S, Z, J, and L spins at the wall', () {
+      for (final piece in Tetromino.pieces.where(
+        (piece) => {
+          Colors.green,
+          Colors.red,
+          Colors.blue,
+          Colors.orange,
+        }.contains(piece.color),
+      )) {
+        gameLogic.currentPiece = piece.rotateRight();
+        gameLogic.currentRotation = 1;
+        gameLogic.currentX = GameConstants.boardWidth - 2;
+        gameLogic.currentY = 10;
+
+        gameLogic.rotatePieceRight();
+
+        expect(gameLogic.currentRotation, 2,
+            reason: '${piece.color} did not rotate');
+        expect(gameLogic.currentX, lessThanOrEqualTo(7));
+      }
+    });
+
     test('should hold piece correctly', () {
       gameLogic.startGame();
 
@@ -514,6 +536,7 @@ void main() {
       for (int col = 0; col < GameConstants.boardWidth; col++) {
         gameLogic.board[bottomRow][col] = Colors.red;
       }
+      gameLogic.board[bottomRow - 1][0] = Colors.blue;
 
       gameLogic.clearLines();
 
@@ -558,6 +581,7 @@ void main() {
       for (int col = 0; col < GameConstants.boardWidth; col++) {
         gameLogic.board[bottomRow][col] = Colors.red;
       }
+      gameLogic.board[bottomRow - 1][0] = Colors.blue;
 
       gameLogic.clearLines();
       // Wait for the 350 ms clear animation timer to fire
@@ -604,6 +628,7 @@ void main() {
             gameLogic.board[row][col] = Colors.red;
           }
         }
+        gameLogic.board[totalRows - 5][0] = Colors.blue;
 
         gameLogic.clearLines();
         await Future.delayed(const Duration(milliseconds: 400));
@@ -613,6 +638,25 @@ void main() {
         expect(gameLogic.clearBonusLabel, 'TETRIS!');
       },
     );
+
+    test('should add a perfect-clear bonus when the board is emptied',
+        () async {
+      gameLogic.startGame();
+      final bottomRow =
+          GameConstants.boardHeight + GameConstants.previewRows - 1;
+      for (int col = 0; col < GameConstants.boardWidth; col++) {
+        gameLogic.board[bottomRow][col] = Colors.red;
+      }
+
+      gameLogic.clearLines();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+
+      expect(
+        gameLogic.score,
+        GameConstants.lineClearScores[1] + GameConstants.perfectClearScores[1],
+      );
+      expect(gameLogic.clearBonusLabel, 'PERFECT CLEAR!');
+    });
 
     test('should increase level after clearing linesPerLevel lines', () async {
       gameLogic.startGame();

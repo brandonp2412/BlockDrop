@@ -1,12 +1,16 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import '../audio/audio_service.dart';
 import '../settings/settings_provider.dart';
 import '../game/gameplay_settings.dart';
 import '../settings/controller_bindings.dart';
@@ -33,6 +37,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  static const _audioExtensions = ['mp3', 'ogg', 'wav', 'flac', 'm4a', 'aac'];
   static const _languageNames = <String, String>{
     'en': 'English',
     'th': 'ไทย',
@@ -58,6 +63,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _searchQuery = '';
   bool _isSearching = false;
+
+  Future<String?> _pickAndStoreAudio(String slot) async {
+    try {
+      final picked = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: _audioExtensions,
+      );
+      if (picked == null) return null;
+      final extension = picked.extension?.toLowerCase();
+      if (extension == null || !_audioExtensions.contains(extension)) {
+        throw const FormatException('Unsupported audio file');
+      }
+      final directory = Directory(
+        '${(await getApplicationSupportDirectory()).path}/custom_audio',
+      );
+      await directory.create(recursive: true);
+      final target = File('${directory.path}/$slot.$extension');
+      await target.writeAsBytes(await picked.readAsBytes(), flush: true);
+      return target.path;
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.text('Unable to import audio'))),
+        );
+      }
+      return null;
+    }
+  }
+
+  Future<void> _chooseCustomMusic() async {
+    final path = await _pickAndStoreAudio('music');
+    if (path != null) await widget.settings.setCustomMusicPath(path);
+  }
+
+  Future<void> _chooseCustomSfx(String name) async {
+    final path = await _pickAndStoreAudio('sfx_$name');
+    if (path != null) await widget.settings.setCustomSfxPath(name, path);
+  }
+
+  Future<void> _showCustomSfxDialog() async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.text('Custom sound effects')),
+        content: SizedBox(
+          width: 420,
+          child: ListView(
+            shrinkWrap: true,
+            children: AudioService.sfxNames.map((name) {
+              final customized =
+                  widget.settings.customSfxPaths.containsKey(name);
+              return ListTile(
+                title: Text(name.replaceAll('_', ' ')),
+                subtitle: Text(context.l10n.text(
+                  customized ? 'Custom audio' : 'Default audio',
+                )),
+                trailing: customized
+                    ? IconButton(
+                        tooltip: context.l10n.text('Restore default'),
+                        icon: const Icon(Icons.restore),
+                        onPressed: () async {
+                          await widget.settings.setCustomSfxPath(name, null);
+                          if (dialogContext.mounted)
+                            Navigator.pop(dialogContext);
+                        },
+                      )
+                    : const Icon(Icons.chevron_right),
+                onTap: () async {
+                  Navigator.pop(dialogContext);
+                  await _chooseCustomSfx(name);
+                },
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(context.l10n.text('Close')),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -376,11 +465,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: 'Music',
                         colorScheme: colorScheme,
                         style: widget.settings.style,
-                        child: Switch(
-                          key: const Key('settingsMusicSwitch'),
-                          value: widget.settings.musicEnabled,
-                          onChanged: (value) =>
-                              widget.settings.setMusicEnabled(value),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (widget.settings.customMusicPath != null)
+                              IconButton(
+                                tooltip: context.l10n.text('Restore default'),
+                                onPressed: () =>
+                                    widget.settings.setCustomMusicPath(null),
+                                icon: const Icon(Icons.restore),
+                              ),
+                            IconButton(
+                              tooltip: context.l10n.text('Choose audio file'),
+                              onPressed: _chooseCustomMusic,
+                              icon: const Icon(Icons.audio_file),
+                            ),
+                            Switch(
+                              key: const Key('settingsMusicSwitch'),
+                              value: widget.settings.musicEnabled,
+                              onChanged: (value) =>
+                                  widget.settings.setMusicEnabled(value),
+                            ),
+                          ],
                         ),
                       ),
                     if (_matchesSearch('Sound Effects', section: 'Sound'))
@@ -388,10 +494,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: 'Sound Effects',
                         colorScheme: colorScheme,
                         style: widget.settings.style,
-                        child: Switch(
-                          value: widget.settings.sfxEnabled,
-                          onChanged: (value) =>
-                              widget.settings.setSfxEnabled(value),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              tooltip: context.l10n.text(
+                                'Choose custom sound effects',
+                              ),
+                              onPressed: _showCustomSfxDialog,
+                              icon: const Icon(Icons.library_music),
+                            ),
+                            Switch(
+                              value: widget.settings.sfxEnabled,
+                              onChanged: (value) =>
+                                  widget.settings.setSfxEnabled(value),
+                            ),
+                          ],
                         ),
                       ),
                     if (showGameplay)
@@ -969,13 +1087,11 @@ class _SettingTile extends StatelessWidget {
         children: [
           Expanded(
             flex: 2,
-            child: Row(
-              children: [
-                Text(
-                  context.l10n.text(label),
-                  style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
-                ),
-              ],
+            child: Text(
+              context.l10n.text(label),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
             ),
           ),
           Expanded(flex: 3, child: child),
