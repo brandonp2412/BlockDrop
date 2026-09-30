@@ -177,9 +177,18 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.byTooltip('Restore default'), findsOneWidget);
-    expect(find.byTooltip('Choose audio file'), findsOneWidget);
-    expect(find.byKey(const Key('settingsMusicSwitch')), findsOneWidget);
+    final restore = find.byTooltip('Restore default');
+    final choose = find.byTooltip('Choose audio file');
+    final musicSwitch = find.byKey(const Key('settingsMusicSwitch'));
+
+    expect(restore, findsOneWidget);
+    expect(choose, findsOneWidget);
+    expect(musicSwitch, findsOneWidget);
+    expect(tester.getCenter(restore).dy, closeTo(tester.getCenter(choose).dy, 1));
+    expect(
+      tester.getCenter(choose).dy,
+      closeTo(tester.getCenter(musicSwitch).dy, 1),
+    );
     expect(tester.takeException(), isNull);
   });
 

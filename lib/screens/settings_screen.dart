@@ -459,27 +459,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: 'Music',
                         colorScheme: colorScheme,
                         style: widget.settings.style,
-                        child: Wrap(
-                          alignment: WrapAlignment.end,
-                          crossAxisAlignment: WrapCrossAlignment.center,
+                        labelFlex: 4,
+                        controlFlex: 7,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             if (widget.settings.customMusicPath != null)
                               IconButton(
                                 tooltip: context.l10n.text('Restore default'),
                                 onPressed: () =>
                                     widget.settings.setCustomMusicPath(null),
-                                icon: const Icon(Icons.restore),
+                                padding: const EdgeInsets.all(4),
+                                constraints: const BoxConstraints.tightFor(
+                                  width: 36,
+                                  height: 36,
+                                ),
+                                icon: const Icon(Icons.restore, size: 20),
                               ),
                             IconButton(
                               tooltip: context.l10n.text('Choose audio file'),
                               onPressed: _chooseCustomMusic,
-                              icon: const Icon(Icons.audio_file),
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints.tightFor(
+                                width: 36,
+                                height: 36,
+                              ),
+                              icon: const Icon(Icons.audio_file, size: 20),
                             ),
-                            Switch(
-                              key: const Key('settingsMusicSwitch'),
-                              value: widget.settings.musicEnabled,
-                              onChanged: (value) =>
-                                  widget.settings.setMusicEnabled(value),
+                            SizedBox(
+                              width: 48,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerRight,
+                                child: Switch(
+                                  key: const Key('settingsMusicSwitch'),
+                                  value: widget.settings.musicEnabled,
+                                  onChanged: (value) =>
+                                      widget.settings.setMusicEnabled(value),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -1098,12 +1117,16 @@ class _SettingTile extends StatelessWidget {
   final Widget child;
   final ColorScheme colorScheme;
   final AppStyle style;
+  final int labelFlex;
+  final int controlFlex;
 
   const _SettingTile({
     required this.label,
     required this.child,
     required this.colorScheme,
     required this.style,
+    this.labelFlex = 6,
+    this.controlFlex = 5,
   });
 
   @override
@@ -1115,7 +1138,7 @@ class _SettingTile extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            flex: 6,
+            flex: labelFlex,
             child: Row(
               children: [
                 Container(
@@ -1147,7 +1170,7 @@ class _SettingTile extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Flexible(
-            flex: 5,
+            flex: controlFlex,
             child: Align(
               alignment: Alignment.centerRight,
               child: child,
