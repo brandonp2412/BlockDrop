@@ -17,7 +17,6 @@ class AudioService {
   bool sfxEnabled;
   String? customMusicPath;
   Map<String, String> customSfxPaths;
-  SoundEffectPack clearEffectPack;
   DateTime? _lastMovePlayed;
 
   bool _musicIntentionallyPaused = true;
@@ -31,7 +30,6 @@ class AudioService {
     this.sfxEnabled = true,
     this.customMusicPath,
     this.customSfxPaths = const {},
-    this.clearEffectPack = SoundEffectPack.heavy,
     AudioPlayer? musicPlayer,
     AudioPlayer Function()? sfxPlayerFactory,
   })  : _musicPlayer = musicPlayer ?? AudioPlayer(),
@@ -183,25 +181,22 @@ class AudioService {
   Future<void> setCustomSources({
     String? musicPath,
     required Map<String, String> sfxPaths,
-    required SoundEffectPack clearEffectPack,
   }) async {
     final musicChanged = musicPath != customMusicPath;
-    final packChanged = clearEffectPack != this.clearEffectPack;
     final sfxPathsChanged = sfxPaths.length != customSfxPaths.length ||
         sfxPaths.entries.any(
           (entry) => customSfxPaths[entry.key] != entry.value,
         );
-    if (!musicChanged && !packChanged && !sfxPathsChanged) return;
+    if (!musicChanged && !sfxPathsChanged) return;
 
     final shouldRestartMusic =
         musicChanged && musicEnabled && !_musicIntentionallyPaused;
 
     customMusicPath = musicPath;
     customSfxPaths = Map.of(sfxPaths);
-    this.clearEffectPack = clearEffectPack;
 
     if (musicChanged) await _musicPlayer.stop();
-    if (packChanged || sfxPathsChanged) {
+    if (sfxPathsChanged) {
       for (final entry in _sfxPlayers.entries) {
         await entry.value.setSource(_sfxSource(entry.key));
       }
@@ -232,7 +227,7 @@ class AudioService {
 
     final pack = packOverride ??
         (name == 'clear' || name == 'tetris'
-            ? clearEffectPack
+            ? SoundEffectPack.heavy
             : SoundEffectPack.wood);
     return bundledSfxSource(pack, name);
   }
@@ -254,17 +249,12 @@ class AudioService {
   /// the consecutive clear [streak] grows. Other selected variants stay fixed.
   void playClear(int lines, {required int streak}) => _playSfx(
         lines >= 4 ? 'tetris' : 'clear',
-        packOverride: clearPackForStreak(clearEffectPack, streak),
+        packOverride: clearPackForStreak(streak),
       );
 
   /// Resolves the clear-sound pack for a consecutive clear streak.
-  static SoundEffectPack clearPackForStreak(
-    SoundEffectPack selectedPack,
-    int streak,
-  ) {
-    if (selectedPack != SoundEffectPack.heavy || streak <= 1) {
-      return selectedPack;
-    }
+  static SoundEffectPack clearPackForStreak(int streak) {
+    if (streak <= 1) return SoundEffectPack.heavy;
 
     return switch (streak) {
       2 => SoundEffectPack.metal,

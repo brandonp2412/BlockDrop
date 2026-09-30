@@ -205,64 +205,16 @@ void main() {
 
     for (var streak = 1; streak <= expected.length; streak++) {
       expect(
-        AudioService.clearPackForStreak(SoundEffectPack.heavy, streak),
+        AudioService.clearPackForStreak(streak),
         expected[streak - 1],
       );
     }
   });
 
-  test('non-Heavy clear variants do not change with streak', () {
-    for (final streak in [1, 2, 4, 10]) {
-      expect(
-        AudioService.clearPackForStreak(SoundEffectPack.glass, streak),
-        SoundEffectPack.glass,
-      );
-    }
-  });
-
-  test(
-    'changing only the clear variant reloads SFX without restarting music',
-    () async {
-      final (mockMusic, stateController) = makeMusicPlayer();
-      final sfxPlayers = <MockAudioPlayer>[];
-      final service = AudioService(
-        musicEnabled: true,
-        musicPlayer: mockMusic,
-        sfxPlayerFactory: () {
-          final player = makeSfxPlayer();
-          sfxPlayers.add(player);
-          return player;
-        },
-      );
-
-      await service.init();
-      for (final player in sfxPlayers) {
-        clearInteractions(player);
-      }
-      clearInteractions(mockMusic);
-
-      await service.setCustomSources(
-        musicPath: null,
-        sfxPaths: const {},
-        clearEffectPack: SoundEffectPack.glass,
-      );
-
-      verifyNever(() => mockMusic.stop());
-      for (final player in sfxPlayers) {
-        verify(() => player.setSource(any())).called(1);
-      }
-
-      await service.dispose();
-      await stateController.close();
-    },
-  );
-
-  test('Wood stays the base pack while clear sounds use the selected variant',
-      () async {
+  test('Wood stays the base pack while clear sounds start Heavy', () async {
     final (mockMusic, stateController) = makeMusicPlayer();
     final sfxPlayers = <MockAudioPlayer>[];
     final service = AudioService(
-      clearEffectPack: SoundEffectPack.glass,
       musicPlayer: mockMusic,
       sfxPlayerFactory: () {
         final player = makeSfxPlayer();
@@ -279,7 +231,7 @@ void main() {
           .captured
           .single as AssetSource;
       final expectedPack =
-          name == 'clear' || name == 'tetris' ? 'glass' : 'wood';
+          name == 'clear' || name == 'tetris' ? 'heavy' : 'wood';
       expect(
         source.path,
         startsWith('audio/sfx/${expectedPack}_$name.'),
@@ -389,7 +341,6 @@ void main() {
     await service.setCustomSources(
       musicPath: '/tmp/custom-track.mp3',
       sfxPaths: const {},
-      clearEffectPack: SoundEffectPack.wood,
     );
 
     verify(() => mockMusic.stop()).called(1);

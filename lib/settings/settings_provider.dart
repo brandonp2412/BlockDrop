@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../audio/sfx_pack.dart';
 import '../game/gameplay_settings.dart';
 import 'controller_bindings.dart';
 
@@ -18,8 +17,6 @@ class SettingsProvider extends ChangeNotifier {
   static const _localeKey = 'locale';
   static const _musicEnabledKey = 'music_enabled';
   static const _sfxEnabledKey = 'sfx_enabled';
-  // Keep the existing key so previous selections migrate into clear variants.
-  static const _clearEffectPackKey = 'sound_effect_pack';
   static const _customMusicPathKey = 'custom_music_path';
   static const _customSfxPathsKey = 'custom_sfx_paths';
   static const _highScoreKey = 'high_score';
@@ -46,7 +43,6 @@ class SettingsProvider extends ChangeNotifier {
   String? _localeCode;
   bool _musicEnabled = false;
   bool _sfxEnabled = false;
-  SoundEffectPack _clearEffectPack = SoundEffectPack.heavy;
   String? _customMusicPath;
   Map<String, String> _customSfxPaths = {};
   int _highScore = 0;
@@ -80,8 +76,6 @@ class SettingsProvider extends ChangeNotifier {
   bool get musicEnabled => _musicEnabled;
   bool get sfxEnabled => _sfxEnabled;
 
-  /// Selected bundled sound used for line clears and tetrises.
-  SoundEffectPack get clearEffectPack => _clearEffectPack;
   String? get customMusicPath => _customMusicPath;
   Map<String, String> get customSfxPaths => Map.unmodifiable(_customSfxPaths);
   int get highScore => _highScore;
@@ -171,9 +165,6 @@ class SettingsProvider extends ChangeNotifier {
             : null;
     _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
-    _clearEffectPack = SoundEffectPack.fromStoredName(
-      prefs.getString(_clearEffectPackKey),
-    );
     _customMusicPath = prefs.getString(_customMusicPathKey);
     _customSfxPaths = _decodeCustomSfxPaths(
       prefs.getString(_customSfxPathsKey),
@@ -322,15 +313,6 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_sfxEnabledKey, value);
-  }
-
-  /// Persists the bundled line-clear sound variant.
-  Future<void> setClearEffectPack(SoundEffectPack value) async {
-    if (_clearEffectPack == value) return;
-    _clearEffectPack = value;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_clearEffectPackKey, value.name);
   }
 
   /// Selects a persistent custom music file, or restores the bundled track.

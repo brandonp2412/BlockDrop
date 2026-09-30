@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,7 +12,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../audio/audio_service.dart';
-import '../audio/sfx_pack.dart';
 import '../settings/settings_provider.dart';
 import '../game/gameplay_settings.dart';
 import '../settings/controller_bindings.dart';
@@ -63,8 +61,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'id': 'Bahasa Indonesia',
   };
 
-  final AudioPlayer _sfxPreviewPlayer = AudioPlayer();
-
   String _searchQuery = '';
   bool _isSearching = false;
 
@@ -99,12 +95,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _chooseCustomSfx(String name) async {
     final path = await _pickAndStoreAudio('sfx_$name');
     if (path != null) await widget.settings.setCustomSfxPath(name, path);
-  }
-
-  Future<void> _previewClearEffectPack(SoundEffectPack pack) async {
-    await _sfxPreviewPlayer.stop();
-    await _sfxPreviewPlayer.setVolume(0.38);
-    await _sfxPreviewPlayer.play(AudioService.bundledSfxSource(pack, 'tetris'));
   }
 
   Future<void> _showCustomSfxDialog() async {
@@ -165,7 +155,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void dispose() {
     widget.settings.removeListener(_onSettingsChanged);
-    unawaited(_sfxPreviewPlayer.dispose());
     super.dispose();
   }
 
@@ -309,7 +298,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final showSound = _sectionMatches('Sound', [
       'Music',
       'Sound Effects',
-      'Clear Sound',
     ]);
     final showGameplay = _sectionMatches('Gameplay', [
       'Ghost Tile',
@@ -543,36 +531,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   widget.settings.setSfxEnabled(value),
                             ),
                           ],
-                        ),
-                      ),
-                    if (_matchesSearch('Clear Sound', section: 'Sound'))
-                      _SettingTile(
-                        label: 'Clear Sound',
-                        colorScheme: colorScheme,
-                        style: widget.settings.style,
-                        labelFlex: 3,
-                        controlFlex: 8,
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<SoundEffectPack>(
-                            key: const Key('settingsClearEffectPack'),
-                            value: widget.settings.clearEffectPack,
-                            isDense: true,
-                            items: SoundEffectPack.values
-                                .map(
-                                  (pack) => DropdownMenuItem(
-                                    value: pack,
-                                    child: Text(
-                                      context.l10n.text(pack.label),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (pack) async {
-                              if (pack == null) return;
-                              await widget.settings.setClearEffectPack(pack);
-                              await _previewClearEffectPack(pack);
-                            },
-                          ),
                         ),
                       ),
                     if (showGameplay)
@@ -1231,7 +1189,6 @@ class _SettingTile extends StatelessWidget {
 IconData _settingIcon(String label) => switch (label) {
       'Music' => Icons.music_note_rounded,
       'Sound Effects' => Icons.volume_up_rounded,
-      'Clear Sound' => Icons.auto_awesome_rounded,
       'Ghost Tile' => Icons.layers_outlined,
       'Enable Hold Piece' => Icons.inventory_2_outlined,
       'Swipe Up to Hold' => Icons.swipe_up_alt_rounded,

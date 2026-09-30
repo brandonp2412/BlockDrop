@@ -1,6 +1,6 @@
 # Bundled sound-effect provenance
 
-All bundled BlockDrop gameplay sound effects are sourced from Kenney and are licensed under Creative Commons Zero (CC0 1.0 Universal). Wood is the base gameplay set; the other bundled packs remain available as line-clear/Tetris sound variants. When Heavy is selected, consecutive clears escalate through Heavy, Metal, Power, Laser, Crystal, and Phaser (streak 6+).
+All bundled BlockDrop gameplay sound effects are sourced from Kenney and are licensed under Creative Commons Zero (CC0 1.0 Universal). Wood is the base gameplay set. Line clears automatically escalate through Heavy, Metal, Power, Laser, Crystal, and Phaser as the consecutive clear streak grows (Phaser at streak 6+).
 
 - Interface Sounds: https://kenney.nl/assets/interface-sounds
 - Digital Audio: https://kenney.nl/assets/digital-audio
