@@ -270,6 +270,31 @@ void main() {
     );
   });
 
+  test('changing the custom music source restarts enabled music', () async {
+    final (mockMusic, stateController) = makeMusicPlayer();
+    final service = AudioService(
+      musicEnabled: true,
+      musicPlayer: mockMusic,
+      sfxPlayerFactory: makeSfxPlayer,
+    );
+
+    await service.init();
+    await service.startMusic();
+    clearInteractions(mockMusic);
+
+    await service.setCustomSources(
+      musicPath: '/tmp/custom-track.mp3',
+      sfxPaths: const {},
+    );
+
+    verify(() => mockMusic.stop()).called(1);
+    final source = verify(() => mockMusic.play(captureAny())).captured.single;
+    expect(source, isA<DeviceFileSource>());
+    expect((source as DeviceFileSource).path, '/tmp/custom-track.mp3');
+
+    await stateController.close();
+  });
+
   test('stopMusic prevents a stopped player from being restarted', () async {
     final (mockMusic, stateController) = makeMusicPlayer();
     final service = AudioService(

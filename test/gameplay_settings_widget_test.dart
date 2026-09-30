@@ -162,6 +162,27 @@ void main() {
         find.text('Choose 0 for unlimited level progression.'), findsOneWidget);
   });
 
+  testWidgets('custom music controls stay inside a narrow settings card', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final settings = SettingsProvider();
+    await settings.setCustomMusicPath('/tmp/custom-track.mp3');
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+    await tester.pump();
+
+    expect(find.byTooltip('Restore default'), findsOneWidget);
+    expect(find.byTooltip('Choose audio file'), findsOneWidget);
+    expect(find.byKey(const Key('settingsMusicSwitch')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
       'settings labels wrap and stay aligned on narrow screens',
       (tester) async {

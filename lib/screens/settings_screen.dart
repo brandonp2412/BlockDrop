@@ -459,8 +459,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: 'Music',
                         colorScheme: colorScheme,
                         style: widget.settings.style,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        child: Wrap(
+                          alignment: WrapAlignment.end,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             if (widget.settings.customMusicPath != null)
                               IconButton(

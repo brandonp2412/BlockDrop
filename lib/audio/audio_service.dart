@@ -183,14 +183,14 @@ class AudioService {
         )) {
       return;
     }
-    final wasPlaying = _musicPlayer.state == PlayerState.playing;
+    final shouldRestartMusic = musicEnabled && !_musicIntentionallyPaused;
     customMusicPath = musicPath;
     customSfxPaths = Map.of(sfxPaths);
     await _musicPlayer.stop();
     for (final entry in _sfxPlayers.entries) {
       await entry.value.setSource(_sfxSource(entry.key));
     }
-    if (wasPlaying) await startMusic();
+    if (shouldRestartMusic) await startMusic();
   }
 
   void _playSfx(String name) {
