@@ -52,6 +52,14 @@ void main() {
     expect(dutch.text('Game Over'), 'Spel voorbij');
   });
 
+  test('Italian locale is supported and translated', () {
+    expect(AppLocalizations.supportedLocales, contains(const Locale('it')));
+
+    const italian = AppLocalizations(Locale('it'));
+    expect(italian.text('Settings'), 'Impostazioni');
+    expect(italian.text('Game Over'), 'Partita finita');
+  });
+
   test('Traditional Chinese uses the Hant translation set', () {
     const simplified = AppLocalizations(
       Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),

@@ -1,0 +1,1 @@
+Un moderno clone di Tetris realizzato con Flutter. Lascia cadere e ruota i pezzi e completa le linee in questo classico rompicapo.

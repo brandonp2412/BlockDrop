@@ -1,0 +1,8 @@
+Block Drop è un clone di Tetris moderno e coinvolgente realizzato con Flutter, che offre la classica esperienza rompicapo con un tocco attuale. Metti alla prova le tue abilità facendo cadere e ruotando i pezzi e completando le linee.
+
+Funzionalità:
+* Gameplay classico in stile Tetris
+* Comandi fluidi e reattivi
+* Interfaccia utente pulita e moderna
+* Conserva e scambia i pezzi
+* Anteprima dei prossimi pezzi

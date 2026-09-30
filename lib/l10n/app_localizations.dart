@@ -21,6 +21,7 @@ class AppLocalizations {
     Locale('fr'),
     Locale('pt', 'BR'),
     Locale('pl'),
+    Locale('it'),
     Locale('nl'),
     Locale('ja'),
     Locale('ko'),

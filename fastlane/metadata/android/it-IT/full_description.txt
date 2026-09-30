@@ -1,0 +1,18 @@
+Lascia cadere i blocchi, completa le linee e supera il tuo record in un classico rompicapo a blocchi in caduta.
+
+BlockDrop è un rompicapo arcade rapido e diretto basato sulla familiare sfida di posizionare tetramini in caduta. Ruota e sposta ogni pezzo, completa le linee orizzontali e mantieni libera la griglia mentre il ritmo aumenta.
+
+GIOCA A MODO TUO
+
+• Usa tutti e sette i tetramini classici
+• Sposta, ruota, usa la discesa lenta e la caduta rapida con comandi reattivi
+• Conserva un pezzo per il momento giusto
+• Pianifica in anticipo con l'anteprima del prossimo pezzo
+• Segui il punteggio e le linee completate mentre il gioco accelera
+• Scegli tra temi chiari, scuri o ottimizzati per AMOLED
+
+PER SESSIONI DI GIOCO RAPIDE
+
+Che tu abbia pochi minuti o voglia stabilire un nuovo record personale, BlockDrop offre un'esperienza pulita di impilamento dei blocchi senza distrazioni inutili. Funziona offline ed è disponibile su dispositivi mobili e piattaforme desktop.
+
+BlockDrop è gratuito e open source. Non contiene pubblicità, acquisti in-app, tracciamento o raccolta di dati.

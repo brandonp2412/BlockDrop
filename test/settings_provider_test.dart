@@ -154,6 +154,19 @@ void main() {
       expect(reloaded.locale, const Locale('pl'));
     });
 
+    test('persists Italian language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('it');
+      expect(settings.localeCode, 'it');
+      expect(settings.locale, const Locale('it'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'it');
+      expect(reloaded.locale, const Locale('it'));
+    });
+
     test('persists Dutch language override', () async {
       final settings = SettingsProvider();
 
