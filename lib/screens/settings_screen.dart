@@ -388,7 +388,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   }),
                 )
               : ListView(
-                  padding: const EdgeInsets.only(top: 12, bottom: 48),
+                  padding: const EdgeInsets.only(top: 4, bottom: 24),
                   // Large scrollCacheExtent ensures all children are laid out off-screen so
                   // Android TV D-pad focus traversal can reach items below the viewport.
                   scrollCacheExtent: const ScrollCacheExtent.pixels(5000),
@@ -807,6 +807,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           child: DropdownButton<String>(
                             key: const Key('settingsLanguageDropdown'),
                             isExpanded: true,
+                            alignment: AlignmentDirectional.centerEnd,
                             value: widget.settings.localeCode ?? 'system',
                             items: [
                               DropdownMenuItem(
@@ -857,15 +858,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
                             foregroundColor: colorScheme.onSurface,
-                            alignment: Alignment.centerLeft,
+                            alignment: Alignment.centerRight,
                           ),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              Expanded(
+                              Flexible(
                                 child: Text(
                                   context.l10n.text(
                                     _styleLabel(widget.settings.style),
                                   ),
+                                  textAlign: TextAlign.end,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               const Icon(Icons.arrow_drop_down, size: 20),
@@ -1027,27 +1031,27 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = _sectionIcon(label);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Row(
         children: [
           Container(
-            width: 34,
-            height: 34,
+            width: 30,
+            height: 30,
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(9),
             ),
-            child: Icon(icon, size: 19, color: colorScheme.onPrimaryContainer),
+            child: Icon(icon, size: 17, color: colorScheme.onPrimaryContainer),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Text(
             context.l10n.text(label),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
                 ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Divider(
               color: colorScheme.outlineVariant.withValues(alpha: 0.55),
@@ -1086,8 +1090,8 @@ class _SettingsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      padding: const EdgeInsets.all(8),
       decoration: panelDecoration(style, colorScheme),
       child: child,
     );
@@ -1110,57 +1114,51 @@ class _SettingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: panelDecoration(style, colorScheme),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final label = Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: colorScheme.secondaryContainer.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  _settingIcon(this.label),
-                  size: 19,
-                  color: colorScheme.onSecondaryContainer,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  context.l10n.text(this.label),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 6,
+            child: Row(
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Icon(
+                    _settingIcon(label),
+                    size: 17,
+                    color: colorScheme.onSecondaryContainer,
                   ),
                 ),
-              ),
-            ],
-          );
-          if (constraints.maxWidth < 400) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                label,
-                const SizedBox(height: 8),
-                Align(alignment: Alignment.centerRight, child: child),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.l10n.text(label),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ),
               ],
-            );
-          }
-          return Row(
-            children: [
-              Expanded(flex: 3, child: label),
-              const SizedBox(width: 12),
-              Expanded(flex: 2, child: child),
-            ],
-          );
-        },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            flex: 5,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: child,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1251,7 +1249,7 @@ class _ActionButton extends StatelessWidget {
         style: TextStyle(color: color, fontSize: 13),
       ),
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         backgroundColor: color.withValues(
           alpha: style == AppStyle.neon ? 0.08 : 0.04,
         ),
@@ -1288,8 +1286,8 @@ class _ControllerBindingsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
       decoration: panelDecoration(settings.style, colorScheme),
       child: Column(
         children: [
@@ -1297,6 +1295,8 @@ class _ControllerBindingsPanel extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               dense: true,
+              visualDensity: VisualDensity.compact,
+              minVerticalPadding: 0,
               title: Text(context.l10n.text(action.label)),
               trailing: OutlinedButton(
                 key: Key('controller-binding-${action.name}'),
@@ -1388,8 +1388,8 @@ class _InstructionsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      padding: const EdgeInsets.all(12),
       decoration: panelDecoration(style, colorScheme),
       child: Column(
         children: [
@@ -1463,8 +1463,8 @@ class _AboutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      padding: const EdgeInsets.all(12),
       decoration: panelDecoration(style, colorScheme),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1477,7 +1477,7 @@ class _AboutCard extends StatelessWidget {
               color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             context.l10n.text(
               'A free and open-source Tetris clone built with Flutter. '
@@ -1486,10 +1486,10 @@ class _AboutCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               color: colorScheme.onSurfaceVariant,
-              height: 1.4,
+              height: 1.35,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           _LinkRow(
             icon: Icons.code,
             label: 'Source Code',
@@ -1497,7 +1497,7 @@ class _AboutCard extends StatelessWidget {
             colorScheme: colorScheme,
           ),
           Divider(
-            height: 16,
+            height: 12,
             thickness: 1,
             color: colorScheme.outline.withAlpha(30),
           ),
@@ -1653,7 +1653,7 @@ class _InstructionRow extends StatelessWidget {
         ),
         if (!isLast)
           Divider(
-            height: 16,
+            height: 12,
             thickness: 1,
             color: colorScheme.outline.withAlpha(30),
           ),

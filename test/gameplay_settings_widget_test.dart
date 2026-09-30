@@ -153,6 +153,8 @@ void main() {
     );
 
     await tester.scrollUntilVisible(find.text('Maximum Level'), 120);
+    await tester.ensureVisible(find.text('20'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('20'));
     await tester.pumpAndSettle();
 
@@ -161,7 +163,7 @@ void main() {
   });
 
   testWidgets(
-      'settings labels wrap instead of using ellipses on narrow screens',
+      'settings labels wrap and stay aligned on narrow screens',
       (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
@@ -181,9 +183,12 @@ void main() {
     );
     await tester.pump();
 
-    final label = tester.widget<Text>(find.text('Continue Saved Game').last);
+    final labelFinder = find.text('Continue Saved Game').last;
+    final label = tester.widget<Text>(labelFinder);
+    final toggle = find.byType(Switch);
     expect(label.maxLines, isNull);
     expect(label.overflow, isNull);
+    expect(tester.getCenter(labelFinder).dy, closeTo(tester.getCenter(toggle).dy, 1));
     expect(tester.takeException(), isNull);
   });
 }
