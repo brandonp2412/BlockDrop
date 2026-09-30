@@ -55,6 +55,27 @@ void main() {
     expect(settings.localeCode, 'pl');
   });
 
+  testWidgets('language picker exposes Dutch', (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('settingsLanguageDropdown')),
+      120,
+    );
+    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Nederlands'),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('Nederlands'), findsOneWidget);
+  });
+
   testWidgets('language picker exposes Traditional Chinese', (tester) async {
     final settings = SettingsProvider();
     await tester.pumpWidget(

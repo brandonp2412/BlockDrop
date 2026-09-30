@@ -1,0 +1,18 @@
+Laat blokken vallen, wis lijnen en verbeter je hoogste score in een klassieke puzzel met vallende blokken.
+
+BlockDrop is een snel, doelgericht arcadepuzzelspel rond de vertrouwde uitdaging van vallende tetromino's plaatsen. Draai en verplaats elk stuk, maak horizontale lijnen compleet en houd het speelveld vrij terwijl het tempo stijgt.
+
+SPEEL OP JOUW MANIER
+
+• Gebruik alle zeven klassieke tetromino-stukken
+• Verplaats, draai, gebruik soft drop en hard drop met responsieve bediening
+• Bewaar een stuk voor het juiste moment
+• Plan vooruit met het voorbeeld van het volgende stuk
+• Volg je score en gewiste lijnen terwijl het spel sneller wordt
+• Kies uit lichte, donkere of AMOLED-vriendelijke thema's
+
+GEMAAKT VOOR KORTE PUZZELSESSIES
+
+Of je nu een paar minuten hebt of een nieuw persoonlijk record wilt neerzetten, BlockDrop biedt een helder blokkenstapelspel zonder onnodige afleidingen. Het werkt offline en is beschikbaar op mobiele apparaten en desktopplatforms.
+
+BlockDrop is gratis en open source. Het bevat geen advertenties, in-app-aankopen, tracking of gegevensverzameling.

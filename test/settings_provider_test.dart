@@ -154,6 +154,19 @@ void main() {
       expect(reloaded.locale, const Locale('pl'));
     });
 
+    test('persists Dutch language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('nl');
+      expect(settings.localeCode, 'nl');
+      expect(settings.locale, const Locale('nl'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'nl');
+      expect(reloaded.locale, const Locale('nl'));
+    });
+
     test('persists Russian language override', () async {
       final settings = SettingsProvider();
 
