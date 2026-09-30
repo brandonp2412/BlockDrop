@@ -37,7 +37,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static const _audioExtensions = ['mp3', 'ogg', 'wav', 'flac', 'm4a', 'aac'];
   static const _languageNames = <String, String>{
     'en': 'English',
     'th': 'ไทย',
@@ -66,20 +65,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<String?> _pickAndStoreAudio(String slot) async {
     try {
-      final picked = await FilePicker.pickFile(
-        type: FileType.custom,
-        allowedExtensions: _audioExtensions,
-      );
+      final picked = await FilePicker.pickFile(type: FileType.audio);
       if (picked == null) return null;
       final extension = picked.extension?.toLowerCase();
-      if (extension == null || !_audioExtensions.contains(extension)) {
-        throw const FormatException('Unsupported audio file');
-      }
       final directory = Directory(
         '${(await getApplicationSupportDirectory()).path}/custom_audio',
       );
       await directory.create(recursive: true);
-      final target = File('${directory.path}/$slot.$extension');
+      final targetName = extension == null ? slot : '$slot.$extension';
+      final target = File(directory.path + Platform.pathSeparator + targetName);
       await target.writeAsBytes(await picked.readAsBytes(), flush: true);
       return target.path;
     } catch (_) {
