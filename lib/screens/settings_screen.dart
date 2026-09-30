@@ -388,7 +388,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   }),
                 )
               : ListView(
-                  padding: const EdgeInsets.only(top: 8, bottom: 48),
+                  padding: const EdgeInsets.only(top: 12, bottom: 48),
                   // Large scrollCacheExtent ensures all children are laid out off-screen so
                   // Android TV D-pad focus traversal can reach items below the viewport.
                   scrollCacheExtent: const ScrollCacheExtent.pixels(5000),
@@ -1025,20 +1025,52 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final icon = _sectionIcon(label);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-      child: Text(
-        context.l10n.text(label).toUpperCase(),
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1.2,
-          color: colorScheme.primary,
-        ),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 19, color: colorScheme.onPrimaryContainer),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            context.l10n.text(label),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.onSurface,
+                ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Divider(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.55),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
+IconData _sectionIcon(String label) => switch (label) {
+      'Game' => Icons.sports_esports_rounded,
+      'Sound' => Icons.graphic_eq_rounded,
+      'Gameplay' => Icons.tune_rounded,
+      'Controller' => Icons.gamepad_rounded,
+      'Appearance' => Icons.palette_rounded,
+      'Multiplayer' => Icons.people_alt_rounded,
+      'Stats' => Icons.leaderboard_rounded,
+      'Instructions' => Icons.menu_book_rounded,
+      'About' => Icons.info_outline_rounded,
+      _ => Icons.settings_rounded,
+    };
 
 class _SettingsPanel extends StatelessWidget {
   final Widget child;
@@ -1054,8 +1086,8 @@ class _SettingsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: const EdgeInsets.all(10),
       decoration: panelDecoration(style, colorScheme),
       child: child,
     );
@@ -1078,29 +1110,54 @@ class _SettingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: panelDecoration(style, colorScheme),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final label = Text(
-            context.l10n.text(this.label),
-            style: TextStyle(fontSize: 15, color: colorScheme.onSurface),
+          final label = Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: colorScheme.secondaryContainer.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  _settingIcon(this.label),
+                  size: 19,
+                  color: colorScheme.onSecondaryContainer,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  context.l10n.text(this.label),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
           );
           if (constraints.maxWidth < 400) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 label,
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Align(alignment: Alignment.centerRight, child: child),
               ],
             );
           }
           return Row(
             children: [
-              Expanded(flex: 2, child: label),
-              Expanded(flex: 3, child: child),
+              Expanded(flex: 3, child: label),
+              const SizedBox(width: 12),
+              Expanded(flex: 2, child: child),
             ],
           );
         },
@@ -1108,6 +1165,29 @@ class _SettingTile extends StatelessWidget {
     );
   }
 }
+
+IconData _settingIcon(String label) => switch (label) {
+      'Music' => Icons.music_note_rounded,
+      'Sound Effects' => Icons.volume_up_rounded,
+      'Ghost Tile' => Icons.layers_outlined,
+      'Enable Hold Piece' => Icons.inventory_2_outlined,
+      'Swipe Up to Hold' => Icons.swipe_up_alt_rounded,
+      'Continue Saved Game' => Icons.save_outlined,
+      'On-Screen Controls' => Icons.touch_app_outlined,
+      'Large Board' => Icons.fullscreen_rounded,
+      'Starting Speed' => Icons.speed_rounded,
+      'Speed per Level' => Icons.trending_up_rounded,
+      'Maximum Level' => Icons.vertical_align_top_rounded,
+      'Lines per Level' => Icons.format_line_spacing_rounded,
+      'Enable Soft Drop' => Icons.keyboard_double_arrow_down_rounded,
+      'Back Gesture Holds' => Icons.swipe_right_alt_rounded,
+      'Language' => Icons.language_rounded,
+      'Pure Black (AMOLED)' => Icons.contrast_rounded,
+      'Style' => Icons.auto_awesome_rounded,
+      'Show Opponent Board' => Icons.view_sidebar_outlined,
+      'High Score' => Icons.emoji_events_outlined,
+      _ => Icons.tune_rounded,
+    };
 
 class _GameplayValueTile extends StatelessWidget {
   final String label;
