@@ -65,6 +65,53 @@ void main() {
     expect(find.text('Show Opponent Board'), findsNothing);
   });
 
+  testWidgets('retro style reaches controller controls and preserves gaps', (
+    tester,
+  ) async {
+    final settings = SettingsProvider();
+    await settings.setStyle(AppStyle.retro);
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    final firstAction = GameplayAction.values[0];
+    final secondAction = GameplayAction.values[1];
+    final firstButtonFinder = find.byKey(
+      Key('controller-binding-${firstAction.name}'),
+    );
+    final secondButtonFinder = find.byKey(
+      Key('controller-binding-${secondAction.name}'),
+    );
+    await tester.scrollUntilVisible(firstButtonFinder, 120);
+    await tester.pumpAndSettle();
+
+    final firstButton = tester.widget<OutlinedButton>(firstButtonFinder);
+    final shape = firstButton.style?.shape?.resolve({});
+    expect(shape, isA<RoundedRectangleBorder>());
+    expect((shape! as RoundedRectangleBorder).borderRadius, BorderRadius.zero);
+
+    final side = firstButton.style?.side?.resolve({});
+    expect(side?.width, 2);
+
+    await tester.ensureVisible(secondButtonFinder);
+    await tester.pumpAndSettle();
+    final firstRect = tester.getRect(firstButtonFinder);
+    final secondRect = tester.getRect(secondButtonFinder);
+    expect(secondRect.top - firstRect.bottom, greaterThanOrEqualTo(6));
+
+    await tester.ensureVisible(firstButtonFinder);
+    await tester.pumpAndSettle();
+    await tester.tap(firstButtonFinder);
+    await tester.pumpAndSettle();
+    final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+    final dialogShape = dialog.shape;
+    expect(dialogShape, isA<RoundedRectangleBorder>());
+    expect(
+      (dialogShape! as RoundedRectangleBorder).borderRadius,
+      BorderRadius.zero,
+    );
+  });
+
   testWidgets('binding button opens controller input prompt', (tester) async {
     final settings = SettingsProvider();
     await tester.pumpWidget(

@@ -1272,7 +1272,10 @@ class _ControllerBindingsPanel extends StatelessWidget {
   ) async {
     final key = await showDialog<LogicalKeyboardKey>(
       context: context,
-      builder: (dialogContext) => _ControllerKeyDialog(action: action),
+      builder: (dialogContext) => _ControllerKeyDialog(
+        action: action,
+        style: settings.style,
+      ),
     );
     if (key != null) await settings.setControllerBinding(action, key);
   }
@@ -1286,18 +1289,28 @@ class _ControllerBindingsPanel extends StatelessWidget {
       child: Column(
         children: [
           for (final action in GameplayAction.values)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              visualDensity: VisualDensity.compact,
-              minVerticalPadding: 0,
-              title: Text(context.l10n.text(action.label)),
-              trailing: OutlinedButton(
-                key: Key('controller-binding-${action.name}'),
-                onPressed: () => _captureBinding(context, action),
-                child: Text(
-                  context.l10n.text(
-                    controllerKeyLabel(settings.controllerBindings[action]!),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                visualDensity: VisualDensity.compact,
+                minVerticalPadding: 0,
+                title: Text(context.l10n.text(action.label)),
+                trailing: OutlinedButton(
+                  key: Key('controller-binding-${action.name}'),
+                  onPressed: () => _captureBinding(context, action),
+                  style: OutlinedButton.styleFrom(
+                    shape: buttonBorderShape(settings.style),
+                    side: BorderSide(
+                      color: colorScheme.outline,
+                      width: settings.style == AppStyle.retro ? 2 : 1,
+                    ),
+                  ),
+                  child: Text(
+                    context.l10n.text(
+                      controllerKeyLabel(settings.controllerBindings[action]!),
+                    ),
                   ),
                 ),
               ),
@@ -1307,6 +1320,9 @@ class _ControllerBindingsPanel extends StatelessWidget {
             child: TextButton.icon(
               key: const Key('reset-controller-bindings'),
               onPressed: settings.resetControllerBindings,
+              style: TextButton.styleFrom(
+                shape: buttonBorderShape(settings.style),
+              ),
               icon: const Icon(Icons.restart_alt, size: 18),
               label: Text(context.l10n.text('Reset controller layout')),
             ),
@@ -1319,8 +1335,12 @@ class _ControllerBindingsPanel extends StatelessWidget {
 
 class _ControllerKeyDialog extends StatefulWidget {
   final GameplayAction action;
+  final AppStyle style;
 
-  const _ControllerKeyDialog({required this.action});
+  const _ControllerKeyDialog({
+    required this.action,
+    required this.style,
+  });
 
   @override
   State<_ControllerKeyDialog> createState() => _ControllerKeyDialogState();
@@ -1351,6 +1371,7 @@ class _ControllerKeyDialogState extends State<_ControllerKeyDialog> {
         }
       },
       child: AlertDialog(
+        shape: styledDialogShape(widget.style, Theme.of(context).colorScheme),
         title: Text(
           context.l10n.text('Bind {action}', {
             'action': context.l10n.text(widget.action.label),
@@ -1365,6 +1386,9 @@ class _ControllerKeyDialogState extends State<_ControllerKeyDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              shape: buttonBorderShape(widget.style),
+            ),
             child: Text(context.l10n.text('Cancel')),
           ),
         ],
