@@ -71,6 +71,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       sfxEnabled: widget.settings.sfxEnabled,
       customMusicPath: widget.settings.customMusicPath,
       customSfxPaths: widget.settings.customSfxPaths,
+      soundEffectPack: widget.settings.soundEffectPack,
     );
     _audioService.init();
     _audioService.startMusic();
@@ -482,10 +483,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                         borderRadius: panelBorderRadius(widget.settings.style),
                       ),
                       child: Text(
-                        context.l10n.text(
-                          '⚠ +{count} garbage',
-                          {'count': _incomingGarbage},
-                        ),
+                        context.l10n.text('⚠ +{count} garbage', {
+                          'count': _incomingGarbage,
+                        }),
                         style: TextStyle(
                           color: cs.onError,
                           fontSize: 12,
@@ -767,13 +767,10 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     ),
                   ),
                   Text(
-                    context.l10n.text(
-                      'Lv {level}  ·  {lines} lines',
-                      {
-                        'level': _gameLogic.level,
-                        'lines': _gameLogic.linesCleared,
-                      },
-                    ),
+                    context.l10n.text('Lv {level}  ·  {lines} lines', {
+                      'level': _gameLogic.level,
+                      'lines': _gameLogic.linesCleared,
+                    }),
                     style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
                   ),
                 ],
@@ -800,10 +797,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     borderRadius: panelBorderRadius(widget.settings.style),
                   ),
                   child: Text(
-                    context.l10n.text(
-                      '⚠ +{count} garbage',
-                      {'count': _incomingGarbage},
-                    ),
+                    context.l10n.text('⚠ +{count} garbage', {
+                      'count': _incomingGarbage,
+                    }),
                     style: TextStyle(
                       color: cs.onError,
                       fontSize: 11,
@@ -871,10 +867,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         children: [
           Text(
             widget.manager.opponentName != null
-                ? context.l10n.text(
-                    'vs {name}',
-                    {'name': widget.manager.opponentName},
-                  )
+                ? context.l10n.text('vs {name}', {
+                    'name': widget.manager.opponentName,
+                  })
                 : context.l10n.text('Get Ready'),
             style: TextStyle(color: cs.onSurface.withAlpha(178), fontSize: 18),
           ),
@@ -923,13 +918,10 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             ),
             const SizedBox(height: 6),
             _ResultRow(
-              label: context.l10n.text(
-                "{name}'s score",
-                {
-                  'name': widget.manager.opponentName ??
-                      context.l10n.text('Opponent'),
-                },
-              ),
+              label: context.l10n.text("{name}'s score", {
+                'name': widget.manager.opponentName ??
+                    context.l10n.text('Opponent'),
+              }),
               value: _fmt.format(widget.manager.opponentScore),
               highlight: !_iWon,
               colorScheme: cs,
@@ -974,9 +966,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       builder: (ctx) => AlertDialog(
         shape: styledDialogShape(widget.settings.style, cs),
         title: Text(context.l10n.text('Leave Game?')),
-        content: Text(
-          context.l10n.text('Your opponent will be disconnected.'),
-        ),
+        content: Text(context.l10n.text('Your opponent will be disconnected.')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -1031,10 +1021,10 @@ class _YourScoreHeader extends StatelessWidget {
           ),
         ),
         Text(
-          context.l10n.text(
-            'Lv {level}  ·  {lines} lines',
-            {'level': gameLogic.level, 'lines': gameLogic.linesCleared},
-          ),
+          context.l10n.text('Lv {level}  ·  {lines} lines', {
+            'level': gameLogic.level,
+            'lines': gameLogic.linesCleared,
+          }),
           style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
         ),
       ],
@@ -1077,10 +1067,7 @@ class _OpponentScoreHeader extends StatelessWidget {
           ),
         ),
         Text(
-          context.l10n.text(
-            '{lines} lines',
-            {'lines': manager.opponentLines},
-          ),
+          context.l10n.text('{lines} lines', {'lines': manager.opponentLines}),
           style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
         ),
       ],

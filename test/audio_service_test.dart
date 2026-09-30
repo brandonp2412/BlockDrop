@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:block_drop/audio/audio_service.dart';
+import 'package:block_drop/audio/sfx_pack.dart';
 
 class MockAudioPlayer extends Mock implements AudioPlayer {}
 
@@ -85,24 +86,21 @@ void main() {
       },
     );
 
-    test(
-      'startMusic calls play() when musicEnabled is true',
-      () async {
-        final (mockMusic, stateController) = makeMusicPlayer();
+    test('startMusic calls play() when musicEnabled is true', () async {
+      final (mockMusic, stateController) = makeMusicPlayer();
 
-        final service = AudioService(
-          musicEnabled: true,
-          musicPlayer: mockMusic,
-          sfxPlayerFactory: makeSfxPlayer,
-        );
-        await service.init();
-        await service.startMusic();
+      final service = AudioService(
+        musicEnabled: true,
+        musicPlayer: mockMusic,
+        sfxPlayerFactory: makeSfxPlayer,
+      );
+      await service.init();
+      await service.startMusic();
 
-        verify(() => mockMusic.play(any())).called(1);
+      verify(() => mockMusic.play(any())).called(1);
 
-        await stateController.close();
-      },
-    );
+      await stateController.close();
+    });
 
     test('a pause during initialization cancels pending playback', () async {
       final (mockMusic, stateController) = makeMusicPlayer();
@@ -185,6 +183,50 @@ void main() {
     await service.dispose();
     await stateController.close();
   });
+
+  test('bundled sound source uses the selected theme prefix', () {
+    final source = AudioService.bundledSfxSource(SoundEffectPack.glass, 'drop');
+
+    expect(source, isA<AssetSource>());
+    expect((source as AssetSource).path, startsWith('audio/sfx/glass_drop.'));
+  });
+
+  test(
+    'changing only the sound theme reloads SFX without restarting music',
+    () async {
+      final (mockMusic, stateController) = makeMusicPlayer();
+      final sfxPlayers = <MockAudioPlayer>[];
+      final service = AudioService(
+        musicEnabled: true,
+        musicPlayer: mockMusic,
+        sfxPlayerFactory: () {
+          final player = makeSfxPlayer();
+          sfxPlayers.add(player);
+          return player;
+        },
+      );
+
+      await service.init();
+      for (final player in sfxPlayers) {
+        clearInteractions(player);
+      }
+      clearInteractions(mockMusic);
+
+      await service.setCustomSources(
+        musicPath: null,
+        sfxPaths: const {},
+        soundEffectPack: SoundEffectPack.glass,
+      );
+
+      verifyNever(() => mockMusic.stop());
+      for (final player in sfxPlayers) {
+        verify(() => player.setSource(any())).called(1);
+      }
+
+      await service.dispose();
+      await stateController.close();
+    },
+  );
 
   group('AudioService — unexpected music pause recovery', () {
     test(
@@ -285,6 +327,7 @@ void main() {
     await service.setCustomSources(
       musicPath: '/tmp/custom-track.mp3',
       sfxPaths: const {},
+      soundEffectPack: SoundEffectPack.classic,
     );
 
     verify(() => mockMusic.stop()).called(1);

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 
+import 'sfx_pack.dart';
+
 /// Returns the audio file extension supported by the current platform.
 /// Windows Media Foundation doesn't support Ogg Vorbis, so we use MP3 there.
 String get _audioExt => Platform.isWindows ? 'mp3' : 'ogg';
@@ -15,6 +17,7 @@ class AudioService {
   bool sfxEnabled;
   String? customMusicPath;
   Map<String, String> customSfxPaths;
+  SoundEffectPack soundEffectPack;
   DateTime? _lastMovePlayed;
 
   bool _musicIntentionallyPaused = true;
@@ -28,6 +31,7 @@ class AudioService {
     this.sfxEnabled = true,
     this.customMusicPath,
     this.customSfxPaths = const {},
+    this.soundEffectPack = SoundEffectPack.classic,
     AudioPlayer? musicPlayer,
     AudioPlayer Function()? sfxPlayerFactory,
   })  : _musicPlayer = musicPlayer ?? AudioPlayer(),
@@ -69,12 +73,16 @@ class AudioService {
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
     await _musicPlayer.setVolume(0.25);
     if (Platform.isAndroid) {
-      await _musicPlayer.setAudioContext(AudioContext(
+      await _musicPlayer.setAudioContext(
+        AudioContext(
           android: AudioContextAndroid(
-              usageType: AndroidUsageType.game,
-              contentType: AndroidContentType.music,
-              audioFocus: AndroidAudioFocus.gain,
-              stayAwake: true)));
+            usageType: AndroidUsageType.game,
+            contentType: AndroidContentType.music,
+            audioFocus: AndroidAudioFocus.gain,
+            stayAwake: true,
+          ),
+        ),
+      );
     }
 
     _musicPlayer.onPlayerStateChanged.listen((state) async {
@@ -175,20 +183,28 @@ class AudioService {
   Future<void> setCustomSources({
     String? musicPath,
     required Map<String, String> sfxPaths,
+    required SoundEffectPack soundEffectPack,
   }) async {
-    if (musicPath == customMusicPath &&
-        sfxPaths.length == customSfxPaths.length &&
-        sfxPaths.entries.every(
-          (entry) => customSfxPaths[entry.key] == entry.value,
-        )) {
-      return;
-    }
-    final shouldRestartMusic = musicEnabled && !_musicIntentionallyPaused;
+    final musicChanged = musicPath != customMusicPath;
+    final packChanged = soundEffectPack != this.soundEffectPack;
+    final sfxPathsChanged = sfxPaths.length != customSfxPaths.length ||
+        sfxPaths.entries.any(
+          (entry) => customSfxPaths[entry.key] != entry.value,
+        );
+    if (!musicChanged && !packChanged && !sfxPathsChanged) return;
+
+    final shouldRestartMusic =
+        musicChanged && musicEnabled && !_musicIntentionallyPaused;
+
     customMusicPath = musicPath;
     customSfxPaths = Map.of(sfxPaths);
-    await _musicPlayer.stop();
-    for (final entry in _sfxPlayers.entries) {
-      await entry.value.setSource(_sfxSource(entry.key));
+    this.soundEffectPack = soundEffectPack;
+
+    if (musicChanged) await _musicPlayer.stop();
+    if (packChanged || sfxPathsChanged) {
+      for (final entry in _sfxPlayers.entries) {
+        await entry.value.setSource(_sfxSource(entry.key));
+      }
     }
     if (shouldRestartMusic) await startMusic();
   }
@@ -204,8 +220,12 @@ class AudioService {
       ? AssetSource('audio/music/theme.$_audioExt')
       : DeviceFileSource(customMusicPath!);
 
+  /// Resolves a bundled gameplay effect for [pack] and event [name].
+  static Source bundledSfxSource(SoundEffectPack pack, String name) =>
+      AssetSource('audio/sfx/${pack.name}_$name.$_audioExt');
+
   Source _sfxSource(String name) => customSfxPaths[name] == null
-      ? AssetSource('audio/sfx/$name.$_audioExt')
+      ? bundledSfxSource(soundEffectPack, name)
       : DeviceFileSource(customSfxPaths[name]!);
 
   void playMove() {

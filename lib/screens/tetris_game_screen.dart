@@ -80,6 +80,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       sfxEnabled: widget.settings.sfxEnabled,
       customMusicPath: widget.settings.customMusicPath,
       customSfxPaths: widget.settings.customSfxPaths,
+      soundEffectPack: widget.settings.soundEffectPack,
     );
     _audioService.init();
     _audioService.startMusic();
@@ -228,10 +229,13 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
   void _onSettingsChanged() {
     _audioService.musicEnabled = widget.settings.musicEnabled;
     _audioService.sfxEnabled = widget.settings.sfxEnabled;
-    unawaited(_audioService.setCustomSources(
-      musicPath: widget.settings.customMusicPath,
-      sfxPaths: widget.settings.customSfxPaths,
-    ));
+    unawaited(
+      _audioService.setCustomSources(
+        musicPath: widget.settings.customMusicPath,
+        sfxPaths: widget.settings.customSfxPaths,
+        soundEffectPack: widget.settings.soundEffectPack,
+      ),
+    );
     gameLogic.enableHold = widget.settings.enableHold;
     gameLogic.gameplaySettings = widget.settings.gameplay;
     if (widget.settings.continueGameEnabled) {
@@ -300,10 +304,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       return;
     }
     if (!gameLogic.canSaveSnapshot) return;
-    _saveGameTimer = Timer(
-      const Duration(milliseconds: 250),
-      _persistGameNow,
-    );
+    _saveGameTimer = Timer(const Duration(milliseconds: 250), _persistGameNow);
   }
 
   Future<void> _persistGameNow() async {
@@ -439,33 +440,29 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             children: [
               if (!gameLogic.practiceMode)
                 Text(
-                  context.l10n.text(
-                    'Final Score: {score}',
-                    {'score': formatter.format(gameLogic.score)},
-                  ),
+                  context.l10n.text('Final Score: {score}', {
+                    'score': formatter.format(gameLogic.score),
+                  }),
                   style: TextStyle(color: cs.onSurface, fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
               if (!gameLogic.practiceMode) const SizedBox(height: 8),
               Text(
                 gameLogic.practiceMode
-                    ? context.l10n.text(
-                        'Practice Lv {level}',
-                        {'level': gameLogic.level},
-                      )
-                    : context.l10n.text(
-                        'Level: {level}',
-                        {'level': gameLogic.level},
-                      ),
+                    ? context.l10n.text('Practice Lv {level}', {
+                        'level': gameLogic.level,
+                      })
+                    : context.l10n.text('Level: {level}', {
+                        'level': gameLogic.level,
+                      }),
                 style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                context.l10n.text(
-                  'Lines Cleared: {lines}',
-                  {'lines': gameLogic.linesCleared},
-                ),
+                context.l10n.text('Lines Cleared: {lines}', {
+                  'lines': gameLogic.linesCleared,
+                }),
                 style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -642,13 +639,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             Text(
                               gameLogic.practiceMode
                                   ? context.l10n.text('PRACTICE')
-                                  : context.l10n.text(
-                                      'Score: {score}',
-                                      {
-                                        'score':
-                                            formatter.format(gameLogic.score)
-                                      },
-                                    ),
+                                  : context.l10n.text('Score: {score}', {
+                                      'score': formatter.format(
+                                        gameLogic.score,
+                                      ),
+                                    }),
                               style: TextStyle(
                                 color: gameLogic.practiceMode
                                     ? cs.tertiary
@@ -661,10 +656,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             ),
                             const Spacer(),
                             Text(
-                              context.l10n.text(
-                                'Level: {level}',
-                                {'level': gameLogic.level},
-                              ),
+                              context.l10n.text('Level: {level}', {
+                                'level': gameLogic.level,
+                              }),
                               style: TextStyle(
                                 color: cs.onSurface,
                                 fontSize: 18,
@@ -672,10 +666,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                             ),
                             const Spacer(),
                             Text(
-                              context.l10n.text(
-                                'Lines: {lines}',
-                                {'lines': gameLogic.linesCleared},
-                              ),
+                              context.l10n.text('Lines: {lines}', {
+                                'lines': gameLogic.linesCleared,
+                              }),
                               style: TextStyle(
                                 color: cs.onSurface,
                                 fontSize: 18,
@@ -1029,22 +1022,19 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                   Text(
                     gameLogic.practiceMode
                         ? context.l10n.text('PRACTICE')
-                        : context.l10n.text(
-                            'Score {score}',
-                            {'score': formatter.format(gameLogic.score)},
-                          ),
+                        : context.l10n.text('Score {score}', {
+                            'score': formatter.format(gameLogic.score),
+                          }),
                   ),
                   Text(
-                    context.l10n.text(
-                      'Level {level}',
-                      {'level': gameLogic.level},
-                    ),
+                    context.l10n.text('Level {level}', {
+                      'level': gameLogic.level,
+                    }),
                   ),
                   Text(
-                    context.l10n.text(
-                      'Lines {lines}',
-                      {'lines': gameLogic.linesCleared},
-                    ),
+                    context.l10n.text('Lines {lines}', {
+                      'lines': gameLogic.linesCleared,
+                    }),
                   ),
                   IconButton(
                     tooltip: context.l10n.text('Settings'),
@@ -1268,10 +1258,9 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 Text(
                   gameLogic.practiceMode
                       ? context.l10n.text('PRACTICE')
-                      : context.l10n.text(
-                          'Score: {score}',
-                          {'score': formatter.format(gameLogic.score)},
-                        ),
+                      : context.l10n.text('Score: {score}', {
+                          'score': formatter.format(gameLogic.score),
+                        }),
                   style: TextStyle(
                     color: gameLogic.practiceMode ? cs.tertiary : cs.onSurface,
                     fontSize: 20,
@@ -1282,18 +1271,16 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 ),
                 const Spacer(),
                 Text(
-                  context.l10n.text(
-                    'Level: {level}',
-                    {'level': gameLogic.level},
-                  ),
+                  context.l10n.text('Level: {level}', {
+                    'level': gameLogic.level,
+                  }),
                   style: TextStyle(color: cs.onSurface, fontSize: 20),
                 ),
                 const Spacer(),
                 Text(
-                  context.l10n.text(
-                    'Lines: {lines}',
-                    {'lines': gameLogic.linesCleared},
-                  ),
+                  context.l10n.text('Lines: {lines}', {
+                    'lines': gameLogic.linesCleared,
+                  }),
                   style: TextStyle(color: cs.onSurface, fontSize: 20),
                 ),
                 const SizedBox(width: 8),

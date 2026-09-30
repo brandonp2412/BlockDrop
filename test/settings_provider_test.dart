@@ -1,3 +1,4 @@
+import 'package:block_drop/audio/sfx_pack.dart';
 import 'package:block_drop/settings/settings_provider.dart';
 import 'package:block_drop/game/gameplay_settings.dart';
 import 'package:block_drop/settings/controller_bindings.dart';
@@ -21,6 +22,7 @@ void main() {
       expect(settings.locale, isNull);
       expect(settings.musicEnabled, false);
       expect(settings.sfxEnabled, false);
+      expect(settings.soundEffectPack, SoundEffectPack.classic);
       expect(settings.highScore, 0);
       expect(settings.enableHold, true);
       expect(settings.showOnScreenControls, false);
@@ -110,6 +112,30 @@ void main() {
       await settings.setMusicEnabled(false);
       expect(settings.musicEnabled, false);
     });
+
+    test('persists the selected sound-effect pack', () async {
+      final settings = SettingsProvider();
+      await settings.setSoundEffectPack(SoundEffectPack.glass);
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+
+      expect(reloaded.soundEffectPack, SoundEffectPack.glass);
+    });
+
+    test(
+      'falls back to Classic for an unknown stored sound-effect pack',
+      () async {
+        SharedPreferences.setMockInitialValues({
+          'sound_effect_pack': 'not-a-real-pack',
+        });
+
+        final settings = SettingsProvider();
+        await settings.load();
+
+        expect(settings.soundEffectPack, SoundEffectPack.classic);
+      },
+    );
 
     test('persists custom music and sound-effect paths', () async {
       final settings = SettingsProvider();
