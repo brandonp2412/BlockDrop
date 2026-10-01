@@ -517,7 +517,8 @@ const appTranslations = <String, Map<String, String>>{
     'Source Code': 'سورس کوڈ',
     'Support Development': 'ترقی میں تعاون کریں',
     'Quit Game?': 'کھیل بند کریں؟',
-    'Your current progress will be lost.': 'آپ کی موجودہ پیش رفت ضائع ہو جائے گی۔',
+    'Your current progress will be lost.':
+        'آپ کی موجودہ پیش رفت ضائع ہو جائے گی۔',
     'Game Over!': 'کھیل ختم!',
     'Game Over': 'کھیل ختم',
     'PRACTICE': 'مشق',
@@ -530,7 +531,8 @@ const appTranslations = <String, Map<String, String>>{
     'Held piece available': 'ہولڈ کیا گیا پیس دستیاب ہے',
     'Held piece unavailable': 'ہولڈ کیا گیا پیس دستیاب نہیں ہے',
     'Windows Firewall': 'ونڈوز فائر وال',
-    'Firewall rule added — try connecting again.': 'فائر وال قاعدہ شامل ہو گیا — دوبارہ جڑنے کی کوشش کریں۔',
+    'Firewall rule added — try connecting again.':
+        'فائر وال قاعدہ شامل ہو گیا — دوبارہ جڑنے کی کوشش کریں۔',
     'Game Invite': 'کھیل کی دعوت',
     'Searching on your network…': 'آپ کے نیٹ ورک پر تلاش جاری ہے…',
     'OTHER PLAYERS': 'دیگر کھلاڑی',
@@ -552,7 +554,8 @@ const appTranslations = <String, Map<String, String>>{
     '🎉 You Win!': '🎉 آپ جیت گئے!',
     'Your score': 'آپ کا اسکور',
     'Leave Game?': 'کھیل چھوڑیں؟',
-    'Your opponent will be disconnected.': 'آپ کے حریف کا رابطہ منقطع ہو جائے گا۔',
+    'Your opponent will be disconnected.':
+        'آپ کے حریف کا رابطہ منقطع ہو جائے گا۔',
     'YOU': 'آپ',
     'OPPONENT': 'حریف',
     'Invite was declined': 'دعوت مسترد کر دی گئی',
@@ -576,15 +579,18 @@ const appTranslations = <String, Map<String, String>>{
     'Select': 'منتخب کریں',
     'Left stick': 'بایاں اسٹک',
     'Right stick': 'دایاں اسٹک',
-    'Could not start network discovery: {error}': 'نیٹ ورک دریافت شروع نہیں کی جا سکی: {error}',
+    'Could not start network discovery: {error}':
+        'نیٹ ورک دریافت شروع نہیں کی جا سکی: {error}',
     '{name} disconnected': '{name} کا رابطہ منقطع ہو گیا',
     'Block Drop': 'Block Drop',
     'Controls': 'کنٹرولز',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'تھیم سسٹم ڈارک لائٹ',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Flutter سے بنایا گیا ایک مفت اور اوپن سورس Tetris کلون۔ اس کلاسک پزل گیم میں بلاکس گرائیں، گھمائیں اور لائنیں صاف کریں۔',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Flutter سے بنایا گیا ایک مفت اور اوپن سورس Tetris کلون۔ اس کلاسک پزل گیم میں بلاکس گرائیں، گھمائیں اور لائنیں صاف کریں۔',
     'Bind {action}': '{action} بائنڈ کریں',
-    'Choose a starting level. Speed stays fixed throughout the session.': 'ابتدائی لیول منتخب کریں۔ پورے سیشن میں رفتار مقرر رہے گی۔',
+    'Choose a starting level. Speed stays fixed throughout the session.':
+        'ابتدائی لیول منتخب کریں۔ پورے سیشن میں رفتار مقرر رہے گی۔',
     'Final Score: {score}': 'آخری اسکور: {score}',
     'Level {level}': 'لیول {level}',
     'Level: {level}': 'لیول: {level}',
@@ -595,33 +601,46 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': 'لیول {level}  ·  {lines} لائنیں',
     'OPP': 'حریف',
     'Practice Lv {level}': 'مشق لیول {level}',
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'اپنے منسلک کنٹرولر پر کوئی بٹن یا سمت دبائیں۔\n\nمنسوخ کرنے کے لیے Escape دبائیں۔',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
+        'اپنے منسلک کنٹرولر پر کوئی بٹن یا سمت دبائیں۔\n\nمنسوخ کرنے کے لیے Escape دبائیں۔',
     'Score {score}': 'اسکور {score}',
     'Score: {score}': 'اسکور: {score}',
     'Waiting for {name} to respond…': '{name} کے جواب کا انتظار ہے…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'ممکن ہے Windows Firewall دوسرے کھلاڑیوں کو اس آلے سے جڑنے سے روک رہا ہو۔\n\nفائر وال کے ذریعے Block Drop کو خودکار طور پر اجازت دینے کے لیے "قاعدہ شامل کریں" پر ٹیپ کریں (یہ نجی اور عوامی دونوں نیٹ ورک پروفائلز کے لیے کام کرتا ہے)۔ Windows منتظم کی اجازت مانگے گا۔',
-    'Windows Firewall may block connections — tap to configure': 'Windows Firewall رابطوں کو روک سکتا ہے — ترتیب دینے کے لیے ٹیپ کریں',
-    'Your IP: {ip}  ·  broadcasting to: {broadcast}': 'آپ کا IP: {ip}  ·  نشریات: {broadcast}',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
+        'ممکن ہے Windows Firewall دوسرے کھلاڑیوں کو اس آلے سے جڑنے سے روک رہا ہو۔\n\nفائر وال کے ذریعے Block Drop کو خودکار طور پر اجازت دینے کے لیے "قاعدہ شامل کریں" پر ٹیپ کریں (یہ نجی اور عوامی دونوں نیٹ ورک پروفائلز کے لیے کام کرتا ہے)۔ Windows منتظم کی اجازت مانگے گا۔',
+    'Windows Firewall may block connections — tap to configure':
+        'Windows Firewall رابطوں کو روک سکتا ہے — ترتیب دینے کے لیے ٹیپ کریں',
+    'Your IP: {ip}  ·  broadcasting to: {broadcast}':
+        'آپ کا IP: {ip}  ·  نشریات: {broadcast}',
     'vs {name}': 'بمقابلہ {name}',
     '{lines} lines': '{lines} لائنیں',
     '{mode} mode': '{mode} موڈ',
-    '{name} wants to play Block Drop with you!': '{name} آپ کے ساتھ Block Drop کھیلنا چاہتے ہیں!',
+    '{name} wants to play Block Drop with you!':
+        '{name} آپ کے ساتھ Block Drop کھیلنا چاہتے ہیں!',
     '{name}\'s score': '{name} کا اسکور',
     '{streak}-line combo clear effect': '{streak}-لائن کومبو کلیئر اثر',
     '⚠ +{count} garbage': '⚠ +{count} گاربیج',
-    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.': '⚠ LAN IP کا پتہ نہیں چل سکا – یقینی بنائیں کہ Wi-Fi آن ہے۔',
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'اسی Wi-Fi پر کسی دوسرے آلے میں Block Drop کھلا رکھیں، وہ یہاں خودکار طور پر نظر آ جائے گا۔',
-    'Time between automatic downward moves at level 1. Lower values are faster.': 'لیول 1 پر خودکار نیچے حرکت کے درمیان وقت۔ کم قدر زیادہ تیز ہوتی ہے۔',
-    'Milliseconds removed from the drop delay each level.': 'ہر لیول پر ڈراپ تاخیر سے کم کیے جانے والے ملی سیکنڈ۔',
-    'Choose 0 for unlimited level progression.': 'لامحدود لیول پیش رفت کے لیے 0 منتخب کریں۔',
-    'Cleared lines required to advance one level.': 'ایک لیول آگے بڑھنے کے لیے درکار صاف کی گئی لائنیں۔',
+    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
+        '⚠ LAN IP کا پتہ نہیں چل سکا – یقینی بنائیں کہ Wi-Fi آن ہے۔',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
+        'اسی Wi-Fi پر کسی دوسرے آلے میں Block Drop کھلا رکھیں، وہ یہاں خودکار طور پر نظر آ جائے گا۔',
+    'Time between automatic downward moves at level 1. Lower values are faster.':
+        'لیول 1 پر خودکار نیچے حرکت کے درمیان وقت۔ کم قدر زیادہ تیز ہوتی ہے۔',
+    'Milliseconds removed from the drop delay each level.':
+        'ہر لیول پر ڈراپ تاخیر سے کم کیے جانے والے ملی سیکنڈ۔',
+    'Choose 0 for unlimited level progression.':
+        'لامحدود لیول پیش رفت کے لیے 0 منتخب کریں۔',
+    'Cleared lines required to advance one level.':
+        'ایک لیول آگے بڑھنے کے لیے درکار صاف کی گئی لائنیں۔',
     'Button A': 'بٹن A',
     'Button B': 'بٹن B',
     'Button X': 'بٹن X',
     'Button Y': 'بٹن Y',
     'Button {id}': 'بٹن {id}',
-    'Check that Block Drop is allowed in Windows Defender Firewall on {name}\'s device.': 'یقینی بنائیں کہ {name} کے آلے پر Windows Defender Firewall میں Block Drop کی اجازت ہے۔',
-    'Could not connect to {name}. Make sure they have Block Drop open.': '{name} سے رابطہ نہیں ہو سکا۔ یقینی بنائیں کہ ان کے آلے پر Block Drop کھلا ہے۔',
+    'Check that Block Drop is allowed in Windows Defender Firewall on {name}\'s device.':
+        'یقینی بنائیں کہ {name} کے آلے پر Windows Defender Firewall میں Block Drop کی اجازت ہے۔',
+    'Could not connect to {name}. Make sure they have Block Drop open.':
+        '{name} سے رابطہ نہیں ہو سکا۔ یقینی بنائیں کہ ان کے آلے پر Block Drop کھلا ہے۔',
   },
   'nl': {
     'Block Drop - Tetris': 'Block Drop - Tetris',

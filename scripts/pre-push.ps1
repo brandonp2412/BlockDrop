@@ -67,7 +67,7 @@ if ($env:SKIP_SCREENSHOTS -eq "1") {
     exit 0
 }
 
-Write-Step "Generating screenshots (Android emulator, all 15 theme x style combos)..."
+Write-Step "Generating screenshots (Android emulator, eight Play Store images)..."
 Write-Host "    Set SKIP_SCREENSHOTS=1 to skip." -ForegroundColor DarkGray
 
 # Determine target device

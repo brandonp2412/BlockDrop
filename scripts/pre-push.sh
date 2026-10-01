@@ -4,8 +4,8 @@
 # 1. flutter analyze  — must pass cleanly.
 # 2. dart format      — lib/, test/, integration_test/ must already be formatted.
 # 3. Screenshot gen   — runs the integration test via 'flutter drive' against a
-#                       connected Android emulator, capturing all 15 theme × style
-#                       combinations and saving PNGs into the fastlane directories.
+#                       connected Android emulator, capturing the eight Play Store
+#                       screenshots and saving PNGs into the fastlane directories.
 #
 # Environment variables:
 #   SKIP_SCREENSHOTS=1      Skip step 3 (lint checks still run).
@@ -49,7 +49,7 @@ if [[ "${SKIP_SCREENSHOTS:-0}" == "1" ]]; then
   exit 0
 fi
 
-step "Generating screenshots (Android emulator, all 15 theme x style combos)..."
+step "Generating screenshots (Android emulator, eight Play Store images)..."
 echo "    Set SKIP_SCREENSHOTS=1 to skip."
 
 DEVICE_ID="${ANDROID_DEVICE_ID:-}"

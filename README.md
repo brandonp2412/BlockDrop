@@ -34,20 +34,14 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 
 <p float="left">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png" width="18%" alt="Dark Classic" title="Classic" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6_en-US.png"  width="18%" alt="Dark Modern"  title="Modern"  />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7_en-US.png" width="18%" alt="Dark Bubbles" title="Bubbles" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8_en-US.png"    width="18%" alt="Dark Neon"    title="Neon"    />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/9_en-US.png"   width="18%" alt="Dark Retro"   title="Retro"   />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6_en-US.png" width="18%" alt="Dark Neon" title="Neon" />
 </p>
 
 ### Black (AMOLED) theme
 
 <p float="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/10_en-US.png" width="18%" alt="Black Classic" title="Classic" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/11_en-US.png"  width="18%" alt="Black Modern"  title="Modern"  />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/12_en-US.png" width="18%" alt="Black Bubbles" title="Bubbles" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/13_en-US.png"    width="18%" alt="Black Neon"    title="Neon"    />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/14_en-US.png"   width="18%" alt="Black Retro"   title="Retro"   />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7_en-US.png" width="18%" alt="Black Modern" title="Modern" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8_en-US.png" width="18%" alt="Black Retro" title="Retro" />
 </p>
 
 ## How to Play
