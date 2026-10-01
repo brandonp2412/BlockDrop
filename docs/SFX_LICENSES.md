@@ -1,13 +1,15 @@
 # Bundled sound-effect provenance
 
-All bundled BlockDrop gameplay sound effects are sourced from Kenney and are licensed under Creative Commons Zero (CC0 1.0 Universal). Wood is the base gameplay set. Line clears automatically escalate through Heavy, Metal, Power, Laser, Crystal, and Phaser as the consecutive clear streak grows (Phaser at streak 6+).
+Bundled BlockDrop gameplay sound effects are sourced from Kenney and licensed under Creative Commons Zero (CC0 1.0 Universal), except the original synthesized movement and rotation cues described below. Wood is the base gameplay set. Line clears automatically escalate through Heavy, Metal, Power, Laser, Crystal, and Phaser as the consecutive clear streak grows (Phaser at streak 6+).
 
 - Interface Sounds: https://kenney.nl/assets/interface-sounds
 - Digital Audio: https://kenney.nl/assets/digital-audio
 - Impact Sounds: https://kenney.nl/assets/impact-sounds
 - CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/
 
-The OGG files are copied from the upstream packs. MP3 files are local format conversions of the same CC0 source audio for Windows compatibility.
+The Kenney OGG files are copied from the upstream packs. Their MP3 files are local format conversions of the same CC0 source audio for Windows compatibility.
+
+The Wood movement and rotation cues are original BlockDrop synthesized audio, released under CC0 1.0. Regenerate both formats with `python3 scripts/generate-control-sounds.py` (requires FFmpeg). Movement is a short, low descending tone; rotation is a longer, higher ascending tone. Both use gentle attacks and fades to soften repeated input sounds.
 
 | Theme | Event | Source pack | Upstream file | Bundled files |
 | --- | --- | --- | --- | --- |
@@ -83,8 +85,8 @@ The OGG files are copied from the upstream packs. MP3 files are local format con
 | metal | level_up | impact | impactBell_heavy_001.ogg | metal_level_up.ogg, metal_level_up.mp3 |
 | metal | hold | impact | impactMetal_light_004.ogg | metal_hold.ogg, metal_hold.mp3 |
 | metal | game_over | impact | impactPlate_heavy_003.ogg | metal_game_over.ogg, metal_game_over.mp3 |
-| wood | move | impact | impactWood_light_000.ogg | wood_move.ogg, wood_move.mp3 |
-| wood | rotate | impact | impactWood_light_002.ogg | wood_rotate.ogg, wood_rotate.mp3 |
+| wood | move | Original synthesis | scripts/generate-control-sounds.py | wood_move.ogg, wood_move.mp3 |
+| wood | rotate | Original synthesis | scripts/generate-control-sounds.py | wood_rotate.ogg, wood_rotate.mp3 |
 | wood | drop | impact | impactWood_medium_000.ogg | wood_drop.ogg, wood_drop.mp3 |
 | wood | clear | impact | impactWood_medium_003.ogg | wood_clear.ogg, wood_clear.mp3 |
 | wood | tetris | impact | impactWood_heavy_004.ogg | wood_tetris.ogg, wood_tetris.mp3 |
