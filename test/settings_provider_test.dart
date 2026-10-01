@@ -196,6 +196,19 @@ void main() {
       expect(reloaded.locale, const Locale('bn'));
     });
 
+    test('persists Urdu language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('ur');
+      expect(settings.localeCode, 'ur');
+      expect(settings.locale, const Locale('ur'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'ur');
+      expect(reloaded.locale, const Locale('ur'));
+    });
+
     test('persists Dutch language override', () async {
       final settings = SettingsProvider();
 

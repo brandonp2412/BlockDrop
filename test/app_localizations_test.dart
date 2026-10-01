@@ -68,6 +68,14 @@ void main() {
     expect(bengali.text('Game Over'), 'খেলা শেষ');
   });
 
+  test('Urdu locale is supported and translated', () {
+    expect(AppLocalizations.supportedLocales, contains(const Locale('ur')));
+
+    const urdu = AppLocalizations(Locale('ur'));
+    expect(urdu.text('Settings'), 'ترتیبات');
+    expect(urdu.text('Game Over'), 'کھیل ختم');
+  });
+
   test('Traditional Chinese uses the Hant translation set', () {
     const simplified = AppLocalizations(
       Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
