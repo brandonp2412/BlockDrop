@@ -205,7 +205,8 @@ void main() {
     expect(restore, findsOneWidget);
     expect(choose, findsOneWidget);
     expect(musicSwitch, findsOneWidget);
-    expect(tester.getCenter(restore).dy, closeTo(tester.getCenter(choose).dy, 1));
+    expect(
+        tester.getCenter(restore).dy, closeTo(tester.getCenter(choose).dy, 1));
     expect(
       tester.getCenter(choose).dy,
       closeTo(tester.getCenter(musicSwitch).dy, 1),
@@ -213,8 +214,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets(
-      'settings labels wrap and stay aligned on narrow screens',
+  testWidgets('settings labels wrap and stay aligned on narrow screens',
       (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
@@ -239,7 +239,8 @@ void main() {
     final toggle = find.byType(Switch);
     expect(label.maxLines, isNull);
     expect(label.overflow, isNull);
-    expect(tester.getCenter(labelFinder).dy, closeTo(tester.getCenter(toggle).dy, 1));
+    expect(tester.getCenter(labelFinder).dy,
+        closeTo(tester.getCenter(toggle).dy, 1));
     expect(tester.takeException(), isNull);
   });
 }

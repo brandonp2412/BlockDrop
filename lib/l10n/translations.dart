@@ -373,7 +373,8 @@ const appTranslations = <String, Map<String, String>>{
     'Controls': 'নিয়ন্ত্রণ',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'থিম সিস্টেম ডার্ক লাইট',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.': 'Flutter দিয়ে তৈরি একটি বিনামূল্যের ও ওপেন-সোর্স Tetris ক্লোন। এই ক্লাসিক ধাঁধার খেলায় পিস ফেলুন, ঘোরান এবং লাইন পরিষ্কার করুন।',
+    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Flutter দিয়ে তৈরি একটি বিনামূল্যের ও ওপেন-সোর্স Tetris ক্লোন। এই ক্লাসিক ধাঁধার খেলায় পিস ফেলুন, ঘোরান এবং লাইন পরিষ্কার করুন।',
     'Bind {action}': '{action} নির্ধারণ করুন',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'শুরুর লেভেল বেছে নিন। পুরো সেশনে গতি অপরিবর্তিত থাকবে।',
@@ -387,11 +388,13 @@ const appTranslations = <String, Map<String, String>>{
     'Lv {level}  ·  {lines} lines': 'লেভেল {level}  ·  {lines} লাইন',
     'OPP': 'প্রতিপক্ষ',
     'Practice Lv {level}': 'অনুশীলন লেভেল {level}',
-    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.': 'সংযুক্ত কন্ট্রোলারের একটি বোতাম বা দিক চাপুন।\n\nবাতিল করতে Escape চাপুন।',
+    'Press a button or direction on your connected controller.\n\nPress Escape to cancel.':
+        'সংযুক্ত কন্ট্রোলারের একটি বোতাম বা দিক চাপুন।\n\nবাতিল করতে Escape চাপুন।',
     'Score {score}': 'স্কোর {score}',
     'Score: {score}': 'স্কোর: {score}',
     'Waiting for {name} to respond…': '{name}-এর উত্তরের অপেক্ষা চলছে…',
-    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.': 'Windows Firewall অন্য খেলোয়াড়দের এই ডিভাইসে সংযোগ করতে বাধা দিতে পারে।\n\nফায়ারওয়ালের মাধ্যমে Block Drop-কে স্বয়ংক্রিয়ভাবে অনুমতি দিতে "নিয়ম যোগ করুন" ট্যাপ করুন (Private ও Public—দুই ধরনের নেটওয়ার্ক প্রোফাইলেই কাজ করে)। Windows প্রশাসকের অনুমতি চাইবে।',
+    'Windows Firewall may be blocking other players from connecting to this device.\n\nTap "Add Rule" to automatically allow Block Drop through the firewall (works for both Private and Public network profiles). Windows will ask for administrator permission.':
+        'Windows Firewall অন্য খেলোয়াড়দের এই ডিভাইসে সংযোগ করতে বাধা দিতে পারে।\n\nফায়ারওয়ালের মাধ্যমে Block Drop-কে স্বয়ংক্রিয়ভাবে অনুমতি দিতে "নিয়ম যোগ করুন" ট্যাপ করুন (Private ও Public—দুই ধরনের নেটওয়ার্ক প্রোফাইলেই কাজ করে)। Windows প্রশাসকের অনুমতি চাইবে।',
     'Windows Firewall may block connections — tap to configure':
         'Windows Firewall সংযোগ আটকে দিতে পারে — কনফিগার করতে ট্যাপ করুন',
     'Your IP: {ip}  ·  broadcasting to: {broadcast}':
@@ -406,7 +409,8 @@ const appTranslations = <String, Map<String, String>>{
     '⚠ +{count} garbage': '⚠ +{count} আবর্জনা লাইন',
     '⚠ Could not detect LAN IP – make sure Wi-Fi is on.':
         '⚠ LAN IP শনাক্ত করা যায়নি – Wi-Fi চালু আছে কি না নিশ্চিত করুন।',
-    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.': 'একই Wi-Fi-তে অন্য ডিভাইসে Block Drop খোলা রাখুন, সেটি এখানে স্বয়ংক্রিয়ভাবে দেখা যাবে।',
+    'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.':
+        'একই Wi-Fi-তে অন্য ডিভাইসে Block Drop খোলা রাখুন, সেটি এখানে স্বয়ংক্রিয়ভাবে দেখা যাবে।',
     'Time between automatic downward moves at level 1. Lower values are faster.':
         'লেভেল ১-এ স্বয়ংক্রিয়ভাবে নিচে নামার মধ্যবর্তী সময়। কম মানে বেশি গতি।',
     'Milliseconds removed from the drop delay each level.':
@@ -420,8 +424,10 @@ const appTranslations = <String, Map<String, String>>{
     'Button X': 'বোতাম X',
     'Button Y': 'বোতাম Y',
     'Button {id}': 'বোতাম {id}',
-    'Check that Block Drop is allowed in Windows Defender Firewall on {name}\'s device.': '{name}-এর ডিভাইসের Windows Defender Firewall-এ Block Drop অনুমোদিত আছে কি না দেখুন।',
-    'Could not connect to {name}. Make sure they have Block Drop open.': '{name}-এর সঙ্গে সংযোগ করা যায়নি। তাদের ডিভাইসে Block Drop খোলা আছে কি না নিশ্চিত করুন।',
+    'Check that Block Drop is allowed in Windows Defender Firewall on {name}\'s device.':
+        '{name}-এর ডিভাইসের Windows Defender Firewall-এ Block Drop অনুমোদিত আছে কি না দেখুন।',
+    'Could not connect to {name}. Make sure they have Block Drop open.':
+        '{name}-এর সঙ্গে সংযোগ করা যায়নি। তাদের ডিভাইসে Block Drop খোলা আছে কি না নিশ্চিত করুন।',
   },
   'ur': {
     'Block Drop - Tetris': 'Block Drop - Tetris',
@@ -705,7 +711,8 @@ const appTranslations = <String, Map<String, String>>{
     'Source Code': 'Broncode',
     'Support Development': 'Ontwikkeling steunen',
     'Quit Game?': 'Spel afsluiten?',
-    'Your current progress will be lost.': 'Je huidige voortgang gaat verloren.',
+    'Your current progress will be lost.':
+        'Je huidige voortgang gaat verloren.',
     'Game Over!': 'Spel voorbij!',
     'Game Over': 'Spel voorbij',
     'PRACTICE': 'OEFENEN',
