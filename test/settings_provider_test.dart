@@ -222,6 +222,19 @@ void main() {
       expect(reloaded.locale, const Locale('fa'));
     });
 
+    test('persists European Portuguese language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('pt-PT');
+      expect(settings.localeCode, 'pt-PT');
+      expect(settings.locale, const Locale('pt', 'PT'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'pt-PT');
+      expect(reloaded.locale, const Locale('pt', 'PT'));
+    });
+
     test('persists Malay language override', () async {
       final settings = SettingsProvider();
 

@@ -49,10 +49,10 @@ void main() {
     );
     await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Polski').last);
+    await tester.tap(find.text('Deutsch').last);
     await tester.pump();
 
-    expect(settings.localeCode, 'pl');
+    expect(settings.localeCode, 'de');
   });
 
   testWidgets('language picker exposes Italian', (tester) async {
@@ -137,6 +137,27 @@ void main() {
       scrollable: find.byType(Scrollable).last,
     );
     expect(find.text('فارسی'), findsOneWidget);
+  });
+
+  testWidgets('language picker exposes European Portuguese', (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('settingsLanguageDropdown')),
+      120,
+    );
+    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Português (Portugal)'),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('Português (Portugal)'), findsOneWidget);
   });
 
   testWidgets('language picker exposes Malay', (tester) async {

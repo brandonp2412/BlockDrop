@@ -12,15 +12,36 @@ void main() {
     );
   });
 
+  test('European Portuguese uses the pt-PT locale and translations', () {
+    expect(
+      AppLocalizations.supportedLocales,
+      contains(const Locale('pt', 'PT')),
+    );
+
+    const portuguese = AppLocalizations(Locale('pt', 'PT'));
+    expect(portuguese.text('Settings'), 'Definições');
+    expect(portuguese.text('Save'), 'Guardar');
+    expect(
+      AppLocalizations.resolveLocale(const [Locale('pt', 'PT')]),
+      const Locale('pt', 'PT'),
+    );
+    expect(
+      AppLocalizations.resolveLocale(const [Locale('pt', 'BR')]),
+      const Locale('pt', 'BR'),
+    );
+  });
+
   test('every supported non-English locale has the same translation keys', () {
     final supportedLanguages = AppLocalizations.supportedLocales
         .where((locale) => locale.languageCode != 'en')
-        .map(
-          (locale) => locale.languageCode == 'zh' && locale.scriptCode == 'Hant'
-              ? 'zh-Hant'
-              : locale.languageCode,
-        )
-        .toSet();
+        .map((locale) {
+      if (locale.languageCode == 'pt' && locale.countryCode == 'PT') {
+        return 'pt-PT';
+      }
+      return locale.languageCode == 'zh' && locale.scriptCode == 'Hant'
+          ? 'zh-Hant'
+          : locale.languageCode;
+    }).toSet();
 
     expect(appTranslations.keys.toSet(), supportedLanguages);
 

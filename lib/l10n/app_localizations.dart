@@ -21,6 +21,7 @@ class AppLocalizations {
     Locale('es'),
     Locale('fr'),
     Locale('pt', 'BR'),
+    Locale('pt', 'PT'),
     Locale('pl'),
     Locale('it'),
     Locale('bn'),
@@ -54,6 +55,9 @@ class AppLocalizations {
   }
 
   String get _translationKey {
+    if (locale.languageCode == 'pt' && locale.countryCode == 'PT') {
+      return 'pt-PT';
+    }
     if (locale.languageCode != 'zh') return locale.languageCode;
     final traditionalRegion = const {
       'TW',
@@ -66,6 +70,11 @@ class AppLocalizations {
   /// Resolves platform Chinese locales to the matching script variant.
   static Locale resolveLocale(Iterable<Locale>? preferredLocales) {
     for (final locale in preferredLocales ?? const <Locale>[]) {
+      if (locale.languageCode == 'pt') {
+        return locale.countryCode == 'PT'
+            ? const Locale('pt', 'PT')
+            : const Locale('pt', 'BR');
+      }
       if (locale.languageCode == 'zh') {
         final traditionalRegion = const {
           'TW',

@@ -1,0 +1,1 @@
+• Adiciona a dependência em falta para create-github-release

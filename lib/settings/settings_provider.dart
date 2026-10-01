@@ -62,6 +62,7 @@ class SettingsProvider extends ChangeNotifier {
   AppStyle get style => _style;
   String? get localeCode => _localeCode;
   Locale? get locale => switch (_localeCode) {
+        'pt-PT' => const Locale('pt', 'PT'),
         'zh-Hans' => const Locale.fromSubtags(
             languageCode: 'zh',
             scriptCode: 'Hans',
@@ -144,6 +145,7 @@ class SettingsProvider extends ChangeNotifier {
       'es',
       'fr',
       'pt',
+      'pt-PT',
       'pl',
       'it',
       'bn',
@@ -281,6 +283,7 @@ class SettingsProvider extends ChangeNotifier {
       'es',
       'fr',
       'pt',
+      'pt-PT',
       'pl',
       'it',
       'bn',

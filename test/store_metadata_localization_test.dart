@@ -12,6 +12,7 @@ const _playStoreLocales = <String, String>{
   'es': 'es-ES',
   'fr': 'fr-FR',
   'pt': 'pt-BR',
+  'pt-PT': 'pt-PT',
   'pl': 'pl-PL',
   'it': 'it-IT',
   'bn': 'bn-BD',
@@ -38,6 +39,7 @@ const _appStoreLocales = <String, String>{
   'es': 'es-ES',
   'fr': 'fr-FR',
   'pt': 'pt-BR',
+  'pt-PT': 'pt-PT',
   'pl': 'pl',
   'it': 'it',
   'bn': 'bn',
@@ -74,6 +76,7 @@ void main() {
       'metadata/de-DE',
       'metadata/fr-FR',
       'metadata/pt-BR',
+      'metadata/pt-PT',
       'metadata/pl-PL',
       'metadata/it-IT',
       'metadata/bn-BD',
@@ -109,12 +112,14 @@ void main() {
 
   final supportedLanguages = AppLocalizations.supportedLocales
       .where((locale) => locale.languageCode != 'en')
-      .map(
-        (locale) => locale.languageCode == 'zh'
-            ? 'zh-${locale.scriptCode}'
-            : locale.languageCode,
-      )
-      .toSet();
+      .map((locale) {
+    if (locale.languageCode == 'pt' && locale.countryCode == 'PT') {
+      return 'pt-PT';
+    }
+    return locale.languageCode == 'zh'
+        ? 'zh-${locale.scriptCode}'
+        : locale.languageCode;
+  }).toSet();
 
   test('store locale mappings cover every translated app locale', () {
     expect(_playStoreLocales.keys.toSet(), supportedLanguages);
