@@ -51,6 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'it': 'Italiano',
     'bn': 'বাংলা',
     'ur': 'اردو',
+    'fa': 'فارسی',
     'nl': 'Nederlands',
     'ja': '日本語',
     'ko': '한국어',

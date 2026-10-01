@@ -209,6 +209,19 @@ void main() {
       expect(reloaded.locale, const Locale('ur'));
     });
 
+    test('persists Persian language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('fa');
+      expect(settings.localeCode, 'fa');
+      expect(settings.locale, const Locale('fa'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'fa');
+      expect(reloaded.locale, const Locale('fa'));
+    });
+
     test('persists Dutch language override', () async {
       final settings = SettingsProvider();
 

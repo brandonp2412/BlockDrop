@@ -76,6 +76,14 @@ void main() {
     expect(urdu.text('Game Over'), 'کھیل ختم');
   });
 
+  test('Persian locale is supported and translated', () {
+    expect(AppLocalizations.supportedLocales, contains(const Locale('fa')));
+
+    const persian = AppLocalizations(Locale('fa'));
+    expect(persian.text('Settings'), 'تنظیمات');
+    expect(persian.text('Game Over'), 'پایان بازی');
+  });
+
   test('Traditional Chinese uses the Hant translation set', () {
     const simplified = AppLocalizations(
       Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),

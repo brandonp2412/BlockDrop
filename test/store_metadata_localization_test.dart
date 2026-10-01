@@ -16,6 +16,7 @@ const _playStoreLocales = <String, String>{
   'it': 'it-IT',
   'bn': 'bn-BD',
   'ur': 'ur',
+  'fa': 'fa',
   'nl': 'nl-NL',
   'ja': 'ja-JP',
   'ko': 'ko-KR',
@@ -73,6 +74,7 @@ void main() {
       'metadata/it-IT',
       'metadata/bn-BD',
       'metadata/ur-PK',
+      'metadata/fa',
       'metadata/nl-NL',
       'metadata/ja-JP',
       'metadata/ko-KR',
@@ -110,7 +112,12 @@ void main() {
 
   test('store locale mappings cover every translated app locale', () {
     expect(_playStoreLocales.keys.toSet(), supportedLanguages);
-    expect(_appStoreLocales.keys.toSet(), supportedLanguages);
+
+    const appStoreUnsupportedLocales = {'fa'};
+    expect(
+      _appStoreLocales.keys.toSet(),
+      supportedLanguages.difference(appStoreUnsupportedLocales),
+    );
   });
 
   test('Play Store metadata is localized for every translated locale', () {
