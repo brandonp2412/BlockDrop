@@ -26,6 +26,7 @@ const _playStoreLocales = <String, String>{
   'hi': 'hi-IN',
   'ar': 'ar',
   'id': 'id-ID',
+  'ms': 'ms-MY',
 };
 
 const _appStoreLocales = <String, String>{
@@ -49,6 +50,7 @@ const _appStoreLocales = <String, String>{
   'hi': 'hi',
   'ar': 'ar-SA',
   'id': 'id',
+  'ms': 'ms',
 };
 
 String _read(String path) => File(path).readAsStringSync().trim();
@@ -84,6 +86,7 @@ void main() {
       'metadata/hi-IN',
       'metadata/ar-SA',
       'metadata/id-ID',
+      'metadata/ms-MY',
     ];
 
     for (final localizedDir in localizedDirs) {

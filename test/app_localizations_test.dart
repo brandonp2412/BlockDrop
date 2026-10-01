@@ -84,6 +84,14 @@ void main() {
     expect(persian.text('Game Over'), 'پایان بازی');
   });
 
+  test('Malay locale is supported and translated', () {
+    expect(AppLocalizations.supportedLocales, contains(const Locale('ms')));
+
+    const malay = AppLocalizations(Locale('ms'));
+    expect(malay.text('Settings'), 'Tetapan');
+    expect(malay.text('Game Over'), 'Permainan Tamat');
+  });
+
   test('Traditional Chinese uses the Hant translation set', () {
     const simplified = AppLocalizations(
       Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),

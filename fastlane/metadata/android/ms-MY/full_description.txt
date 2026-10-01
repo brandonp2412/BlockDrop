@@ -1,0 +1,18 @@
+Jatuhkan blok, kosongkan baris dan atasi skor tertinggi anda dalam teka-teki blok jatuh klasik.
+
+BlockDrop ialah permainan teka-teki arked yang pantas dan fokus, dibina berasaskan cabaran biasa menyusun tetromino yang jatuh. Putar dan gerakkan setiap kepingan, lengkapkan baris mendatar dan pastikan papan tidak penuh apabila kelajuan meningkat.
+
+MAIN DENGAN CARA ANDA
+
+• Gunakan kesemua tujuh kepingan tetromino klasik
+• Gerak, putar, jatuhkan perlahan dan jatuhkan pantas dengan kawalan responsif
+• Simpan satu kepingan untuk digunakan pada masa yang sesuai
+• Rancang lebih awal dengan pratonton kepingan seterusnya
+• Jejak skor dan baris yang dikosongkan apabila permainan semakin pantas
+• Pilih tema cerah, gelap atau mesra AMOLED
+
+DIREKA UNTUK SESI TEKA-TEKI PANTAS
+
+Sama ada anda hanya mempunyai beberapa minit atau mahu mengejar rekod peribadi baharu, BlockDrop memberikan permainan susun blok yang kemas tanpa gangguan yang tidak perlu. Ia berfungsi di luar talian dan tersedia pada platform mudah alih serta desktop.
+
+BlockDrop adalah percuma dan sumber terbuka. Ia tidak mengandungi iklan, pembelian dalam aplikasi, penjejakan atau pengumpulan data.

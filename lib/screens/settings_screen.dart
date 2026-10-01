@@ -61,6 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'hi': 'हिन्दी',
     'ar': 'العربية',
     'id': 'Bahasa Indonesia',
+    'ms': 'Bahasa Melayu',
   };
 
   String _searchQuery = '';

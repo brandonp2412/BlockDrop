@@ -222,6 +222,19 @@ void main() {
       expect(reloaded.locale, const Locale('fa'));
     });
 
+    test('persists Malay language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('ms');
+      expect(settings.localeCode, 'ms');
+      expect(settings.locale, const Locale('ms'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'ms');
+      expect(reloaded.locale, const Locale('ms'));
+    });
+
     test('persists Dutch language override', () async {
       final settings = SettingsProvider();
 
