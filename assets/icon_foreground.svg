@@ -1,31 +1,29 @@
-<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF2DA0"/>
-      <stop offset="100%" stop-color="#7B2FBE"/>
-    </linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="22" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-
-  <!-- Top block (center of T-piece) -->
-  <rect x="392" y="280" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
-  <rect x="414" y="298" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
-
-  <!-- Bottom-left block -->
-  <rect x="142" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
-  <rect x="164" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
-
-  <!-- Bottom-center block -->
-  <rect x="392" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
-  <rect x="414" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
-
-  <!-- Bottom-right block -->
-  <rect x="642" y="530" width="240" height="240" rx="36" ry="36" fill="url(#grad)" filter="url(#glow)"/>
-  <rect x="664" y="548" width="90" height="20" rx="10" fill="rgba(255,255,255,0.45)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E1A8E9"/>
+    <stop offset=".45" stop-color="#BA68C8"/>
+    <stop offset="1" stop-color="#5D3265"/>
+  </linearGradient>
+  <linearGradient id="cyanGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#B9EEFF"/>
+    <stop offset="1" stop-color="#87CEEB"/>
+  </linearGradient>
+  <radialGradient id="bubbleGrad" cx="34%" cy="28%" r="76%">
+    <stop offset="0" stop-color="#E1A8E9"/>
+    <stop offset=".40" stop-color="#BA68C8"/>
+    <stop offset="1" stop-color="#5D3265"/>
+  </radialGradient>
+  <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+    <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#5D3265" flood-opacity=".27"/>
+  </filter>
+  <filter id="glowPurple" x="-90%" y="-90%" width="280%" height="280%">
+    <feGaussianBlur stdDeviation="18" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glowCyan" x="-90%" y="-90%" width="280%" height="280%">
+    <feGaussianBlur stdDeviation="14" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+<g transform="translate(153.6 153.6) scale(.70)"><rect x="407.0" y="298.0" width="210.0" height="210.0" fill="#BA68C8"/><polygon points="407.0,298.0 617.0,298.0 591.8,323.2 432.2,323.2" fill="#E1A8E9"/><polygon points="407.0,298.0 432.2,323.2 432.2,482.8 407.0,508.0" fill="#E1A8E9"/><polygon points="407.0,508.0 432.2,482.8 591.8,482.8 617.0,508.0" fill="#5D3265"/><polygon points="617.0,298.0 591.8,323.2 591.8,482.8 617.0,508.0" fill="#5D3265"/><rect x="189.0" y="516.0" width="210.0" height="210.0" fill="#BA68C8"/><polygon points="189.0,516.0 399.0,516.0 373.8,541.2 214.2,541.2" fill="#E1A8E9"/><polygon points="189.0,516.0 214.2,541.2 214.2,700.8 189.0,726.0" fill="#E1A8E9"/><polygon points="189.0,726.0 214.2,700.8 373.8,700.8 399.0,726.0" fill="#5D3265"/><polygon points="399.0,516.0 373.8,541.2 373.8,700.8 399.0,726.0" fill="#5D3265"/><rect x="407.0" y="516.0" width="210.0" height="210.0" fill="#BA68C8"/><polygon points="407.0,516.0 617.0,516.0 591.8,541.2 432.2,541.2" fill="#E1A8E9"/><polygon points="407.0,516.0 432.2,541.2 432.2,700.8 407.0,726.0" fill="#E1A8E9"/><polygon points="407.0,726.0 432.2,700.8 591.8,700.8 617.0,726.0" fill="#5D3265"/><polygon points="617.0,516.0 591.8,541.2 591.8,700.8 617.0,726.0" fill="#5D3265"/><rect x="625.0" y="516.0" width="210.0" height="210.0" fill="#BA68C8"/><polygon points="625.0,516.0 835.0,516.0 809.8,541.2 650.2,541.2" fill="#E1A8E9"/><polygon points="625.0,516.0 650.2,541.2 650.2,700.8 625.0,726.0" fill="#E1A8E9"/><polygon points="625.0,726.0 650.2,700.8 809.8,700.8 835.0,726.0" fill="#5D3265"/><polygon points="835.0,516.0 809.8,541.2 809.8,700.8 835.0,726.0" fill="#5D3265"/></g></svg>
