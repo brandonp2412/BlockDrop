@@ -1,3 +1,5 @@
+<div align="center">
+
 # Block Drop
 
 A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.
@@ -6,6 +8,9 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
     <a href="https://github.com/brandonp2412/BlockDrop/releases/latest"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/brandonp2412/blockdrop?style=for-the-badge&logoColor=00f0f0&labelColor=1a1a2e&color=0e7490"></a>
     <a href="https://shields.io/badges/git-hub-downloads-all-assets-all-releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/brandonp2412/BlockDrop/total.svg?style=for-the-badge&logoColor=00f0f0&labelColor=1a1a2e&color=0e7490"></a>
 </p>
+<a href="https://f-droid.org/packages/com.blockdrop.game"><img src="./docs/get-it-on-fdroid.png" alt="Get it on F-Droid" style="height: 80px !important"></a>
+
+</div>
 
 ## Features
 
@@ -17,32 +22,17 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 - Responsive controls for mobile and desktop
 - Cross-platform support (iOS, Android, Web, Windows, macOS, Linux)
 
-<a href="https://f-droid.org/packages/com.blockdrop.game"><img src="./docs/get-it-on-fdroid.png" alt="Get it on F-Droid" style="height: 80px !important"></a>
-
 # Screenshots
 
-### Light theme
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" style="height: 640px !important;" alt="Light Classic" title="Classic" />
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png" style="height: 640px !important;" alt="Light Modern"  title="Modern"  />
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png" style="height: 640px !important;" alt="Light Bubbles" title="Bubbles" />
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png" style="height: 640px !important;"  alt="Light Retro"   title="Retro"   />
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png" style="height: 640px !important;"  alt="Dark Classic" title="Classic" />
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6_en-US.png" style="height: 640px !important;"  alt="Dark Neon" title="Neon" />
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7_en-US.png" style="height: 640px !important;"  alt="Black Modern" title="Modern" />
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8_en-US.png" style="height: 640px !important;"  alt="Black Retro" title="Retro" />
 
-<p float="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" width="18%" alt="Light Classic" title="Classic" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png"  width="18%" alt="Light Modern"  title="Modern"  />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png" width="18%" alt="Light Bubbles" title="Bubbles" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png"   width="18%" alt="Light Retro"   title="Retro"   />
-</p>
-
-### Dark theme
-
-<p float="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png" width="18%" alt="Dark Classic" title="Classic" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6_en-US.png" width="18%" alt="Dark Neon" title="Neon" />
-</p>
-
-### Black (AMOLED) theme
-
-<p float="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7_en-US.png" width="18%" alt="Black Modern" title="Modern" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8_en-US.png" width="18%" alt="Black Retro" title="Retro" />
-</p>
 
 ## How to Play
 
@@ -64,8 +54,8 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/brandonp2412/BlockDrop block_drop
-   cd block_drop
+   git clone https://github.com/brandonp2412/BlockDrop
+   cd BlockDrop
    ```
 
 2. Install dependencies:
@@ -78,34 +68,6 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
    ```bash
    flutter run
    ```
-
-## Building for Release
-
-### Android
-
-```bash
-flutter build apk --release
-```
-
-### iOS
-
-```bash
-flutter build ios --release
-```
-
-### Web
-
-```bash
-flutter build web --release
-```
-
-### Desktop
-
-```bash
-flutter build windows --release  # Windows
-flutter build macos --release    # macOS
-flutter build linux --release
-```
 
 ## License
 
