@@ -1,4 +1,6 @@
 <div align="center">
+<img src="fastlane/metadata/android/en-US/images/icon.png" alt="FitBook app icon" width="112" />
+<br />
 
 # Block Drop
 
