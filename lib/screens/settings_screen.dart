@@ -58,6 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'zh-Hans': '中文（简体）',
     'zh-Hant': '中文（繁體）',
     'ru': 'Русский',
+    'uk': 'Українська',
     'hi': 'हिन्दी',
     'ar': 'العربية',
     'id': 'Bahasa Indonesia',

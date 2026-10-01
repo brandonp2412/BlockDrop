@@ -235,6 +235,19 @@ void main() {
       expect(reloaded.locale, const Locale('ms'));
     });
 
+    test('persists Ukrainian language override', () async {
+      final settings = SettingsProvider();
+
+      await settings.setLocaleCode('uk');
+      expect(settings.localeCode, 'uk');
+      expect(settings.locale, const Locale('uk'));
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.localeCode, 'uk');
+      expect(reloaded.locale, const Locale('uk'));
+    });
+
     test('persists Dutch language override', () async {
       final settings = SettingsProvider();
 

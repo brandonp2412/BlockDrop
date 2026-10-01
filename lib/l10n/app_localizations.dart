@@ -32,6 +32,7 @@ class AppLocalizations {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
     Locale('ru'),
+    Locale('uk'),
     Locale('hi'),
     Locale('ar'),
   ];

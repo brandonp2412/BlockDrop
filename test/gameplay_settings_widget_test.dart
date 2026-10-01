@@ -160,6 +160,27 @@ void main() {
     expect(find.text('Bahasa Melayu'), findsOneWidget);
   });
 
+  testWidgets('language picker exposes Ukrainian', (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('settingsLanguageDropdown')),
+      120,
+    );
+    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Українська'),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('Українська'), findsOneWidget);
+  });
+
   testWidgets('language picker exposes Dutch', (tester) async {
     final settings = SettingsProvider();
     await tester.pumpWidget(

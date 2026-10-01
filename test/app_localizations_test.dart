@@ -92,6 +92,14 @@ void main() {
     expect(malay.text('Game Over'), 'Permainan Tamat');
   });
 
+  test('Ukrainian locale is supported and translated', () {
+    expect(AppLocalizations.supportedLocales, contains(const Locale('uk')));
+
+    const ukrainian = AppLocalizations(Locale('uk'));
+    expect(ukrainian.text('Settings'), 'Налаштування');
+    expect(ukrainian.text('Game Over'), 'Гру завершено');
+  });
+
   test('Traditional Chinese uses the Hant translation set', () {
     const simplified = AppLocalizations(
       Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
