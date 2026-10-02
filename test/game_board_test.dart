@@ -96,4 +96,76 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     gameLogic.dispose();
   });
+
+  testWidgets('left-half tap calls left rotation only', (tester) async {
+    final gameLogic = GameLogic();
+    gameLogic.startGame();
+    var leftTaps = 0;
+    var rightTaps = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(
+          child: SizedBox(
+            width: 240,
+            height: 480,
+            child: GameBoard(
+              board: gameLogic.board,
+              previewRows: GameConstants.previewRows,
+              gameLogic: gameLogic,
+              style: AppStyle.modern,
+              onLeftTap: () => leftTaps++,
+              onRightTap: () => rightTaps++,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final rect = tester.getRect(find.byType(GameBoard));
+    await tester.tapAt(Offset(rect.left + rect.width * 0.25, rect.center.dy));
+    await tester.pump();
+
+    expect(leftTaps, 1);
+    expect(rightTaps, 0);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    gameLogic.dispose();
+  });
+
+  testWidgets('right-half tap calls right rotation only', (tester) async {
+    final gameLogic = GameLogic();
+    gameLogic.startGame();
+    var leftTaps = 0;
+    var rightTaps = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(
+          child: SizedBox(
+            width: 240,
+            height: 480,
+            child: GameBoard(
+              board: gameLogic.board,
+              previewRows: GameConstants.previewRows,
+              gameLogic: gameLogic,
+              style: AppStyle.modern,
+              onLeftTap: () => leftTaps++,
+              onRightTap: () => rightTaps++,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final rect = tester.getRect(find.byType(GameBoard));
+    await tester.tapAt(Offset(rect.left + rect.width * 0.75, rect.center.dy));
+    await tester.pump();
+
+    expect(leftTaps, 0);
+    expect(rightTaps, 1);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    gameLogic.dispose();
+  });
 }

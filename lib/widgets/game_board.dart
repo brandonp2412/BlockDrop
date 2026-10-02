@@ -504,8 +504,14 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
 
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {
-                widget.onRightTap?.call();
+              onTapUp: (details) {
+                final isLeftHalf =
+                    details.localPosition.dx < constraints.maxWidth / 2;
+                if (isLeftHalf) {
+                  widget.onLeftTap?.call();
+                } else {
+                  widget.onRightTap?.call();
+                }
               },
               child: Stack(
                 fit: StackFit.expand,
