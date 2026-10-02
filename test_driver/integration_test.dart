@@ -6,8 +6,10 @@ import 'package:integration_test/integration_test_driver_extended.dart';
 
 Future<void> main() => integrationDriver(
       onScreenshot: (name, image, [args]) async {
-        final deviceType =
-            Platform.environment['BLOCKDROP_DEVICE_TYPE'] ?? 'phoneScreenshots';
+        final deviceType = Platform.environment['BLOCKDROP_DEVICE_TYPE'];
+        if (deviceType == null || deviceType.isEmpty) {
+          throw 'BLOCKDROP_DEVICE_TYPE must be set.';
+        }
         final screenshotDirectory =
             'fastlane/metadata/android/en-US/images/$deviceType';
         Directory(screenshotDirectory).createSync(recursive: true);
@@ -16,4 +18,5 @@ Future<void> main() => integrationDriver(
         stdout.writeln('Screenshots written to fastlane/ directories.');
         return true;
       },
+      writeResponseOnFailure: true,
     );
