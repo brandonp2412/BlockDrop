@@ -29,6 +29,7 @@ void main() {
     when(() => mock.setVolume(any())).thenAnswer((_) async {});
     when(() => mock.setSource(any())).thenAnswer((_) async {});
     when(() => mock.play(any())).thenAnswer((_) async {});
+    when(() => mock.stop()).thenAnswer((_) async {});
     when(() => mock.dispose()).thenAnswer((_) async {});
     return mock;
   }
@@ -237,6 +238,32 @@ void main() {
         startsWith('audio/sfx/${expectedPack}_$name.'),
       );
     }
+
+    await service.dispose();
+    await stateController.close();
+  });
+
+  test('Rotate uses the quieter minimal pack', () async {
+    final (mockMusic, stateController) = makeMusicPlayer();
+    final sfxPlayers = <MockAudioPlayer>[];
+    final service = AudioService(
+      musicPlayer: mockMusic,
+      sfxPlayerFactory: () {
+        final player = makeSfxPlayer();
+        sfxPlayers.add(player);
+        return player;
+      },
+    );
+
+    await service.init();
+    service.playRotate();
+    await Future<void>.delayed(Duration.zero);
+
+    final rotateIndex = AudioService.sfxNames.indexOf('rotate');
+    final source = verify(() => sfxPlayers[rotateIndex].play(captureAny()))
+        .captured
+        .single as AssetSource;
+    expect(source.path, startsWith('audio/sfx/minimal_rotate.'));
 
     await service.dispose();
     await stateController.close();

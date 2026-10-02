@@ -242,7 +242,8 @@ class AudioService {
     _playSfx('move');
   }
 
-  void playRotate() => _playSfx('rotate');
+  void playRotate() =>
+      _playSfx('rotate', packOverride: SoundEffectPack.minimal);
   void playDrop() => _playSfx('drop');
 
   /// Plays a line-clear cue, escalating Heavy into more fantastical sounds as
