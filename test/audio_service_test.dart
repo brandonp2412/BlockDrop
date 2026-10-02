@@ -196,11 +196,11 @@ void main() {
     const expected = <SoundEffectPack>[
       SoundEffectPack.heavy,
       SoundEffectPack.metal,
-      SoundEffectPack.power,
-      SoundEffectPack.laser,
-      SoundEffectPack.crystal,
-      SoundEffectPack.phaser,
-      SoundEffectPack.phaser,
+      SoundEffectPack.soft,
+      SoundEffectPack.wood,
+      SoundEffectPack.concrete,
+      SoundEffectPack.minimal,
+      SoundEffectPack.minimal,
     ];
 
     for (var streak = 1; streak <= expected.length; streak++) {

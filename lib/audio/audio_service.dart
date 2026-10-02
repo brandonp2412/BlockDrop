@@ -258,10 +258,10 @@ class AudioService {
 
     return switch (streak) {
       2 => SoundEffectPack.metal,
-      3 => SoundEffectPack.power,
-      4 => SoundEffectPack.laser,
-      5 => SoundEffectPack.crystal,
-      _ => SoundEffectPack.phaser,
+      3 => SoundEffectPack.soft,
+      4 => SoundEffectPack.wood,
+      5 => SoundEffectPack.concrete,
+      _ => SoundEffectPack.minimal,
     };
   }
 
