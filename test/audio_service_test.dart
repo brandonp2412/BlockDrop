@@ -193,23 +193,34 @@ void main() {
     expect((source as AssetSource).path, startsWith('audio/sfx/glass_clear.'));
   });
 
-  test('Heavy clear sound escalates with consecutive clear streak', () {
-    const expected = <SoundEffectPack>[
-      SoundEffectPack.heavy,
-      SoundEffectPack.metal,
-      SoundEffectPack.soft,
-      SoundEffectPack.wood,
-      SoundEffectPack.concrete,
-      SoundEffectPack.minimal,
-      SoundEffectPack.minimal,
-    ];
+  test('Each clear count uses its own generated sound', () async {
+    final (mockMusic, stateController) = makeMusicPlayer();
+    final sfxPlayers = <MockAudioPlayer>[];
+    final service = AudioService(
+      musicPlayer: mockMusic,
+      sfxPlayerFactory: () {
+        final player = makeSfxPlayer();
+        sfxPlayers.add(player);
+        return player;
+      },
+    );
 
-    for (var streak = 1; streak <= expected.length; streak++) {
-      expect(
-        AudioService.clearPackForStreak(streak),
-        expected[streak - 1],
-      );
+    await service.init();
+
+    for (var lines = 1; lines <= 4; lines++) {
+      service.playClear(lines, streak: 1);
+      await Future<void>.delayed(Duration.zero);
+
+      final slot = lines == 4 ? 'tetris' : 'clear';
+      final playerIndex = AudioService.sfxNames.indexOf(slot);
+      final source = verify(() => sfxPlayers[playerIndex].play(captureAny()))
+          .captured
+          .single as AssetSource;
+      expect(source.path, startsWith('audio/sfx/clear_$lines.'));
     }
+
+    await service.dispose();
+    await stateController.close();
   });
 
   test('Wood stays the base pack while clear sounds start Heavy', () async {

@@ -204,13 +204,23 @@ class AudioService {
     if (shouldRestartMusic) await startMusic();
   }
 
-  void _playSfx(String name, {SoundEffectPack? packOverride}) {
+  void _playSfx(
+    String name, {
+    SoundEffectPack? packOverride,
+    String? bundledAsset,
+  }) {
     if (!sfxEnabled) return;
     final player = _sfxPlayers[name];
     if (player == null) return;
-    player
-        .stop()
-        .then((_) => player.play(_sfxSource(name, packOverride: packOverride)));
+    player.stop().then(
+          (_) => player.play(
+            _sfxSource(
+              name,
+              packOverride: packOverride,
+              bundledAsset: bundledAsset,
+            ),
+          ),
+        );
   }
 
   Source _musicSource() => customMusicPath == null
@@ -221,9 +231,16 @@ class AudioService {
   static Source bundledSfxSource(SoundEffectPack pack, String name) =>
       AssetSource('audio/sfx/${pack.name}_$name.$_audioExt');
 
-  Source _sfxSource(String name, {SoundEffectPack? packOverride}) {
+  Source _sfxSource(
+    String name, {
+    SoundEffectPack? packOverride,
+    String? bundledAsset,
+  }) {
     final customPath = customSfxPaths[name];
     if (customPath != null) return DeviceFileSource(customPath);
+    if (bundledAsset != null) {
+      return AssetSource('audio/sfx/$bundledAsset.$_audioExt');
+    }
     if (name == 'rotate') {
       return AssetSource('audio/sfx/subtle_rotate.$_audioExt');
     }
@@ -248,24 +265,14 @@ class AudioService {
   void playRotate() => _playSfx('rotate');
   void playDrop() => _playSfx('drop');
 
-  /// Plays a line-clear cue, escalating Heavy into more fantastical sounds as
-  /// the consecutive clear [streak] grows. Other selected variants stay fixed.
-  void playClear(int lines, {required int streak}) => _playSfx(
-        lines >= 4 ? 'tetris' : 'clear',
-        packOverride: clearPackForStreak(streak),
-      );
-
-  /// Resolves the clear-sound pack for a consecutive clear streak.
-  static SoundEffectPack clearPackForStreak(int streak) {
-    if (streak <= 1) return SoundEffectPack.heavy;
-
-    return switch (streak) {
-      2 => SoundEffectPack.metal,
-      3 => SoundEffectPack.soft,
-      4 => SoundEffectPack.wood,
-      5 => SoundEffectPack.concrete,
-      _ => SoundEffectPack.minimal,
-    };
+  /// Plays a progressively weightier generated cue for one through four lines.
+  /// User-selected clear/Tetris files still override the bundled cue.
+  void playClear(int lines, {required int streak}) {
+    final clearCount = lines.clamp(1, 4);
+    _playSfx(
+      lines >= 4 ? 'tetris' : 'clear',
+      bundledAsset: 'clear_$clearCount',
+    );
   }
 
   void playLevelUp() => _playSfx('level_up');
