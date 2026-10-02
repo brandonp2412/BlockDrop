@@ -231,19 +231,23 @@ void main() {
       final source = verify(() => sfxPlayers[index].setSource(captureAny()))
           .captured
           .single as AssetSource;
-      final expectedPack =
-          name == 'clear' || name == 'tetris' ? 'heavy' : 'wood';
-      expect(
-        source.path,
-        startsWith('audio/sfx/${expectedPack}_$name.'),
-      );
+      if (name == 'rotate') {
+        expect(source.path, startsWith('audio/sfx/subtle_rotate.'));
+      } else {
+        final expectedPack =
+            name == 'clear' || name == 'tetris' ? 'heavy' : 'wood';
+        expect(
+          source.path,
+          startsWith('audio/sfx/${expectedPack}_$name.'),
+        );
+      }
     }
 
     await service.dispose();
     await stateController.close();
   });
 
-  test('Rotate uses the quieter minimal pack', () async {
+  test('Rotate uses the generated subtle sound asset', () async {
     final (mockMusic, stateController) = makeMusicPlayer();
     final sfxPlayers = <MockAudioPlayer>[];
     final service = AudioService(
@@ -263,7 +267,7 @@ void main() {
     final source = verify(() => sfxPlayers[rotateIndex].play(captureAny()))
         .captured
         .single as AssetSource;
-    expect(source.path, startsWith('audio/sfx/minimal_rotate.'));
+    expect(source.path, startsWith('audio/sfx/subtle_rotate.'));
 
     await service.dispose();
     await stateController.close();

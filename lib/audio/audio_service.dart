@@ -224,6 +224,9 @@ class AudioService {
   Source _sfxSource(String name, {SoundEffectPack? packOverride}) {
     final customPath = customSfxPaths[name];
     if (customPath != null) return DeviceFileSource(customPath);
+    if (name == 'rotate') {
+      return AssetSource('audio/sfx/subtle_rotate.$_audioExt');
+    }
 
     final pack = packOverride ??
         (name == 'clear' || name == 'tetris'
@@ -242,8 +245,7 @@ class AudioService {
     _playSfx('move');
   }
 
-  void playRotate() =>
-      _playSfx('rotate', packOverride: SoundEffectPack.minimal);
+  void playRotate() => _playSfx('rotate');
   void playDrop() => _playSfx('drop');
 
   /// Plays a line-clear cue, escalating Heavy into more fantastical sounds as
