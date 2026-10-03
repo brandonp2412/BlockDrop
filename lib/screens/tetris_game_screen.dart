@@ -587,38 +587,61 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
 
                 // ── Phone / portrait layout ────────────────────────────────
                 const double scoreHeight = 38.0;
-                const double nextPieceHeight = 124.0;
                 final double controlsHeight =
                     widget.settings.showOnScreenControls ? 112 : 0;
                 const double spacingHeight = 32.0;
-                final double totalUIHeight = scoreHeight +
-                    nextPieceHeight +
-                    spacingHeight +
-                    controlsHeight;
+                final double availableWidth = constraints.maxWidth - 32;
 
-                double availableHeight =
-                    (constraints.maxHeight - totalUIHeight - 32).clamp(
-                  100.0,
-                  double.infinity,
-                );
-                double availableWidth = constraints.maxWidth - 32;
+                double previewAreaHeight = 140;
+                double gameboardWidth = 100;
+                double gameboardHeight = 200;
 
-                double idealWidth = availableHeight *
-                    (GameConstants.boardWidth / GameConstants.boardHeight);
-                double idealHeight = availableWidth *
-                    (GameConstants.boardHeight / GameConstants.boardWidth);
-
-                double gameboardWidth, gameboardHeight;
-                if (idealWidth <= availableWidth) {
-                  gameboardWidth = idealWidth.clamp(100.0, double.infinity);
-                  gameboardHeight = availableHeight.clamp(
+                // Hold/Next use the board's exact cell dimensions. Iterate the
+                // portrait layout a few times so their real height is reserved
+                // without stealing the bottom margin from the game board.
+                for (var iteration = 0; iteration < 5; iteration++) {
+                  final totalUIHeight = scoreHeight +
+                      previewAreaHeight +
+                      spacingHeight +
+                      controlsHeight;
+                  final availableHeight =
+                      (constraints.maxHeight - totalUIHeight - 32).clamp(
                     100.0,
                     double.infinity,
                   );
-                } else {
-                  gameboardWidth = availableWidth.clamp(100.0, double.infinity);
-                  gameboardHeight = idealHeight.clamp(100.0, double.infinity);
+                  final idealWidth = availableHeight *
+                      (GameConstants.boardWidth / GameConstants.boardHeight);
+                  final idealHeight = availableWidth *
+                      (GameConstants.boardHeight / GameConstants.boardWidth);
+
+                  if (idealWidth <= availableWidth) {
+                    gameboardWidth = idealWidth.clamp(100.0, double.infinity);
+                    gameboardHeight =
+                        availableHeight.clamp(100.0, double.infinity);
+                  } else {
+                    gameboardWidth =
+                        availableWidth.clamp(100.0, double.infinity);
+                    gameboardHeight = idealHeight.clamp(100.0, double.infinity);
+                  }
+
+                  final cellSize = boardCellSize(
+                    boardWidth: gameboardWidth,
+                    boardHeight: gameboardHeight,
+                    style: widget.settings.style,
+                  );
+                  previewAreaHeight =
+                      piecePreviewBoxSize(cellSize, widget.settings.style)
+                              .height +
+                          44;
                 }
+
+                final previewCellSize = boardCellSize(
+                  boardWidth: gameboardWidth,
+                  boardHeight: gameboardHeight,
+                  style: widget.settings.style,
+                );
+                final previewBoxSize =
+                    piecePreviewBoxSize(previewCellSize, widget.settings.style);
 
                 return SingleChildScrollView(
                   physics: const NeverScrollableScrollPhysics(),
@@ -709,16 +732,14 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    Container(
-                                      width: 80,
-                                      height: 80,
-                                      decoration: pieceBoxDecoration(
-                                        widget.settings.style,
-                                        cs,
-                                      ),
+                                    SizedBox(
+                                      width: previewBoxSize.width,
+                                      height: previewBoxSize.height,
                                       child: HoldPieceDisplay(
                                         piece: gameLogic.heldPiece,
                                         style: widget.settings.style,
+                                        cellWidth: previewCellSize.width,
+                                        cellHeight: previewCellSize.height,
                                         isAvailable: gameLogic.canHold,
                                       ),
                                     ),
@@ -743,17 +764,15 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: pieceBoxDecoration(
-                                    widget.settings.style,
-                                    cs,
-                                  ),
+                                SizedBox(
+                                  width: previewBoxSize.width,
+                                  height: previewBoxSize.height,
                                   child: gameLogic.nextPiece != null
                                       ? NextPieceDisplay(
                                           piece: gameLogic.nextPiece!,
                                           style: widget.settings.style,
+                                          cellWidth: previewCellSize.width,
+                                          cellHeight: previewCellSize.height,
                                         )
                                       : null,
                                 ),
@@ -778,6 +797,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                 widget.settings.style,
                                 cs,
                               ),
+                              padding:
+                                  boardContentPadding(widget.settings.style),
                               child: GameBoard(
                                 board: gameLogic.getBoardWithCurrentPiece(
                                   showGhost: widget.settings.showGhostTile,
@@ -903,12 +924,19 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     final actualBoardHeight = boardWidth * 2;
     final boardLeft = (constraints.maxWidth - boardWidth) / 2;
     final boardTop = (constraints.maxHeight - actualBoardHeight) / 2;
-    final overlaySize = (constraints.maxWidth * 0.16).clamp(48.0, 72.0);
+    final previewCellSize = boardCellSize(
+      boardWidth: boardWidth,
+      boardHeight: actualBoardHeight,
+      style: widget.settings.style,
+    );
+    final previewBoxSize =
+        piecePreviewBoxSize(previewCellSize, widget.settings.style);
 
     Widget pieceOverlay({
       required String label,
       required Widget child,
       VoidCallback? onTap,
+      bool decorateBox = true,
     }) {
       return GestureDetector(
         onTap: onTap,
@@ -926,9 +954,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             ),
             const SizedBox(height: 4),
             Container(
-              width: overlaySize,
-              height: overlaySize,
-              decoration: pieceBoxDecoration(widget.settings.style, cs),
+              width: previewBoxSize.width,
+              height: previewBoxSize.height,
+              decoration: decorateBox
+                  ? pieceBoxDecoration(widget.settings.style, cs)
+                  : null,
               child: child,
             ),
           ],
@@ -947,6 +977,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
               width: boardWidth,
               height: actualBoardHeight,
               decoration: boardDecoration(widget.settings.style, cs),
+              padding: boardContentPadding(widget.settings.style),
               child: GameBoard(
                 board: gameLogic.getBoardWithCurrentPiece(
                   showGhost: widget.settings.showGhostTile,
@@ -977,6 +1008,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
               top: boardTop + 4,
               child: pieceOverlay(
                 label: context.l10n.text('HOLD'),
+                decorateBox: false,
                 onTap: () {
                   if (gameLogic.isGameRunning &&
                       !gameLogic.isGameOver &&
@@ -987,6 +1019,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 child: HoldPieceDisplay(
                   piece: gameLogic.heldPiece,
                   style: widget.settings.style,
+                  cellWidth: previewCellSize.width,
+                  cellHeight: previewCellSize.height,
                 ),
               ),
             ),
@@ -994,14 +1028,17 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             left: boardLeft + 4,
             top: boardTop +
                 4 +
-                (widget.settings.enableHold ? overlaySize + 24 : 0),
+                (widget.settings.enableHold ? previewBoxSize.height + 24 : 0),
             child: pieceOverlay(
               label: context.l10n.text('NEXT'),
+              decorateBox: false,
               child: gameLogic.nextPiece == null
                   ? const SizedBox.shrink()
                   : NextPieceDisplay(
                       piece: gameLogic.nextPiece!,
                       style: widget.settings.style,
+                      cellWidth: previewCellSize.width,
+                      cellHeight: previewCellSize.height,
                     ),
             ),
           ),
@@ -1087,22 +1124,42 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     ColorScheme cs,
   ) {
     const double scoreBarH = 48.0;
-    const double sidebarW = 160.0;
-    const double boxSize = 120.0;
     const double gap = 8.0;
+    const double aspect = GameConstants.boardWidth / GameConstants.boardHeight;
 
     final double boardAvailH = (constraints.maxHeight - scoreBarH - gap * 2)
         .clamp(100.0, double.infinity);
-    final double boardAvailW = (constraints.maxWidth - sidebarW * 2 - gap * 4)
-        .clamp(100.0, double.infinity);
+    double sidebarW = 160;
+    double bw = 100;
+    double bh = 200;
 
-    const double aspect = GameConstants.boardWidth / GameConstants.boardHeight;
-    double bw = boardAvailH * aspect;
-    double bh = boardAvailH;
-    if (bw > boardAvailW) {
-      bw = boardAvailW;
-      bh = (boardAvailW / aspect).clamp(100.0, double.infinity);
+    for (var iteration = 0; iteration < 4; iteration++) {
+      final boardAvailW = (constraints.maxWidth - sidebarW * 2 - gap * 4)
+          .clamp(100.0, double.infinity);
+      bw = boardAvailH * aspect;
+      bh = boardAvailH;
+      if (bw > boardAvailW) {
+        bw = boardAvailW;
+        bh = (boardAvailW / aspect).clamp(100.0, double.infinity);
+      }
+
+      final cellSize = boardCellSize(
+        boardWidth: bw,
+        boardHeight: bh,
+        style: widget.settings.style,
+      );
+      final previewWidth =
+          piecePreviewBoxSize(cellSize, widget.settings.style).width + 12;
+      if (previewWidth > sidebarW) sidebarW = previewWidth;
     }
+
+    final previewCellSize = boardCellSize(
+      boardWidth: bw,
+      boardHeight: bh,
+      style: widget.settings.style,
+    );
+    final previewBoxSize =
+        piecePreviewBoxSize(previewCellSize, widget.settings.style);
 
     Widget holdPanel = widget.settings.enableHold
         ? GestureDetector(
@@ -1121,13 +1178,14 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                   style: TextStyle(color: cs.onSurface, fontSize: 18),
                 ),
                 const SizedBox(height: 6),
-                Container(
-                  width: boxSize,
-                  height: boxSize,
-                  decoration: pieceBoxDecoration(widget.settings.style, cs),
+                SizedBox(
+                  width: previewBoxSize.width,
+                  height: previewBoxSize.height,
                   child: HoldPieceDisplay(
                     piece: gameLogic.heldPiece,
                     style: widget.settings.style,
+                    cellWidth: previewCellSize.width,
+                    cellHeight: previewCellSize.height,
                     isAvailable: gameLogic.canHold,
                   ),
                 ),
@@ -1144,14 +1202,15 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           style: TextStyle(color: cs.onSurface, fontSize: 18),
         ),
         const SizedBox(height: 6),
-        Container(
-          width: boxSize,
-          height: boxSize,
-          decoration: pieceBoxDecoration(widget.settings.style, cs),
+        SizedBox(
+          width: previewBoxSize.width,
+          height: previewBoxSize.height,
           child: gameLogic.nextPiece != null
               ? NextPieceDisplay(
                   piece: gameLogic.nextPiece!,
                   style: widget.settings.style,
+                  cellWidth: previewCellSize.width,
+                  cellHeight: previewCellSize.height,
                 )
               : null,
         ),
@@ -1167,6 +1226,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
             width: bw,
             height: bh,
             decoration: boardDecoration(widget.settings.style, cs),
+            padding: boardContentPadding(widget.settings.style),
             child: GameBoard(
               board: gameLogic.getBoardWithCurrentPiece(
                 showGhost: widget.settings.showGhostTile,

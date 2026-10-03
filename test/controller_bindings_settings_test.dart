@@ -18,11 +18,19 @@ void main() {
 
     for (final action in GameplayAction.values) {
       final actionLabel = find.text(action.label);
-      await tester.scrollUntilVisible(actionLabel, 120);
+      await tester.scrollUntilVisible(
+        actionLabel,
+        120,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(actionLabel, findsOneWidget);
     }
     final resetButton = find.text('Reset controller layout');
-    await tester.scrollUntilVisible(resetButton, 120);
+    await tester.scrollUntilVisible(
+      resetButton,
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(resetButton, findsOneWidget);
   });
 
@@ -32,10 +40,10 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    await tester.tap(find.byTooltip('Search settings'));
-    await tester.pump();
-    expect(find.text('Search settings'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'music');
+    await tester.enterText(
+      find.byKey(const ValueKey('settings-search')),
+      'music',
+    );
     await tester.pump();
 
     expect(find.text('Music'), findsOneWidget);
@@ -53,10 +61,10 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    await tester.tap(find.byTooltip('Search settings'));
-    await tester.pump();
-    expect(find.text('Search settings'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'large board');
+    await tester.enterText(
+      find.byKey(const ValueKey('settings-search')),
+      'large board',
+    );
     await tester.pump();
 
     expect(find.text('Large Board'), findsOneWidget);
@@ -82,7 +90,11 @@ void main() {
     final secondButtonFinder = find.byKey(
       Key('controller-binding-${secondAction.name}'),
     );
-    await tester.scrollUntilVisible(firstButtonFinder, 120);
+    await tester.scrollUntilVisible(
+      firstButtonFinder,
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
 
     final firstButton = tester.widget<OutlinedButton>(firstButtonFinder);
@@ -118,7 +130,11 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
     final binding = find.text('Button A');
-    await tester.scrollUntilVisible(binding, 120);
+    await tester.scrollUntilVisible(
+      binding,
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
     await Scrollable.ensureVisible(tester.element(binding), alignment: 0.5);
     await tester.pumpAndSettle();
     await tester.tap(binding);

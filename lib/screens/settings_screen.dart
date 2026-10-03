@@ -67,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   };
 
   String _searchQuery = '';
-  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
 
   Future<String?> _pickAndStoreAudio(String slot) async {
     try {
@@ -160,6 +160,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void dispose() {
     widget.settings.removeListener(_onSettingsChanged);
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -353,45 +354,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: _isSearching
-            ? TextField(
-                autofocus: true,
-                key: const ValueKey('settings-search'),
-                decoration: InputDecoration(
-                  hintText: context.l10n.text('Search settings'),
-                  border: InputBorder.none,
-                ),
-                onChanged: (value) =>
-                    setState(() => _searchQuery = value.trim().toLowerCase()),
-              )
-            : Text(context.l10n.text('Settings')),
+        title: Text(context.l10n.text('Settings')),
         centerTitle: true,
-        actions: [
-          IconButton(
-            key: const ValueKey('settings-search-button'),
-            tooltip: context.l10n.text('Search settings'),
-            icon: Icon(_isSearching ? Icons.close : Icons.search),
-            onPressed: () => setState(() {
-              _isSearching = !_isSearching;
-              if (!_isSearching) _searchQuery = '';
-            }),
-          ),
-        ],
       ),
       body: Theme(
         data: controlTheme,
         child: SafeArea(
           child: noSearchResults
-              ? AppEmptyState(
-                  icon: Icons.search_off_rounded,
-                  title: 'No settings found',
-                  message: 'Try another search term.',
-                  actionLabel: 'Clear search',
-                  actionIcon: Icons.close_rounded,
-                  onAction: () => setState(() {
-                    _searchQuery = '';
-                    _isSearching = false;
-                  }),
+              ? Column(
+                  children: [
+                    _SettingsSearchBar(
+                      controller: _searchController,
+                      query: _searchQuery,
+                      colorScheme: colorScheme,
+                      onChanged: (value) => setState(
+                        () => _searchQuery = value.trim().toLowerCase(),
+                      ),
+                      onClear: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    ),
+                    Expanded(
+                      child: AppEmptyState(
+                        icon: Icons.search_off_rounded,
+                        title: 'No settings found',
+                        message: 'Try another search term.',
+                        actionLabel: 'Clear search',
+                        actionIcon: Icons.close_rounded,
+                        onAction: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                      ),
+                    ),
+                  ],
                 )
               : ListView(
                   padding: const EdgeInsets.only(top: 4, bottom: 24),
@@ -399,6 +396,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // Android TV D-pad focus traversal can reach items below the viewport.
                   scrollCacheExtent: const ScrollCacheExtent.pixels(5000),
                   children: [
+                    _SettingsSearchBar(
+                      controller: _searchController,
+                      query: _searchQuery,
+                      colorScheme: colorScheme,
+                      onChanged: (value) => setState(
+                        () => _searchQuery = value.trim().toLowerCase(),
+                      ),
+                      onClear: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    ),
                     if ((widget.onRestart != null || widget.onQuit != null) &&
                         showGame) ...[
                       _SectionHeader(label: 'Game', colorScheme: colorScheme),
@@ -1045,6 +1054,59 @@ SwitchThemeData _switchTheme(AppStyle style, ColorScheme colorScheme) {
   );
 }
 
+class _SettingsSearchBar extends StatelessWidget {
+  final TextEditingController controller;
+  final String query;
+  final ColorScheme colorScheme;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  const _SettingsSearchBar({
+    required this.controller,
+    required this.query,
+    required this.colorScheme,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
+      child: TextField(
+        controller: controller,
+        key: const ValueKey('settings-search'),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: context.l10n.text('Search settings'),
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: query.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: context.l10n.text('Clear search'),
+                  onPressed: onClear,
+                  icon: const Icon(Icons.close),
+                ),
+          filled: true,
+          fillColor: colorScheme.surfaceContainerLow,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: colorScheme.outlineVariant),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: colorScheme.outlineVariant),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _SectionHeader extends StatelessWidget {
   final String label;
   final ColorScheme colorScheme;
@@ -1055,7 +1117,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = _sectionIcon(label);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
       child: Row(
         children: [
           Container(
@@ -1074,12 +1136,6 @@ class _SectionHeader extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
                 ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Divider(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.55),
-            ),
           ),
         ],
       ),
@@ -1313,39 +1369,59 @@ class _ControllerBindingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final actions = GameplayAction.values;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      padding: const EdgeInsets.all(12),
       decoration: panelDecoration(settings.style, colorScheme),
       child: Column(
         children: [
-          for (final action in GameplayAction.values)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                visualDensity: VisualDensity.compact,
-                minVerticalPadding: 0,
-                title: Text(context.l10n.text(action.label)),
-                trailing: OutlinedButton(
-                  key: Key('controller-binding-${action.name}'),
-                  onPressed: () => _captureBinding(context, action),
+          for (var index = 0; index < actions.length; index++) ...[
+            Row(
+              children: [
+                Icon(
+                  Icons.sports_esports_outlined,
+                  size: 18,
+                  color: colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.l10n.text(actions[index].label),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                OutlinedButton(
+                  key: Key('controller-binding-${actions[index].name}'),
+                  onPressed: () => _captureBinding(context, actions[index]),
                   style: OutlinedButton.styleFrom(
                     shape: buttonBorderShape(settings.style),
                     side: BorderSide(
                       color: colorScheme.outline,
                       width: settings.style == AppStyle.retro ? 2 : 1,
                     ),
+                    visualDensity: VisualDensity.compact,
                   ),
                   child: Text(
                     context.l10n.text(
-                      controllerKeyLabel(settings.controllerBindings[action]!),
+                      controllerKeyLabel(
+                        settings.controllerBindings[actions[index]]!,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
+            Divider(
+              height: 12,
+              thickness: 1,
+              color: colorScheme.outline.withAlpha(30),
+            ),
+          ],
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(

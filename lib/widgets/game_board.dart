@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 import '../settings/settings_provider.dart';
+import 'game_decorations.dart';
 
 // Modern Flutter color alpha helper
 Color _colorWithAlpha(Color color, double alpha) {
@@ -120,16 +121,30 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
 
     switch (style) {
       case AppStyle.classic:
-        return Container(
-          decoration: BoxDecoration(
-            color: isGhostPiece
-                ? emptyCellColor
-                : (displayColor ?? emptyCellColor),
-            border: Border.all(
-              color: isGhostPiece ? ghostBorder : cellBorderColor,
-              width: isGhostPiece ? 2.0 : 0.5,
+        if (isGhostPiece) {
+          return Container(
+            decoration: BoxDecoration(
+              color: emptyCellColor,
+              border: Border.all(
+                color: ghostBorder.withValues(alpha: 0.8),
+                width: 1.5,
+              ),
             ),
-          ),
+          );
+        }
+        if (displayColor == null) {
+          return Container(
+            decoration: BoxDecoration(
+              color: emptyCellColor,
+              border: Border.all(
+                color: cellBorderColor.withValues(alpha: 0.55),
+                width: 0.5,
+              ),
+            ),
+          );
+        }
+        return DecoratedBox(
+          decoration: classicPieceDecoration(displayColor),
         );
 
       case AppStyle.modern:
@@ -362,6 +377,8 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
               child: Transform.scale(
                 scale: 1 + pulse * comboStrength * 0.018,
                 child: GridView.builder(
+                  primary: false,
+                  padding: EdgeInsets.zero,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: cols,
@@ -517,7 +534,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                 fit: StackFit.expand,
                 clipBehavior: Clip.none,
                 children: [
-                  board,
+                  ClipRect(child: board),
                   if (widget.gameLogic.isAnimatingClear && streak >= 2)
                     Semantics(
                       label: context.l10n.text(

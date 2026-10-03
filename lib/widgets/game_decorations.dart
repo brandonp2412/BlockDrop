@@ -1,12 +1,44 @@
 import 'package:flutter/material.dart';
 
+import '../constants/game_constants.dart';
 import '../settings/settings_provider.dart';
+
+/// Refined Classic keeps the original square block language while adding a
+/// restrained top-edge highlight and crisp separation between occupied cells.
+BoxDecoration classicPieceDecoration(Color color) {
+  final highlight = Color.lerp(color, Colors.white, 0.14)!;
+  final edge = Color.lerp(color, Colors.black, 0.38)!;
+  return BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [highlight, color],
+      stops: const [0, 0.34],
+    ),
+    border: Border(
+      top: BorderSide(
+        color: highlight.withValues(alpha: 0.82),
+        width: 0.7,
+      ),
+      left: BorderSide(color: edge.withValues(alpha: 0.62), width: 0.55),
+      right: BorderSide(color: edge.withValues(alpha: 0.62), width: 0.55),
+      bottom: BorderSide(color: edge.withValues(alpha: 0.72), width: 0.55),
+    ),
+  );
+}
 
 /// Style-aware decoration for hold / next piece preview boxes.
 BoxDecoration pieceBoxDecoration(AppStyle style, ColorScheme cs) {
   switch (style) {
     case AppStyle.classic:
-      return BoxDecoration(border: Border.all(color: cs.outline));
+      return BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.24),
+        borderRadius: BorderRadius.circular(2),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.6),
+          width: 1,
+        ),
+      );
     case AppStyle.modern:
       return BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -58,7 +90,11 @@ BoxDecoration panelDecoration(AppStyle style, ColorScheme cs, {Color? color}) {
     case AppStyle.classic:
       return BoxDecoration(
         color: bg,
-        border: Border.all(color: cs.outline),
+        borderRadius: BorderRadius.circular(2),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.55),
+          width: 1,
+        ),
       );
     case AppStyle.modern:
       return BoxDecoration(
@@ -107,6 +143,7 @@ BoxDecoration panelDecoration(AppStyle style, ColorScheme cs, {Color? color}) {
 BorderRadius panelBorderRadius(AppStyle style) {
   switch (style) {
     case AppStyle.classic:
+      return BorderRadius.circular(2);
     case AppStyle.retro:
       return BorderRadius.zero;
     case AppStyle.modern:
@@ -131,7 +168,11 @@ ShapeBorder styledDialogShape(
   switch (style) {
     case AppStyle.classic:
       return RoundedRectangleBorder(
-        side: BorderSide(color: borderColor),
+        borderRadius: BorderRadius.circular(2),
+        side: BorderSide(
+          color: borderColor.withValues(alpha: 0.72),
+          width: 1,
+        ),
       );
     case AppStyle.modern:
       return RoundedRectangleBorder(
@@ -158,6 +199,7 @@ ShapeBorder styledDialogShape(
 OutlinedBorder buttonBorderShape(AppStyle style) {
   switch (style) {
     case AppStyle.classic:
+      return RoundedRectangleBorder(borderRadius: BorderRadius.circular(2));
     case AppStyle.retro:
       return const RoundedRectangleBorder();
     case AppStyle.modern:
@@ -173,7 +215,12 @@ OutlinedBorder buttonBorderShape(AppStyle style) {
 BoxDecoration boardDecoration(AppStyle style, ColorScheme cs) {
   switch (style) {
     case AppStyle.classic:
-      return BoxDecoration(border: Border.all(color: cs.outline, width: 2));
+      return BoxDecoration(
+        border: Border.all(
+          color: cs.primary.withValues(alpha: 0.72),
+          width: 1.25,
+        ),
+      );
     case AppStyle.modern:
       return BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -208,4 +255,45 @@ BoxDecoration boardDecoration(AppStyle style, ColorScheme cs) {
     case AppStyle.retro:
       return BoxDecoration(border: Border.all(color: cs.outline, width: 2));
   }
+}
+
+/// Reserves the border stroke so animated board cells never paint over it.
+EdgeInsets boardContentPadding(AppStyle style) {
+  final width = switch (style) {
+    AppStyle.modern => 1.0,
+    AppStyle.neon => 1.5,
+    AppStyle.classic => 1.25,
+    AppStyle.bubbles || AppStyle.retro => 2.0,
+  };
+  return EdgeInsets.all(width);
+}
+
+/// Exact cell dimensions used by [GameBoard] inside a decorated board.
+Size boardCellSize({
+  required double boardWidth,
+  required double boardHeight,
+  required AppStyle style,
+}) {
+  final padding = boardContentPadding(style);
+  return Size(
+    (boardWidth - padding.horizontal) / GameConstants.boardWidth,
+    (boardHeight - padding.vertical) / GameConstants.boardHeight,
+  );
+}
+
+/// Fixed Hold/Next box dimensions for four board-sized cells plus padding.
+Size piecePreviewBoxSize(
+  Size cellSize,
+  AppStyle style, {
+  double padding = 6,
+}) {
+  final borderWidth = switch (style) {
+    AppStyle.classic || AppStyle.modern => 1.0,
+    AppStyle.neon => 1.5,
+    AppStyle.bubbles || AppStyle.retro => 2.0,
+  };
+  return Size(
+    cellSize.width * 4 + padding * 2 + borderWidth * 2,
+    cellSize.height * 4 + padding * 2 + borderWidth * 2,
+  );
 }

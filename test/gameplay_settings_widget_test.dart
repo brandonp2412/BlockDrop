@@ -14,9 +14,6 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    await tester.tap(find.byKey(const ValueKey('settings-search-button')));
-    await tester.pump();
-
     for (final label in [
       'Starting Speed',
       'Speed per Level',
@@ -43,11 +40,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Deutsch').last);
     await tester.pump();
@@ -61,11 +65,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -82,11 +93,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -103,11 +121,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -124,11 +149,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -145,11 +177,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -166,11 +205,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -187,11 +233,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -208,11 +261,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -229,11 +289,18 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
+    final languageDropdown = find.byKey(const Key('settingsLanguageDropdown'));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('settingsLanguageDropdown')),
+      languageDropdown,
       120,
+      scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.byKey(const Key('settingsLanguageDropdown')));
+    await Scrollable.ensureVisible(
+      tester.element(languageDropdown),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(languageDropdown);
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
@@ -257,7 +324,11 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    await tester.scrollUntilVisible(find.text('Maximum Level'), 120);
+    await tester.scrollUntilVisible(
+      find.text('Maximum Level'),
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.ensureVisible(find.text('20'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('20'));
@@ -310,8 +381,6 @@ void main() {
       MaterialApp(home: SettingsScreen(settings: settings)),
     );
 
-    await tester.tap(find.byKey(const ValueKey('settings-search-button')));
-    await tester.pump();
     await tester.enterText(
       find.byKey(const ValueKey('settings-search')),
       'continue saved game',

@@ -359,17 +359,39 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     final screenH = mq.size.height - mq.padding.top - mq.padding.bottom;
     final availableH = (screenH - kOverhead).clamp(100.0, double.infinity);
 
-    // Reserve space for hold/next sidebar
-    final double sidebarW = 72.0 * uiScale;
+    // Reserve enough sidebar width for four cells at the exact board scale.
+    double sidebarW = 72.0 * uiScale;
     const double sidebarGap = 8.0;
-    final boardsW = totalW - sidebarW - sidebarGap;
+    double yourBoardW = 100;
+    double yourBoardH = 200;
 
-    final yourBoardWByWidth = boardsW * 0.59;
-    final yourBoardWByHeight = availableH / 2;
-    final yourBoardW = yourBoardWByWidth < yourBoardWByHeight
-        ? yourBoardWByWidth
-        : yourBoardWByHeight;
-    final yourBoardH = yourBoardW * 2;
+    for (var iteration = 0; iteration < 4; iteration++) {
+      final boardsW = totalW - sidebarW - sidebarGap;
+      final yourBoardWByWidth = boardsW * 0.59;
+      final yourBoardWByHeight = availableH / 2;
+      yourBoardW = yourBoardWByWidth < yourBoardWByHeight
+          ? yourBoardWByWidth
+          : yourBoardWByHeight;
+      yourBoardH = yourBoardW * 2;
+
+      final cellSize = boardCellSize(
+        boardWidth: yourBoardW,
+        boardHeight: yourBoardH,
+        style: widget.settings.style,
+      );
+      final previewWidth =
+          piecePreviewBoxSize(cellSize, widget.settings.style).width;
+      if (previewWidth > sidebarW) sidebarW = previewWidth;
+    }
+
+    final previewCellSize = boardCellSize(
+      boardWidth: yourBoardW,
+      boardHeight: yourBoardH,
+      style: widget.settings.style,
+    );
+    final previewBoxSize =
+        piecePreviewBoxSize(previewCellSize, widget.settings.style);
+    if (previewBoxSize.width > sidebarW) sidebarW = previewBoxSize.width;
 
     final oppBoardW = yourBoardW * (0.40 / 0.57);
     final oppBoardH = oppBoardW * 2;
@@ -391,6 +413,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       label: context.l10n.text('HOLD'),
                       size: sidebarW,
                       cs: cs,
+                      decorateBox: false,
                       onTap: () {
                         if (_gameActive &&
                             _gameLogic.isGameRunning &&
@@ -402,6 +425,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       child: HoldPieceDisplay(
                         piece: _gameLogic.heldPiece,
                         style: widget.settings.style,
+                        cellWidth: previewCellSize.width,
+                        cellHeight: previewCellSize.height,
                         isAvailable: _gameLogic.canHold,
                       ),
                     ),
@@ -410,10 +435,13 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     label: context.l10n.text('NEXT'),
                     size: sidebarW,
                     cs: cs,
+                    decorateBox: false,
                     child: _gameLogic.nextPiece != null
                         ? NextPieceDisplay(
                             piece: _gameLogic.nextPiece!,
                             style: widget.settings.style,
+                            cellWidth: previewCellSize.width,
+                            cellHeight: previewCellSize.height,
                           )
                         : const SizedBox.shrink(),
                   ),
@@ -442,6 +470,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       width: yourBoardW,
                       height: yourBoardH,
                       decoration: boardDecoration(widget.settings.style, cs),
+                      padding: boardContentPadding(widget.settings.style),
                       child: GameBoard(
                         board: _gameLogic.getBoardWithCurrentPiece(
                           showGhost: widget.settings.showGhostTile,
@@ -545,6 +574,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     required ColorScheme cs,
     required Widget child,
     VoidCallback? onTap,
+    bool decorateBox = true,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -564,8 +594,10 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           Container(
             width: size,
             height: size,
-            decoration: pieceBoxDecoration(widget.settings.style, cs),
-            child: child,
+            decoration: decorateBox
+                ? pieceBoxDecoration(widget.settings.style, cs)
+                : null,
+            child: Center(child: child),
           ),
         ],
       ),
@@ -596,12 +628,21 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     final oppW = totalW * 0.26;
     final oppH = oppW * 2;
 
+    final previewCellSize = boardCellSize(
+      boardWidth: boardW,
+      boardHeight: boardH,
+      style: widget.settings.style,
+    );
+    final previewBoxSize =
+        piecePreviewBoxSize(previewCellSize, widget.settings.style);
+    final overlayBoxSize = previewBoxSize.width > previewBoxSize.height
+        ? previewBoxSize.width
+        : previewBoxSize.height;
     final shortSide = constraints.maxWidth < constraints.maxHeight
         ? constraints.maxWidth
         : constraints.maxHeight;
     final uiScale = (shortSide / 400.0).clamp(1.0, 2.0);
-    final double overlayBoxSize = 58.0 * uiScale;
-    final double labelH = 16.0 * uiScale; // height of the HOLD/NEXT label text
+    final double labelH = 16.0 * uiScale;
 
     return SizedBox(
       width: totalW,
@@ -620,6 +661,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                 width: boardW,
                 height: boardH,
                 decoration: boardDecoration(widget.settings.style, cs),
+                padding: boardContentPadding(widget.settings.style),
                 child: GameBoard(
                   board: _gameLogic.getBoardWithCurrentPiece(),
                   previewRows: GameConstants.previewRows,
@@ -654,6 +696,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
               child: _buildOverlayPieceBox(
                 label: context.l10n.text('HOLD'),
                 size: overlayBoxSize,
+                decorateBox: false,
                 onTap: () {
                   if (_gameActive &&
                       _gameLogic.isGameRunning &&
@@ -665,6 +708,8 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                 child: HoldPieceDisplay(
                   piece: _gameLogic.heldPiece,
                   style: widget.settings.style,
+                  cellWidth: previewCellSize.width,
+                  cellHeight: previewCellSize.height,
                   isAvailable: _gameLogic.canHold,
                 ),
               ),
@@ -679,10 +724,13 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             child: _buildOverlayPieceBox(
               label: context.l10n.text('NEXT'),
               size: overlayBoxSize,
+              decorateBox: false,
               child: _gameLogic.nextPiece != null
                   ? NextPieceDisplay(
                       piece: _gameLogic.nextPiece!,
                       style: widget.settings.style,
+                      cellWidth: previewCellSize.width,
+                      cellHeight: previewCellSize.height,
                     )
                   : const SizedBox.shrink(),
             ),
@@ -820,6 +868,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     required double size,
     required Widget child,
     VoidCallback? onTap,
+    bool decorateBox = true,
   }) {
     final cs = Theme.of(context).colorScheme;
     final style = widget.settings.style;
@@ -841,15 +890,17 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           Container(
             width: size,
             height: size,
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withAlpha(200),
-              border: Border.all(
-                color: cs.outline.withAlpha(80),
-                width: style == AppStyle.retro ? 2 : 1,
-              ),
-              borderRadius: panelBorderRadius(style),
-            ),
-            child: child,
+            decoration: decorateBox
+                ? BoxDecoration(
+                    color: cs.surfaceContainerHighest.withAlpha(200),
+                    border: Border.all(
+                      color: cs.outline.withAlpha(80),
+                      width: style == AppStyle.retro ? 2 : 1,
+                    ),
+                    borderRadius: panelBorderRadius(style),
+                  )
+                : null,
+            child: Center(child: child),
           ),
         ],
       ),

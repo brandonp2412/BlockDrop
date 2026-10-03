@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -161,7 +162,7 @@ void main() {
     });
   });
 
-  test('initializes sound effects with the softened volume mix', () async {
+  test('initializes sound effects with the platform volume mix', () async {
     final (mockMusic, stateController) = makeMusicPlayer();
     final sfxPlayers = <MockAudioPlayer>[];
     final service = AudioService(
@@ -175,10 +176,14 @@ void main() {
 
     await service.init();
 
-    const expectedVolumes = [0.26, 0.34, 0.42, 0.5, 0.62, 0.3, 0.32, 0.38];
+    final expectedVolumes = Platform.isLinux
+        ? [0.65, 0.85, 1.0, 1.0, 1.0, 0.75, 0.8, 0.95]
+        : [0.26, 0.34, 0.42, 0.5, 0.62, 0.3, 0.32, 0.38];
     for (var index = 0; index < sfxPlayers.length; index++) {
-      verify(() => sfxPlayers[index].setVolume(expectedVolumes[index]))
-          .called(1);
+      final actualVolume = verify(
+        () => sfxPlayers[index].setVolume(captureAny()),
+      ).captured.single as double;
+      expect(actualVolume, closeTo(expectedVolumes[index], 0.000001));
     }
 
     await service.dispose();
@@ -280,6 +285,27 @@ void main() {
         .single as AssetSource;
     expect(source.path, startsWith('audio/sfx/subtle_rotate.'));
 
+    await service.dispose();
+    await stateController.close();
+  });
+
+  test('missing desktop codecs do not escape as audio exceptions', () async {
+    final (mockMusic, stateController) = makeMusicPlayer();
+    final mockSfx = makeSfxPlayer();
+    when(() => mockSfx.setSource(any())).thenThrow(Exception('missing codec'));
+
+    final service = AudioService(
+      musicPlayer: mockMusic,
+      sfxPlayerFactory: () => mockSfx,
+    );
+
+    await expectLater(service.init(), completes);
+
+    when(() => mockSfx.play(any())).thenThrow(Exception('missing codec'));
+    service.playMove();
+    await Future<void>.delayed(Duration.zero);
+
+    verify(() => mockSfx.play(any())).called(1);
     await service.dispose();
     await stateController.close();
   });

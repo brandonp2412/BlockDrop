@@ -69,7 +69,7 @@ class AudioService {
   Future<void> _initializeMusic() async {
     await _musicPlayer.setPlayerMode(PlayerMode.mediaPlayer);
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
-    await _musicPlayer.setVolume(0.25);
+    await _musicPlayer.setVolume(Platform.isLinux ? 0.60 : 0.25);
     if (Platform.isAndroid) {
       await _musicPlayer.setAudioContext(
         AudioContext(
@@ -113,16 +113,25 @@ class AudioService {
             android: AudioContextAndroid(
               usageType: AndroidUsageType.game,
               contentType: AndroidContentType.sonification,
-              // 🔑 CRITICAL: no audio focus so SFX won't pause background music.
+              // No audio focus so SFX won't pause background music.
               audioFocus: AndroidAudioFocus.none,
               stayAwake: true,
             ),
           ),
         );
       }
-      await player.setVolume(_sfxVolumes[name] ?? 0.5);
-      await player.setSource(_sfxSource(name));
+      final baseVolume = _sfxVolumes[name] ?? 0.5;
+      final volume = Platform.isLinux
+          ? (baseVolume * 2.5).clamp(0.0, 1.0).toDouble()
+          : baseVolume;
+      await player.setVolume(volume);
       _sfxPlayers[name] = player;
+      try {
+        await player.setSource(_sfxSource(name));
+      } on Exception {
+        // Keep the game usable when a desktop audio backend lacks a codec.
+        // Playback will retry and fail silently until the backend is fixed.
+      }
     }
   }
 
@@ -208,19 +217,22 @@ class AudioService {
     String name, {
     SoundEffectPack? packOverride,
     String? bundledAsset,
-  }) {
+  }) async {
     if (!sfxEnabled) return;
     final player = _sfxPlayers[name];
     if (player == null) return;
-    player.stop().then(
-          (_) => player.play(
-            _sfxSource(
-              name,
-              packOverride: packOverride,
-              bundledAsset: bundledAsset,
-            ),
-          ),
-        );
+    try {
+      await player.stop();
+      await player.play(
+        _sfxSource(
+          name,
+          packOverride: packOverride,
+          bundledAsset: bundledAsset,
+        ),
+      );
+    } on Exception {
+      // Audio is optional; a missing desktop codec must not crash the game.
+    }
   }
 
   Source _musicSource() => customMusicPath == null
