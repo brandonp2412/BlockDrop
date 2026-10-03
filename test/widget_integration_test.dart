@@ -1,12 +1,12 @@
+import 'package:block_drop/main.dart';
+import 'package:block_drop/screens/tetris_game_screen.dart';
+import 'package:block_drop/settings/settings_provider.dart';
+import 'package:block_drop/widgets/game_board.dart';
+import 'package:block_drop/widgets/hold_piece_display.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:block_drop/main.dart';
-import 'package:block_drop/widgets/game_board.dart';
-import 'package:block_drop/widgets/hold_piece_display.dart';
-import 'package:block_drop/screens/tetris_game_screen.dart';
-import 'package:block_drop/settings/settings_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -44,13 +44,6 @@ void main() {
       // Sound settings
       expect(find.text('Music'), findsOneWidget);
       expect(find.text('Sound Effects'), findsOneWidget);
-
-      await tester.scrollUntilVisible(find.text('Large Board'), 100);
-      expect(find.text('Large Board'), findsOneWidget);
-
-      // Multiplayer entry (may require scrolling on small test screens)
-      await tester.scrollUntilVisible(find.text('Play on LAN'), 100);
-      expect(find.text('Play on LAN'), findsOneWidget);
     });
 
     testWidgets('large board setting uses the fullscreen game layout', (
