@@ -40,6 +40,7 @@ class _TetrisAppState extends State<TetrisApp> {
       seedColor: Colors.blue,
       brightness: Brightness.light,
     ),
+    popupMenuTheme: const PopupMenuThemeData(menuPadding: EdgeInsets.zero),
     useMaterial3: true,
   );
 
@@ -49,6 +50,7 @@ class _TetrisAppState extends State<TetrisApp> {
       brightness: Brightness.dark,
     ),
     scaffoldBackgroundColor: const Color(0xFF121212),
+    popupMenuTheme: const PopupMenuThemeData(menuPadding: EdgeInsets.zero),
     useMaterial3: true,
   );
 
@@ -62,6 +64,7 @@ class _TetrisAppState extends State<TetrisApp> {
       onSurface: Colors.white,
     ),
     scaffoldBackgroundColor: Colors.black,
+    popupMenuTheme: const PopupMenuThemeData(menuPadding: EdgeInsets.zero),
     useMaterial3: true,
   );
 
