@@ -71,6 +71,8 @@ jobs:
           echo "should_release=true" >> "$GITHUB_OUTPUT"
 
   quality-checks:
+    needs: release-gate
+    if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.release-gate.outputs.should_release == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -100,6 +102,8 @@ jobs:
         run: flutter test
 
   generate-screenshots:
+    needs: release-gate
+    if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.release-gate.outputs.should_release == 'true') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
