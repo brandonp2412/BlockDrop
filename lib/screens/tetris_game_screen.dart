@@ -588,7 +588,11 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                 // ── Phone / portrait layout ────────────────────────────────
                 const double scoreHeight = 38.0;
                 final double controlsHeight =
-                    widget.settings.showOnScreenControls ? 112 : 0;
+                    widget.settings.showOnScreenControls
+                        ? OnScreenGameControls.heightForWidth(
+                                constraints.maxWidth - 24) +
+                            8
+                        : 0;
                 const double spacingHeight = 32.0;
                 final double availableWidth = constraints.maxWidth - 32;
 
