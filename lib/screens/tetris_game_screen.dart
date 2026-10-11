@@ -1361,23 +1361,45 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
         ),
         // Board + sidebars
         Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Stack(
             children: [
-              if (widget.settings.enableHold) ...[
-                SizedBox(
-                  width: sidebarW,
-                  child: Center(child: holdPanel),
+              Positioned.fill(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (widget.settings.enableHold) ...[
+                      SizedBox(
+                        width: sidebarW,
+                        child: Center(child: holdPanel),
+                      ),
+                      SizedBox(width: gap),
+                    ],
+                    board,
+                    SizedBox(width: gap),
+                    SizedBox(
+                      width: sidebarW,
+                      child: Center(child: nextPanel),
+                    ),
+                  ],
                 ),
-                SizedBox(width: gap),
-              ],
-              board,
-              SizedBox(width: gap),
-              SizedBox(
-                width: sidebarW,
-                child: Center(child: nextPanel),
               ),
+              if (widget.settings.showOnScreenControls)
+                Positioned(
+                  left: 12,
+                  right: 12,
+                  bottom: 8,
+                  child: OnScreenGameControls(
+                    onMoveLeft: gameLogic.movePieceLeft,
+                    onMoveRight: gameLogic.movePieceRight,
+                    onSoftDrop: gameLogic.softDrop,
+                    onRotateLeft: gameLogic.rotatePieceLeft,
+                    onRotateRight: gameLogic.rotatePieceRight,
+                    onHardDrop: gameLogic.dropPiece,
+                    onHold:
+                        widget.settings.enableHold ? gameLogic.holdPiece : null,
+                  ),
+                ),
             ],
           ),
         ),
