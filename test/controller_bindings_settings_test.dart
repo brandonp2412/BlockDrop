@@ -17,13 +17,9 @@ void main() {
     );
 
     for (final action in GameplayAction.values) {
-      final actionLabel = find.text(action.label);
-      await tester.scrollUntilVisible(
-        actionLabel,
-        120,
-        scrollable: find.byType(Scrollable).first,
-      );
-      expect(actionLabel, findsOneWidget);
+      final binding = find.byKey(Key('controller-binding-${action.name}'));
+      await tester.ensureVisible(binding);
+      expect(binding, findsOneWidget);
     }
     final resetButton = find.text('Reset controller layout');
     await tester.scrollUntilVisible(

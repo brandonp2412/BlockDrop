@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +25,11 @@ class SettingsProvider extends ChangeNotifier {
   static const _showOpponentBoardKey = 'show_opponent_board';
   static const _enableHoldKey = 'enable_hold';
   static const _showOnScreenControlsKey = 'show_on_screen_controls';
+  static const _deviceChannel = MethodChannel('com.blockdrop.game/device');
+  final Future<bool> Function() _isTelevision;
+
+  SettingsProvider({Future<bool> Function()? isTelevision})
+      : _isTelevision = isTelevision ?? _detectTelevision;
   static const _fullscreenBoardKey = 'fullscreen_board';
   static const _continueGameKey = 'continue_game';
   static const _savedGameKey = 'saved_game';
@@ -179,7 +185,8 @@ class SettingsProvider extends ChangeNotifier {
     _showGhostTile = prefs.getBool(_showGhostTileKey) ?? true;
     _showOpponentBoard = prefs.getBool(_showOpponentBoardKey) ?? true;
     _enableHold = prefs.getBool(_enableHoldKey) ?? true;
-    _showOnScreenControls = prefs.getBool(_showOnScreenControlsKey) ?? false;
+    final savedOnScreenControls = prefs.getBool(_showOnScreenControlsKey);
+    _showOnScreenControls = savedOnScreenControls ?? await _isTelevision();
     _fullscreenBoard = prefs.getBool(_fullscreenBoardKey) ?? false;
     _continueGameEnabled = prefs.getBool(_continueGameKey) ?? true;
     _savedGameJson =
@@ -192,6 +199,17 @@ class SettingsProvider extends ChangeNotifier {
       prefs.getStringList(_controllerBindingsKey),
     );
     notifyListeners();
+  }
+
+  static Future<bool> _detectTelevision() async {
+    if (!Platform.isAndroid) return false;
+    try {
+      return await _deviceChannel.invokeMethod<bool>('isTelevision') ?? false;
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
   }
 
   Map<String, String> _decodeCustomSfxPaths(String? stored) {
