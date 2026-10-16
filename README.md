@@ -1,5 +1,5 @@
 <div align="center">
-<img src="fastlane/metadata/android/en-US/images/icon.png" alt="FitBook app icon" width="112" />
+<img src="docs/readme-icon.png" alt="Block Drop app icon" width="112" />
 <br />
 
 # Block Drop
@@ -26,15 +26,16 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 
 # Screenshots
 
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" style="height: 640px !important;" alt="Light Classic" title="Classic" />
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png" style="height: 640px !important;" alt="Light Modern"  title="Modern"  />
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png" style="height: 640px !important;" alt="Light Bubbles" title="Bubbles" />
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png" style="height: 640px !important;"  alt="Light Retro"   title="Retro"   />
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png" style="height: 640px !important;"  alt="Dark Classic" title="Classic" />
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6_en-US.png" style="height: 640px !important;"  alt="Dark Neon" title="Neon" />
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7_en-US.png" style="height: 640px !important;"  alt="Black Modern" title="Modern" />
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8_en-US.png" style="height: 640px !important;"  alt="Black Retro" title="Retro" />
-
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" width="200" alt="Light Classic" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png" width="200" alt="Light Modern" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png" width="200" alt="Light Bubbles" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png" width="200" alt="Light Retro" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png" width="200" alt="Dark Classic" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6_en-US.png" width="200" alt="Dark Neon" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7_en-US.png" width="200" alt="Black Modern" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8_en-US.png" width="200" alt="Black Retro" />
+</p>
 
 ## How to Play
 
