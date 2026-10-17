@@ -13,7 +13,7 @@ val keyProperties = Properties().also { props ->
 
 android {
     namespace = "com.blockdrop.game"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = "28.2.13676358"
 
     compileOptions {
@@ -80,5 +80,6 @@ flutter {
 }
 
 dependencies {
+    releaseImplementation(project(":patrol"))
     androidTestUtil("androidx.test:orchestrator:1.5.1")
 }

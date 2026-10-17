@@ -90,7 +90,7 @@ jobs:
           flutter precache
 
       - name: Get dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Verify formatting
         run: dart format --set-exit-if-changed lib test
@@ -301,6 +301,8 @@ jobs:
   build-android:
     needs: version-bump
     runs-on: ubuntu-latest
+    env:
+      PUB_CACHE: ${{ github.workspace }}/.pub-cache
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -324,7 +326,7 @@ jobs:
           flutter precache
 
       - name: Get dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Decode Android keystore
         env:
@@ -399,7 +401,7 @@ jobs:
           flutter precache --windows
 
       - name: Get dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Build Windows
         env:
@@ -447,7 +449,7 @@ jobs:
           flutter precache --linux
 
       - name: Get dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Build Linux
         env:
