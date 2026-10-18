@@ -339,7 +339,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ]);
     final showStats = _sectionMatches('Stats', ['High Score']);
     final showInstructions = _sectionMatches('Instructions', ['Controls']);
-    final showAbout = _sectionMatches('About', ['BlockDrop']);
+    final showAbout = _sectionMatches('About', ['BlockDrop', "What's new"]);
     final noSearchResults = _searchQuery.isNotEmpty &&
         !showGame &&
         !showSound &&
@@ -1680,6 +1680,17 @@ class _AboutCard extends StatelessWidget {
             icon: Icons.code,
             label: 'Source Code',
             url: 'https://github.com/brandonp2412/BlockDrop',
+            colorScheme: colorScheme,
+          ),
+          Divider(
+            height: 12,
+            thickness: 1,
+            color: colorScheme.outline.withAlpha(30),
+          ),
+          _LinkRow(
+            icon: Icons.new_releases_outlined,
+            label: "What's new",
+            url: 'https://github.com/brandonp2412/BlockDrop/releases',
             colorScheme: colorScheme,
           ),
           Divider(

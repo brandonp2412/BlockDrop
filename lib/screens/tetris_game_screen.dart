@@ -6,6 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
@@ -13,6 +16,7 @@ import '../game/game_logic.dart';
 import '../game/gameplay_settings.dart';
 import '../l10n/app_localizations.dart';
 import '../settings/settings_provider.dart';
+import '../update_notice.dart';
 import '../settings/controller_bindings.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_decorations.dart';
@@ -98,6 +102,47 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
     WidgetsBinding.instance.addObserver(this);
     widget.settings.addListener(_onSettingsChanged);
     HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showUpdateNotice());
+  }
+
+  Future<void> _showUpdateNotice() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final info = await PackageInfo.fromPlatform();
+      final build = int.tryParse(info.buildNumber);
+      if (build == null) return;
+      const buildKey = 'last_seen_build_number';
+      const noticeKey = 'last_update_notice_ms';
+      final previousBuild = prefs.getInt(buildKey);
+      if (previousBuild == null || build > previousBuild) {
+        await prefs.setInt(buildKey, build);
+      }
+      if (!mounted) return;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (!shouldShowUpdateNotice(
+        previousBuild: previousBuild,
+        currentBuild: build,
+        lastShownAtMs: prefs.getInt(noticeKey),
+        nowMs: now,
+      )) return;
+      await prefs.setInt(noticeKey, now);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text('New version ${info.version}'),
+          action: SnackBarAction(
+            label: context.l10n.text("What's new"),
+            onPressed: () => launchUrl(
+              Uri.parse('https://github.com/brandonp2412/BlockDrop/releases'),
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
+        ),
+      );
+    } catch (error) {
+      debugPrint('Unable to show BlockDrop update notice: $error');
+    }
   }
 
   bool _handleKeyEvent(KeyEvent event) {
