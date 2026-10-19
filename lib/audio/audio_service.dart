@@ -215,7 +215,6 @@ class AudioService {
 
   void _playSfx(
     String name, {
-    SoundEffectPack? packOverride,
     String? bundledAsset,
   }) async {
     if (!sfxEnabled) return;
@@ -226,7 +225,6 @@ class AudioService {
       await player.play(
         _sfxSource(
           name,
-          packOverride: packOverride,
           bundledAsset: bundledAsset,
         ),
       );
@@ -245,7 +243,6 @@ class AudioService {
 
   Source _sfxSource(
     String name, {
-    SoundEffectPack? packOverride,
     String? bundledAsset,
   }) {
     final customPath = customSfxPaths[name];
@@ -257,10 +254,9 @@ class AudioService {
       return AssetSource('audio/sfx/subtle_rotate.$_audioExt');
     }
 
-    final pack = packOverride ??
-        (name == 'clear' || name == 'tetris'
-            ? SoundEffectPack.heavy
-            : SoundEffectPack.wood);
+    final pack = name == 'clear' || name == 'tetris'
+        ? SoundEffectPack.heavy
+        : SoundEffectPack.wood;
     return bundledSfxSource(pack, name);
   }
 
