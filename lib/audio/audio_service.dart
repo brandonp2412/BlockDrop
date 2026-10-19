@@ -279,7 +279,7 @@ class AudioService {
 
   /// Plays a progressively weightier generated cue for one through four lines.
   /// User-selected clear/Tetris files still override the bundled cue.
-  void playClear(int lines, {required int streak}) {
+  void playClear(int lines) {
     final clearCount = lines.clamp(1, 4);
     _playSfx(
       lines >= 4 ? 'tetris' : 'clear',

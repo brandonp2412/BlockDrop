@@ -213,7 +213,7 @@ void main() {
     await service.init();
 
     for (var lines = 1; lines <= 4; lines++) {
-      service.playClear(lines, streak: 1);
+      service.playClear(lines);
       await Future<void>.delayed(Duration.zero);
 
       final slot = lines == 4 ? 'tetris' : 'clear';
