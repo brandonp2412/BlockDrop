@@ -17,6 +17,7 @@ import '../settings/controller_bindings.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/game_decorations.dart';
 import 'multiplayer_discovery_screen.dart';
+import 'whats_new_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final SettingsProvider settings;
@@ -1690,7 +1691,9 @@ class _AboutCard extends StatelessWidget {
           _LinkRow(
             icon: Icons.new_releases_outlined,
             label: "What's new",
-            url: 'https://github.com/brandonp2412/BlockDrop/releases',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const WhatsNewScreen()),
+            ),
             colorScheme: colorScheme,
           ),
           Divider(
@@ -1713,13 +1716,15 @@ class _AboutCard extends StatelessWidget {
 class _LinkRow extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String url;
+  final String? url;
+  final VoidCallback? onTap;
   final ColorScheme colorScheme;
 
   const _LinkRow({
     required this.icon,
     required this.label,
-    required this.url,
+    this.url,
+    this.onTap,
     required this.colorScheme,
   });
 
@@ -1727,8 +1732,11 @@ class _LinkRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       key: Key('settings-link-$label'),
-      onTap: () =>
-          launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+      onTap: onTap ??
+          () => launchUrl(
+                Uri.parse(url!),
+                mode: LaunchMode.externalApplication,
+              ),
       child: Row(
         children: [
           Icon(icon, size: 16, color: colorScheme.primary),
@@ -1743,7 +1751,11 @@ class _LinkRow extends StatelessWidget {
               ),
             ),
           ),
-          Icon(Icons.open_in_new, size: 14, color: colorScheme.primary),
+          Icon(
+            onTap == null ? Icons.open_in_new : Icons.chevron_right,
+            size: 14,
+            color: colorScheme.primary,
+          ),
         ],
       ),
     );

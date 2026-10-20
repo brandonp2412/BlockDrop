@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
@@ -25,6 +24,7 @@ import '../widgets/next_piece_display.dart';
 import '../widgets/on_screen_game_controls.dart';
 import '../widgets/swipe_detector.dart';
 import 'settings_screen.dart';
+import 'whats_new_screen.dart';
 
 class TetrisGameScreen extends StatefulWidget {
   final SettingsProvider settings;
@@ -117,7 +117,7 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
       if (previousBuild == null || build > previousBuild) {
         await prefs.setInt(buildKey, build);
       }
-      if (!mounted) return;
+      if (!mounted || prefs.getBool(showUpdateNoticesKey) == false) return;
       final now = DateTime.now().millisecondsSinceEpoch;
       if (!shouldShowUpdateNotice(
         previousBuild: previousBuild,
@@ -133,9 +133,8 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
           content: Text('New version ${info.version}'),
           action: SnackBarAction(
             label: context.l10n.text("What's new"),
-            onPressed: () => launchUrl(
-              Uri.parse('https://github.com/brandonp2412/BlockDrop/releases'),
-              mode: LaunchMode.externalApplication,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const WhatsNewScreen()),
             ),
           ),
         ),
