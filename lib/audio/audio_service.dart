@@ -120,7 +120,7 @@ class AudioService {
           ),
         );
       }
-      final baseVolume = _sfxVolumes[name] ?? 0.5;
+      final baseVolume = _sfxVolumes[name]!;
       final volume = Platform.isLinux
           ? (baseVolume * 2.5).clamp(0.0, 1.0).toDouble()
           : baseVolume;
