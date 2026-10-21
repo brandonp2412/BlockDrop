@@ -281,7 +281,10 @@ Size boardCellSize({
   );
 }
 
-/// Fixed Hold/Next box dimensions for four board-sized cells plus padding.
+/// Scale of Hold/Next preview cells relative to the board cells.
+const piecePreviewScale = 0.75;
+
+/// Fixed Hold/Next box dimensions for four scaled cells plus padding.
 Size piecePreviewBoxSize(
   Size cellSize,
   AppStyle style, {
@@ -293,7 +296,7 @@ Size piecePreviewBoxSize(
     AppStyle.bubbles || AppStyle.retro => 2.0,
   };
   return Size(
-    cellSize.width * 4 + padding * 2 + borderWidth * 2,
-    cellSize.height * 4 + padding * 2 + borderWidth * 2,
+    cellSize.width * piecePreviewScale * 4 + padding * 2 + borderWidth * 2,
+    cellSize.height * piecePreviewScale * 4 + padding * 2 + borderWidth * 2,
   );
 }

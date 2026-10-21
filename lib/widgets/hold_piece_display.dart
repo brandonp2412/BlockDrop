@@ -24,6 +24,8 @@ class HoldPieceDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cellWidth = this.cellWidth * piecePreviewScale;
+    final cellHeight = this.cellHeight * piecePreviewScale;
     final colorScheme = Theme.of(context).colorScheme;
     final boxDecoration = pieceBoxDecoration(style, colorScheme);
     const previewPadding = 6.0;
@@ -176,8 +178,8 @@ class HoldPieceDisplay extends StatelessWidget {
 
       case AppStyle.bubbles:
         if (displayColor == null) return const SizedBox.shrink();
-        final marginAmount = cellWidth * 0.1;
-        final innerSize = cellWidth - 2 * marginAmount;
+        final marginAmount = cellWidth * piecePreviewScale * 0.1;
+        final innerSize = cellWidth * piecePreviewScale - 2 * marginAmount;
         return Container(
           margin: EdgeInsets.all(marginAmount),
           decoration: BoxDecoration(
