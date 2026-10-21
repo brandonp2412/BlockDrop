@@ -282,7 +282,7 @@ Size boardCellSize({
 }
 
 /// Scale of Hold/Next preview cells relative to the board cells.
-const piecePreviewScale = 0.75;
+const piecePreviewScale = 0.625;
 
 /// Fixed Hold/Next box dimensions for four scaled cells plus padding.
 Size piecePreviewBoxSize(

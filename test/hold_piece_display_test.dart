@@ -14,7 +14,7 @@ void main() {
   );
   const cellWidth = 20.0;
   const cellHeight = 21.0;
-  const boxSize = Size(74, 77);
+  const boxSize = Size(64, 66.5);
 
   Widget buildPreview(
       {required bool isAvailable, Tetromino? piece = heldPiece}) {
@@ -56,7 +56,7 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('hold-piece-border'))),
       boxSize,
     );
-    expect(tester.getSize(find.byType(GridView)), const Size(30, 31.5));
+    expect(tester.getSize(find.byType(GridView)), const Size(25, 26.25));
     expect(
       tester.getCenter(find.byKey(const ValueKey('hold-piece-border'))),
       tester.getCenter(find.byKey(const ValueKey('hold-slot'))),
@@ -79,7 +79,7 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('hold-piece-border'))),
       boxSize,
     );
-    expect(tester.getSize(find.byType(GridView)), const Size(60, 15.75));
+    expect(tester.getSize(find.byType(GridView)), const Size(50, 13.125));
   });
 
   testWidgets('shows the empty hold box before a piece has been held', (

@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const cellWidth = 20.0;
   const cellHeight = 21.0;
-  const boxSize = Size(74, 77);
+  const boxSize = Size(64, 66.5);
 
   Widget buildPreview(Tetromino piece) {
     return MaterialApp(
@@ -43,7 +43,7 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('next-piece-border'))),
       boxSize,
     );
-    expect(tester.getSize(find.byType(GridView)), const Size(30, 31.5));
+    expect(tester.getSize(find.byType(GridView)), const Size(25, 26.25));
     expect(
       tester.getCenter(find.byKey(const ValueKey('next-piece-border'))),
       tester.getCenter(find.byKey(const ValueKey('next-slot'))),
@@ -64,6 +64,6 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('next-piece-border'))),
       boxSize,
     );
-    expect(tester.getSize(find.byType(GridView)), const Size(60, 15.75));
+    expect(tester.getSize(find.byType(GridView)), const Size(50, 13.125));
   });
 }
