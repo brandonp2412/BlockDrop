@@ -7,29 +7,24 @@ import 'game_decorations.dart';
 class NextPieceDisplay extends StatelessWidget {
   final Tetromino piece;
   final AppStyle style;
-  final double cellWidth;
-  final double cellHeight;
+
+  /// Outer size of the square preview, independent of the game board.
+  final double boxSize;
 
   const NextPieceDisplay({
     super.key,
     required this.piece,
     required this.style,
-    required this.cellWidth,
-    required this.cellHeight,
+    required this.boxSize,
   });
 
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final cellWidth = this.cellWidth * piecePreviewScale;
-    final cellHeight = this.cellHeight * piecePreviewScale;
     final colorScheme = Theme.of(context).colorScheme;
     final boxDecoration = pieceBoxDecoration(style, colorScheme);
-    const previewPadding = 6.0;
-    final boxWidth =
-        cellWidth * 4 + previewPadding * 2 + boxDecoration.padding.horizontal;
-    final boxHeight =
-        cellHeight * 4 + previewPadding * 2 + boxDecoration.padding.vertical;
+    final cellWidth = (boxSize - boxDecoration.padding.horizontal) / 4;
+    final cellHeight = (boxSize - boxDecoration.padding.vertical) / 4;
 
     int minRow = piece.shape.length;
     int maxRow = -1;
@@ -48,7 +43,7 @@ class NextPieceDisplay extends StatelessWidget {
     }
 
     if (maxRow < minRow || maxCol < minCol) {
-      return SizedBox(width: boxWidth, height: boxHeight);
+      return SizedBox(width: boxSize, height: boxSize);
     }
 
     final pieceWidth = maxCol - minCol + 1;
@@ -57,9 +52,8 @@ class NextPieceDisplay extends StatelessWidget {
     return Center(
       child: Container(
         key: const ValueKey('next-piece-border'),
-        width: boxWidth,
-        height: boxHeight,
-        padding: const EdgeInsets.all(previewPadding),
+        width: boxSize,
+        height: boxSize,
         decoration: boxDecoration,
         clipBehavior: Clip.antiAlias,
         child: Center(
@@ -85,7 +79,7 @@ class NextPieceDisplay extends StatelessWidget {
                     ? GameConstants.adaptPieceColor(cellColor, brightness)
                     : null;
 
-                return _buildCell(displayColor);
+                return _buildCell(displayColor, cellWidth);
               },
             ),
           ),
@@ -94,7 +88,7 @@ class NextPieceDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildCell(Color? displayColor) {
+  Widget _buildCell(Color? displayColor, double cellWidth) {
     switch (style) {
       case AppStyle.classic:
         if (displayColor == null) return const SizedBox.shrink();
@@ -126,8 +120,8 @@ class NextPieceDisplay extends StatelessWidget {
 
       case AppStyle.bubbles:
         if (displayColor == null) return const SizedBox.shrink();
-        final marginAmount = cellWidth * piecePreviewScale * 0.1;
-        final innerSize = cellWidth * piecePreviewScale - 2 * marginAmount;
+        final marginAmount = cellWidth * 0.1;
+        final innerSize = cellWidth - 2 * marginAmount;
         return Container(
           margin: EdgeInsets.all(marginAmount),
           decoration: BoxDecoration(

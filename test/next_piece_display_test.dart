@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const cellWidth = 20.0;
-  const cellHeight = 21.0;
-  const boxSize = Size(64, 66.5);
+  const boxSize = Size.square(80);
 
   Widget buildPreview(Tetromino piece) {
     return MaterialApp(
@@ -18,8 +16,7 @@ void main() {
           child: NextPieceDisplay(
             piece: piece,
             style: AppStyle.classic,
-            cellWidth: cellWidth,
-            cellHeight: cellHeight,
+            boxSize: boxSize.width,
           ),
         ),
       ),
@@ -27,7 +24,7 @@ void main() {
   }
 
   testWidgets(
-      'keeps smaller preview cells centered in the same fixed box as Hold', (
+      'keeps original preview sizes centered in the same fixed box as Hold', (
     tester,
   ) async {
     const squarePiece = Tetromino(
@@ -43,7 +40,7 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('next-piece-border'))),
       boxSize,
     );
-    expect(tester.getSize(find.byType(GridView)), const Size(25, 26.25));
+    expect(tester.getSize(find.byType(GridView)), const Size(39, 39));
     expect(
       tester.getCenter(find.byKey(const ValueKey('next-piece-border'))),
       tester.getCenter(find.byKey(const ValueKey('next-slot'))),
@@ -64,6 +61,35 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('next-piece-border'))),
       boxSize,
     );
-    expect(tester.getSize(find.byType(GridView)), const Size(50, 13.125));
+    expect(tester.getSize(find.byType(GridView)), const Size(78, 19.5));
   });
+  for (final style in AppStyle.values) {
+    for (final dimension in [58.0, 80.0, 120.0]) {
+      testWidgets('centers odd-width pieces in $dimension boxes with $style',
+          (tester) async {
+        await tester.pumpWidget(MaterialApp(
+          home: Center(
+            child: NextPieceDisplay(
+              piece: const Tetromino(
+                shape: [
+                  [0, 0, 0, 0],
+                  [0, 1, 0, 0],
+                  [1, 1, 1, 0],
+                  [0, 0, 0, 0],
+                ],
+                color: Colors.purple,
+              ),
+              style: style,
+              boxSize: dimension,
+            ),
+          ),
+        ));
+        final border = find.byKey(const ValueKey('next-piece-border'));
+        expect(tester.getSize(border), Size.square(dimension));
+        expect(
+            tester.getCenter(find.byType(GridView)), tester.getCenter(border));
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 }

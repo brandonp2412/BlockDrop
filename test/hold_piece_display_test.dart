@@ -12,9 +12,7 @@ void main() {
     ],
     color: Colors.yellow,
   );
-  const cellWidth = 20.0;
-  const cellHeight = 21.0;
-  const boxSize = Size(64, 66.5);
+  const boxSize = Size.square(80);
 
   Widget buildPreview(
       {required bool isAvailable, Tetromino? piece = heldPiece}) {
@@ -26,8 +24,7 @@ void main() {
           child: HoldPieceDisplay(
             piece: piece,
             style: AppStyle.classic,
-            cellWidth: cellWidth,
-            cellHeight: cellHeight,
+            boxSize: boxSize.width,
             isAvailable: isAvailable,
           ),
         ),
@@ -47,7 +44,7 @@ void main() {
     expect(find.bySemanticsLabel('Held piece available'), findsOneWidget);
   });
 
-  testWidgets('keeps smaller preview cells and centers them in a fixed box', (
+  testWidgets('keeps original preview sizes and centers them in a fixed box', (
     tester,
   ) async {
     await tester.pumpWidget(buildPreview(isAvailable: true));
@@ -56,7 +53,7 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('hold-piece-border'))),
       boxSize,
     );
-    expect(tester.getSize(find.byType(GridView)), const Size(25, 26.25));
+    expect(tester.getSize(find.byType(GridView)), const Size(39, 39));
     expect(
       tester.getCenter(find.byKey(const ValueKey('hold-piece-border'))),
       tester.getCenter(find.byKey(const ValueKey('hold-slot'))),
@@ -79,7 +76,7 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('hold-piece-border'))),
       boxSize,
     );
-    expect(tester.getSize(find.byType(GridView)), const Size(50, 13.125));
+    expect(tester.getSize(find.byType(GridView)), const Size(78, 19.5));
   });
 
   testWidgets('shows the empty hold box before a piece has been held', (
@@ -92,4 +89,33 @@ void main() {
       boxSize,
     );
   });
+  for (final style in AppStyle.values) {
+    for (final dimension in [58.0, 80.0, 120.0]) {
+      testWidgets('centers odd-width pieces in $dimension boxes with $style',
+          (tester) async {
+        await tester.pumpWidget(MaterialApp(
+          home: Center(
+            child: HoldPieceDisplay(
+              piece: const Tetromino(
+                shape: [
+                  [0, 0, 0, 0],
+                  [0, 1, 0, 0],
+                  [1, 1, 1, 0],
+                  [0, 0, 0, 0],
+                ],
+                color: Colors.purple,
+              ),
+              style: style,
+              boxSize: dimension,
+            ),
+          ),
+        ));
+        final border = find.byKey(const ValueKey('hold-piece-border'));
+        expect(tester.getSize(border), Size.square(dimension));
+        expect(
+            tester.getCenter(find.byType(GridView)), tester.getCenter(border));
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 }

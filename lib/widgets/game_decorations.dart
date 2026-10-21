@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../constants/game_constants.dart';
 import '../settings/settings_provider.dart';
 
 /// Refined Classic keeps the original square block language while adding a
@@ -266,37 +265,4 @@ EdgeInsets boardContentPadding(AppStyle style) {
     AppStyle.bubbles || AppStyle.retro => 2.0,
   };
   return EdgeInsets.all(width);
-}
-
-/// Exact cell dimensions used by [GameBoard] inside a decorated board.
-Size boardCellSize({
-  required double boardWidth,
-  required double boardHeight,
-  required AppStyle style,
-}) {
-  final padding = boardContentPadding(style);
-  return Size(
-    (boardWidth - padding.horizontal) / GameConstants.boardWidth,
-    (boardHeight - padding.vertical) / GameConstants.boardHeight,
-  );
-}
-
-/// Scale of Hold/Next preview cells relative to the board cells.
-const piecePreviewScale = 0.625;
-
-/// Fixed Hold/Next box dimensions for four scaled cells plus padding.
-Size piecePreviewBoxSize(
-  Size cellSize,
-  AppStyle style, {
-  double padding = 6,
-}) {
-  final borderWidth = switch (style) {
-    AppStyle.classic || AppStyle.modern => 1.0,
-    AppStyle.neon => 1.5,
-    AppStyle.bubbles || AppStyle.retro => 2.0,
-  };
-  return Size(
-    cellSize.width * piecePreviewScale * 4 + padding * 2 + borderWidth * 2,
-    cellSize.height * piecePreviewScale * 4 + padding * 2 + borderWidth * 2,
-  );
 }

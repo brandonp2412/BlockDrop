@@ -359,39 +359,17 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     final screenH = mq.size.height - mq.padding.top - mq.padding.bottom;
     final availableH = (screenH - kOverhead).clamp(100.0, double.infinity);
 
-    // Reserve enough sidebar width for four cells at the exact board scale.
-    double sidebarW = 72.0 * uiScale;
+    // Reserve space for hold/next sidebar
+    final double sidebarW = 72.0 * uiScale;
     const double sidebarGap = 8.0;
-    double yourBoardW = 100;
-    double yourBoardH = 200;
+    final boardsW = totalW - sidebarW - sidebarGap;
 
-    for (var iteration = 0; iteration < 4; iteration++) {
-      final boardsW = totalW - sidebarW - sidebarGap;
-      final yourBoardWByWidth = boardsW * 0.59;
-      final yourBoardWByHeight = availableH / 2;
-      yourBoardW = yourBoardWByWidth < yourBoardWByHeight
-          ? yourBoardWByWidth
-          : yourBoardWByHeight;
-      yourBoardH = yourBoardW * 2;
-
-      final cellSize = boardCellSize(
-        boardWidth: yourBoardW,
-        boardHeight: yourBoardH,
-        style: widget.settings.style,
-      );
-      final previewWidth =
-          piecePreviewBoxSize(cellSize, widget.settings.style).width;
-      if (previewWidth > sidebarW) sidebarW = previewWidth;
-    }
-
-    final previewCellSize = boardCellSize(
-      boardWidth: yourBoardW,
-      boardHeight: yourBoardH,
-      style: widget.settings.style,
-    );
-    final previewBoxSize =
-        piecePreviewBoxSize(previewCellSize, widget.settings.style);
-    if (previewBoxSize.width > sidebarW) sidebarW = previewBoxSize.width;
+    final yourBoardWByWidth = boardsW * 0.59;
+    final yourBoardWByHeight = availableH / 2;
+    final yourBoardW = yourBoardWByWidth < yourBoardWByHeight
+        ? yourBoardWByWidth
+        : yourBoardWByHeight;
+    final yourBoardH = yourBoardW * 2;
 
     final oppBoardW = yourBoardW * (0.40 / 0.57);
     final oppBoardH = oppBoardW * 2;
@@ -425,8 +403,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       child: HoldPieceDisplay(
                         piece: _gameLogic.heldPiece,
                         style: widget.settings.style,
-                        cellWidth: previewCellSize.width,
-                        cellHeight: previewCellSize.height,
+                        boxSize: sidebarW,
                         isAvailable: _gameLogic.canHold,
                       ),
                     ),
@@ -440,8 +417,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                         ? NextPieceDisplay(
                             piece: _gameLogic.nextPiece!,
                             style: widget.settings.style,
-                            cellWidth: previewCellSize.width,
-                            cellHeight: previewCellSize.height,
+                            boxSize: sidebarW,
                           )
                         : const SizedBox.shrink(),
                   ),
@@ -628,20 +604,11 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     final oppW = totalW * 0.26;
     final oppH = oppW * 2;
 
-    final previewCellSize = boardCellSize(
-      boardWidth: boardW,
-      boardHeight: boardH,
-      style: widget.settings.style,
-    );
-    final previewBoxSize =
-        piecePreviewBoxSize(previewCellSize, widget.settings.style);
-    final overlayBoxSize = previewBoxSize.width > previewBoxSize.height
-        ? previewBoxSize.width
-        : previewBoxSize.height;
     final shortSide = constraints.maxWidth < constraints.maxHeight
         ? constraints.maxWidth
         : constraints.maxHeight;
     final uiScale = (shortSide / 400.0).clamp(1.0, 2.0);
+    final double overlayBoxSize = 58.0 * uiScale;
     final double labelH = 16.0 * uiScale;
 
     return SizedBox(
@@ -708,8 +675,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                 child: HoldPieceDisplay(
                   piece: _gameLogic.heldPiece,
                   style: widget.settings.style,
-                  cellWidth: previewCellSize.width,
-                  cellHeight: previewCellSize.height,
+                  boxSize: overlayBoxSize,
                   isAvailable: _gameLogic.canHold,
                 ),
               ),
@@ -729,8 +695,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                   ? NextPieceDisplay(
                       piece: _gameLogic.nextPiece!,
                       style: widget.settings.style,
-                      cellWidth: previewCellSize.width,
-                      cellHeight: previewCellSize.height,
+                      boxSize: overlayBoxSize,
                     )
                   : const SizedBox.shrink(),
             ),
