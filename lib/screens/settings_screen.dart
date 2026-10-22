@@ -1399,7 +1399,7 @@ class _ActionButton extends StatelessWidget {
         style: TextStyle(color: color, fontSize: 13),
       ),
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         backgroundColor: color.withValues(
           alpha: style == AppStyle.neon ? 0.08 : 0.04,
         ),
