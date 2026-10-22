@@ -413,68 +413,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             showGame) ...[
                           _SectionHeader(
                               label: 'Game', colorScheme: colorScheme),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 8),
-                            child: Row(
+                          _SettingsPanel(
+                            colorScheme: colorScheme,
+                            style: widget.settings.style,
+                            child: Column(
                               children: [
-                                Expanded(
-                                  child: _ActionButton(
-                                    label: 'Resume',
-                                    icon: Icons.play_arrow,
-                                    colorScheme: colorScheme,
-                                    style: widget.settings.style,
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                  ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _ActionButton(
+                                        label: 'Resume',
+                                        icon: Icons.play_arrow,
+                                        colorScheme: colorScheme,
+                                        style: widget.settings.style,
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: _ActionButton(
+                                        label: 'Restart',
+                                        icon: Icons.refresh,
+                                        colorScheme: colorScheme,
+                                        style: widget.settings.style,
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          widget.onRestart?.call();
+                                        },
+                                      ),
+                                    ),
+                                    if (widget.onQuit != null) ...[
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: _ActionButton(
+                                          label: 'Quit',
+                                          icon: Icons.stop,
+                                          colorScheme: colorScheme,
+                                          style: widget.settings.style,
+                                          isDestructive: true,
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            widget.onQuit?.call();
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: _ActionButton(
-                                    label: 'Restart',
-                                    icon: Icons.refresh,
+                                if (widget.onPractice != null) ...[
+                                  const SizedBox(height: 8),
+                                  _ActionButton(
+                                    label: 'Practice Mode',
+                                    icon: Icons.school,
                                     colorScheme: colorScheme,
                                     style: widget.settings.style,
                                     onPressed: () {
                                       Navigator.of(context).pop();
-                                      widget.onRestart?.call();
+                                      widget.onPractice?.call();
                                     },
-                                  ),
-                                ),
-                                if (widget.onQuit != null) ...[
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: _ActionButton(
-                                      label: 'Quit',
-                                      icon: Icons.stop,
-                                      colorScheme: colorScheme,
-                                      style: widget.settings.style,
-                                      isDestructive: true,
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        widget.onQuit?.call();
-                                      },
-                                    ),
                                   ),
                                 ],
                               ],
                             ),
                           ),
-                          if (widget.onPractice != null)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 8),
-                              child: _ActionButton(
-                                label: 'Practice Mode',
-                                icon: Icons.school,
-                                colorScheme: colorScheme,
-                                style: widget.settings.style,
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  widget.onPractice?.call();
-                                },
-                              ),
-                            ),
                         ],
                         if (showSound)
                           _SectionHeader(
@@ -801,29 +803,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               fit: BoxFit.scaleDown,
                               child: SegmentedButton<AppThemeMode>(
                                 style: SegmentedButton.styleFrom(
-                                  shape:
-                                      buttonBorderShape(widget.settings.style),
-                                  side: BorderSide(
-                                    color: colorScheme.primary.withValues(
-                                      alpha:
-                                          widget.settings.style == AppStyle.neon
-                                              ? 0.55
-                                              : 0.3,
-                                    ),
-                                    width:
-                                        widget.settings.style == AppStyle.retro
-                                            ? 2
-                                            : 1,
-                                  ),
                                   selectedBackgroundColor: colorScheme.primary
                                       .withValues(alpha: 0.18),
                                   selectedForegroundColor: colorScheme.primary,
                                   foregroundColor: colorScheme.onSurface,
                                   disabledForegroundColor: colorScheme.onSurface
                                       .withValues(alpha: 0.65),
-                                  backgroundColor: colorScheme
-                                      .surfaceContainerHighest
-                                      .withValues(alpha: 0.35),
                                 ),
                                 segments: [
                                   ButtonSegment(
