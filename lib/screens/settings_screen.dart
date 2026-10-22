@@ -799,52 +799,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _SettingsPanel(
                             colorScheme: colorScheme,
                             style: widget.settings.style,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: SegmentedButton<AppThemeMode>(
-                                style: SegmentedButton.styleFrom(
-                                  selectedBackgroundColor: colorScheme.primary
-                                      .withValues(alpha: 0.18),
-                                  selectedForegroundColor: colorScheme.primary,
-                                  foregroundColor: colorScheme.onSurface,
-                                  disabledForegroundColor: colorScheme.onSurface
-                                      .withValues(alpha: 0.65),
+                            child: Align(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: SegmentedButton<AppThemeMode>(
+                                  style: SegmentedButton.styleFrom(
+                                    selectedBackgroundColor: colorScheme.primary
+                                        .withValues(alpha: 0.18),
+                                    selectedForegroundColor:
+                                        colorScheme.primary,
+                                    foregroundColor: colorScheme.onSurface,
+                                    disabledForegroundColor: colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.65),
+                                  ),
+                                  segments: [
+                                    ButtonSegment(
+                                      value: AppThemeMode.system,
+                                      label: Text(context.l10n.text('System')),
+                                      icon: const Icon(Icons.brightness_auto),
+                                      enabled: widget.settings.style !=
+                                          AppStyle.neon,
+                                    ),
+                                    ButtonSegment(
+                                      value: AppThemeMode.dark,
+                                      label: Text(context.l10n.text('Dark')),
+                                      icon: const Icon(Icons.dark_mode),
+                                    ),
+                                    ButtonSegment(
+                                      value: AppThemeMode.light,
+                                      label: Text(context.l10n.text('Light')),
+                                      icon: const Icon(Icons.light_mode),
+                                      enabled: widget.settings.style !=
+                                          AppStyle.neon,
+                                    ),
+                                  ],
+                                  selected: {
+                                    widget.settings.themeMode ==
+                                            AppThemeMode.black
+                                        ? AppThemeMode.dark
+                                        : widget.settings.themeMode ==
+                                                    AppThemeMode.system ||
+                                                widget.settings.themeMode ==
+                                                    AppThemeMode.light
+                                            ? widget.settings.themeMode
+                                            : AppThemeMode.dark,
+                                  },
+                                  onSelectionChanged: (selection) => widget
+                                      .settings
+                                      .setThemeMode(selection.first),
                                 ),
-                                segments: [
-                                  ButtonSegment(
-                                    value: AppThemeMode.system,
-                                    label: Text(context.l10n.text('System')),
-                                    icon: const Icon(Icons.brightness_auto),
-                                    enabled:
-                                        widget.settings.style != AppStyle.neon,
-                                  ),
-                                  ButtonSegment(
-                                    value: AppThemeMode.dark,
-                                    label: Text(context.l10n.text('Dark')),
-                                    icon: const Icon(Icons.dark_mode),
-                                  ),
-                                  ButtonSegment(
-                                    value: AppThemeMode.light,
-                                    label: Text(context.l10n.text('Light')),
-                                    icon: const Icon(Icons.light_mode),
-                                    enabled:
-                                        widget.settings.style != AppStyle.neon,
-                                  ),
-                                ],
-                                selected: {
-                                  widget.settings.themeMode ==
-                                          AppThemeMode.black
-                                      ? AppThemeMode.dark
-                                      : widget.settings.themeMode ==
-                                                  AppThemeMode.system ||
-                                              widget.settings.themeMode ==
-                                                  AppThemeMode.light
-                                          ? widget.settings.themeMode
-                                          : AppThemeMode.dark,
-                                },
-                                onSelectionChanged: (selection) => widget
-                                    .settings
-                                    .setThemeMode(selection.first),
                               ),
                             ),
                           ),
