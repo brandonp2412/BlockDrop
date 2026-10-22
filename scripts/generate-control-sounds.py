@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate the original, mellow movement and rotation cues (requires ffmpeg)."""
+"""Regenerate the bundled movement cue (requires ffmpeg)."""
 
 import math
 from pathlib import Path
@@ -45,4 +45,3 @@ def generate_cue(name, duration, start_hz, end_hz, amplitude):
 
 if __name__ == '__main__':
     generate_cue('move', 0.070, 330, 260, 0.48)
-    generate_cue('rotate', 0.115, 440, 620, 0.42)

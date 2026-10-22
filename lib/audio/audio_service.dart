@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 
-import 'sfx_pack.dart';
-
 /// Returns the audio file extension supported by the current platform.
 /// Windows Media Foundation doesn't support Ogg Vorbis, so we use MP3 there.
 String get _audioExt => Platform.isWindows ? 'mp3' : 'ogg';
@@ -237,10 +235,6 @@ class AudioService {
       ? AssetSource('audio/music/theme.$_audioExt')
       : DeviceFileSource(customMusicPath!);
 
-  /// Resolves a bundled gameplay effect for [pack] and event [name].
-  static Source bundledSfxSource(SoundEffectPack pack, String name) =>
-      AssetSource('audio/sfx/${pack.name}_$name.$_audioExt');
-
   Source _sfxSource(
     String name, {
     String? bundledAsset,
@@ -250,14 +244,13 @@ class AudioService {
     if (bundledAsset != null) {
       return AssetSource('audio/sfx/$bundledAsset.$_audioExt');
     }
-    if (name == 'rotate') {
-      return AssetSource('audio/sfx/subtle_rotate.$_audioExt');
-    }
-
-    final pack = name == 'clear' || name == 'quad'
-        ? SoundEffectPack.heavy
-        : SoundEffectPack.wood;
-    return bundledSfxSource(pack, name);
+    final bundledName = switch (name) {
+      'rotate' => 'subtle_rotate',
+      'clear' => 'clear_1',
+      'quad' => 'clear_4',
+      _ => 'wood_$name',
+    };
+    return AssetSource('audio/sfx/$bundledName.$_audioExt');
   }
 
   void playMove() {

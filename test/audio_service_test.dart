@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:block_drop/audio/audio_service.dart';
-import 'package:block_drop/audio/sfx_pack.dart';
 
 class MockAudioPlayer extends Mock implements AudioPlayer {}
 
@@ -190,14 +189,6 @@ void main() {
     await stateController.close();
   });
 
-  test('bundled sound source uses the requested pack prefix', () {
-    final source =
-        AudioService.bundledSfxSource(SoundEffectPack.glass, 'clear');
-
-    expect(source, isA<AssetSource>());
-    expect((source as AssetSource).path, startsWith('audio/sfx/glass_clear.'));
-  });
-
   test('Each clear count uses its own generated sound', () async {
     final (mockMusic, stateController) = makeMusicPlayer();
     final sfxPlayers = <MockAudioPlayer>[];
@@ -222,13 +213,19 @@ void main() {
           .captured
           .single as AssetSource;
       expect(source.path, startsWith('audio/sfx/clear_$lines.'));
+      for (final extension in ['ogg', 'mp3']) {
+        expect(
+          File('assets/audio/sfx/clear_$lines.$extension').existsSync(),
+          isTrue,
+        );
+      }
     }
 
     await service.dispose();
     await stateController.close();
   });
 
-  test('Wood stays the base pack while clear sounds start Heavy', () async {
+  test('only reachable bundled effects are preloaded', () async {
     final (mockMusic, stateController) = makeMusicPlayer();
     final sfxPlayers = <MockAudioPlayer>[];
     final service = AudioService(
@@ -247,15 +244,15 @@ void main() {
       final source = verify(() => sfxPlayers[index].setSource(captureAny()))
           .captured
           .single as AssetSource;
-      if (name == 'rotate') {
-        expect(source.path, startsWith('audio/sfx/subtle_rotate.'));
-      } else {
-        final expectedPack =
-            name == 'clear' || name == 'quad' ? 'heavy' : 'wood';
-        expect(
-          source.path,
-          startsWith('audio/sfx/${expectedPack}_$name.'),
-        );
+      final stem = switch (name) {
+        'rotate' => 'subtle_rotate',
+        'clear' => 'clear_1',
+        'quad' => 'clear_4',
+        _ => 'wood_$name',
+      };
+      expect(source.path, startsWith('audio/sfx/$stem.'));
+      for (final extension in ['ogg', 'mp3']) {
+        expect(File('assets/audio/sfx/$stem.$extension').existsSync(), isTrue);
       }
     }
 
