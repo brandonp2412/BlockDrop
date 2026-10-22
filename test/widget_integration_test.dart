@@ -1,5 +1,5 @@
 import 'package:block_drop/main.dart';
-import 'package:block_drop/screens/tetris_game_screen.dart';
+import 'package:block_drop/screens/block_drop_game_screen.dart';
 import 'package:block_drop/settings/settings_provider.dart';
 import 'package:block_drop/widgets/game_board.dart';
 import 'package:block_drop/widgets/hold_piece_display.dart';
@@ -14,7 +14,7 @@ void main() {
     testWidgets('all HUD labels are visible on startup', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
       expect(find.textContaining('Score:'), findsOneWidget);
@@ -27,7 +27,7 @@ void main() {
     testWidgets('settings screen opens with expected options', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
       await tester.tap(find.byIcon(Icons.settings));
@@ -59,7 +59,7 @@ void main() {
       addTearDown(() => SharedPreferences.setMockInitialValues({}));
 
       await tester.pumpWidget(
-        MaterialApp(home: TetrisGameScreen(settings: settings)),
+        MaterialApp(home: BlockDropGameScreen(settings: settings)),
       );
       await tester.pump();
 
@@ -89,7 +89,7 @@ void main() {
       addTearDown(() => SharedPreferences.setMockInitialValues({}));
 
       await tester.pumpWidget(
-        MaterialApp(home: TetrisGameScreen(settings: settings)),
+        MaterialApp(home: BlockDropGameScreen(settings: settings)),
       );
       await tester.pump(const Duration(milliseconds: 250));
 
@@ -108,7 +108,7 @@ void main() {
     testWidgets('Resume button in settings returns to the game', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
       await tester.tap(find.byIcon(Icons.settings));
@@ -127,7 +127,7 @@ void main() {
     testWidgets('tapping the Hold label holds the current piece', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
       // "Hold:" is inside a GestureDetector — tapping it triggers holdPiece()
@@ -151,7 +151,7 @@ void main() {
       addTearDown(() => SharedPreferences.setMockInitialValues({}));
 
       await tester.pumpWidget(
-        MaterialApp(home: TetrisGameScreen(settings: settings)),
+        MaterialApp(home: BlockDropGameScreen(settings: settings)),
       );
       await tester.pump();
 
@@ -186,7 +186,7 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       try {
         await tester.pumpWidget(
-          MaterialApp(home: TetrisGameScreen(settings: settings)),
+          MaterialApp(home: BlockDropGameScreen(settings: settings)),
         );
         await tester.pump();
         final gameLogic =
@@ -210,7 +210,7 @@ void main() {
       final settings = SettingsProvider();
 
       await tester.pumpWidget(
-        MaterialApp(home: TetrisGameScreen(settings: settings)),
+        MaterialApp(home: BlockDropGameScreen(settings: settings)),
       );
       await tester.pump();
       final firstGame =
@@ -226,7 +226,7 @@ void main() {
       final reloadedSettings = SettingsProvider();
       await reloadedSettings.load();
       await tester.pumpWidget(
-        MaterialApp(home: TetrisGameScreen(settings: reloadedSettings)),
+        MaterialApp(home: BlockDropGameScreen(settings: reloadedSettings)),
       );
       await tester.pump();
       final restoredGame =
@@ -240,7 +240,7 @@ void main() {
     testWidgets('short horizontal flick still moves one column', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
       await tester.pump(const Duration(milliseconds: 250));
 
       final gameLogic =
@@ -262,7 +262,7 @@ void main() {
     testWidgets('hold preview availability resets after the piece locks', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
       await tester.tap(find.text('Hold:'));
@@ -286,7 +286,7 @@ void main() {
     testWidgets(
       'downward drag with horizontal drift does not move piece sideways',
       (WidgetTester tester) async {
-        await tester.pumpWidget(const TetrisApp());
+        await tester.pumpWidget(const BlockDropApp());
         // Wait for grace period to expire
         await tester.pump(const Duration(milliseconds: 500));
 
@@ -318,7 +318,7 @@ void main() {
     testWidgets(
       'horizontal drag with slight vertical drift moves piece sideways',
       (WidgetTester tester) async {
-        await tester.pumpWidget(const TetrisApp());
+        await tester.pumpWidget(const BlockDropApp());
         await tester.pump(const Duration(milliseconds: 500));
 
         final gameLogic =
@@ -347,7 +347,7 @@ void main() {
     testWidgets('horizontal drag distance maps directly to board columns', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
       await tester.pump(const Duration(milliseconds: 500));
 
       final gameLogic =

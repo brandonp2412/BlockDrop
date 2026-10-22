@@ -1,1 +1,1 @@
-Klon Tetris moden yang dibina dengan Flutter. Jatuhkan, putar dan kosongkan baris dalam permainan teka-teki klasik ini.
+Permainan teka-teki blok jatuh moden yang dibina dengan Flutter. Jatuhkan, putar dan kosongkan baris dalam permainan teka-teki klasik ini.

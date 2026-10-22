@@ -1,7 +1,7 @@
-Block Drop, Flutter ile geliştirilmiş modern ve sürükleyici bir Tetris klonudur ve klasik bulmaca deneyimine yeni bir dokunuş katar. Bu bağımlılık yapan oyunda parçaları düşürerek, döndürerek ve satırları temizleyerek becerilerinizi sınayın.
+Block Drop, Flutter ile geliştirilmiş modern ve sürükleyici bir düşen blok bulmaca oyunudur ve klasik bulmaca deneyimine yeni bir dokunuş katar. Bu bağımlılık yapan oyunda parçaları düşürerek, döndürerek ve satırları temizleyerek becerilerinizi sınayın.
 
 Özellikler:
-* Klasik Tetris oynanışı
+* Klasik düşen-blok oynanışı
 * Akıcı ve duyarlı kontroller
 * Temiz ve modern kullanıcı arayüzü
 * Parçaları tutma ve değiştirme

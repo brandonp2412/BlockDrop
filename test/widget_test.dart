@@ -11,7 +11,7 @@ void main() {
     });
 
     testWidgets('shows initial HUD stats at zero', (WidgetTester tester) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
 
       expect(find.text('Score: 0'), findsOneWidget);
       expect(find.text('Level: 1'), findsOneWidget);
@@ -23,7 +23,7 @@ void main() {
     testWidgets('does not show game-over UI on startup', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
 
       expect(find.text('Game Over!'), findsNothing);
       expect(find.text('Play Again'), findsNothing);
@@ -32,7 +32,7 @@ void main() {
     testWidgets('HUD remains visible across multiple frame updates', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
 
       for (int i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 100));
@@ -46,7 +46,7 @@ void main() {
     testWidgets('startup does not display a debug banner', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const TetrisApp());
+      await tester.pumpWidget(const BlockDropApp());
 
       expect(find.text('DEBUG'), findsNothing);
     });
@@ -55,7 +55,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final settings = SettingsProvider();
-      await tester.pumpWidget(TetrisApp(settings: settings));
+      await tester.pumpWidget(BlockDropApp(settings: settings));
 
       expect(find.text('Score: 0'), findsOneWidget);
 

@@ -41,7 +41,7 @@ class AudioService {
     'rotate',
     'drop',
     'clear',
-    'tetris',
+    'quad',
     'level_up',
     'hold',
     'game_over',
@@ -52,7 +52,7 @@ class AudioService {
     'rotate': 0.34,
     'drop': 0.42,
     'clear': 0.5,
-    'tetris': 0.62,
+    'quad': 0.62,
     'level_up': 0.3,
     'hold': 0.32,
     'game_over': 0.38,
@@ -254,7 +254,7 @@ class AudioService {
       return AssetSource('audio/sfx/subtle_rotate.$_audioExt');
     }
 
-    final pack = name == 'clear' || name == 'tetris'
+    final pack = name == 'clear' || name == 'quad'
         ? SoundEffectPack.heavy
         : SoundEffectPack.wood;
     return bundledSfxSource(pack, name);
@@ -274,11 +274,11 @@ class AudioService {
   void playDrop() => _playSfx('drop');
 
   /// Plays a progressively weightier generated cue for one through four lines.
-  /// User-selected clear/Tetris files still override the bundled cue.
+  /// User-selected clear/four-line-clear files still override the bundled cue.
   void playClear(int lines) {
     final clearCount = lines.clamp(1, 4);
     _playSfx(
-      lines >= 4 ? 'tetris' : 'clear',
+      lines >= 4 ? 'quad' : 'clear',
       bundledAsset: 'clear_$clearCount',
     );
   }

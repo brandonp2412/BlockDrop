@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 import 'logging.dart';
-import 'screens/tetris_game_screen.dart';
+import 'screens/block_drop_game_screen.dart';
 import 'settings/settings_provider.dart';
 
 Future<void> main() async {
@@ -14,23 +14,23 @@ Future<void> main() async {
       talker.info('Starting Block Drop');
       final settings = SettingsProvider();
       await settings.load();
-      runApp(TetrisApp(settings: settings));
+      runApp(BlockDropApp(settings: settings));
     },
     (error, stackTrace) =>
         talker.handle(error, stackTrace, 'Uncaught zone error'),
   );
 }
 
-class TetrisApp extends StatefulWidget {
+class BlockDropApp extends StatefulWidget {
   final SettingsProvider? settings;
 
-  const TetrisApp({super.key, this.settings});
+  const BlockDropApp({super.key, this.settings});
 
   @override
-  State<TetrisApp> createState() => _TetrisAppState();
+  State<BlockDropApp> createState() => _BlockDropAppState();
 }
 
-class _TetrisAppState extends State<TetrisApp> {
+class _BlockDropAppState extends State<BlockDropApp> {
   late final SettingsProvider _settings;
   late final bool _ownsSettings;
   late final VoidCallback _settingsListener;
@@ -88,7 +88,7 @@ class _TetrisAppState extends State<TetrisApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      onGenerateTitle: (context) => context.l10n.text('Block Drop - Tetris'),
+      onGenerateTitle: (context) => context.l10n.text('Block Drop'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: _settings.locale,
@@ -100,7 +100,7 @@ class _TetrisAppState extends State<TetrisApp> {
           : _settings.flutterThemeMode,
       theme: _lightTheme,
       darkTheme: _settings.isBlackMode ? _blackTheme : _darkTheme,
-      home: TetrisGameScreen(settings: _settings),
+      home: BlockDropGameScreen(settings: _settings),
       debugShowCheckedModeBanner: false,
     );
   }

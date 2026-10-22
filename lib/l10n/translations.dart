@@ -4,7 +4,7 @@
 /// AppLocalizations, so newly introduced copy always remains readable.
 const appTranslations = <String, Map<String, String>>{
   'it': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Impostazioni',
     'Search settings': 'Cerca nelle impostazioni',
     'No settings found': 'Nessuna impostazione trovata',
@@ -140,7 +140,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN SINGOLA',
     'T-SPIN DOUBLE': 'T-SPIN DOPPIA',
     'T-SPIN TRIPLE': 'T-SPIN TRIPLA',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'PARTITA\nFINITA',
     'D-pad left': 'D-pad sinistra',
     'D-pad right': 'D-pad destra',
@@ -156,12 +156,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Impossibile avviare il rilevamento della rete: {error}',
     '{name} disconnected': '{name} si è disconnesso',
-    'Block Drop': 'Block Drop',
     'Controls': 'Comandi',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistema Scuro Chiaro',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Un clone di Tetris gratuito e open source realizzato con Flutter. Lascia cadere e ruota i pezzi e completa le linee in questo classico rompicapo.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Un gioco a blocchi cadenti gratuito e open source realizzato con Flutter. Lascia cadere e ruota i pezzi e completa le linee in questo classico rompicapo.',
     'Bind {action}': 'Associa {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Scegli un livello iniziale. La velocità resta fissa per tutta la sessione.',
@@ -218,7 +217,7 @@ const appTranslations = <String, Map<String, String>>{
         'Impossibile connettersi a {name}. Assicurati che Block Drop sia aperto sul suo dispositivo.',
   },
   'bn': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'সেটিংস',
     'Search settings': 'সেটিংস খুঁজুন',
     'No settings found': 'কোনো সেটিংস পাওয়া যায়নি',
@@ -353,7 +352,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN এক লাইন',
     'T-SPIN DOUBLE': 'T-SPIN দুই লাইন',
     'T-SPIN TRIPLE': 'T-SPIN তিন লাইন',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'খেলা\nশেষ',
     'D-pad left': 'D-pad বাম',
     'D-pad right': 'D-pad ডান',
@@ -369,12 +368,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'নেটওয়ার্ক অনুসন্ধান শুরু করা যায়নি: {error}',
     '{name} disconnected': '{name}-এর সংযোগ বিচ্ছিন্ন হয়েছে',
-    'Block Drop': 'Block Drop',
     'Controls': 'নিয়ন্ত্রণ',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'থিম সিস্টেম ডার্ক লাইট',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Flutter দিয়ে তৈরি একটি বিনামূল্যের ও ওপেন-সোর্স Tetris ক্লোন। এই ক্লাসিক ধাঁধার খেলায় পিস ফেলুন, ঘোরান এবং লাইন পরিষ্কার করুন।',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Flutter দিয়ে তৈরি একটি বিনামূল্যের ও ওপেন-সোর্স পতনশীল ব্লকের ধাঁধা। এই ক্লাসিক ধাঁধার খেলায় পিস ফেলুন, ঘোরান এবং লাইন পরিষ্কার করুন।',
     'Bind {action}': '{action} নির্ধারণ করুন',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'শুরুর লেভেল বেছে নিন। পুরো সেশনে গতি অপরিবর্তিত থাকবে।',
@@ -430,7 +428,7 @@ const appTranslations = <String, Map<String, String>>{
         '{name}-এর সঙ্গে সংযোগ করা যায়নি। তাদের ডিভাইসে Block Drop খোলা আছে কি না নিশ্চিত করুন।',
   },
   'fa': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'تنظیمات',
     'Search settings': 'جستجوی تنظیمات',
     'No settings found': 'هیچ تنظیمی پیدا نشد',
@@ -564,7 +562,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN تک‌خط',
     'T-SPIN DOUBLE': 'T-SPIN دوخط',
     'T-SPIN TRIPLE': 'T-SPIN سه‌خط',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'پایان\nبازی',
     'D-pad left': 'دی‌پد چپ',
     'D-pad right': 'دی‌پد راست',
@@ -580,12 +578,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'شروع شناسایی شبکه ممکن نشد: {error}',
     '{name} disconnected': 'اتصال {name} قطع شد',
-    'Block Drop': 'Block Drop',
     'Controls': 'کنترل‌ها',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'پوسته سیستم تیره روشن',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'یک کلون رایگان و متن‌باز از Tetris که با Flutter ساخته شده است. در این بازی پازلی کلاسیک، قطعه‌ها را رها کنید، بچرخانید و خطوط را پاک کنید.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'یک بازی پازلی رایگان و متن‌باز با بلوک‌های سقوط‌کننده که با Flutter ساخته شده است. در این بازی پازلی کلاسیک، قطعه‌ها را رها کنید، بچرخانید و خطوط را پاک کنید.',
     'Bind {action}': 'اختصاص {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'مرحله شروع را انتخاب کنید. سرعت در طول بازی ثابت می‌ماند.',
@@ -641,7 +638,7 @@ const appTranslations = <String, Map<String, String>>{
         'اتصال به {name} ممکن نشد. مطمئن شوید Block Drop روی دستگاه او باز است.',
   },
   'ur': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'ترتیبات',
     'Search settings': 'ترتیبات تلاش کریں',
     'No settings found': 'کوئی ترتیبات نہیں ملیں',
@@ -777,7 +774,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN سنگل',
     'T-SPIN DOUBLE': 'T-SPIN ڈبل',
     'T-SPIN TRIPLE': 'T-SPIN ٹرپل',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'کھیل\nختم',
     'D-pad left': 'ڈی پیڈ بائیں',
     'D-pad right': 'ڈی پیڈ دائیں',
@@ -793,12 +790,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'نیٹ ورک دریافت شروع نہیں کی جا سکی: {error}',
     '{name} disconnected': '{name} کا رابطہ منقطع ہو گیا',
-    'Block Drop': 'Block Drop',
     'Controls': 'کنٹرولز',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'تھیم سسٹم ڈارک لائٹ',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Flutter سے بنایا گیا ایک مفت اور اوپن سورس Tetris کلون۔ اس کلاسک پزل گیم میں بلاکس گرائیں، گھمائیں اور لائنیں صاف کریں۔',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Flutter سے بنایا گیا ایک مفت اور اوپن سورس گرتے بلاکس کی پہیلی۔ اس کلاسک پزل گیم میں بلاکس گرائیں، گھمائیں اور لائنیں صاف کریں۔',
     'Bind {action}': '{action} بائنڈ کریں',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'ابتدائی لیول منتخب کریں۔ پورے سیشن میں رفتار مقرر رہے گی۔',
@@ -854,7 +850,7 @@ const appTranslations = <String, Map<String, String>>{
         '{name} سے رابطہ نہیں ہو سکا۔ یقینی بنائیں کہ ان کے آلے پر Block Drop کھلا ہے۔',
   },
   'nl': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Instellingen',
     'Search settings': 'Instellingen zoeken',
     'No settings found': 'Geen instellingen gevonden',
@@ -990,7 +986,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN ENKEL',
     'T-SPIN DOUBLE': 'T-SPIN DUBBEL',
     'T-SPIN TRIPLE': 'T-SPIN DRIEVOUDIG',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'SPEL\nVOORBIJ',
     'D-pad left': 'D-pad links',
     'D-pad right': 'D-pad rechts',
@@ -1006,12 +1002,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Kan netwerkdetectie niet starten: {error}',
     '{name} disconnected': '{name} heeft de verbinding verbroken',
-    'Block Drop': 'Block Drop',
     'Controls': 'Bediening',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Thema Systeem Donker Licht',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Een gratis en open-source Tetris-kloon gebouwd met Flutter. Laat stukken vallen, draai ze en wis lijnen in dit klassieke puzzelspel.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Een gratis en open-source vallende-blokkenpuzzel gebouwd met Flutter. Laat stukken vallen, draai ze en wis lijnen in dit klassieke puzzelspel.',
     'Bind {action}': '{action} toewijzen',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Kies een beginniveau. De snelheid blijft tijdens de hele sessie gelijk.',
@@ -1068,7 +1063,7 @@ const appTranslations = <String, Map<String, String>>{
         'Kan geen verbinding maken met {name}. Controleer of Block Drop daar geopend is.',
   },
   'pl': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Ustawienia',
     'Search settings': 'Wyszukaj ustawienia',
     'No settings found': 'Nie znaleziono ustawień',
@@ -1203,7 +1198,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN POJEDYNCZA',
     'T-SPIN DOUBLE': 'T-SPIN PODWÓJNA',
     'T-SPIN TRIPLE': 'T-SPIN POTRÓJNA',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'KONIEC\nGRY',
     'D-pad left': 'Krzyżak w lewo',
     'D-pad right': 'Krzyżak w prawo',
@@ -1219,12 +1214,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Nie udało się rozpocząć wykrywania sieci: {error}',
     '{name} disconnected': '{name} — rozłączono',
-    'Block Drop': 'Block Drop',
     'Controls': 'Sterowanie',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Motyw Systemowy Ciemny Jasny',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Darmowy i otwartoźródłowy klon Tetrisa zbudowany we Flutterze. Upuszczaj, obracaj i usuwaj linie w tej klasycznej grze logicznej.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Darmowa i otwartoźródłowa gra logiczna z opadającymi klockami, stworzona we Flutterze. Upuszczaj, obracaj i usuwaj linie w tej klasycznej grze logicznej.',
     'Bind {action}': 'Przypisz: {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Wybierz poziom początkowy. Prędkość pozostaje stała przez całą sesję.',
@@ -1281,7 +1275,7 @@ const appTranslations = <String, Map<String, String>>{
         'Nie udało się połączyć z {name}. Upewnij się, że aplikacja Block Drop jest tam otwarta.',
   },
   'th': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'การตั้งค่า',
     'Search settings': 'ค้นหาการตั้งค่า',
     'No settings found': 'ไม่พบการตั้งค่า',
@@ -1416,7 +1410,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN หนึ่งแถว',
     'T-SPIN DOUBLE': 'T-SPIN สองแถว',
     'T-SPIN TRIPLE': 'T-SPIN สามแถว',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'จบ\nเกม',
     'D-pad left': 'D-pad ซ้าย',
     'D-pad right': 'D-pad ขวา',
@@ -1432,12 +1426,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'ไม่สามารถเริ่มการค้นหาเครือข่ายได้: {error}',
     '{name} disconnected': '{name} ตัดการเชื่อมต่อแล้ว',
-    'Block Drop': 'Block Drop',
     'Controls': 'การควบคุม',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'ธีม ระบบ มืด สว่าง',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'เกมแนว Tetris ฟรีและโอเพนซอร์สที่สร้างด้วย Flutter ปล่อย หมุน และเคลียร์แถวในเกมพัซเซิลคลาสสิกนี้',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'เกมพัซเซิลบล็อกตก ฟรีและโอเพนซอร์สที่สร้างด้วย Flutter ปล่อย หมุน และเคลียร์แถวในเกมพัซเซิลคลาสสิกนี้',
     'Bind {action}': 'กำหนด {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'เลือกเลเวลเริ่มต้น ความเร็วจะคงที่ตลอดการเล่นรอบนี้',
@@ -1493,7 +1486,7 @@ const appTranslations = <String, Map<String, String>>{
         'ไม่สามารถเชื่อมต่อกับ {name} ได้ ตรวจสอบว่าอีกฝ่ายเปิด Block Drop อยู่',
   },
   'tr': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Ayarlar',
     'Search settings': 'Ayarlarda ara',
     'No settings found': 'Ayar bulunamadı',
@@ -1627,7 +1620,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN TEKLİ',
     'T-SPIN DOUBLE': 'T-SPIN İKİLİ',
     'T-SPIN TRIPLE': 'T-SPIN ÜÇLÜ',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'OYUN\nBİTTİ',
     'D-pad left': 'Yön tuşu sol',
     'D-pad right': 'Yön tuşu sağ',
@@ -1643,12 +1636,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Ağ keşfi başlatılamadı: {error}',
     '{name} disconnected': '{name} bağlantıyı kesti',
-    'Block Drop': 'Block Drop',
     'Controls': 'Kontroller',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistem Koyu Açık',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Flutter ile geliştirilmiş ücretsiz ve açık kaynaklı bir Tetris klonu. Bu klasik bulmaca oyununda parçaları düşürün, döndürün ve satırları temizleyin.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Flutter ile geliştirilmiş ücretsiz ve açık kaynaklı bir düşen blok bulmaca oyunu. Bu klasik bulmaca oyununda parçaları düşürün, döndürün ve satırları temizleyin.',
     'Bind {action}': '{action} ata',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Bir başlangıç seviyesi seçin. Hız oturum boyunca sabit kalır.',
@@ -1706,7 +1698,7 @@ const appTranslations = <String, Map<String, String>>{
         '{name} adlı oyuncuya bağlanılamadı. Block Drop uygulamasının açık olduğundan emin olun.',
   },
   'vi': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Cài đặt',
     'Search settings': 'Tìm kiếm cài đặt',
     'No settings found': 'Không tìm thấy cài đặt',
@@ -1841,7 +1833,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN MỘT HÀNG',
     'T-SPIN DOUBLE': 'T-SPIN HAI HÀNG',
     'T-SPIN TRIPLE': 'T-SPIN BA HÀNG',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'TRÒ CHƠI\nKẾT THÚC',
     'D-pad left': 'D-pad trái',
     'D-pad right': 'D-pad phải',
@@ -1857,12 +1849,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Không thể bắt đầu dò tìm mạng: {error}',
     '{name} disconnected': '{name} đã ngắt kết nối',
-    'Block Drop': 'Block Drop',
     'Controls': 'Điều khiển',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Chủ đề Hệ thống Tối Sáng',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Một bản sao Tetris miễn phí và mã nguồn mở được xây dựng bằng Flutter. Thả, xoay và xóa hàng trong trò chơi xếp hình cổ điển này.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Một trò chơi xếp khối rơi miễn phí và mã nguồn mở được xây dựng bằng Flutter. Thả, xoay và xóa hàng trong trò chơi xếp hình cổ điển này.',
     'Bind {action}': 'Gán {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Chọn cấp bắt đầu. Tốc độ sẽ giữ nguyên trong suốt phiên chơi.',
@@ -1918,7 +1909,7 @@ const appTranslations = <String, Map<String, String>>{
         'Không thể kết nối với {name}. Hãy đảm bảo họ đang mở Block Drop.',
   },
   'id': {
-    'Block Drop - Tetris': "Block Drop - Tetris",
+    'Block Drop': "Block Drop",
     'Settings': "Pengaturan",
     'Search settings': "Cari pengaturan",
     'No settings found': "Tidak ada pengaturan ditemukan",
@@ -2052,7 +2043,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': "T-SPIN TUNGGAL",
     'T-SPIN DOUBLE': "T-SPIN GANDA",
     'T-SPIN TRIPLE': "T-SPIN TRIPEL",
-    'TETRIS!': "TETRIS!",
+    'QUAD!': "QUAD!",
     'GAME\nOVER': "PERMAINAN\\nSELESAI",
     'D-pad left': "D-pad kiri",
     'D-pad right': "D-pad kanan",
@@ -2068,12 +2059,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         "Tidak dapat memulai pencarian jaringan: {error}",
     '{name} disconnected': "{name} terputus",
-    'Block Drop': "Block Drop",
     'Controls': "Kontrol",
     'BlockDrop': "BlockDrop",
     'Theme System Dark Light': "Tema Sistem Gelap Terang",
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        "Klon Tetris gratis dan sumber terbuka yang dibuat dengan Flutter. Jatuhkan, putar, dan hapus baris dalam permainan teka-teki klasik ini.",
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        "Permainan teka-teki blok jatuh gratis dan sumber terbuka yang dibuat dengan Flutter. Jatuhkan, putar, dan hapus baris dalam permainan teka-teki klasik ini.",
     'Bind {action}': "Atur {action}",
     'Choose a starting level. Speed stays fixed throughout the session.':
         "Pilih level awal. Kecepatan tetap sama sepanjang sesi.",
@@ -2129,7 +2119,7 @@ const appTranslations = <String, Map<String, String>>{
         "Tidak dapat terhubung ke {name}. Pastikan Block Drop terbuka di perangkat mereka.",
   },
   'ms': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Tetapan',
     'Search settings': 'Cari tetapan',
     'No settings found': 'Tiada tetapan ditemui',
@@ -2264,7 +2254,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN SATU',
     'T-SPIN DOUBLE': 'T-SPIN DUA',
     'T-SPIN TRIPLE': 'T-SPIN TIGA',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'PERMAINAN\nTAMAT',
     'D-pad left': 'D-pad kiri',
     'D-pad right': 'D-pad kanan',
@@ -2280,12 +2270,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Tidak dapat memulakan penemuan rangkaian: {error}',
     '{name} disconnected': '{name} terputus sambungan',
-    'Block Drop': 'Block Drop',
     'Controls': 'Kawalan',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistem Gelap Cerah',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Klon Tetris percuma dan sumber terbuka yang dibina dengan Flutter. Jatuhkan, putar dan kosongkan baris dalam permainan teka-teki klasik ini.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Permainan teka-teki blok jatuh percuma dan sumber terbuka yang dibina dengan Flutter. Jatuhkan, putar dan kosongkan baris dalam permainan teka-teki klasik ini.',
     'Bind {action}': 'Tetapkan {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Pilih aras permulaan. Kelajuan kekal tetap sepanjang sesi.',
@@ -2342,7 +2331,7 @@ const appTranslations = <String, Map<String, String>>{
         'Tidak dapat menyambung kepada {name}. Pastikan Block Drop dibuka pada peranti mereka.',
   },
   'uk': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Налаштування',
     'Search settings': 'Пошук у налаштуваннях',
     'No settings found': 'Налаштувань не знайдено',
@@ -2476,7 +2465,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN ОДИНАРНИЙ',
     'T-SPIN DOUBLE': 'T-SPIN ПОДВІЙНИЙ',
     'T-SPIN TRIPLE': 'T-SPIN ПОТРІЙНИЙ',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'ГРУ\nЗАВЕРШЕНО',
     'D-pad left': 'D-pad ліворуч',
     'D-pad right': 'D-pad праворуч',
@@ -2492,12 +2481,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Не вдалося почати пошук у мережі: {error}',
     '{name} disconnected': 'З’єднання з {name} розірвано',
-    'Block Drop': 'Block Drop',
     'Controls': 'Керування',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Тема Системна Темна Світла',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Безкоштовний Tetris-клон з відкритим кодом, створений на Flutter. Опускайте й обертайте фігури та очищайте лінії в цій класичній головоломці.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Безкоштовна головоломка з падаючими блоками з відкритим кодом, створена на Flutter. Опускайте й обертайте фігури та очищайте лінії в цій класичній головоломці.',
     'Bind {action}': 'Призначити {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Виберіть початковий рівень. Швидкість залишатиметься незмінною протягом усієї сесії.',
@@ -2554,7 +2542,7 @@ const appTranslations = <String, Map<String, String>>{
         'Не вдалося підключитися до {name}. Переконайтеся, що на їхньому пристрої відкрито Block Drop.',
   },
   'de': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Einstellungen',
     'Search settings': 'Einstellungen durchsuchen',
     'No settings found': 'Keine Einstellungen gefunden',
@@ -2690,7 +2678,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN EINFACH',
     'T-SPIN DOUBLE': 'T-SPIN DOPPELT',
     'T-SPIN TRIPLE': 'T-SPIN DREIFACH',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'SPIEL\nVORBEI',
     'D-pad left': 'Steuerkreuz links',
     'D-pad right': 'Steuerkreuz rechts',
@@ -2706,12 +2694,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Netzwerksuche konnte nicht gestartet werden: {error}',
     '{name} disconnected': '{name} hat die Verbindung getrennt',
-    'Block Drop': 'Block Drop',
     'Controls': 'Steuerung',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Design System Dunkel Hell',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Ein freier und quelloffener Tetris-Klon, entwickelt mit Flutter. Lass Steine fallen, drehe sie und lösche Linien in diesem klassischen Puzzlespiel.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Ein freies und quelloffenes Fallblock-Puzzlespiel, entwickelt mit Flutter. Lass Steine fallen, drehe sie und lösche Linien in diesem klassischen Puzzlespiel.',
     'Bind {action}': '{action} zuweisen',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Wähle ein Startlevel. Die Geschwindigkeit bleibt während der gesamten Runde gleich.',
@@ -2767,7 +2754,7 @@ const appTranslations = <String, Map<String, String>>{
         'Verbindung zu {name} konnte nicht hergestellt werden. Stelle sicher, dass Block Drop geöffnet ist.',
   },
   'es': {
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Ajustes',
     'Search settings': 'Buscar ajustes',
     'No settings found': 'No se encontraron ajustes',
@@ -2901,7 +2888,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN SIMPLE',
     'T-SPIN DOUBLE': 'T-SPIN DOBLE',
     'T-SPIN TRIPLE': 'T-SPIN TRIPLE',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'FIN\nDE PARTIDA',
     'Could not start network discovery: {error}':
         'No se pudo iniciar la búsqueda de red: {error}',
@@ -2917,12 +2904,11 @@ const appTranslations = <String, Map<String, String>>{
     'Select': 'Seleccionar',
     'Left stick': 'Stick izquierdo',
     'Right stick': 'Stick derecho',
-    'Block Drop': 'Block Drop',
     'Controls': 'Controles',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistema Oscuro Claro',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Un clon de Tetris gratuito y de código abierto creado con Flutter. Deja caer piezas, gíralas y elimina líneas en este clásico juego de puzles.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Un juego de bloques que caen gratuito y de código abierto creado con Flutter. Deja caer piezas, gíralas y elimina líneas en este clásico juego de puzles.',
     'Bind {action}': 'Asignar {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Elige un nivel inicial. La velocidad se mantiene fija durante toda la sesión.',
@@ -3112,12 +3098,12 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN SIMPLE',
     'T-SPIN DOUBLE': 'T-SPIN DOUBLE',
     'T-SPIN TRIPLE': 'T-SPIN TRIPLE',
-    'TETRIS!': 'TETRIS !',
+    'QUAD!': 'QUAD !',
     'GAME\nOVER': 'PARTIE\nTERMINÉE',
     'Could not start network discovery: {error}':
         'Impossible de démarrer la découverte du réseau : {error}',
     '{name} disconnected': '{name} s’est déconnecté',
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'D-pad left': 'Croix directionnelle gauche',
     'D-pad right': 'Croix directionnelle droite',
     'D-pad down': 'Croix directionnelle bas',
@@ -3129,12 +3115,11 @@ const appTranslations = <String, Map<String, String>>{
     'Select': 'Sélection',
     'Left stick': 'Stick gauche',
     'Right stick': 'Stick droit',
-    'Block Drop': 'Block Drop',
     'Controls': 'Commandes',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Thème Système Sombre Clair',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Un clone de Tetris gratuit et open source créé avec Flutter. Faites tomber et pivoter les pièces, puis effacez des lignes dans ce jeu de puzzle classique.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Un jeu de puzzle à blocs tombants gratuit et open source créé avec Flutter. Faites tomber et pivoter les pièces, puis effacez des lignes dans ce jeu de puzzle classique.',
     'Bind {action}': 'Associer {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Choisissez un niveau de départ. La vitesse reste fixe pendant toute la session.',
@@ -3319,12 +3304,12 @@ const appTranslations = <String, Map<String, String>>{
     'SINGLE': 'SIMPLES',
     'DOUBLE': 'DUPLA',
     'TRIPLE': 'TRIPLA',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'FIM\nDE JOGO',
     'Could not start network discovery: {error}':
         'Não foi possível iniciar a descoberta de rede: {error}',
     '{name} disconnected': '{name} desconectou',
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'D-pad left': 'Direcional para a esquerda',
     'D-pad right': 'Direcional para a direita',
     'D-pad down': 'Direcional para baixo',
@@ -3340,12 +3325,11 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN SIMPLES',
     'T-SPIN DOUBLE': 'T-SPIN DUPLO',
     'T-SPIN TRIPLE': 'T-SPIN TRIPLO',
-    'Block Drop': 'Block Drop',
     'Controls': 'Controles',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistema Escuro Claro',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Um clone gratuito e de código aberto de Tetris feito com Flutter. Solte e gire peças e elimine linhas neste clássico jogo de quebra-cabeça.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Um jogo gratuito e de código aberto de blocos em queda feito com Flutter. Solte e gire peças e elimine linhas neste clássico jogo de quebra-cabeça.',
     'Bind {action}': 'Atribuir {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Escolha um nível inicial. A velocidade permanece fixa durante toda a sessão.',
@@ -3531,12 +3515,12 @@ const appTranslations = <String, Map<String, String>>{
     'SINGLE': 'SIMPLES',
     'DOUBLE': 'DUPLA',
     'TRIPLE': 'TRIPLA',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'FIM\nDE JOGO',
     'Could not start network discovery: {error}':
         'Não foi possível iniciar a descoberta da rede: {error}',
     '{name} disconnected': '{name} desligou-se',
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'D-pad left': 'D-pad para a esquerda',
     'D-pad right': 'D-pad para a direita',
     'D-pad down': 'D-pad para baixo',
@@ -3552,12 +3536,11 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN SIMPLES',
     'T-SPIN DOUBLE': 'T-SPIN DUPLO',
     'T-SPIN TRIPLE': 'T-SPIN TRIPLO',
-    'Block Drop': 'Block Drop',
     'Controls': 'Controlos',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Tema Sistema Escuro Claro',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Um clone gratuito e de código aberto de Tetris feito com Flutter. Deixa cair e roda peças e elimina linhas neste clássico puzzle.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Um jogo gratuito e de código aberto de blocos em queda feito com Flutter. Deixa cair e roda peças e elimina linhas neste clássico puzzle.',
     'Bind {action}': 'Atribuir {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Escolhe um nível inicial. A velocidade mantém-se fixa durante toda a sessão.',
@@ -3743,12 +3726,12 @@ const appTranslations = <String, Map<String, String>>{
     'SINGLE': 'シングル',
     'DOUBLE': 'ダブル',
     'TRIPLE': 'トリプル',
-    'TETRIS!': 'テトリス！',
+    'QUAD!': '4ライン！',
     'GAME\nOVER': 'ゲーム\nオーバー',
     'Could not start network discovery: {error}':
         'ネットワーク検出を開始できませんでした: {error}',
     '{name} disconnected': '{name} が切断しました',
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'D-pad left': '方向パッド左',
     'D-pad right': '方向パッド右',
     'D-pad down': '方向パッド下',
@@ -3764,12 +3747,11 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN シングル',
     'T-SPIN DOUBLE': 'T-SPIN ダブル',
     'T-SPIN TRIPLE': 'T-SPIN トリプル',
-    'Block Drop': 'Block Drop',
     'Controls': '操作',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'テーマ システム ダーク ライト',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Flutterで作られた無料のオープンソースTetrisクローンです。ピースを落として回転させ、ラインを消すクラシックなパズルゲームです。',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Flutterで作られた無料のオープンソース落ちものパズルゲームです。ピースを落として回転させ、ラインを消すクラシックなパズルゲームです。',
     'Bind {action}': '{action}を割り当て',
     'Choose a starting level. Speed stays fixed throughout the session.':
         '開始レベルを選択してください。セッション中は速度が固定されます。',
@@ -3952,12 +3934,12 @@ const appTranslations = <String, Map<String, String>>{
     'SINGLE': '싱글',
     'DOUBLE': '더블',
     'TRIPLE': '트리플',
-    'TETRIS!': '테트리스!',
+    'QUAD!': '4줄!',
     'GAME\nOVER': '게임\n오버',
     'Could not start network discovery: {error}':
         '네트워크 검색을 시작할 수 없습니다: {error}',
     '{name} disconnected': '{name} 연결 끊김',
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'D-pad left': '방향 패드 왼쪽',
     'D-pad right': '방향 패드 오른쪽',
     'D-pad down': '방향 패드 아래',
@@ -3973,12 +3955,11 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN 싱글',
     'T-SPIN DOUBLE': 'T-SPIN 더블',
     'T-SPIN TRIPLE': 'T-SPIN 트리플',
-    'Block Drop': 'Block Drop',
     'Controls': '조작',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': '테마 시스템 다크 라이트',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Flutter로 만든 무료 오픈 소스 Tetris 클론입니다. 이 클래식 퍼즐 게임에서 블록을 떨어뜨리고 회전해 줄을 지우세요.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Flutter로 만든 무료 오픈 소스 낙하 블록 퍼즐 게임입니다. 이 클래식 퍼즐 게임에서 블록을 떨어뜨리고 회전해 줄을 지우세요.',
     'Bind {action}': '{action} 지정',
     'Choose a starting level. Speed stays fixed throughout the session.':
         '시작 레벨을 선택하세요. 세션 동안 속도는 고정됩니다.',
@@ -4161,11 +4142,11 @@ const appTranslations = <String, Map<String, String>>{
     'SINGLE': '单消',
     'DOUBLE': '双消',
     'TRIPLE': '三消',
-    'TETRIS!': '四消！',
+    'QUAD!': '四消！',
     'GAME\nOVER': '游戏\n结束',
     'Could not start network discovery: {error}': '无法启动网络发现: {error}',
     '{name} disconnected': '{name} 已断开连接',
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'D-pad left': '方向键左',
     'D-pad right': '方向键右',
     'D-pad down': '方向键下',
@@ -4181,12 +4162,11 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN 单消',
     'T-SPIN DOUBLE': 'T-SPIN 双消',
     'T-SPIN TRIPLE': 'T-SPIN 三消',
-    'Block Drop': 'Block Drop',
     'Controls': '控制',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': '主题 系统 深色 浅色',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        '一款使用 Flutter 构建的免费开源 Tetris 克隆游戏。在这款经典益智游戏中落下、旋转方块并消除行。',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        '一款使用 Flutter 构建的免费开源落块益智游戏。在这款经典益智游戏中落下、旋转方块并消除行。',
     'Bind {action}': '绑定{action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         '选择起始等级。整个练习过程中速度保持不变。',
@@ -4366,11 +4346,11 @@ const appTranslations = <String, Map<String, String>>{
     'SINGLE': '單消',
     'DOUBLE': '雙消',
     'TRIPLE': '三消',
-    'TETRIS!': '四消！',
+    'QUAD!': '四消！',
     'GAME\nOVER': '遊戲\n結束',
     'Could not start network discovery: {error}': '無法啓動網絡發現: {error}',
     '{name} disconnected': '{name} 已斷開連接',
-    'Block Drop - Tetris': 'Block Drop - Tetris',
+    'Block Drop': 'Block Drop',
     'D-pad left': '方向鍵左',
     'D-pad right': '方向鍵右',
     'D-pad down': '方向鍵下',
@@ -4386,12 +4366,11 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN 單消',
     'T-SPIN DOUBLE': 'T-SPIN 雙消',
     'T-SPIN TRIPLE': 'T-SPIN 三消',
-    'Block Drop': 'Block Drop',
     'Controls': '控制',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': '主題 系統 深色 淺色',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        '一款使用 Flutter 構建的免費開源 Tetris 克隆遊戲。在這款經典益智遊戲中落下、旋轉方塊並消除行。',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        '一款使用 Flutter 構建的免費開源落塊益智遊戲。在這款經典益智遊戲中落下、旋轉方塊並消除行。',
     'Bind {action}': '綁定{action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         '選擇起始等級。整個練習過程中速度保持不變。',
@@ -4443,7 +4422,7 @@ const appTranslations = <String, Map<String, String>>{
         '無法連接到 {name}。請確保對方已打開 Block Drop。',
   },
   'ru': {
-    'Block Drop - Tetris': 'Block Drop — Tetris',
+    'Block Drop': 'Block Drop',
     'Settings': 'Настройки',
     'Search settings': 'Поиск по настройкам',
     'No settings found': 'Настройки не найдены',
@@ -4578,7 +4557,7 @@ const appTranslations = <String, Map<String, String>>{
     'T-SPIN SINGLE': 'T-SPIN ОДНА',
     'T-SPIN DOUBLE': 'T-SPIN ДВЕ',
     'T-SPIN TRIPLE': 'T-SPIN ТРИ',
-    'TETRIS!': 'TETRIS!',
+    'QUAD!': 'QUAD!',
     'GAME\nOVER': 'ИГРА\nОКОНЧЕНА',
     'D-pad left': 'Крестовина влево',
     'D-pad right': 'Крестовина вправо',
@@ -4594,12 +4573,11 @@ const appTranslations = <String, Map<String, String>>{
     'Could not start network discovery: {error}':
         'Не удалось начать поиск в сети: {error}',
     '{name} disconnected': '{name} отключился',
-    'Block Drop': 'Block Drop',
     'Controls': 'Управление',
     'BlockDrop': 'BlockDrop',
     'Theme System Dark Light': 'Тема Системная Тёмная Светлая',
-    'A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
-        'Бесплатный Tetris-клон с открытым исходным кодом на Flutter. Роняйте и поворачивайте фигуры, очищайте линии в этой классической головоломке.',
+    'A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.':
+        'Бесплатная головоломка с падающими блоками с открытым исходным кодом на Flutter. Роняйте и поворачивайте фигуры, очищайте линии в этой классической головоломке.',
     'Bind {action}': 'Назначить: {action}',
     'Choose a starting level. Speed stays fixed throughout the session.':
         'Выберите начальный уровень. Скорость не меняется в течение игры.',
@@ -4656,7 +4634,7 @@ const appTranslations = <String, Map<String, String>>{
         'Не удалось подключиться к {name}. Убедитесь, что у него открыт Block Drop.',
   },
   'hi': {
-    "Block Drop - Tetris": "Block Drop — Tetris",
+    "Block Drop": "Block Drop",
     "Settings": "सेटिंग्स",
     "Search settings": "सेटिंग्स खोजें",
     "No settings found": "कोई सेटिंग नहीं मिली",
@@ -4791,7 +4769,7 @@ const appTranslations = <String, Map<String, String>>{
     "T-SPIN SINGLE": "T-SPIN सिंगल",
     "T-SPIN DOUBLE": "T-SPIN डबल",
     "T-SPIN TRIPLE": "T-SPIN ट्रिपल",
-    "TETRIS!": "TETRIS!",
+    "QUAD!": "QUAD!",
     "GAME\nOVER": "गेम\nखत्म",
     "D-pad left": "D-pad बाएँ",
     "D-pad right": "D-pad दाएँ",
@@ -4807,12 +4785,11 @@ const appTranslations = <String, Map<String, String>>{
     "Could not start network discovery: {error}":
         "नेटवर्क खोज शुरू नहीं हो सकी: {error}",
     "{name} disconnected": "{name} डिस्कनेक्ट हो गया",
-    "Block Drop": "Block Drop",
     "Controls": "नियंत्रण",
     "BlockDrop": "BlockDrop",
     "Theme System Dark Light": "थीम सिस्टम डार्क लाइट",
-    "A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.":
-        "Flutter से बना एक मुफ़्त और ओपन-सोर्स Tetris क्लोन। इस क्लासिक पहेली गेम में पीस गिराएँ, घुमाएँ और लाइनें साफ़ करें।",
+    "A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.":
+        "Flutter से बना एक मुफ़्त और ओपन-सोर्स गिरते ब्लॉकों का पहेली गेम। इस क्लासिक पहेली गेम में पीस गिराएँ, घुमाएँ और लाइनें साफ़ करें।",
     "Bind {action}": "{action} असाइन करें",
     "Choose a starting level. Speed stays fixed throughout the session.":
         "शुरुआती स्तर चुनें। पूरे सत्र में गति स्थिर रहती है।",
@@ -4869,7 +4846,7 @@ const appTranslations = <String, Map<String, String>>{
         "{name} से कनेक्ट नहीं हो सका। सुनिश्चित करें कि उनके डिवाइस पर Block Drop खुला है।",
   },
   'ar': {
-    "Block Drop - Tetris": "Block Drop - Tetris",
+    "Block Drop": "Block Drop",
     "Settings": "الإعدادات",
     "Search settings": "البحث في الإعدادات",
     "No settings found": "لم يتم العثور على إعدادات",
@@ -5003,7 +4980,7 @@ const appTranslations = <String, Map<String, String>>{
     "T-SPIN SINGLE": "T-SPIN فردي",
     "T-SPIN DOUBLE": "T-SPIN مزدوج",
     "T-SPIN TRIPLE": "T-SPIN ثلاثي",
-    "TETRIS!": "TETRIS!",
+    "QUAD!": "QUAD!",
     "GAME\nOVER": "انتهت\nاللعبة",
     "D-pad left": "D-pad يسار",
     "D-pad right": "D-pad يمين",
@@ -5019,12 +4996,11 @@ const appTranslations = <String, Map<String, String>>{
     "Could not start network discovery: {error}":
         "تعذّر بدء اكتشاف الشبكة: {error}",
     "{name} disconnected": "انقطع اتصال {name}",
-    "Block Drop": "Block Drop",
     "Controls": "عناصر التحكم",
     "BlockDrop": "BlockDrop",
     "Theme System Dark Light": "السمة النظام داكن فاتح",
-    "A free and open-source Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.":
-        "نسخة مجانية ومفتوحة المصدر من Tetris مبنية باستخدام Flutter. أسقط القطع ودوّرها وأكمل الخطوط في لعبة الألغاز الكلاسيكية هذه.",
+    "A free and open-source falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.":
+        "لعبة ألغاز كتل متساقطة مجانية ومفتوحة المصدر مبنية باستخدام Flutter. أسقط القطع ودوّرها وأكمل الخطوط في لعبة الألغاز الكلاسيكية هذه.",
     "Bind {action}": "تعيين {action}",
     "Choose a starting level. Speed stays fixed throughout the session.":
         "اختر مستوى بدء. تبقى السرعة ثابتة طوال الجلسة.",

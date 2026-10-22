@@ -26,16 +26,16 @@ import '../widgets/swipe_detector.dart';
 import 'settings_screen.dart';
 import 'whats_new_screen.dart';
 
-class TetrisGameScreen extends StatefulWidget {
+class BlockDropGameScreen extends StatefulWidget {
   final SettingsProvider settings;
 
-  const TetrisGameScreen({super.key, required this.settings});
+  const BlockDropGameScreen({super.key, required this.settings});
 
   @override
-  State<TetrisGameScreen> createState() => _TetrisGameScreenState();
+  State<BlockDropGameScreen> createState() => _BlockDropGameScreenState();
 }
 
-class _TetrisGameScreenState extends State<TetrisGameScreen>
+class _BlockDropGameScreenState extends State<BlockDropGameScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   late GameLogic gameLogic;
   late AudioService _audioService;
@@ -870,10 +870,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                                                 'T-SPIN',
                                               )
                                                   ? Colors.purple[200]
-                                                  : (_popupLabel == 'TETRIS!'
+                                                  : (_popupLabel == 'QUAD!'
                                                       ? Colors.amber
                                                       : Colors.white),
-                                              fontSize: _popupLabel == 'TETRIS!'
+                                              fontSize: _popupLabel == 'QUAD!'
                                                   ? 26
                                                   : 20,
                                               fontWeight: FontWeight.bold,
@@ -1266,10 +1266,10 @@ class _TetrisGameScreenState extends State<TetrisGameScreen>
                           style: TextStyle(
                             color: _popupLabel.startsWith('T-SPIN')
                                 ? Colors.purple[200]
-                                : (_popupLabel == 'TETRIS!'
+                                : (_popupLabel == 'QUAD!'
                                     ? Colors.amber
                                     : Colors.white),
-                            fontSize: _popupLabel == 'TETRIS!' ? 26 : 20,
+                            fontSize: _popupLabel == 'QUAD!' ? 26 : 20,
                             fontWeight: FontWeight.bold,
                             shadows: const [
                               Shadow(blurRadius: 8, color: Colors.black),

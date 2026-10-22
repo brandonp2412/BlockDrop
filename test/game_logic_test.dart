@@ -632,7 +632,7 @@ void main() {
     });
 
     test(
-      'should award full TETRIS bonus for clearing 4 lines at once',
+      'should award full QUAD bonus for clearing 4 lines at once',
       () async {
         gameLogic.startGame();
 
@@ -649,7 +649,7 @@ void main() {
 
         expect(gameLogic.score, GameConstants.lineClearScores[4] * 1); // 800
         expect(gameLogic.linesCleared, 4);
-        expect(gameLogic.clearBonusLabel, 'TETRIS!');
+        expect(gameLogic.clearBonusLabel, 'QUAD!');
       },
     );
 

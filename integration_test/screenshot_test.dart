@@ -12,7 +12,7 @@
 // the fastlane directory structure.
 
 import 'package:block_drop/main.dart' as app;
-import 'package:block_drop/screens/tetris_game_screen.dart';
+import 'package:block_drop/screens/block_drop_game_screen.dart';
 import 'package:block_drop/settings/settings_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -43,7 +43,7 @@ void main() {
 
       // Grab the SettingsProvider from the live widget tree.
       final settings = tester
-          .widget<TetrisGameScreen>(find.byType(TetrisGameScreen))
+          .widget<BlockDropGameScreen>(find.byType(BlockDropGameScreen))
           .settings;
 
       // Required on Android before any call to takeScreenshot().

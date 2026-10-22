@@ -4,7 +4,7 @@
 
 # Block Drop
 
-A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.
+A modern falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.
 
 <p float="left">
     <a href="https://github.com/brandonp2412/BlockDrop/releases/latest"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/brandonp2412/blockdrop?style=for-the-badge&logoColor=00f0f0&labelColor=1a1a2e&color=0e7490"></a>
@@ -16,7 +16,7 @@ A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this 
 
 ## Features
 
-- Classic Tetris gameplay with all 7 tetromino pieces
+- Classic falling-block gameplay with all 7 tetromino pieces
 - Smooth piece rotation and movement
 - Line clearing with score tracking
 - Hold piece functionality
@@ -78,6 +78,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Inspired by the classic Tetris game
+- Inspired by the classic falling-block puzzle game
 - Built with Flutter framework
 - Icons and assets created specifically for Block Drop

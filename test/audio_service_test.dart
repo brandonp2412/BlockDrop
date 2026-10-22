@@ -216,7 +216,7 @@ void main() {
       service.playClear(lines);
       await Future<void>.delayed(Duration.zero);
 
-      final slot = lines == 4 ? 'tetris' : 'clear';
+      final slot = lines == 4 ? 'quad' : 'clear';
       final playerIndex = AudioService.sfxNames.indexOf(slot);
       final source = verify(() => sfxPlayers[playerIndex].play(captureAny()))
           .captured
@@ -251,7 +251,7 @@ void main() {
         expect(source.path, startsWith('audio/sfx/subtle_rotate.'));
       } else {
         final expectedPack =
-            name == 'clear' || name == 'tetris' ? 'heavy' : 'wood';
+            name == 'clear' || name == 'quad' ? 'heavy' : 'wood';
         expect(
           source.path,
           startsWith('audio/sfx/${expectedPack}_$name.'),

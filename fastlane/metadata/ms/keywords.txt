@@ -1,1 +1,1 @@
-permainan,teka-teki,blok,tetris,arkade
+permainan,teka-teki,blok,blok-jatuh,arkade

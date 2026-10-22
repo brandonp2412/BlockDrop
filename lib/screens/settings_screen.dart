@@ -1659,7 +1659,7 @@ class _AboutCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             context.l10n.text(
-              'A free and open-source Tetris clone built with Flutter. '
+              'A free and open-source falling-block puzzle game built with Flutter. '
               'Drop, rotate, and clear lines in this classic puzzle game.',
             ),
             style: TextStyle(

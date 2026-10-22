@@ -46,7 +46,7 @@ void main() {
     expect(appTranslations.keys.toSet(), supportedLanguages);
 
     final referenceKeys = appTranslations['de']!.keys.toSet();
-    expect(referenceKeys, hasLength(192));
+    expect(referenceKeys, hasLength(191));
 
     for (final entry in appTranslations.entries) {
       expect(

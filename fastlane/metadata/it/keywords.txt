@@ -1,1 +1,1 @@
-gioco,puzzle,blocchi,offline,Tetris
+gioco,puzzle,blocchi,offline,blocchi-cadenti

@@ -1,1 +1,1 @@
-A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.
+A modern falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.

@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#16213e",
-  "description": "Block Drop - A modern Tetris clone built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.",
+  "description": "Block Drop - A modern falling-block puzzle game built with Flutter. Drop, rotate, and clear lines in this classic puzzle game.",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

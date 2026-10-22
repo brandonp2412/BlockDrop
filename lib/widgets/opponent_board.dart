@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 
-/// A compact, read-only rendering of an opponent's Tetris board.
+/// A compact, read-only rendering of an opponent's falling-block board.
 ///
 /// [cells] is a flat list of 200 palette indices (20 rows × 10 cols, row-major).
 /// Index 0 = empty, 1–7 = the seven standard piece colours, 8 = garbage.
@@ -56,7 +56,7 @@ class OpponentBoard extends StatelessWidget {
 class _OpponentBoardPainter extends CustomPainter {
   final List<int> cells;
 
-  // Palette matches the standard Tetris piece colours.
+  // Palette matches the standard piece colours.
   // Index 0 is transparent (empty cell).
   static const List<Color> _palette = [
     Color(0x00000000), // 0 – empty

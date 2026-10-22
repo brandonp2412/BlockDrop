@@ -9,7 +9,7 @@ const _uiTimeout = Duration(seconds: 15);
 void main() {
   patrolTest('settings can be changed before resuming the game', ($) async {
     final settings = SettingsProvider();
-    await $.pumpWidgetAndSettle(app.TetrisApp(settings: settings));
+    await $.pumpWidgetAndSettle(app.BlockDropApp(settings: settings));
 
     await $(Icons.settings).waitUntilVisible(timeout: _uiTimeout).tap();
     await $('Settings').waitUntilVisible(timeout: _uiTimeout);

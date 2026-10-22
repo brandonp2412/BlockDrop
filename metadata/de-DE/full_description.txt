@@ -1,7 +1,7 @@
-Block Drop ist ein moderner und unterhaltsamer Tetris-Klon, der mit Flutter entwickelt wurde und das klassische Puzzle-Erlebnis mit einem frischen Ansatz verbindet. Stelle dein Können unter Beweis, indem du Teile fallen lässt, drehst und Reihen vervollständigst.
+Block Drop ist ein modernes und unterhaltsames Fallblock-Puzzlespiel, das mit Flutter entwickelt wurde und das klassische Puzzle-Erlebnis mit einem frischen Ansatz verbindet. Stelle dein Können unter Beweis, indem du Teile fallen lässt, drehst und Reihen vervollständigst.
 
 Funktionen:
-* Klassisches Tetris-Spielprinzip
+* Klassisches Fallblock-Spielprinzip
 * Flüssige und reaktionsschnelle Steuerung
 * Klare und moderne Benutzeroberfläche
 * Teile halten und tauschen

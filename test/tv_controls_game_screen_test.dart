@@ -1,4 +1,4 @@
-import 'package:block_drop/screens/tetris_game_screen.dart';
+import 'package:block_drop/screens/block_drop_game_screen.dart';
 import 'package:block_drop/settings/settings_provider.dart';
 import 'package:block_drop/widgets/game_board.dart';
 import 'package:block_drop/widgets/on_screen_game_controls.dart';
@@ -22,7 +22,7 @@ void main() {
       await settings.load();
       expect(settings.showOnScreenControls, isTrue);
       await tester.pumpWidget(
-        MaterialApp(home: TetrisGameScreen(settings: settings)),
+        MaterialApp(home: BlockDropGameScreen(settings: settings)),
       );
       await tester.pump(const Duration(milliseconds: 250));
 
@@ -74,7 +74,7 @@ void main() {
     final settings = SettingsProvider(isTelevision: () async => true);
     await settings.load();
     await tester.pumpWidget(
-      MaterialApp(home: TetrisGameScreen(settings: settings)),
+      MaterialApp(home: BlockDropGameScreen(settings: settings)),
     );
     await tester.pump();
     expect(find.byType(OnScreenGameControls), findsNothing);

@@ -15,14 +15,14 @@ class GameConstants {
   /// Maximum grounded actions that can postpone one piece's lock.
   static const int maxLockDelayResets = 15;
 
-  // Standard Tetris guideline line-clear scores (multiplied by level)
+  // Standard falling-block game line-clear scores (multiplied by level)
   static const List<int> lineClearScores = [0, 100, 300, 500, 800];
   static const List<String> lineClearLabels = [
     '',
     'SINGLE',
     'DOUBLE',
     'TRIPLE',
-    'TETRIS!'
+    'QUAD!'
   ];
 
   // T-Spin scores for 0–3 lines (multiplied by level)

@@ -1,1 +1,1 @@
-permainan,teka-teki,balok,tetris,offline
+permainan,teka-teki,balok,balok-jatuh,offline

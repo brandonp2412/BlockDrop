@@ -488,7 +488,7 @@ class GameLogic extends ChangeNotifier {
       );
     }
 
-    // Calculate score using Tetris guideline multipliers
+    // Calculate score using falling-block game multipliers
     int delta;
     String label;
     if (wasTSpin) {
@@ -690,7 +690,7 @@ class GameLogic extends ChangeNotifier {
     final fixedOriginX = currentX - oldTrim.$1;
     final fixedOriginY = currentY - oldTrim.$2;
 
-    // SRS kick data: https://tetris.wiki/Super_Rotation_System
+    // SRS kick data: https://harddrop.com/wiki/SRS
     for (final kick in _wallKicks(piece, currentRotation, nextRotation)) {
       final testX = fixedOriginX + newTrim.$1 + kick.$1;
       final testY = fixedOriginY + newTrim.$2 - kick.$2;
