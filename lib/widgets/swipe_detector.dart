@@ -59,11 +59,8 @@ class _SwipeDetectorState extends State<SwipeDetector> {
           return;
         }
 
-        // The first update after a pan starts is seeded from the absolute
-        // pointer position because the start event's movement may not be
-        // delivered as an update. After that we accumulate relative deltas so a
-        // second finger touching down (e.g. on the on-screen buttons) cannot
-        // make localPosition jump and move the piece across the board.
+        // Prevents pieces teleporting when you tap different game board buttons
+        // with two different fingers.
         if (!_dxSeeded) {
           _totalDx = details.localPosition.dx - _pointerDownX - _consumedDx;
           _dxSeeded = true;
