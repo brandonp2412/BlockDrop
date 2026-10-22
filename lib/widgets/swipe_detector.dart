@@ -30,6 +30,7 @@ class _SwipeDetectorState extends State<SwipeDetector> {
   bool _lockedHorizontal = false;
   double _pointerDownX = 0.0;
   double _consumedDx = 0.0;
+  bool _dxSeeded = false;
   int _horizontalMovesThisGesture = 0;
   static const Duration _moveDelay = Duration(milliseconds: 150);
   static const double _lockThreshold = 10.0;
@@ -45,6 +46,7 @@ class _SwipeDetectorState extends State<SwipeDetector> {
         _totalDx = 0.0;
         _totalDy = 0.0;
         _consumedDx = 0.0;
+        _dxSeeded = false;
         _horizontalMovesThisGesture = 0;
         _directionLocked = false;
         _lockedHorizontal = false;
@@ -57,7 +59,17 @@ class _SwipeDetectorState extends State<SwipeDetector> {
           return;
         }
 
-        _totalDx = details.localPosition.dx - _pointerDownX - _consumedDx;
+        // The first update after a pan starts is seeded from the absolute
+        // pointer position because the start event's movement may not be
+        // delivered as an update. After that we accumulate relative deltas so a
+        // second finger touching down (e.g. on the on-screen buttons) cannot
+        // make localPosition jump and move the piece across the board.
+        if (!_dxSeeded) {
+          _totalDx = details.localPosition.dx - _pointerDownX - _consumedDx;
+          _dxSeeded = true;
+        } else {
+          _totalDx += details.delta.dx;
+        }
         _totalDy += details.delta.dy;
 
         final now = DateTime.now();
