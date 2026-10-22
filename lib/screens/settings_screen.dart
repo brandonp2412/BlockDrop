@@ -413,9 +413,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             showGame) ...[
                           _SectionHeader(
                               label: 'Game', colorScheme: colorScheme),
-                          _SettingsPanel(
-                            colorScheme: colorScheme,
-                            style: widget.settings.style,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
                             child: Row(
                               children: [
                                 Expanded(
@@ -461,9 +461,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                           if (widget.onPractice != null)
-                            _SettingsPanel(
-                              colorScheme: colorScheme,
-                              style: widget.settings.style,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
                               child: _ActionButton(
                                 label: 'Practice Mode',
                                 icon: Icons.school,
