@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - "pubspec.yaml"
   # GitHub cron cannot express a true fortnightly interval. Run weekly,
-  # then release only when the previous published release is at least 14 days old.
+  # then release when the previous publication was at least two UTC weeks ago.
   schedule:
     - cron: "0 2 * * 1"
   workflow_dispatch:
@@ -62,8 +62,12 @@ jobs:
 
           published_epoch="$(date -u -d "$published_at" +%s)"
           now_epoch="$(date -u +%s)"
-          if (( now_epoch - published_epoch < 1209600 )); then
-            echo "Latest release is less than 14 days old; skipping scheduled release."
+          # Unix epoch was a Thursday; offset to Monday-based UTC calendar weeks
+          # so build duration cannot postpone the next release by another week.
+          published_week=$(( (published_epoch + 259200) / 604800 ))
+          current_week=$(( (now_epoch + 259200) / 604800 ))
+          if (( current_week - published_week < 2 )); then
+            echo "Latest release was less than two UTC weeks ago; skipping scheduled release."
             echo "should_release=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
