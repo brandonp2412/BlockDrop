@@ -57,6 +57,10 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
   mocktail: ^1.0.0
+  msix:
+    git:
+      url: https://github.com/insertjokehere/msix.git
+      ref: msvc_redist
 
 patrol:
   app_name: Block Drop
@@ -117,3 +121,14 @@ flutter_launcher_icons:
   windows:
     generate: true
     image_path: "assets/icon_drop.png"
+
+msix_config:
+  msstore_appId: 9N0RZL5X6MDK
+  display_name: BlockDrop
+  publisher_display_name: Brandon Dick
+  identity_name: FrisbeeSoftware.BlockDrop
+  msix_version: 1.0.70.0
+  logo_path: assets/icon_drop.png
+  trim_logo: false
+  publisher: CN=BB0811CB-EED5-441C-BE1B-D31F391F76DE
+  store: true

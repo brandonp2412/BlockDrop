@@ -1,0 +1,50 @@
+name: Build Windows Store package
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit or branch to package
+        required: false
+        type: string
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  build-msix:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ inputs.ref }}
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Setup Flutter
+        shell: pwsh
+        run: |
+          git submodule update --init --recursive flutter
+          "$env:GITHUB_WORKSPACE\flutter\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          flutter\bin\flutter config --no-analytics
+
+      - name: Restore dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Build MSIX
+        run: dart run msix:create
+
+      - name: Verify package
+        shell: pwsh
+        run: |
+          $packages = @(Get-ChildItem build/windows/x64/runner/Release -Recurse -File -Filter '*.msix')
+          if ($packages.Count -ne 1) { throw "Expected one MSIX, found $($packages.Count)" }
+          Write-Host "MSIX: $($packages[0].Name) ($($packages[0].Length) bytes)"
+
+      - name: Upload MSIX
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: blockdrop-store-msix
+          path: build/windows/x64/runner/Release/*.msix
+          if-no-files-found: error

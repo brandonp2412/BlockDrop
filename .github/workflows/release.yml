@@ -281,6 +281,7 @@ jobs:
           echo "build_number=$NEW_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
           echo "New version: $NEW_VERSION+$NEW_BUILD_NUMBER"
           sed -i "s/^version: .*/version: $NEW_VERSION+$NEW_BUILD_NUMBER/" pubspec.yaml
+          sed -i "s/^  msix_version: .*/  msix_version: $NEW_VERSION.0/" pubspec.yaml
 
       - name: Commit and push version bump
         env:
