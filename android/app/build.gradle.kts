@@ -6,7 +6,9 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val keyPropertiesFile = rootProject.file("key.properties")
+val keyPropertiesFile = rootProject.file(
+    providers.gradleProperty("androidSigningProperties").getOrElse("key.properties")
+)
 val keyProperties = Properties().also { props ->
     if (keyPropertiesFile.exists()) props.load(FileInputStream(keyPropertiesFile))
 }
@@ -28,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.blockdrop.game"
+        applicationId = "com.presley.blockdrop"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

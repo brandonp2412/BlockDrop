@@ -1,5 +1,9 @@
 # Google Play release investigation — 30 October 2026
 
+This records the state before the package correction. See
+[Google Play release](google-play-release.md) for the corrected package and
+the manual production release procedure.
+
 The repository currently publishes GitHub releases but has no Google Play
 upload path. Its Android application ID also differs from the existing Play app.
 These are confirmed gaps; no failed Play upload or Google rejection was found
