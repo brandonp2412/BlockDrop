@@ -1,0 +1,70 @@
+name: Deploy to Google Play
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: GitHub release tag to publish (for example v1.0.72)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-google-play
+  cancel-in-progress: false
+
+jobs:
+  publish-google-play:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.release_tag }}
+          persist-credentials: false
+
+      - name: Download App Bundle from GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern app-release.aab --dir android-aab
+
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Configure Google Play credentials
+        env:
+          GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
+        run: |
+          test -n "$GOOGLE_PLAY_JSON_KEY"
+          umask 077
+          printf '%s' "$GOOGLE_PLAY_JSON_KEY" > "$RUNNER_TEMP/googlePlay.json"
+
+      - name: Verify App Bundle upload certificate
+        run: |
+          fingerprint="$(keytool -printcert -jarfile android-aab/app-release.aab \
+            | sed -n 's/.*SHA256: //p' | tr -d ':')"
+          test "$fingerprint" = "C5AFE55B3B7C50F43AAA1F14F8E38E922C0FFC814324B3A5009BC1C070E4284B"
+
+      - name: Publish Android App Bundle to Google Play
+        run: |
+          bundle exec fastlane supply \
+            --aab android-aab/app-release.aab \
+            --track production \
+            --package_name com.presley.blockdrop \
+            --json_key "$RUNNER_TEMP/googlePlay.json" \
+            --release_status completed \
+            --skip_upload_metadata true \
+            --skip_upload_images true \
+            --skip_upload_screenshots true \
+            --skip_upload_changelogs true
+
+      - name: Remove Google Play credentials
+        if: always()
+        run: rm -f "$RUNNER_TEMP/googlePlay.json"
+

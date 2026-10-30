@@ -225,6 +225,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
+      commit_sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -284,6 +285,7 @@ jobs:
           sed -i "s/^  msix_version: .*/  msix_version: $NEW_VERSION.0/" pubspec.yaml
 
       - name: Commit and push version bump
+        id: commit
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
@@ -293,6 +295,7 @@ jobs:
           git commit -m "Bump version to ${VERSION}+${BUILD_NUMBER} [skip ci]"
           gh auth setup-git
           git push origin main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Create and push tag
         env:
@@ -311,7 +314,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: main
+          ref: ${{ needs.version-bump.outputs.commit_sha }}
           submodules: recursive
           fetch-depth: 0
           persist-credentials: false
@@ -341,10 +344,19 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/keystore.jks
-          printf 'storePassword=%s\n' "$ANDROID_STORE_PASSWORD" > android/key.properties
-          printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD" >> android/key.properties
-          printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS" >> android/key.properties
-          echo "storeFile=keystore.jks" >> android/key.properties
+          {
+            printf 'storePassword=%s\n' "$ANDROID_STORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS"
+            echo "storeFile=keystore.jks"
+          } > android/key.properties
+          fingerprint="$(keytool -list -v -keystore android/app/keystore.jks \
+            -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_STORE_PASSWORD \
+            | sed -n 's/.*SHA256: //p' | tr -d ':')"
+          test "$fingerprint" = "C5AFE55B3B7C50F43AAA1F14F8E38E922C0FFC814324B3A5009BC1C070E4284B" || {
+            echo 'Android signing key does not match the registered Play upload certificate.' >&2
+            exit 1
+          }
 
       - name: Build APK for x86_64
         env:
@@ -392,7 +404,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: main
+          ref: ${{ needs.version-bump.outputs.commit_sha }}
           submodules: recursive
           fetch-depth: 0
           persist-credentials: false
@@ -435,7 +447,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: main
+          ref: ${{ needs.version-bump.outputs.commit_sha }}
           submodules: recursive
           fetch-depth: 0
           persist-credentials: false
@@ -467,7 +479,7 @@ jobs:
           VERSION: ${{ needs.version-bump.outputs.version }}
         run: |
           cd build/linux/x64/release/bundle
-          tar -czf "../../../../../block_drop_linux_${VERSION}.tar.gz" *
+          tar -czf "../../../../../block_drop_linux_${VERSION}.tar.gz" ./*
 
       - name: Upload Linux artifact
         if: github.actor != 'nektos/act'
