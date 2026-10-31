@@ -18,25 +18,22 @@ Gradle supports the environment variable prefix through its
 
 ## Release through GitHub Actions
 
-1. Run **Build and Release** on `main`. It runs quality checks, generates
-   screenshots, bumps the version, builds all platforms from the exact version
-   commit, and publishes a tagged GitHub release containing `app-release.aab`.
-2. After that run succeeds, manually run **Deploy to Google Play** on `main`
-   and enter the GitHub release tag, such as `v1.0.72`.
-3. Check the workflow result and Play Console's Publishing overview. Google
-   review can continue after the upload workflow succeeds.
+1. Manually run **Build and Release** on `main`. It runs quality checks,
+   generates screenshots, bumps the version, builds all platforms from the exact
+   version commit, and publishes a tagged GitHub release.
+2. The same workflow then submits that run's `app-release.aab` to Google Play
+   production. No second workflow dispatch is required.
+3. Check the `publish-google-play` job and Play Console's Publishing overview.
+   Google review can continue after the upload job succeeds.
 
 ```sh
 gh workflow run release.yml --ref main
-# After the GitHub release has been published:
-gh workflow run google-play.yml --ref main -f release_tag=v1.0.72
 ```
 
-**Deploy to Google Play** has only a `workflow_dispatch` trigger. Pushes,
-GitHub release events, and scheduled runs never publish to Play automatically.
-The deploy job downloads the AAB from the selected GitHub release and uses
-Fastlane Supply to submit that exact artifact to production. An upload failure
-fails the job; an already-used version code is not treated as success.
+Pushes run checks. Scheduled releases retain their GitHub publication cadence;
+only a manual release on `main` submits to Google Play. A Play upload failure
+fails the workflow; an already-used version code is not treated as success.
+Push checks use a separate concurrency group so they cannot cancel a release.
 
 ## Signing and credentials
 
@@ -54,7 +51,7 @@ This matches the original Flexify key.
 Glass's global Gradle init script forces a different certificate. Local builds
 therefore need an isolated Gradle home and an explicit signing properties file
 if they are being used to investigate Play build issues. Production uploads
-should use the manual GitHub workflow above.
+should use the manual Build and Release workflow above.
 
 ## Initial local submission, 30 October 2026
 
@@ -72,4 +69,4 @@ Dart formatting and Flutter analysis passed, and all 249 tests passed. The AAB
 manifest and policy checks reported no errors or warnings.
 
 The initial local submission did not establish a GitHub release. The manual
-GitHub deployment workflow above replaces that local submission procedure.
+Build and Release workflow above replaces that local submission procedure.
