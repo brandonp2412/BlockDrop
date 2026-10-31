@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.72+69
+version: 1.0.73+70
 
 environment:
   sdk: ^3.5.0
@@ -127,7 +127,7 @@ msix_config:
   display_name: BlockDrop
   publisher_display_name: Brandon Dick
   identity_name: FrisbeeSoftware.BlockDrop
-  msix_version: 1.0.72.0
+  msix_version: 1.0.73.0
   logo_path: assets/icon_drop.png
   trim_logo: false
   publisher: CN=BB0811CB-EED5-441C-BE1B-D31F391F76DE
