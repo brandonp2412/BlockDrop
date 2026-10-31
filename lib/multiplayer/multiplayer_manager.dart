@@ -143,7 +143,7 @@ class MultiplayerManager extends ChangeNotifier {
     }
   }
 
-  /// Converts a local IP like 192.168.1.125 → 192.168.1.255 (directed /24 broadcast).
+  /// Converts a local IP like 192.168.100.42 → 192.168.100.255 (directed /24 broadcast).
   /// Android rejects 255.255.255.255 (limited broadcast) with EPERM; directed
   /// subnet broadcast works on both Android and Windows/macOS.
   static String _directedBroadcast(String localIp) {
