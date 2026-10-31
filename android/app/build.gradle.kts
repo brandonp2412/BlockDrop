@@ -30,7 +30,10 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.presley.blockdrop"
+        applicationId = "com.blockdrop.game"
+        if (providers.gradleProperty("playStoreBuild").orNull == "true") {
+            applicationId = "com.presley.blockdrop"
+        }
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

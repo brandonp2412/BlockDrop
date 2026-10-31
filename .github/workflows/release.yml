@@ -378,6 +378,7 @@ jobs:
 
       - name: Build App Bundle
         env:
+          ORG_GRADLE_PROJECT_playStoreBuild: "true"
           VERSION: ${{ needs.version-bump.outputs.version }}
           BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
         run: flutter build appbundle --release --build-name="$VERSION" --build-number="$BUILD_NUMBER"

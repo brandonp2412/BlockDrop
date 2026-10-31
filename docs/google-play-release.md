@@ -1,9 +1,20 @@
 # Google Play release
 
-The existing Google Play app is `com.presley.blockdrop`. The Gradle
-`applicationId` must match it. The source namespace and platform channel remain
-`com.blockdrop.game`; they are internal identifiers, independent of the store
-package.
+The default Android application ID is `com.blockdrop.game`, preserving the
+F-Droid package and GitHub APK update identity. The existing Google Play app
+uses `com.presley.blockdrop`. Only the Play App Bundle build sets the Gradle
+property `playStoreBuild=true` to select that package. The source namespace and
+platform channel remain `com.blockdrop.game` for both distributions.
+
+For a local Play bundle build, use:
+
+```sh
+ORG_GRADLE_PROJECT_playStoreBuild=true buildq --wait -- flutter build appbundle --release
+```
+
+Leave this property unset for F-Droid, GitHub APKs, and normal local builds.
+Gradle supports the environment variable prefix through its
+[project properties](https://docs.gradle.org/current/userguide/project_properties.html).
 
 ## Release through GitHub Actions
 
