@@ -48,7 +48,7 @@ and SHA-256 fingerprint
 `C5:AF:E5:5B:3B:7C:50:F4:3A:AA:1F:14:F8:E3:8E:92:2C:0F:FC:81:43:24:B3:A5:00:9B:C1:C0:70:E4:28:4B`.
 This matches the original Flexify key.
 
-Glass's global Gradle init script forces a different certificate. Local builds
+A machine-specific global Gradle init script may force a different certificate. Local builds
 therefore need an isolated Gradle home and an explicit signing properties file
 if they are being used to investigate Play build issues. Production uploads
 should use the manual Build and Release workflow above.
