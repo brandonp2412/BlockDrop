@@ -3,6 +3,21 @@ import 'package:block_drop/multiplayer/multiplayer_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('discovery notifies after asynchronous network setup', () async {
+    final manager = MultiplayerManager(playerName: 'Listener test');
+    final observedStates = <MultiplayerState>[];
+    manager.addListener(() => observedStates.add(manager.state));
+
+    await manager.startDiscovery();
+
+    expect(manager.state, MultiplayerState.discovering);
+    expect(observedStates, [
+      MultiplayerState.discovering,
+      MultiplayerState.discovering,
+    ]);
+    manager.dispose();
+  });
+
   test('returning to discovery restores this device gameplay rules', () {
     const localRules = GameplaySettings(
       initialDropSpeed: 1400,

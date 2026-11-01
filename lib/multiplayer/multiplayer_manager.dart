@@ -9,6 +9,7 @@ import '../logging.dart';
 import '../game/gameplay_settings.dart';
 import 'multiplayer_game_config.dart';
 import 'peer.dart';
+import 'lan_network.dart';
 
 enum MultiplayerState {
   idle,
@@ -127,66 +128,22 @@ class MultiplayerManager extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _localIp = await _getLocalIp();
-      _broadcastAddress =
-          _localIp != null ? _directedBroadcast(_localIp!) : '255.255.255.255';
+      final lan = await LanNetwork.detect();
+      _localIp = lan?.ip;
+      _broadcastAddress = lan?.broadcast ?? '255.255.255.255';
+      await LanNetwork.setMulticastEnabled(true);
       await _startUdp();
       await _startTcpServer();
       _startAnnouncing();
       _startPeerExpiryTimer();
       talker.info('Multiplayer discovery started on port $_localPort');
+      notifyListeners();
     } catch (e, stackTrace) {
       talker.handle(e, stackTrace, 'Starting multiplayer discovery failed');
       state = MultiplayerState.idle;
       onError?.call('Could not start network discovery: $e');
       notifyListeners();
     }
-  }
-
-  /// Converts a local IP like 192.168.100.42 → 192.168.100.255 (directed /24 broadcast).
-  /// Android rejects 255.255.255.255 (limited broadcast) with EPERM; directed
-  /// subnet broadcast works on both Android and Windows/macOS.
-  static String _directedBroadcast(String localIp) {
-    final parts = localIp.split('.');
-    if (parts.length == 4) return '${parts[0]}.${parts[1]}.${parts[2]}.255';
-    return '255.255.255.255';
-  }
-
-  Future<String?> _getLocalIp() async {
-    try {
-      final interfaces = await NetworkInterface.list(
-        type: InternetAddressType.IPv4,
-        includeLoopback: false,
-      );
-      // Collect candidates by priority bucket so virtual adapters (172.x from
-      // Hyper-V / VirtualBox) don't shadow the real Wi-Fi / Ethernet address.
-      String? best192;
-      String? best10;
-      String? best172;
-      String? fallbackAny; // any non-loopback IPv4 (covers unusual ranges)
-      for (final iface in interfaces) {
-        for (final addr in iface.addresses) {
-          final ip = addr.address;
-          if (ip.startsWith('192.168.')) {
-            best192 ??= ip;
-          } else if (ip.startsWith('10.')) {
-            best10 ??= ip;
-          } else if (RegExp(r'^172\.(1[6-9]|2\d|3[01])\.').hasMatch(ip)) {
-            best172 ??= ip;
-          } else {
-            fallbackAny ??= ip;
-          }
-        }
-      }
-      return best192 ?? best10 ?? best172 ?? fallbackAny;
-    } catch (error, stackTrace) {
-      talker.handle(
-        error,
-        stackTrace,
-        'Looking up local network address failed',
-      );
-    }
-    return null;
   }
 
   Future<void> _startUdp() async {
@@ -235,10 +192,10 @@ class MultiplayerManager extends ChangeNotifier {
     // Retry IP detection on each tick if we haven't found an IP yet (e.g.
     // Wi-Fi finishes connecting after the screen opens).
     if (_localIp == null) {
-      _getLocalIp().then((ip) {
-        if (ip != null && _localIp == null) {
-          _localIp = ip;
-          _broadcastAddress = _directedBroadcast(ip);
+      LanNetwork.detect().then((lan) {
+        if (lan != null && _localIp == null) {
+          _localIp = lan.ip;
+          _broadcastAddress = lan.broadcast;
           notifyListeners();
         }
       });
@@ -639,6 +596,7 @@ class MultiplayerManager extends ChangeNotifier {
     _udpSub?.cancel();
     _tcpServer?.close();
     _udpSocket?.close();
+    unawaited(LanNetwork.setMulticastEnabled(false));
     super.dispose();
   }
 }
