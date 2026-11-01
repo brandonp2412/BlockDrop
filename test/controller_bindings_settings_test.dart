@@ -49,6 +49,39 @@ void main() {
     expect(find.text('Show Opponent Board'), findsNothing);
   });
 
+  testWidgets('search keeps keyboard focus when no settings match', (
+    tester,
+  ) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    final search = find.byKey(const ValueKey('settings-search'));
+    await tester.tap(search);
+    await tester.pump();
+    final searchFocus =
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+    expect(searchFocus.hasFocus, isTrue);
+
+    await tester.enterText(search, 'zzzz-not-a-setting');
+    await tester.pumpAndSettle();
+
+    expect(find.text('No settings found'), findsOneWidget);
+    expect(find.byKey(const ValueKey('settings-search')), findsOneWidget);
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).focusNode,
+      same(searchFocus),
+    );
+    expect(searchFocus.hasFocus, isTrue);
+    expect(tester.testTextInput.isVisible, isTrue);
+
+    tester.testTextInput.enterText('music');
+    await tester.pumpAndSettle();
+    expect(find.text('Music'), findsOneWidget);
+    expect(searchFocus.hasFocus, isTrue);
+  });
+
   testWidgets('search finds settings outside the sound section', (
     tester,
   ) async {

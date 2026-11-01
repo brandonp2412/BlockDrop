@@ -68,6 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  final GlobalKey _searchBarKey = GlobalKey();
 
   Future<String?> _pickAndStoreAudio(String slot) async {
     try {
@@ -364,6 +365,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ? Column(
                   children: [
                     _SettingsSearchBar(
+                      key: _searchBarKey,
                       controller: _searchController,
                       query: _searchQuery,
                       colorScheme: colorScheme,
@@ -397,6 +399,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       children: [
                         _SettingsSearchBar(
+                          key: _searchBarKey,
                           controller: _searchController,
                           query: _searchQuery,
                           colorScheme: colorScheme,
@@ -1101,6 +1104,7 @@ class _SettingsSearchBar extends StatelessWidget {
   final VoidCallback onClear;
 
   const _SettingsSearchBar({
+    super.key,
     required this.controller,
     required this.query,
     required this.colorScheme,
