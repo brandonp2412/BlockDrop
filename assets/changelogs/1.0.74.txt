@@ -1,0 +1,1 @@
+Multiplayer discovery now works more reliably across phones and other physical devices on the same Wi-Fi network. Settings search also keeps its keyboard focus when there are no matching results.

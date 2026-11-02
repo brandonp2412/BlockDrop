@@ -1,0 +1,1 @@
+Added visual theme selection with previews, including an AMOLED-friendly dark option.

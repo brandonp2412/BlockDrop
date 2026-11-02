@@ -1,0 +1,1 @@
+Practice mode is easier to access, gameplay scales better across screen sizes, and the theme selector has been redesigned.

@@ -1,0 +1,1 @@
+Added settings search so you can find options quickly. Gameplay and audio also received refinements, including improved sound when a game ends.

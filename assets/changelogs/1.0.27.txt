@@ -1,0 +1,1 @@
+Added a setting to show or hide the ghost piece, plus refreshed adaptive app icons.

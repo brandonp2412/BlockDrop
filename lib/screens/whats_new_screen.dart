@@ -20,61 +20,42 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
   List<String> _changelogs = const [];
   int _page = 0;
   bool _isLoading = true;
-  String? _loadedLocale;
+
+  String _versionFromPath(String path) =>
+      path.split('/').last.replaceFirst('.txt', '');
+
+  int _compareVersions(String a, String b) {
+    final aParts = a.split('.').map((part) => int.tryParse(part) ?? 0);
+    final bParts = b.split('.').map((part) => int.tryParse(part) ?? 0);
+    final aList = aParts.toList();
+    final bList = bParts.toList();
+    for (var index = 0; index < aList.length || index < bList.length; index++) {
+      final aPart = index < aList.length ? aList[index] : 0;
+      final bPart = index < bList.length ? bList[index] : 0;
+      final comparison = aPart.compareTo(bPart);
+      if (comparison != 0) return comparison;
+    }
+    return 0;
+  }
 
   @override
   void initState() {
     super.initState();
     _loadPreference();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    if (_loadedLocale == locale) return;
-    _loadedLocale = locale;
-    _page = 0;
-    _isLoading = true;
     _loadChangelogs();
   }
 
   Future<void> _loadChangelogs() async {
     final bundle = rootBundle;
-    final locale = Localizations.localeOf(context);
     final manifest = await AssetManifest.loadFromAssetBundle(bundle);
-    final language = locale.languageCode.toLowerCase();
-    final region = locale.countryCode?.toUpperCase();
-    final localeDirectory = region == null ? null : '$language-$region';
     final availablePaths = manifest
         .listAssets()
         .where((path) =>
-            path.startsWith('metadata/') &&
-            path.contains('/changelogs/') &&
-            path.endsWith('.txt'))
+            path.startsWith('assets/changelogs/') && path.endsWith('.txt'))
         .toList();
-    final localizedPaths = availablePaths
-        .where((path) =>
-            localeDirectory != null &&
-            path.startsWith('metadata/$localeDirectory/'))
-        .toList();
-    final languagePaths = availablePaths
-        .where((path) =>
-            path.startsWith('metadata/$language-') ||
-            path.startsWith('metadata/$language/'))
-        .toList();
-    final paths = (localizedPaths.isNotEmpty
-        ? localizedPaths
-        : languagePaths.isNotEmpty
-            ? languagePaths
-            : availablePaths
-                .where((path) => path.startsWith('metadata/en-US/'))
-                .toList())
-      ..sort((a, b) {
-        final aVersion = int.tryParse(a.split('/').last.split('.').first) ?? 0;
-        final bVersion = int.tryParse(b.split('/').last.split('.').first) ?? 0;
-        return bVersion.compareTo(aVersion);
-      });
+    final paths = availablePaths
+      ..sort(
+          (a, b) => _compareVersions(_versionFromPath(b), _versionFromPath(a)));
     final pagePaths = paths.skip(_page * _pageSize).take(_pageSize);
     final changelogs = <String>[];
     for (final path in pagePaths) {
@@ -128,7 +109,10 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
                   : ListView.builder(
                       itemCount: _changelogs.length,
                       itemBuilder: (context, index) => ListTile(
-                        title: Text(_changelogs[index]),
+                        title: Text(
+                          'Version ${_versionFromPath(_changelogPaths[_page * _pageSize + index])}',
+                        ),
+                        subtitle: Text(_changelogs[index]),
                       ),
                     ),
             ),

@@ -1,0 +1,1 @@
+Windows Store packaging has been prepared, and Android builds now keep their correct app identity for Google Play and F-Droid.

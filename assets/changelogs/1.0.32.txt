@@ -1,0 +1,1 @@
+Added a dedicated wide-screen layout for Android TV, with improved remote navigation and larger Hold and Next panels.

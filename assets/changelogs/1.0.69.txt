@@ -1,0 +1,1 @@
+Added a two-cluster touch-control layout and improved controller navigation on TVs. Rotation now responds toward the side you tap, and line-clear sounds build with longer streaks.

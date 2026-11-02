@@ -1,0 +1,1 @@
+Added fair piece selection for multiplayer games, giving each player a more balanced set of pieces.

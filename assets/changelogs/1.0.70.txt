@@ -1,0 +1,1 @@
+You can turn update notices off in What's New. Game controls and settings received layout refinements, and a two-finger swipe no longer moves a piece unexpectedly. Next and Hold previews are clearer across screen sizes.

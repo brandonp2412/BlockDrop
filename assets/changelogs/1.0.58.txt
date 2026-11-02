@@ -1,0 +1,1 @@
+Added translations for the interface and a language selector, making it easier to play Block Drop in your preferred language.
