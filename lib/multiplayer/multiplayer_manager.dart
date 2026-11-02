@@ -22,12 +22,22 @@ enum MultiplayerState {
   gameOver,
 }
 
+/// Operational state of the optional UDP 45678 nearby-host finder.
+enum NearbyDiscoveryStatus { off, searching, unavailable }
+
 class MultiplayerManager extends ChangeNotifier {
   static const int _udpPort = 45678;
   static const int _tcpPort = 45679;
   static const int _maxPieceSeed = 0x7fffffff;
   static const int _maxFrameBytes = 16 * 1024;
   final Duration _handshakeTimeout;
+  final Future<RawDatagramSocket> Function(InternetAddress, int)?
+      _bindDiscoverySocket;
+  bool _discoveryStarting = false;
+
+  /// UDP discovery is independent of the direct TCP listener.
+  NearbyDiscoveryStatus nearbyStatus = NearbyDiscoveryStatus.off;
+  String? nearbyFailure;
 
   final String playerId;
   final String playerName;
@@ -115,9 +125,12 @@ class MultiplayerManager extends ChangeNotifier {
     String opponentFallbackName = 'Opponent',
     DateTime Function()? now,
     Duration handshakeTimeout = const Duration(seconds: 5),
+    Future<RawDatagramSocket> Function(InternetAddress, int)?
+        bindDiscoverySocket,
   })  : playerId = _generateId(),
         _now = now ?? DateTime.now,
         _handshakeTimeout = handshakeTimeout,
+        _bindDiscoverySocket = bindDiscoverySocket,
         _unknownPlayerName = unknownPlayerName,
         _opponentFallbackName = opponentFallbackName {
     this.gameplaySettings = gameplaySettings;
@@ -192,51 +205,116 @@ class MultiplayerManager extends ChangeNotifier {
     _pairingExpiresAt = _now().add(_tokenLifetime);
   }
 
-  /// Starts optional LAN discovery. A failed UDP bind never prevents TCP hosting.
+  /// Starts UDP 45678 discovery on demand without interrupting TCP hosting.
   Future<void> startDiscovery() async {
+    if (_discoveryStarting || _disposed) return;
     if (state != MultiplayerState.idle &&
         state != MultiplayerState.discovering) {
       return;
     }
+    _discoveryStarting = true;
     try {
-      await startHosting();
-    } catch (error, stackTrace) {
-      talker.handle(error, stackTrace, 'Starting multiplayer TCP host failed');
-      onError?.call('Could not listen for multiplayer connections: $error');
-      return;
+      try {
+        await startHosting();
+      } catch (error, stackTrace) {
+        talker.handle(
+            error, stackTrace, 'Starting multiplayer TCP host failed');
+        onError
+            ?.call('Could not listen for TCP multiplayer connections: $error');
+        return;
+      }
+      if (_udpSocket != null || _disposed) return;
+
+      nearbyStatus = NearbyDiscoveryStatus.searching;
+      nearbyFailure = null;
+      notifyListeners();
+      try {
+        final lan = await LanNetwork.detect();
+        _localIp = lan?.ip;
+        _broadcastAddress = lan?.broadcast ?? '255.255.255.255';
+      } catch (error, stackTrace) {
+        talker.handle(error, stackTrace, 'Physical LAN detection unavailable');
+        _localIp = null;
+        _broadcastAddress = '255.255.255.255';
+      }
+
+      try {
+        await LanNetwork.setMulticastEnabled(true);
+      } catch (error, stackTrace) {
+        talker.handle(error, stackTrace, 'Optional multicast lock unavailable');
+      }
+
+      try {
+        await _startUdp();
+        if (_disposed) {
+          _stopUdpDiscovery();
+          return;
+        }
+        _startAnnouncing();
+        _startPeerExpiryTimer();
+      } catch (error, stackTrace) {
+        talker.handle(error, stackTrace, 'Optional UDP discovery bind failed');
+        _stopUdpDiscovery();
+        nearbyStatus = NearbyDiscoveryStatus.unavailable;
+        nearbyFailure = 'UDP port 45678 unavailable: $error. '
+            'QR and manual TCP joining remain available.';
+        onError?.call(nearbyFailure!);
+      }
+      if (!_disposed) notifyListeners();
+    } finally {
+      _discoveryStarting = false;
     }
-    if (_udpSocket != null || _disposed) return;
-    try {
-      final lan = await LanNetwork.detect();
-      _localIp = lan?.ip;
-      _broadcastAddress = lan?.broadcast ?? '255.255.255.255';
-      await LanNetwork.setMulticastEnabled(true);
-      await _startUdp();
-      _startAnnouncing();
-      _startPeerExpiryTimer();
-    } catch (error, stackTrace) {
-      talker.handle(error, stackTrace, 'Optional LAN discovery unavailable');
-    }
-    if (!_disposed) notifyListeners();
   }
 
   Future<void> _startUdp() async {
-    _udpSocket = await RawDatagramSocket.bind(
-      InternetAddress.anyIPv4,
-      _udpPort,
-      reuseAddress: true,
-    );
-    _udpSocket!.broadcastEnabled = true;
-    _udpSub = _udpSocket!.listen(
-      (event) {
-        if (event == RawSocketEvent.read) {
-          final dg = _udpSocket?.receive();
-          if (dg != null) _handleUdpDatagram(dg);
-        }
-      },
-      onError: (error, stackTrace) =>
-          talker.handle(error, stackTrace, 'Multiplayer UDP socket failed'),
-    );
+    final socket = await (_bindDiscoverySocket?.call(
+          InternetAddress.anyIPv4,
+          _udpPort,
+        ) ??
+        RawDatagramSocket.bind(
+          InternetAddress.anyIPv4,
+          _udpPort,
+          reuseAddress: true,
+        ));
+    try {
+      socket.broadcastEnabled = true;
+      _udpSocket = socket;
+      _udpSub = socket.listen(
+        (event) {
+          if (event == RawSocketEvent.read) {
+            final datagram = socket.receive();
+            if (datagram != null) _handleUdpDatagram(datagram);
+          }
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          talker.handle(
+              error, stackTrace, 'Optional UDP discovery socket failed');
+          _stopUdpDiscovery();
+          if (!_disposed) {
+            nearbyStatus = NearbyDiscoveryStatus.unavailable;
+            nearbyFailure = 'Nearby UDP discovery stopped: $error. '
+                'QR and manual TCP joining remain available.';
+            onError?.call(nearbyFailure!);
+            notifyListeners();
+          }
+        },
+      );
+    } catch (_) {
+      socket.close();
+      rethrow;
+    }
+  }
+
+  void _stopUdpDiscovery() {
+    _announceTimer?.cancel();
+    _announceTimer = null;
+    _peerExpiryTimer?.cancel();
+    _peerExpiryTimer = null;
+    _udpSub?.cancel();
+    _udpSub = null;
+    _udpSocket?.close();
+    _udpSocket = null;
+    unawaited(LanNetwork.setMulticastEnabled(false));
   }
 
   Future<void> _startTcpServer(int port) async {
@@ -252,6 +330,7 @@ class MultiplayerManager extends ChangeNotifier {
   }
 
   void _startAnnouncing() {
+    _announceTimer?.cancel();
     _sendAnnounce();
     _announceTimer = Timer.periodic(
       const Duration(seconds: 2),
@@ -358,6 +437,7 @@ class MultiplayerManager extends ChangeNotifier {
   }
 
   void _startPeerExpiryTimer() {
+    _peerExpiryTimer?.cancel();
     _peerExpiryTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       final before = peers.length;
       final cutoff = DateTime.now().subtract(const Duration(seconds: 6));
@@ -801,13 +881,9 @@ class MultiplayerManager extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
-    _announceTimer?.cancel();
-    _peerExpiryTimer?.cancel();
+    _stopUdpDiscovery();
     _closeConnection();
-    _udpSub?.cancel();
     _tcpServer?.close();
-    _udpSocket?.close();
-    unawaited(LanNetwork.setMulticastEnabled(false));
     super.dispose();
   }
 }

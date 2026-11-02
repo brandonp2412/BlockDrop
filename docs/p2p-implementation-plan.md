@@ -1,6 +1,6 @@
 # Direct P2P multiplayer — architecture and acceptance plan
 
-Status: slice 1 architecture and slice 2 TCP direct-join manager completed on 2026-11-03 (NZ). QR joining and real-device P2P gameplay are **not yet proven**.
+Status: slices 1–3 integrated; guest QR/manual join and optional UDP isolation implemented in the 2026-11-03 continuation. **Physical camera QR scanning and a finished cross-device match are not yet proven.**
 
 ## Constraints and decisions
 
@@ -125,3 +125,39 @@ Implemented transport/manager layer only; QR and manual-entry UI are next. Files
 2. Implement guest QR scan and manual IPv4/port/token via DirectJoinInvite.fromUri and joinHost. Vet scanner offline/FOSS license and camera permission; manual join works without camera/UDP/Internet.
 3. Test expired/changed code, invalid input, access failures, camera denial, host/guest roles. Run format, analyzer, full tests; prove physical two-way match later where devices are available.
 4. No Samsung installation/session modification without checking/permission. No hosted relay, cloud or WebSockets.
+
+
+## Slice 4 — QR scan and manual TCP join (2026-11-03 NZ)
+
+- A guest can scan a locally decoded `blockdrop://join` QR on Android/iOS, paste the full invitation, or enter IPv4/port/token manually. All routes call the existing authenticated JSON-over-TCP `MultiplayerManager.joinHost`; none need UDP or an account. Expired codes, malformed inputs and cancelled scans leave manual entry available.
+- The scanner is provided by `flutter_zxing` 3.1.0 and ZXing C++ (local camera processing, no remote decoding endpoint). `flutter_zxing` is MIT; the source package's direct dependencies include BSD-licensed Flutter `camera` and `ffi`, and MIT `image`, with the Flutter `image_picker` family BSD-licensed. Confirmed against local package licenses and [pub.dev package/API documentation](https://pub.dev/packages/flutter_zxing); this is not a complete audit of every transitive native artifact.
+- Camera is optional in Android manifest, with iOS usage text. Desktop QR camera support is deliberately unavailable: package documentation requires an additional camera plugin on Linux/macOS and does not confirm Windows support. Pasted codes and manual IP remain available on desktops and Waydroid. No Samsung session was touched.
+- Mocked widget scan tests demonstrate routing to a real loopback TCP host and host acceptance; cancellation and invalid scan recovery are tested. These are **not** evidence of a real physical camera reading a displayed QR, a Wi-Fi Direct route, or finished two-device gameplay.
+- Glass debug Android APK compiled through buildq #3970. One analyzer gate passed (#3968); the slice-specific test suite passed five tests (#3976). Full regression and final commit should be recorded after all concurrent discovery edits settle.
+
+### Follow-up before release
+
+1. Record a physical camera scan and true two-peer finished game (distinct board/score/line snapshots in both directions, both results). Keep Samsung untouched until the current owner explicitly permits a session change.
+2. Prove Glass Linux ↔ Nox Linux and Waydroid routes if available; never infer Waydroid Wi-Fi Direct support.
+3. Add optional Android Wi-Fi Direct group owner/peer management only after the normal TCP path and prior slices are integrated. Group formation must not imply firewall, NAT, or client-isolation bypass.
+
+
+## Slices 4–6 continuation — guest join and optional LAN discovery (2026-11-03 NZ)
+
+### Implementation
+
+- Join game offers manual IPv4/port/192-bit token, pasted versioned blockdrop:// code, and native camera QR scanning on Android/iOS. All three inputs validate using DirectJoinInvite and enter the same authenticated JSON-over-TCP joinHost path. Linux/Windows/macOS retain QR-code paste and manual IP without a camera.
+- Camera scan uses [flutter_zxing 3.1.0](https://pub.dev/packages/flutter_zxing) (MIT) with ZXing C++ decoding (open-source). Camera and image-picker Flutter plugin dependencies are BSD-style licensed. The bundled Zint barcode backend is BSD licensed; its GPL frontend is not used. No Google ML Kit, hosted service, account, remote QR generation, or network requests were added for scanning. Android's CAMERA permission/optional camera feature and iOS's camera-use description are declared.
+- Cancellation, invalid code, expired code and camera-denial UI all retain manual join. The scanner hardware path remains unproven without a usable camera device.
+- Entering Multiplayer starts only the TCP listener. UDP port 45678 is activated explicitly by **Find Nearby**; failed or missing LAN detection, multicast-lock errors, and UDP bind/socket errors do not close or block TCP. UDP discovery status and bind failure are visible, with a retry action. TCP listener failure has its own retry UI.
+- Physical WLAN IPv4/prefix detection, directed broadcast, multicast lock release, peer announcement, peer expiry, legacy nearby invite shortcut, existing host control, gameplay JSON and token authentication remain. Optional discovery still broadcasts the bearer token in cleartext, as documented above.
+- A test-injectable UDP bind failure verifies that QR/direct TCP completes a game with independent boards/scores/lines and both game-over states despite UDP failure; a real UDP loopback datagram verifies nearby host listing and joining; retry preserves the existing TCP port and token.
+
+### Verification and limitations
+
+- Formatting: dart format debug_tcp_server.dart lib test integration_test patrol_test test_driver.
+- Targeted Flutter tests cover manual form, scan-to-TCP, expired/malformed/denied/cancelled scans, failed UDP with bidirectional finished match, actual loopback UDP nearby invitation and listener lifecycle.
+- Android debug APK built with the open-source QR scanner included. This proves compilation, **not** a live camera scan.
+- Analyzer and full-suite results are recorded in the final Git commit/handoff for this continuation.
+- No Samsung installation, launch, active-session change or firewall rule change performed. No cloud relay or NAT-bypass claim.
+- Remaining release gates: physically scan a host QR; Glass Linux ↔ another machine/Waydroid and finally two physical devices play to completed game with board/score changes on both; validate real camera permission-denial behavior, firewall isolation and UDP behavior on targeted OSes. Android Wi-Fi Direct remains optional and unimplemented.

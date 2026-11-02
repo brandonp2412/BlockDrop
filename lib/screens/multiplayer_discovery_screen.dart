@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import '../settings/settings_provider.dart';
 import '../widgets/game_decorations.dart';
 import 'multiplayer_game_screen.dart';
 import 'multiplayer_host_screen.dart';
+import 'multiplayer_join_screen.dart';
 
 class MultiplayerDiscoveryScreen extends StatefulWidget {
   final SettingsProvider settings;
@@ -28,6 +30,19 @@ class _MultiplayerDiscoveryScreenState
   bool _navigatingToGame = false;
 
   bool _managerInitialized = false;
+  String? _tcpStartupError;
+
+  Future<void> _startTcpHost() async {
+    try {
+      await _manager.startHosting();
+      if (mounted) setState(() => _tcpStartupError = null);
+    } catch (error) {
+      if (mounted) {
+        setState(
+            () => _tcpStartupError = 'Cannot listen for TCP guests: $error');
+      }
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -44,8 +59,8 @@ class _MultiplayerDiscoveryScreenState
     _manager.onError = _showError;
     _manager.onInviteReceived = _showInviteDialog;
     _manager.addListener(_onManagerChanged);
-    _manager.startDiscovery();
     _managerInitialized = true;
+    unawaited(_startTcpHost());
   }
 
   String _defaultPlayerName(AppLocalizations l10n) {
@@ -229,7 +244,25 @@ class _MultiplayerDiscoveryScreenState
   Widget _buildBody(ColorScheme cs) {
     switch (_manager.state) {
       case MultiplayerState.idle:
-        return const Center(child: CircularProgressIndicator());
+        if (_tcpStartupError == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(_tcpStartupError!),
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () => unawaited(_startTcpHost()),
+                  child: const Text('Retry TCP listener'),
+                ),
+              ],
+            ),
+          ),
+        );
 
       case MultiplayerState.discovering:
         return _buildDiscovering(cs);
@@ -275,46 +308,78 @@ class _MultiplayerDiscoveryScreenState
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: cs.primary,
-                ),
+          child: OutlinedButton.icon(
+            key: const Key('join-game-button'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => MultiplayerJoinScreen(manager: _manager),
               ),
-              const SizedBox(width: 10),
-              Text(
-                context.l10n.text('Searching on your network…'),
-                style: TextStyle(color: cs.onSurfaceVariant),
-              ),
-            ],
+            ),
+            icon: const Icon(Icons.link_rounded),
+            label: const Text('Join game · scan QR or enter IP'),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: localIp == null
-              ? Text(
-                  context.l10n.text(
-                    '⚠ Could not detect LAN IP – make sure Wi-Fi is on.',
-                  ),
-                  style: TextStyle(fontSize: 12, color: cs.error),
-                )
-              : Text(
-                  context.l10n.text(
-                    'Your IP: {ip}  ·  broadcasting to: {broadcast}',
-                    {'ip': localIp, 'broadcast': bcast},
-                  ),
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: cs.onSurfaceVariant,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
+          child: OutlinedButton.icon(
+            key: const Key('find-nearby-button'),
+            onPressed: _manager.nearbyStatus == NearbyDiscoveryStatus.searching
+                ? null
+                : () => unawaited(_manager.startDiscovery()),
+            icon: const Icon(Icons.wifi_find_rounded),
+            label: Text(
+              _manager.nearbyStatus == NearbyDiscoveryStatus.unavailable
+                  ? 'Retry Find Nearby'
+                  : 'Find Nearby · optional LAN discovery',
+            ),
+          ),
         ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            switch (_manager.nearbyStatus) {
+              NearbyDiscoveryStatus.off =>
+                'Nearby search is off. QR and manual IP work without UDP.',
+              NearbyDiscoveryStatus.searching =>
+                'Searching on your LAN using UDP 45678…',
+              NearbyDiscoveryStatus.unavailable =>
+                _manager.nearbyFailure ?? 'UDP discovery unavailable.',
+            },
+            key: const Key('nearby-status'),
+            style: TextStyle(
+              color: _manager.nearbyStatus == NearbyDiscoveryStatus.unavailable
+                  ? cs.error
+                  : cs.onSurfaceVariant,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        if (_manager.nearbyStatus == NearbyDiscoveryStatus.searching) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: localIp == null
+                ? Text(
+                    context.l10n.text(
+                      '⚠ Could not detect LAN IP – make sure Wi-Fi is on.',
+                    ),
+                    style: TextStyle(fontSize: 12, color: cs.error),
+                  )
+                : Text(
+                    context.l10n.text(
+                      'Your IP: {ip}  ·  broadcasting to: {broadcast}',
+                      {'ip': localIp, 'broadcast': bcast},
+                    ),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: cs.onSurfaceVariant,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+          ),
+        ],
         if (Platform.isWindows) ...[
           const SizedBox(height: 4),
           Padding(
@@ -356,11 +421,14 @@ class _MultiplayerDiscoveryScreenState
         const SizedBox(height: 4),
         Expanded(
           child: _manager.peers.isEmpty
-              ? const AppEmptyState(
+              ? AppEmptyState(
                   icon: Icons.wifi_find_rounded,
-                  title: 'No players found yet',
-                  message:
-                      'Keep Block Drop open on the same Wi-Fi on another device and it will appear here automatically.',
+                  title: _manager.nearbyStatus == NearbyDiscoveryStatus.off
+                      ? 'Nearby search off'
+                      : 'No players found yet',
+                  message: _manager.nearbyStatus == NearbyDiscoveryStatus.off
+                      ? 'Tap Find Nearby to discover LAN hosts, or join directly by QR or IP.'
+                      : 'Nearby hosts appear here if UDP broadcasts can reach this device.',
                 )
               : ListView.builder(
                   itemCount: _manager.peers.length,

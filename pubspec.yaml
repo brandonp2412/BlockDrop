@@ -42,6 +42,7 @@ dependencies:
   path_provider: ^2.1.6
   url_launcher: ^6.3.2
   qr_flutter: ^4.1.0
+  flutter_zxing: ^3.1.0
 
 dev_dependencies:
   flutter_test:

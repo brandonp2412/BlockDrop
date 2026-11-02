@@ -285,6 +285,52 @@ void main() {
     await waitUntil(() => host.state == MultiplayerState.invited);
   });
 
+  test('blocked UDP discovery reports failure while QR TCP game completes',
+      () async {
+    final host = MultiplayerManager(
+      playerName: 'Host',
+      bindDiscoverySocket: (_, __) async =>
+          throw const SocketException('UDP bind blocked in test'),
+    );
+    final guest = MultiplayerManager(playerName: 'Guest');
+    addTearDown(host.dispose);
+    addTearDown(guest.dispose);
+
+    final errors = <String>[];
+    host.onError = errors.add;
+    await host.startDiscovery();
+    expect(host.nearbyStatus, NearbyDiscoveryStatus.unavailable);
+    expect(host.nearbyFailure, contains('UDP bind blocked in test'));
+    expect(errors.single, contains('UDP port 45678'));
+    expect(host.hostingPort, greaterThan(0));
+    expect(host.pairingToken, isNotNull);
+
+    await guest.joinHost(host.hostingInvite('127.0.0.1'));
+    await waitUntil(() => host.state == MultiplayerState.invited);
+    host.acceptInvite();
+    await waitUntil(() => guest.state == MultiplayerState.inLobby);
+    host.startGame();
+    await waitUntil(() => guest.state == MultiplayerState.inGame);
+
+    final hostBoard = List<int>.filled(200, 0)..[7] = 2;
+    final guestBoard = List<int>.filled(200, 0)..[105] = 6;
+    host.sendBoardSnapshot(hostBoard, 90, 3);
+    guest.sendBoardSnapshot(guestBoard, 220, 8);
+    await waitUntil(
+        () => host.opponentScore == 220 && guest.opponentScore == 90);
+    expect(host.opponentBoard, guestBoard);
+    expect(guest.opponentBoard, hostBoard);
+    expect(host.opponentLines, 8);
+    expect(guest.opponentLines, 3);
+
+    host.sendGameOver(90);
+    guest.sendGameOver(220);
+    await waitUntil(() => host.opponentIsGameOver && guest.opponentIsGameOver);
+    expect(host.state, MultiplayerState.gameOver);
+    expect(guest.state, MultiplayerState.gameOver);
+    expect(host.hostingPort, greaterThan(0));
+  });
+
   test('occupied preferred port falls back to a free port', () async {
     final occupied = await ServerSocket.bind(InternetAddress.anyIPv4, 0);
     addTearDown(occupied.close);
