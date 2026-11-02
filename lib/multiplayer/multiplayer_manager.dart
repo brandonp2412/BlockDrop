@@ -598,9 +598,29 @@ class MultiplayerManager extends ChangeNotifier {
 
   /// Returns to discovery after a finished or abandoned match.
   void backToDiscovery() {
+    final socket = _peerSocket;
+    final subscription = _socketSub;
     _send({'type': 'quit'});
-    _closeConnection();
+    _closeConnection(destroySocket: false, cancelSubscription: false);
+    if (socket != null) unawaited(_closeGracefully(socket, subscription));
     _resetAfterConnection();
+  }
+
+  Future<void> _closeGracefully(
+    Socket socket,
+    StreamSubscription? subscription,
+  ) async {
+    final peerDone = subscription?.asFuture<void>();
+    try {
+      await socket.flush().timeout(const Duration(seconds: 2));
+      await socket.close().timeout(const Duration(seconds: 2));
+      await peerDone?.timeout(const Duration(seconds: 2));
+    } catch (_) {
+      // A broken peer cannot hold the local socket open indefinitely.
+    } finally {
+      await subscription?.cancel();
+      socket.destroy();
+    }
   }
 
   void _resetAfterConnection({bool rotateToken = true}) {
@@ -849,6 +869,12 @@ class MultiplayerManager extends ChangeNotifier {
           ?.call('${prevOpponentName ?? _opponentFallbackName} disconnected');
     }
 
+    if (prevState == MultiplayerState.gameOver) {
+      if (authenticated && _tcpServer != null) _rotatePairingToken();
+      notifyListeners();
+      return;
+    }
+
     _resetAfterConnection(rotateToken: authenticated);
   }
 
@@ -858,12 +884,15 @@ class MultiplayerManager extends ChangeNotifier {
     } catch (_) {}
   }
 
-  void _closeConnection({bool destroySocket = true}) {
+  void _closeConnection({
+    bool destroySocket = true,
+    bool cancelSubscription = true,
+  }) {
     _handshakeTimer?.cancel();
     _handshakeTimer = null;
     _awaitingAuth = false;
     _incomingFrame.clear();
-    _socketSub?.cancel();
+    if (cancelSubscription) _socketSub?.cancel();
     _socketSub = null;
     try {
       if (destroySocket) _peerSocket?.destroy();
