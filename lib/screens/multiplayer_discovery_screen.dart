@@ -38,7 +38,6 @@ class _MultiplayerDiscoveryScreenState
       playerName: _defaultPlayerName(l10n),
       gameplaySettings: widget.settings.gameplay,
       unknownPlayerName: l10n.text('Unknown'),
-      someonePlayerName: l10n.text('Someone'),
       opponentFallbackName: l10n.text('Opponent'),
     );
     _manager.onError = _showError;

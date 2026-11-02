@@ -3,6 +3,7 @@ class Peer {
   String name;
   final String ip;
   final int port;
+  final String? token;
   DateTime lastSeen;
 
   Peer({
@@ -10,6 +11,7 @@ class Peer {
     required this.name,
     required this.ip,
     required this.port,
+    this.token,
     required this.lastSeen,
   });
 }

@@ -9,6 +9,7 @@ import '../logging.dart';
 import '../game/gameplay_settings.dart';
 import 'multiplayer_game_config.dart';
 import 'peer.dart';
+import 'direct_join_invite.dart';
 import 'lan_network.dart';
 
 enum MultiplayerState {
@@ -25,11 +26,12 @@ class MultiplayerManager extends ChangeNotifier {
   static const int _udpPort = 45678;
   static const int _tcpPort = 45679;
   static const int _maxPieceSeed = 0x7fffffff;
+  static const int _maxFrameBytes = 16 * 1024;
+  final Duration _handshakeTimeout;
 
   final String playerId;
   final String playerName;
   final String _unknownPlayerName;
-  final String _someonePlayerName;
   final String _opponentFallbackName;
 
   MultiplayerState state = MultiplayerState.idle;
@@ -37,6 +39,17 @@ class MultiplayerManager extends ChangeNotifier {
   bool _isHost = false;
   bool get isHost => _isHost;
   int _localPort = _tcpPort;
+  int? get hostingPort => _tcpServer?.port;
+  String? get pairingToken => _pairingToken;
+  DateTime? get pairingExpiresAt => _pairingExpiresAt;
+  String? _pairingToken;
+  DateTime? _pairingExpiresAt;
+  Duration _tokenLifetime = const Duration(minutes: 5);
+  final DateTime Function() _now;
+  Timer? _handshakeTimer;
+  bool _awaitingAuth = false;
+  bool _disposed = false;
+  final List<int> _incomingFrame = [];
   String? _broadcastAddress;
 
   /// Piece sequence mode selected for the next multiplayer match.
@@ -99,11 +112,13 @@ class MultiplayerManager extends ChangeNotifier {
     required this.playerName,
     GameplaySettings gameplaySettings = GameplaySettings.defaults,
     String unknownPlayerName = 'Unknown',
-    String someonePlayerName = 'Someone',
     String opponentFallbackName = 'Opponent',
+    DateTime Function()? now,
+    Duration handshakeTimeout = const Duration(seconds: 5),
   })  : playerId = _generateId(),
+        _now = now ?? DateTime.now,
+        _handshakeTimeout = handshakeTimeout,
         _unknownPlayerName = unknownPlayerName,
-        _someonePlayerName = someonePlayerName,
         _opponentFallbackName = opponentFallbackName {
     this.gameplaySettings = gameplaySettings;
     _localGameplaySettings = gameplaySettings;
@@ -122,28 +137,85 @@ class MultiplayerManager extends ChangeNotifier {
     return Random.secure().nextInt(_maxPieceSeed);
   }
 
-  Future<void> startDiscovery() async {
-    if (state != MultiplayerState.idle) return;
+  /// Opens a host TCP listener without binding UDP or requiring discovery.
+  Future<void> startHosting({
+    int port = _tcpPort,
+    Duration tokenLifetime = const Duration(minutes: 5),
+  }) async {
+    if (_disposed || _tcpServer != null) return;
+    if (state != MultiplayerState.idle &&
+        state != MultiplayerState.discovering) {
+      throw StateError('Cannot host while a match is active');
+    }
+    if (tokenLifetime <= Duration.zero || port < 0 || port > 65535) {
+      throw ArgumentError('Invalid hosting port or token lifetime');
+    }
+    _tokenLifetime = tokenLifetime;
+    await _startTcpServer(port);
+    if (_disposed) {
+      await _tcpServer?.close();
+      _tcpServer = null;
+      return;
+    }
+    _rotatePairingToken();
+    _isHost = true;
     state = MultiplayerState.discovering;
     notifyListeners();
+  }
 
+  /// Rotates the capability for another guest without restarting the listener.
+  void refreshPairingToken() {
+    if (_tcpServer == null || _peerSocket != null) {
+      throw StateError('No available hosted lobby');
+    }
+    _rotatePairingToken();
+    notifyListeners();
+  }
+
+  /// Supplies connection details to the manual-join or QR-code UI.
+  DirectJoinInvite hostingInvite(String address) {
+    if (_tcpServer == null || _pairingToken == null) {
+      throw StateError('Hosting has not started');
+    }
+    return DirectJoinInvite(
+      host: address,
+      port: _localPort,
+      token: _pairingToken!,
+    );
+  }
+
+  void _rotatePairingToken() {
+    if (_tcpServer == null) return;
+    _pairingToken = DirectJoinInvite.generateToken();
+    _pairingExpiresAt = _now().add(_tokenLifetime);
+  }
+
+  /// Starts optional LAN discovery. A failed UDP bind never prevents TCP hosting.
+  Future<void> startDiscovery() async {
+    if (state != MultiplayerState.idle &&
+        state != MultiplayerState.discovering) {
+      return;
+    }
+    try {
+      await startHosting();
+    } catch (error, stackTrace) {
+      talker.handle(error, stackTrace, 'Starting multiplayer TCP host failed');
+      onError?.call('Could not listen for multiplayer connections: $error');
+      return;
+    }
+    if (_udpSocket != null || _disposed) return;
     try {
       final lan = await LanNetwork.detect();
       _localIp = lan?.ip;
       _broadcastAddress = lan?.broadcast ?? '255.255.255.255';
       await LanNetwork.setMulticastEnabled(true);
       await _startUdp();
-      await _startTcpServer();
       _startAnnouncing();
       _startPeerExpiryTimer();
-      talker.info('Multiplayer discovery started on port $_localPort');
-      notifyListeners();
-    } catch (e, stackTrace) {
-      talker.handle(e, stackTrace, 'Starting multiplayer discovery failed');
-      state = MultiplayerState.idle;
-      onError?.call('Could not start network discovery: $e');
-      notifyListeners();
+    } catch (error, stackTrace) {
+      talker.handle(error, stackTrace, 'Optional LAN discovery unavailable');
     }
+    if (!_disposed) notifyListeners();
   }
 
   Future<void> _startUdp() async {
@@ -165,13 +237,13 @@ class MultiplayerManager extends ChangeNotifier {
     );
   }
 
-  Future<void> _startTcpServer() async {
+  Future<void> _startTcpServer(int port) async {
     // Try the preferred port first; if already in use (e.g. another instance
     // on the same machine), fall back to any free port. Using catchError keeps
     // VS Code from pausing on the intermediate SocketException.
     _tcpServer = await ServerSocket.bind(
       InternetAddress.anyIPv4,
-      _tcpPort,
+      port,
     ).catchError((_) => ServerSocket.bind(InternetAddress.anyIPv4, 0));
     _localPort = _tcpServer!.port;
     _tcpServer!.listen(_handleIncomingConnection);
@@ -207,6 +279,7 @@ class MultiplayerManager extends ChangeNotifier {
         'id': playerId,
         'name': playerName,
         'port': _localPort,
+        if (_pairingToken != null) 'token': _pairingToken,
         'status': state.name,
       }),
     );
@@ -243,6 +316,7 @@ class MultiplayerManager extends ChangeNotifier {
       final name = msg['name'] as String? ?? _unknownPlayerName;
       final status = msg['status'] as String? ?? 'idle';
       final isAvailable = status == 'idle' || status == 'discovering';
+      final token = msg['token'] is String ? msg['token'] as String : null;
 
       final idx = peers.indexWhere((p) => p.id == id);
       if (idx >= 0) {
@@ -254,6 +328,7 @@ class MultiplayerManager extends ChangeNotifier {
             ip: ip,
             port: port,
             lastSeen: DateTime.now(),
+            token: token,
           );
         } else {
           peers.removeAt(idx);
@@ -266,6 +341,7 @@ class MultiplayerManager extends ChangeNotifier {
             ip: ip,
             port: port,
             lastSeen: DateTime.now(),
+            token: token,
           ),
         );
       }
@@ -290,56 +366,81 @@ class MultiplayerManager extends ChangeNotifier {
 
   // ── Invite flow ───────────────────────────────────────────────────────────
 
-  Future<void> invitePeer(Peer peer) async {
-    if (state != MultiplayerState.discovering) return;
+  /// Joins the TCP listener described by a scanned or manually entered invite.
+  Future<void> joinHost(
+    DirectJoinInvite invite, {
+    String? hostName,
+  }) async {
+    invite.validate();
+    if (_disposed ||
+        (state != MultiplayerState.idle &&
+            state != MultiplayerState.discovering) ||
+        _peerSocket != null) {
+      throw StateError('Cannot join while already connected');
+    }
     state = MultiplayerState.inviting;
-    opponentName = peer.name;
-    _isHost = true;
+    _isHost = false;
+    opponentName = hostName;
     _resetGameConfig();
     notifyListeners();
 
     try {
       final socket = await Socket.connect(
-        peer.ip,
-        peer.port,
-        timeout: const Duration(seconds: 5),
+        invite.host,
+        invite.port,
+        timeout: _handshakeTimeout,
       );
-      if (state != MultiplayerState.inviting) {
+      if (_disposed || state != MultiplayerState.inviting) {
         socket.destroy();
         return;
       }
       _peerSocket = socket;
       _listenOnSocket(socket);
-      _send({'type': 'invite', 'name': playerName, 'id': playerId});
-      talker.info('Sent multiplayer invite to ${peer.name}');
+      _send({
+        'type': 'join',
+        'version': invite.version,
+        'token': invite.token,
+        'id': playerId,
+        'name': playerName,
+      });
+      _handshakeTimer = Timer(_handshakeTimeout, () {
+        if (_peerSocket == socket && state == MultiplayerState.inviting) {
+          _handleDisconnect(socket, reason: 'Host did not respond');
+        }
+      });
     } catch (error, stackTrace) {
-      talker.handle(error, stackTrace, 'Connecting to multiplayer peer failed');
-      if (state == MultiplayerState.inviting) {
-        state = MultiplayerState.discovering;
-        opponentName = null;
-        _isHost = false;
-        notifyListeners();
-        final hint = Platform.isWindows
-            ? 'Check that Block Drop is allowed in Windows Defender Firewall on ${peer.name}\'s device.'
-            : 'Could not connect to ${peer.name}. Make sure they have Block Drop open.';
-        onError?.call(hint);
+      talker.handle(error, stackTrace, 'Connecting to multiplayer host failed');
+      if (!_disposed && state == MultiplayerState.inviting) {
+        _resetAfterConnection();
+        onError
+            ?.call('Could not reach the host. Check its address and firewall.');
       }
     }
+  }
+
+  /// Joins a host found through optional UDP discovery.
+  Future<void> invitePeer(Peer peer) async {
+    final token = peer.token;
+    if (token == null) {
+      onError?.call('Host uses an older protocol. Ask for a new invitation.');
+      return;
+    }
+    await joinHost(
+      DirectJoinInvite(host: peer.ip, port: peer.port, token: token),
+      hostName: peer.name,
+    );
   }
 
   void cancelInvite() {
     if (state != MultiplayerState.inviting) return;
     _closeConnection();
-    state = MultiplayerState.discovering;
-    opponentName = null;
-    _isHost = false;
-    _resetGameConfig();
-    notifyListeners();
+    _resetAfterConnection();
   }
 
   void acceptInvite() {
     if (state != MultiplayerState.invited) return;
-    _resetGameConfig();
+    if (!_isHost) return;
+    _handshakeTimer?.cancel();
     _send({'type': 'invite_accept', 'name': playerName});
     state = MultiplayerState.inLobby;
     talker.info('Accepted multiplayer invite');
@@ -348,13 +449,9 @@ class MultiplayerManager extends ChangeNotifier {
 
   void rejectInvite() {
     if (state != MultiplayerState.invited) return;
-    _send({'type': 'invite_reject'});
-    _closeConnection();
-    state = MultiplayerState.discovering;
-    opponentName = null;
-    _resetGameConfig();
+    final socket = _peerSocket;
+    if (socket != null) unawaited(_rejectSocket(socket, 'declined'));
     talker.info('Rejected multiplayer invite');
-    notifyListeners();
   }
 
   // ── Lobby / game ──────────────────────────────────────────────────────────
@@ -421,126 +518,240 @@ class MultiplayerManager extends ChangeNotifier {
   void backToDiscovery() {
     _send({'type': 'quit'});
     _closeConnection();
+    _resetAfterConnection();
+  }
+
+  void _resetAfterConnection({bool rotateToken = true}) {
     state = MultiplayerState.discovering;
     opponentName = null;
     opponentIsGameOver = false;
     opponentBoard = List.filled(200, 0);
     opponentScore = 0;
     opponentLines = 0;
-    _isHost = false;
+    _isHost = _tcpServer != null;
     _resetGameConfig();
-    notifyListeners();
+    if (_tcpServer != null && rotateToken) _rotatePairingToken();
+    if (!_disposed) notifyListeners();
   }
 
   // ── TCP socket handling ───────────────────────────────────────────────────
 
   void _handleIncomingConnection(Socket socket) {
-    if (state != MultiplayerState.discovering || _peerSocket != null) {
-      socket.destroy();
+    if (_disposed ||
+        state != MultiplayerState.discovering ||
+        _peerSocket != null) {
+      unawaited(_rejectSocket(socket, 'busy'));
       return;
     }
     _peerSocket = socket;
+    _awaitingAuth = true;
     _listenOnSocket(socket);
+    _handshakeTimer = Timer(_handshakeTimeout, () {
+      if (_peerSocket == socket && _awaitingAuth) {
+        unawaited(_rejectSocket(socket, 'timeout'));
+      }
+    });
   }
 
   void _listenOnSocket(Socket socket) {
     _socketSub?.cancel();
-    _socketSub = socket
-        .cast<List<int>>()
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen(
-          _handleMessage,
-          onDone: _handleDisconnect,
-          onError: (_) => _handleDisconnect(),
-          cancelOnError: true,
-        );
+    _incomingFrame.clear();
+    _socketSub = socket.listen(
+      (data) => _handleBytes(socket, data),
+      onDone: () => _handleDisconnect(socket),
+      onError: (_) => _handleDisconnect(socket),
+      cancelOnError: true,
+    );
   }
 
-  void _handleMessage(String line) {
-    if (line.isEmpty) return;
-    try {
-      final msg = jsonDecode(line) as Map<String, dynamic>;
-      final type = msg['type'] as String?;
-
-      switch (type) {
-        case 'invite':
-          if (state == MultiplayerState.discovering) {
-            state = MultiplayerState.invited;
-            _isHost = false;
-            opponentName = msg['name'] as String? ?? _someonePlayerName;
-            notifyListeners();
-            onInviteReceived?.call(opponentName!);
-          } else {
-            _send({'type': 'invite_reject'});
-          }
-
-        case 'invite_accept':
-          if (state == MultiplayerState.inviting) {
-            opponentName = msg['name'] as String? ?? opponentName;
-            state = MultiplayerState.inLobby;
-            notifyListeners();
-          }
-
-        case 'invite_reject':
-          if (state == MultiplayerState.inviting) {
-            _closeConnection();
-            state = MultiplayerState.discovering;
-            opponentName = null;
-            _isHost = false;
-            _resetGameConfig();
-            notifyListeners();
-            onError?.call('Invite was declined');
-          }
-
-        case 'game_mode':
-          if (state == MultiplayerState.inLobby && !_isHost) {
-            gameMode = MultiplayerGameModeInfo.fromWireName(msg['mode']);
-            sharedPieceSeed = null;
-            notifyListeners();
-          }
-
-        case 'game_start':
-          if (state == MultiplayerState.inLobby) {
-            final config = MultiplayerGameConfig.fromGameStartMessage(msg);
-            gameMode = config.mode;
-            sharedPieceSeed = config.pieceSeed;
-            enableHold = config.enableHold;
-            gameplaySettings = config.gameplaySettings;
-            state = MultiplayerState.inGame;
-            notifyListeners();
-          }
-
-        case 'garbage':
-          if (state == MultiplayerState.inGame) {
-            final lines = (msg['lines'] as num?)?.toInt() ?? 0;
-            if (lines > 0) onGarbageReceived?.call(lines);
-          }
-
-        case 'board_snapshot':
-          final raw = msg['cells'];
-          if (raw is List && raw.length == 200) {
-            opponentBoard = raw.map((v) => (v as num).toInt()).toList();
-          }
-          opponentScore = (msg['score'] as num?)?.toInt() ?? opponentScore;
-          opponentLines = (msg['lines'] as num?)?.toInt() ?? opponentLines;
-          notifyListeners();
-
-        case 'game_over':
-          opponentIsGameOver = true;
-          opponentScore = (msg['score'] as num?)?.toInt() ?? opponentScore;
-          notifyListeners();
-
-        case 'quit':
-          _handleDisconnect();
+  void _handleBytes(Socket socket, List<int> data) {
+    if (_peerSocket != socket) return;
+    for (final byte in data) {
+      if (byte == 10) {
+        final frame = List<int>.of(_incomingFrame);
+        _incomingFrame.clear();
+        if (frame.isEmpty) continue;
+        try {
+          _handleMessage(socket, utf8.decode(frame));
+        } catch (_) {
+          unawaited(_rejectSocket(socket, 'malformed'));
+        }
+        if (_peerSocket != socket) return;
+      } else {
+        _incomingFrame.add(byte);
+        if (_incomingFrame.length > _maxFrameBytes) {
+          unawaited(_rejectSocket(socket, 'oversized'));
+          return;
+        }
       }
-    } catch (error, stackTrace) {
-      talker.handle(error, stackTrace, 'Parsing multiplayer message failed');
     }
   }
 
-  void _handleDisconnect() {
+  Future<void> _rejectSocket(Socket socket, String reason) async {
+    if (_peerSocket == socket) {
+      final authenticated = !_awaitingAuth;
+      _closeConnection(destroySocket: false);
+      _resetAfterConnection(rotateToken: authenticated);
+    }
+    try {
+      socket.add(utf8.encode('${jsonEncode({
+            'type': 'join_reject',
+            'reason': reason,
+          })}\n'));
+      await socket.flush().timeout(const Duration(milliseconds: 500));
+    } catch (_) {
+      // The remote peer may have already closed.
+    } finally {
+      socket.destroy();
+    }
+  }
+
+  void _handleMessage(Socket socket, String line) {
+    final msg = jsonDecode(line);
+    if (msg is! Map<String, dynamic>) {
+      throw const FormatException('Expected an object');
+    }
+    final type = msg['type'] as String?;
+
+    if (_awaitingAuth) {
+      if (type != 'join' ||
+          msg['version'] != DirectJoinInvite.protocolVersion ||
+          msg['token'] is! String ||
+          _pairingToken == null ||
+          _pairingExpiresAt == null ||
+          !_now().isBefore(_pairingExpiresAt!) ||
+          !DirectJoinInvite.matchesToken(
+            msg['token'] as String,
+            _pairingToken!,
+          ) ||
+          msg['id'] is! String ||
+          (msg['id'] as String).isEmpty ||
+          msg['name'] is! String ||
+          (msg['name'] as String).trim().isEmpty ||
+          (msg['name'] as String).length > 64) {
+        unawaited(_rejectSocket(socket, 'unauthorized'));
+        return;
+      }
+      _handshakeTimer?.cancel();
+      _awaitingAuth = false;
+      _isHost = true;
+      state = MultiplayerState.invited;
+      opponentName = msg['name'] as String;
+      notifyListeners();
+      onInviteReceived?.call(opponentName!);
+      return;
+    }
+
+    if (state == MultiplayerState.inviting && !_isHost) {
+      if (type == 'join_reject' || type == 'invite_reject') {
+        final reason =
+            msg['reason'] is String ? msg['reason'] as String : 'declined';
+        _closeConnection();
+        _resetAfterConnection();
+        onError?.call('Join rejected: $reason');
+        return;
+      }
+      if (type != 'invite_accept') {
+        unawaited(_rejectSocket(socket, 'unexpected'));
+        return;
+      }
+    } else if (state == MultiplayerState.invited ||
+        (state != MultiplayerState.inLobby &&
+            state != MultiplayerState.inGame &&
+            state != MultiplayerState.gameOver)) {
+      unawaited(_rejectSocket(socket, 'unexpected'));
+      return;
+    }
+
+    switch (type) {
+      case 'invite_accept':
+        if (state == MultiplayerState.inviting && !_isHost) {
+          _handshakeTimer?.cancel();
+          opponentName = msg['name'] as String? ?? opponentName;
+          state = MultiplayerState.inLobby;
+          notifyListeners();
+        }
+
+      case 'game_mode':
+        if (state == MultiplayerState.inLobby &&
+            !_isHost &&
+            (msg['mode'] == 'independent' || msg['mode'] == 'shared_pieces')) {
+          gameMode = MultiplayerGameModeInfo.fromWireName(msg['mode']);
+          sharedPieceSeed = null;
+          notifyListeners();
+        } else {
+          unawaited(_rejectSocket(socket, 'unauthorized'));
+        }
+
+      case 'game_start':
+        if (state == MultiplayerState.inLobby && !_isHost) {
+          final config = MultiplayerGameConfig.fromGameStartMessage(msg);
+          gameMode = config.mode;
+          sharedPieceSeed = config.pieceSeed;
+          enableHold = config.enableHold;
+          gameplaySettings = config.gameplaySettings;
+          state = MultiplayerState.inGame;
+          notifyListeners();
+        } else {
+          unawaited(_rejectSocket(socket, 'unauthorized'));
+        }
+
+      case 'garbage':
+        if (state == MultiplayerState.inGame &&
+            msg['lines'] is int &&
+            (msg['lines'] as int) > 0) {
+          onGarbageReceived?.call(msg['lines'] as int);
+        } else {
+          unawaited(_rejectSocket(socket, 'unexpected'));
+        }
+
+      case 'board_snapshot':
+        if (state != MultiplayerState.inGame &&
+            state != MultiplayerState.gameOver) {
+          unawaited(_rejectSocket(socket, 'unexpected'));
+          return;
+        }
+        final raw = msg['cells'];
+        if (raw is! List ||
+            raw.length != 200 ||
+            raw.any((v) => v is! int || v < 0 || v > 7) ||
+            msg['score'] is! int ||
+            msg['lines'] is! int ||
+            (msg['score'] as int) < 0 ||
+            (msg['lines'] as int) < 0) {
+          unawaited(_rejectSocket(socket, 'malformed'));
+          return;
+        }
+        opponentBoard = raw.cast<int>().toList();
+        opponentScore = msg['score'] as int;
+        opponentLines = msg['lines'] as int;
+        notifyListeners();
+
+      case 'game_over':
+        if (state != MultiplayerState.inGame &&
+            state != MultiplayerState.gameOver) {
+          unawaited(_rejectSocket(socket, 'unexpected'));
+          return;
+        }
+        if (msg['score'] is! int || (msg['score'] as int) < 0) {
+          unawaited(_rejectSocket(socket, 'malformed'));
+          return;
+        }
+        opponentIsGameOver = true;
+        opponentScore = msg['score'] as int;
+        notifyListeners();
+
+      case 'quit':
+        _handleDisconnect(socket);
+      default:
+        unawaited(_rejectSocket(socket, 'unexpected'));
+    }
+  }
+
+  void _handleDisconnect(Socket socket, {String? reason}) {
+    if (_peerSocket != socket) return;
     final wasConnected = _peerSocket != null;
+    final authenticated = !_awaitingAuth;
     final prevState = state;
     final prevOpponentName = opponentName;
 
@@ -548,6 +759,7 @@ class MultiplayerManager extends ChangeNotifier {
 
     if (!wasConnected) return;
 
+    if (reason != null) onError?.call(reason);
     if (prevState == MultiplayerState.inGame ||
         prevState == MultiplayerState.inLobby) {
       talker.warning('Multiplayer peer disconnected during ${prevState.name}');
@@ -555,15 +767,7 @@ class MultiplayerManager extends ChangeNotifier {
           ?.call('${prevOpponentName ?? _opponentFallbackName} disconnected');
     }
 
-    if (prevState != MultiplayerState.discovering &&
-        prevState != MultiplayerState.idle) {
-      state = MultiplayerState.discovering;
-      opponentName = null;
-      opponentIsGameOver = false;
-      _isHost = false;
-      _resetGameConfig();
-      notifyListeners();
-    }
+    _resetAfterConnection(rotateToken: authenticated);
   }
 
   void _send(Map<String, dynamic> msg) {
@@ -572,11 +776,15 @@ class MultiplayerManager extends ChangeNotifier {
     } catch (_) {}
   }
 
-  void _closeConnection() {
+  void _closeConnection({bool destroySocket = true}) {
+    _handshakeTimer?.cancel();
+    _handshakeTimer = null;
+    _awaitingAuth = false;
+    _incomingFrame.clear();
     _socketSub?.cancel();
     _socketSub = null;
     try {
-      _peerSocket?.destroy();
+      if (destroySocket) _peerSocket?.destroy();
     } catch (_) {}
     _peerSocket = null;
   }
@@ -590,6 +798,7 @@ class MultiplayerManager extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _announceTimer?.cancel();
     _peerExpiryTimer?.cancel();
     _closeConnection();

@@ -1,6 +1,6 @@
 # Direct P2P multiplayer — architecture and acceptance plan
 
-Status: slice 1 audited on 2026-11-03 (NZ). This is a design/handoff, **not** a claim that QR joining or real-device P2P gameplay works.
+Status: slice 1 architecture and slice 2 TCP direct-join manager completed on 2026-11-03 (NZ). QR joining and real-device P2P gameplay are **not yet proven**.
 
 ## Constraints and decisions
 
@@ -86,3 +86,26 @@ The token is an access capability, **not encryption**: plaintext TCP can expose 
 6. Do **not** alter the active Samsung app/session during transport development. Real-device installs require a separate availability/permission check. Leave exact commit, test logs and next remaining work.
 
 Do not call P2P complete until QR/manual authenticated join and a genuinely finished two-device game pass.
+
+
+## Slice 2 — authenticated TCP direct-join (2026-11-03 NZ)
+
+Implemented transport/manager layer only; QR and manual-entry UI are next. Files: lib/multiplayer/direct_join_invite.dart, multiplayer_manager.dart, peer.dart, discovery-screen cleanup, and test/direct_join_test.dart.
+
+- startHosting(port: ...) starts TCP with no UDP requirement and exposes hostingPort, hostingInvite(address), pairingToken, pairingExpiresAt, and refreshPairingToken(). joinHost(DirectJoinInvite) always initiates a guest connection; the accepting listener governs mode/hold/rules/start.
+- DirectJoinInvite round-trips a versioned blockdrop://join URI. Random.secure generates a 192-bit token valid for five minutes by default, checked on the first bounded JSON frame. Authentication and guest-accept timeouts default to five seconds. Invalid/wrong-version/expired/missing token, malformed/oversized frame and overlapping joins are rejected; failed pre-auth attempts do not rotate valid host invites.
+- Optional UDP discovery remains available, with TCP starting first. Legacy discovery peers supply their advertised token to joinHost. UDP broadcast includes the token for backward UI discovery; LAN sniffers can see it. This token is an access capability, NOT encryption or secrecy from LAN observers.
+- The game wire remains JSON-over-TCP. Frames are bounded to 16 KiB, invalid gameplay transitions rejected. Authenticated disconnect/match reset rotates the invite; reconnect requires refreshed details. No hosted service, SaaS, proprietary SDK or new dependency.
+
+### Local acceptance evidence
+
+- Real two-manager loopback TCP match: host accept, guest lobby, host-controlled game settings, distinct bidirectional 200-cell boards/scores/lines, game-over on both; reconnect with rotated token.
+- Negative tests: wrong/expired/missing token, wrong version, malformed/oversized JSON, double joins, timeout, reject/cancel/unexpected disconnect, occupied preferred port, TCP host without UDP.
+- Final formatting: 64 files, 0 changes. Final flutter analyze: no issues (buildq #3878). Final full flutter test: 262 passed (buildq #3879). Final targeted suite with timeout case: 8 passed (buildq #3870). Git diff --check: clean. This does not prove a real two-device match.
+
+### Next unfinished stage
+
+1. Explicit Host/Join UI with candidate editable address, actual port, token/expiry, QR and manual fields. Manual must remain available without camera or UDP.
+2. Vet QR packages' latest API/docs, licenses/transitives; no proprietary or hosted endpoints. Parse QR via DirectJoinInvite.fromUri; invoke joinHost. Keep firewall/client isolation caveats.
+3. Glass/Nox and Waydroid interoperability, then a genuine two-physical-device match showing both boards and terminal results. Do not alter an active Samsung session without checking/permission.
+4. Consider auto-refreshing the displayed host invite when its token expires while idle, without rotating it on invalid probes.
