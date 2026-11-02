@@ -83,6 +83,30 @@ flutter:
     - assets/
     - assets/audio/sfx/
     - assets/audio/music/
+    - metadata/ar-SA/changelogs/
+    - metadata/bn-BD/changelogs/
+    - metadata/de-DE/changelogs/
+    - metadata/en-US/changelogs/
+    - metadata/fa/changelogs/
+    - metadata/fr-FR/changelogs/
+    - metadata/hi-IN/changelogs/
+    - metadata/id-ID/changelogs/
+    - metadata/it-IT/changelogs/
+    - metadata/ja-JP/changelogs/
+    - metadata/ko-KR/changelogs/
+    - metadata/ms-MY/changelogs/
+    - metadata/nl-NL/changelogs/
+    - metadata/pl-PL/changelogs/
+    - metadata/pt-BR/changelogs/
+    - metadata/pt-PT/changelogs/
+    - metadata/ru-RU/changelogs/
+    - metadata/th-TH/changelogs/
+    - metadata/tr-TR/changelogs/
+    - metadata/uk-UA/changelogs/
+    - metadata/ur-PK/changelogs/
+    - metadata/vi-VN/changelogs/
+    - metadata/zh-CN/changelogs/
+    - metadata/zh-TW/changelogs/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
