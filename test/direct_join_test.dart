@@ -114,7 +114,10 @@ void main() {
     expect(host.state, MultiplayerState.gameOver);
     expect(guest.state, MultiplayerState.gameOver);
     host.backToDiscovery();
-    await waitUntil(() => guest.state == MultiplayerState.discovering);
+    await waitUntil(() => guest.state == MultiplayerState.gameOver);
+    expect(guest.opponentIsGameOver, isTrue);
+    guest.backToDiscovery();
+    expect(guest.state, MultiplayerState.discovering);
     expect(host.pairingToken, isNot(token));
     expect(host.hostingPort, invite.port);
     expect(guest.opponentBoard, everyElement(0));
@@ -329,6 +332,39 @@ void main() {
     expect(host.state, MultiplayerState.gameOver);
     expect(guest.state, MultiplayerState.gameOver);
     expect(host.hostingPort, greaterThan(0));
+  });
+
+  test('immediate peer departure preserves final board and result', () async {
+    final host = MultiplayerManager(playerName: 'Host');
+    final guest = MultiplayerManager(playerName: 'Guest');
+    addTearDown(host.dispose);
+    addTearDown(guest.dispose);
+    await host.startHosting(port: 0);
+    await guest.joinHost(host.hostingInvite('127.0.0.1'));
+    await waitUntil(() => host.state == MultiplayerState.invited);
+    host.acceptInvite();
+    await waitUntil(() => guest.state == MultiplayerState.inLobby);
+    host.startGame();
+    await waitUntil(() => guest.state == MultiplayerState.inGame);
+
+    final guestBoard = List<int>.filled(200, 0)..[199] = 4;
+    guest.sendBoardSnapshot(guestBoard, 456, 7);
+    await waitUntil(() => host.opponentScore == 456);
+    host.sendGameOver(123);
+    guest.sendGameOver(456);
+    guest.backToDiscovery();
+
+    await waitUntil(() => host.opponentIsGameOver);
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    expect(host.state, MultiplayerState.gameOver);
+    expect(host.opponentIsGameOver, isTrue);
+    expect(host.opponentBoard, guestBoard);
+    expect(host.opponentScore, 456);
+    expect(host.opponentLines, 7);
+    expect(guest.state, MultiplayerState.discovering);
+
+    host.backToDiscovery();
+    expect(host.state, MultiplayerState.discovering);
   });
 
   test('occupied preferred port falls back to a free port', () async {
