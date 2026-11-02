@@ -180,3 +180,20 @@ Implemented transport/manager layer only; QR and manual-entry UI are next. Files
 2. Exercise live permission denial/recovery, Wi-Fi toggle, group loss during TCP match, timeout/cancel, and simultaneous-host recovery on hardware. Mocked tests cover transitions only; system UX/group negotiation vary by OEM.
 3. Verify `Wi-Fi Direct` host advertises a P2P interface address actually reachable by its peer, not a guessed common default. Confirm no permission warnings on the targeted API levels, and run a manual live inspection before a release.
 4. Keep existing JSON-over-TCP. Do not claim release gate A12 (finished physical two-device game) passed until there is concrete both-sided proof.
+
+## Slice 10 — Wi-Fi Direct UX and terminal-result recovery (2026-11-03 NZ)
+
+- Wi-Fi Direct fallback is Android-only and remains below QR/manual IP. Its owner/guest setup, system permission prompts, and TCP pairing use the framework implementation from slice 9; desktop has no Wi-Fi Direct button.
+- Fixed a TCP finish/quit race: voluntary departure flushes buffered frames and drains the read side before closing. Peer departure from `gameOver` retains the final board, score, line count and result until the local player leaves.
+- The multiplayer route now owns the Wi-Fi Direct controller beyond its setup page; it removes the Android P2P group when the user backs out of setup, leaves a game, or closes multiplayer, and handles group loss while the game is active. It does not intentionally change ordinary Wi-Fi or firewall state.
+- Tests: local regression with an immediate guest departure preserves terminal data; full combined Flutter suite **285 passed** (Glass buildq #4053), analyzer **clean** (#4052), and follow-up cleanup suite/analyzer **passed** (#4058/#4057).
+- Android debug APK compiled (#4054); Waydroid build number 720 compiled (#4055), installed with `adb install -r` (no app-data wipe), launched and navigated from Settings → Play on LAN → Wi-Fi Direct. The expected unsupported-device explanation appeared and the app did not crash. This is a **negative-path smoke test**, not proof that a physical P2P group forms.
+- No Samsung session was launched or changed. Physical camera scanning, physical Android P2P and end-to-end finished gameplay on separate devices remain unverified.
+- Cross-machine Glass host test (#4051) timed out waiting for a Nox guest because Nox's single build worker was occupied by unrelated job #4336; dependency task #4337 was queued and expired guest test #4338 removed. No direct cross-host success is claimed from this attempt.
+
+### Resumption checklist
+
+1. Confirm the current main branch, its worktrees and running build queues before edits. Keep finished changes integrated; never duplicate Wi-Fi Direct bridge work.
+2. Once the Nox worker is free, prepare a new synchronized, unexpired pairing invitation and rerun the direct Glass ↔ Nox JSON/TCP harness (`/tmp/blockdrop-p2p07-cross_test.dart` on both hosts) using the same commit, recording distinct boards/scores/lines and both terminal results. Avoid stale invite reuse.
+3. On two physical Android devices only with explicit session consent, prove real Wi-Fi Direct discovery, user approval, owner IPv4 route, manual/QR TCP join, group-loss/recovery and complete bidirectional gameplay. Waydroid does not support this hardware proof.
+4. Keep QR/manual IP primary, UDP optional, no relay/server/hosted infrastructure, and no assertion that QR bypasses NAT or client isolation.
