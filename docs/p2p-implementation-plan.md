@@ -161,3 +161,22 @@ Implemented transport/manager layer only; QR and manual-entry UI are next. Files
 - Analyzer and full-suite results are recorded in the final Git commit/handoff for this continuation.
 - No Samsung installation, launch, active-session change or firewall rule change performed. No cloud relay or NAT-bypass claim.
 - Remaining release gates: physically scan a host QR; Glass Linux ↔ another machine/Waydroid and finally two physical devices play to completed game with board/score changes on both; validate real camera permission-denial behavior, firewall isolation and UDP behavior on targeted OSes. Android Wi-Fi Direct remains optional and unimplemented.
+
+
+## Slice 9 — optional Android Wi-Fi Direct fallback (2026-11-03 NZ)
+
+**Status: implemented and statically verified, physical Wi-Fi Direct interoperability unproven.**
+
+- `WifiDirectBridge.kt` uses Android's built-in [`WifiP2pManager`](https://developer.android.com/develop/connectivity/wifi/wifi-direct) only: group creation, peer discovery/list, connect, cancel/remove group, connection and group info callbacks, and Wi-Fi/peer/connection broadcasts. There is no external relay, host service, SDK or dependency. Android permission requests use NEARBY_WIFI_DEVICES (API 33+) or fine location on older devices. Unsupported devices, Wi-Fi off and denied permission are explicit states/errors.
+- `WifiDirectController` uses bounded (25 s) group-formation waits, cancellation, failure cleanup, group-loss notification, and rejects unexpected group ownership. A `createGroup`/`connect` action callback alone is not treated as an established network. Android's reported group-owner IPv4 (with physical P2P interface fallback) is used for the socket route.
+- `MultiplayerWifiDirectScreen` offers an opt-in Android fallback. Host creates a group and displays a refreshed local QR containing the **actual** TCP listener port and temporary capability; guest discovers/selects a peer, joins its group, then scans/pastes the host code. Guest verifies the code and connects to Android's live group owner IP via the existing `MultiplayerManager.joinHost` authentication/approval handshake. Standard LAN QR/manual IP and optional UDP discovery remain independent.
+- Tests: six **mocked platform-state** controller scenarios (#4017) for owner/guest roles, permission denial, timeout, simultaneous-host conflict and lost group; one **mocked Wi-Fi Direct UI** test (#4040) verifies the QR token/port are forwarded to the TCP manager with the OS-reported P2P IP. The prior `test/direct_join_test.dart` proves independent two-manager **real loopback TCP**, bidirectional board/score/lines and terminal game-over, but does **not** prove physical Wi-Fi Direct.
+- Full Glass `flutter test`: **284 passed** (#4042). `flutter analyze`: **no issues** (#4043). Android debug APK **compiled** (#4044); warning about Patrol's Kotlin Gradle Plugin remains unrelated. Full format and Git checks required before committing.
+- No Samsung app/session was launched or modified. Waydroid and physical Android hardware were **not** used for Wi-Fi Direct proof; some Android environments do not implement P2P. The app does not claim QR bypasses firewalls, client isolation or NAT.
+
+### Slice 9 outstanding / next handoff
+
+1. On **two physical Android devices with explicit session consent**, form a group, discover peers, connect, test manual/QR token from the owner, verify both board snapshots with distinct cells/score/lines and a completed game result on both devices. Capture actual route addresses, timestamps and errors. Do not use Waydroid as evidence of physical P2P.
+2. Exercise live permission denial/recovery, Wi-Fi toggle, group loss during TCP match, timeout/cancel, and simultaneous-host recovery on hardware. Mocked tests cover transitions only; system UX/group negotiation vary by OEM.
+3. Verify `Wi-Fi Direct` host advertises a P2P interface address actually reachable by its peer, not a guessed common default. Confirm no permission warnings on the targeted API levels, and run a manual live inspection before a release.
+4. Keep existing JSON-over-TCP. Do not claim release gate A12 (finished physical two-device game) passed until there is concrete both-sided proof.

@@ -17,9 +17,11 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private var discoveryMulticastLock: WifiManager.MulticastLock? = null
+    private var wifiDirectBridge: WifiDirectBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        wifiDirectBridge = WifiDirectBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.blockdrop.game/device")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -108,7 +110,27 @@ class MainActivity : FlutterActivity() {
         if (!lock.isHeld) lock.acquire()
     }
 
+    override fun onResume() {
+        super.onResume()
+        wifiDirectBridge?.resume()
+    }
+
+    override fun onPause() {
+        wifiDirectBridge?.pause()
+        super.onPause()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        if (wifiDirectBridge?.permissionResult(requestCode, grantResults) != true) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
     override fun onDestroy() {
+        wifiDirectBridge?.dispose()
+        wifiDirectBridge = null
         setDiscoveryMulticastLock(false)
         super.onDestroy()
     }

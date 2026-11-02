@@ -13,6 +13,7 @@ import '../widgets/game_decorations.dart';
 import 'multiplayer_game_screen.dart';
 import 'multiplayer_host_screen.dart';
 import 'multiplayer_join_screen.dart';
+import 'multiplayer_wifi_direct_screen.dart';
 
 class MultiplayerDiscoveryScreen extends StatefulWidget {
   final SettingsProvider settings;
@@ -320,6 +321,23 @@ class _MultiplayerDiscoveryScreenState
           ),
         ),
         const SizedBox(height: 12),
+        if (Platform.isAndroid) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: OutlinedButton.icon(
+              key: const Key('wifi-direct-button'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      MultiplayerWifiDirectScreen(manager: _manager),
+                ),
+              ),
+              icon: const Icon(Icons.wifi_tethering),
+              label: const Text('Wi-Fi Direct · fallback'),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: OutlinedButton.icon(
