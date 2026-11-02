@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../multiplayer/multiplayer_game_config.dart';
 import '../multiplayer/multiplayer_manager.dart';
+import '../multiplayer/wifi_direct.dart';
 import '../widgets/empty_state.dart';
 import '../multiplayer/peer.dart';
 import '../settings/settings_provider.dart';
@@ -29,6 +30,7 @@ class _MultiplayerDiscoveryScreenState
     extends State<MultiplayerDiscoveryScreen> {
   late final MultiplayerManager _manager;
   bool _navigatingToGame = false;
+  WifiDirectController? _wifiDirect;
 
   bool _managerInitialized = false;
   String? _tcpStartupError;
@@ -78,9 +80,46 @@ class _MultiplayerDiscoveryScreenState
 
   @override
   void dispose() {
+    final wifi = _wifiDirect;
+    if (wifi != null) {
+      wifi.onGroupLost = null;
+      unawaited(wifi.disconnect().whenComplete(wifi.dispose));
+    }
     _manager.removeListener(_onManagerChanged);
     _manager.dispose();
     super.dispose();
+  }
+
+  Future<void> _openWifiDirect() async {
+    final wifi = _wifiDirect ??= WifiDirectController();
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => MultiplayerWifiDirectScreen(
+          manager: _manager,
+          controller: wifi,
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (_manager.state == MultiplayerState.discovering ||
+        _manager.state == MultiplayerState.idle) {
+      wifi.onGroupLost = null;
+      await wifi.disconnect();
+    } else {
+      wifi.onGroupLost = () {
+        if (_manager.state != MultiplayerState.discovering) {
+          _manager.backToDiscovery();
+        }
+        _showError('Wi-Fi Direct group disconnected.');
+      };
+    }
+  }
+
+  Future<void> _disconnectWifiDirect() async {
+    final wifi = _wifiDirect;
+    if (wifi == null) return;
+    wifi.onGroupLost = null;
+    await wifi.disconnect();
   }
 
   void _onManagerChanged() {
@@ -107,6 +146,7 @@ class _MultiplayerDiscoveryScreenState
           Navigator.of(context).pop();
         } else {
           _manager.backToDiscovery();
+          unawaited(_disconnectWifiDirect());
         }
       });
     }
@@ -326,12 +366,7 @@ class _MultiplayerDiscoveryScreenState
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: OutlinedButton.icon(
               key: const Key('wifi-direct-button'),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) =>
-                      MultiplayerWifiDirectScreen(manager: _manager),
-                ),
-              ),
+              onPressed: _openWifiDirect,
               icon: const Icon(Icons.wifi_tethering),
               label: const Text('Wi-Fi Direct · fallback'),
             ),
