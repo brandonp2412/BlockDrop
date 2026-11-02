@@ -109,3 +109,19 @@ Implemented transport/manager layer only; QR and manual-entry UI are next. Files
 2. Vet QR packages' latest API/docs, licenses/transitives; no proprietary or hosted endpoints. Parse QR via DirectJoinInvite.fromUri; invoke joinHost. Keep firewall/client isolation caveats.
 3. Glass/Nox and Waydroid interoperability, then a genuine two-physical-device match showing both boards and terminal results. Do not alter an active Samsung session without checking/permission.
 4. Consider auto-refreshing the displayed host invite when its token expires while idle, without rotating it on invalid probes.
+
+## Slice 3 — Host QR and local pairing payload (2026-11-03 NZ)
+
+- Added Host game on the multiplayer screen, using the actual TCP listener port and 192-bit five-minute token. Host UI renders a QR locally with qr_flutter and a selectable/copyable blockdrop://join code; display name and expiry augment versioned IPv4/port/token fields. No remote QR generator.
+- Regenerate token/address on demand; a five-second network check hides stale QR on Wi-Fi/Ethernet change or loss. Expired QR stays hidden until refresh. UI explicitly says QR cannot bypass firewall/NAT/client isolation and plain TCP is unencrypted.
+- Physical IPv4/prefix detection: Android native Wi-Fi/Ethernet, Linux iproute2 JSON, Windows physical Get-NetAdapter plus Get-NetIPAddress, macOS active enN/ifconfig mask. Unknown prefix returns null, never a guessed /24 or default virtual adapter.
+- Dependency licenses, verified at [qr_flutter 4.1.0](https://pub.dev/packages/qr_flutter/versions/4.1.0), [qr 3.0.3](https://pub.dev/packages/qr/versions/3.0.3/license), and [meta](https://pub.dev/packages/meta): all BSD-3-Clause. Local rendering only; no cloud, account, subscription or proprietary SDK.
+- Tests cover URI round-trip/version/invalid IP, Linux interface and prefix, macOS prefix, host widget QR/regeneration, missing network. Glass Ethernet physical IP/prefix inspected; Docker and Waydroid interfaces filtered. No Samsung changes.
+- This is host QR display only, not guest camera/manual UI or real-device pairing. Prior loopback TCP game verification is not physical-device proof.
+
+### Slice 4 handoff
+
+1. Inspect main, worktrees and status. Finish any prior failing checks first.
+2. Implement guest QR scan and manual IPv4/port/token via DirectJoinInvite.fromUri and joinHost. Vet scanner offline/FOSS license and camera permission; manual join works without camera/UDP/Internet.
+3. Test expired/changed code, invalid input, access failures, camera denial, host/guest roles. Run format, analyzer, full tests; prove physical two-way match later where devices are available.
+4. No Samsung installation/session modification without checking/permission. No hosted relay, cloud or WebSockets.

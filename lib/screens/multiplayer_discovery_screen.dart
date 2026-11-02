@@ -10,6 +10,7 @@ import '../multiplayer/peer.dart';
 import '../settings/settings_provider.dart';
 import '../widgets/game_decorations.dart';
 import 'multiplayer_game_screen.dart';
+import 'multiplayer_host_screen.dart';
 
 class MultiplayerDiscoveryScreen extends StatefulWidget {
   final SettingsProvider settings;
@@ -258,6 +259,20 @@ class _MultiplayerDiscoveryScreenState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: FilledButton.icon(
+            key: const Key('host-game-button'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => MultiplayerHostScreen(manager: _manager),
+              ),
+            ),
+            icon: const Icon(Icons.qr_code_2_rounded),
+            label: const Text('Host game · QR & join code'),
+          ),
+        ),
+        const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(

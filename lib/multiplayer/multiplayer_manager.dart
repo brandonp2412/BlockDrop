@@ -181,6 +181,8 @@ class MultiplayerManager extends ChangeNotifier {
       host: address,
       port: _localPort,
       token: _pairingToken!,
+      displayName: playerName,
+      expiresAt: _pairingExpiresAt,
     );
   }
 

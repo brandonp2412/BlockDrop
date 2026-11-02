@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:io';
 
 /// The local-only invitation used by a direct TCP guest.
 class DirectJoinInvite {
@@ -13,11 +14,19 @@ class DirectJoinInvite {
   final String token;
   final int version;
 
+  /// Optional display-only host name, never used for name resolution.
+  final String? displayName;
+
+  /// Host-provided expiration to warn scanners before they connect.
+  final DateTime? expiresAt;
+
   const DirectJoinInvite({
     required this.host,
     required this.port,
     required this.token,
     this.version = protocolVersion,
+    this.displayName,
+    this.expiresAt,
   });
 
   /// Encodes the address, port and token for a future QR or manual UI.
@@ -29,6 +38,9 @@ class DirectJoinInvite {
           'host': host,
           'port': '$port',
           'token': token,
+          if (displayName != null) 'name': displayName!,
+          if (expiresAt != null)
+            'exp': (expiresAt!.millisecondsSinceEpoch ~/ 1000).toString(),
         },
       );
 
@@ -48,6 +60,12 @@ class DirectJoinInvite {
       port: port ?? 0,
       token: uri.queryParameters['token'] ?? '',
       version: version ?? 0,
+      displayName: uri.queryParameters['name'],
+      expiresAt: uri.queryParameters['exp'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              (int.tryParse(uri.queryParameters['exp']!) ?? -1) * 1000,
+            ),
     );
     invite.validate();
     return invite;
@@ -56,9 +74,9 @@ class DirectJoinInvite {
   /// Validates the connection data before attempting TCP.
   void validate() {
     if (version != protocolVersion ||
-        host.trim().isEmpty ||
-        host.length > 255 ||
-        host.contains(RegExp(r'[\s/]')) ||
+        InternetAddress.tryParse(host)?.type != InternetAddressType.IPv4 ||
+        (displayName != null && displayName!.length > 64) ||
+        (expiresAt != null && expiresAt!.millisecondsSinceEpoch <= 0) ||
         port < 1 ||
         port > 65535 ||
         !RegExp(r'^[0-9a-f]{48}$').hasMatch(token)) {
