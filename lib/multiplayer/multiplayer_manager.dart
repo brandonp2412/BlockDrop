@@ -816,7 +816,7 @@ class MultiplayerManager extends ChangeNotifier {
         final raw = msg['cells'];
         if (raw is! List ||
             raw.length != 200 ||
-            raw.any((v) => v is! int || v < 0 || v > 7) ||
+            raw.any((v) => v is! int || v < 0 || v > 8) ||
             msg['score'] is! int ||
             msg['lines'] is! int ||
             (msg['score'] as int) < 0 ||

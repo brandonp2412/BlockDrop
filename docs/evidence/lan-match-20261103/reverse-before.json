@@ -1,0 +1,26 @@
+[
+  {
+    "device": "linux",
+    "state": "inGame",
+    "score": 900,
+    "opponentScore": 1500,
+    "connected": true,
+    "result": "false",
+    "won": "false",
+    "paused": "false",
+    "over": "false",
+    "opponentGarbageCells": 9
+  },
+  {
+    "device": "phone",
+    "state": "inGame",
+    "score": 1500,
+    "opponentScore": 900,
+    "connected": true,
+    "result": "false",
+    "won": "false",
+    "paused": "false",
+    "over": "false",
+    "opponentGarbageCells": 9
+  }
+]

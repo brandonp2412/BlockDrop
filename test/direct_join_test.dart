@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:block_drop/game/gameplay_settings.dart';
+import 'package:block_drop/game/game_logic.dart';
 import 'package:block_drop/multiplayer/direct_join_invite.dart';
 import 'package:block_drop/multiplayer/multiplayer_game_config.dart';
 import 'package:block_drop/multiplayer/multiplayer_manager.dart';
@@ -370,6 +371,54 @@ void main() {
 
     host.backToDiscovery();
     expect(host.state, MultiplayerState.discovering);
+  });
+
+  test('real garbage boards keep the match connected in both directions',
+      () async {
+    final host = MultiplayerManager(playerName: 'Host');
+    final guest = MultiplayerManager(playerName: 'Guest');
+    final hostGame = GameLogic();
+    final guestGame = GameLogic();
+    addTearDown(host.dispose);
+    addTearDown(guest.dispose);
+    addTearDown(hostGame.dispose);
+    addTearDown(guestGame.dispose);
+    host.onGarbageReceived = hostGame.receiveGarbage;
+    guest.onGarbageReceived = guestGame.receiveGarbage;
+    await host.startHosting(port: 0);
+    await guest.joinHost(host.hostingInvite('127.0.0.1'));
+    await waitUntil(() => host.state == MultiplayerState.invited);
+    host.acceptInvite();
+    await waitUntil(() => guest.state == MultiplayerState.inLobby);
+    host.startGame();
+    await waitUntil(() => guest.state == MultiplayerState.inGame);
+    hostGame.startGame();
+    guestGame.startGame();
+
+    host.sendGarbage(2);
+    guest.sendGarbage(1);
+    await waitUntil(() =>
+        hostGame.exportBoardSnapshot().contains(8) &&
+        guestGame.exportBoardSnapshot().contains(8));
+    final hostBoard = hostGame.exportBoardSnapshot();
+    final guestBoard = guestGame.exportBoardSnapshot();
+    host.sendBoardSnapshot(hostBoard, 1200, 4);
+    guest.sendBoardSnapshot(guestBoard, 2400, 8);
+    await waitUntil(
+        () => host.opponentScore == 2400 && guest.opponentScore == 1200);
+    expect(host.opponentBoard, guestBoard);
+    expect(guest.opponentBoard, hostBoard);
+    expect(host.state, MultiplayerState.inGame);
+    expect(guest.state, MultiplayerState.inGame);
+
+    guest.sendGameOver(2400);
+    await waitUntil(() => host.opponentIsGameOver);
+    host.sendGameOver(1200);
+    await waitUntil(() => guest.opponentIsGameOver);
+    expect(host.opponentScore, 2400);
+    expect(guest.opponentScore, 1200);
+    expect(host.state, MultiplayerState.gameOver);
+    expect(guest.state, MultiplayerState.gameOver);
   });
 
   test('disconnect result preserves the last opponent score', () async {
