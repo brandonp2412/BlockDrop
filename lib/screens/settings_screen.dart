@@ -170,7 +170,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const _searchAliases = <String, String>{
     'Controller': 'keybinds remap controls remap keys',
     'Play on LAN': 'wifi wi-fi multiplayer local match',
-    'Large Board': 'fullscreen full-screen full screen immersive layout',
+    'Full-screen Layout':
+        'fullscreen full screen large board big board immersive layout',
   };
 
   bool _searchTextMatches(String label) =>
@@ -314,7 +315,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       'Swipe Up to Hold',
       'Continue Saved Game',
       'On-Screen Controls',
-      'Large Board',
+      'Full-screen Layout',
       'Starting Speed',
       'Speed per Level',
       'Maximum Level',
@@ -712,9 +713,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   widget.settings.setShowOnScreenControls,
                             ),
                           ),
-                        if (_matchesSearch('Large Board', section: 'Gameplay'))
+                        if (_matchesSearch('Full-screen Layout',
+                            section: 'Gameplay'))
                           _SettingTile(
-                            label: 'Large Board',
+                            label: 'Full-screen Layout',
                             colorScheme: colorScheme,
                             style: widget.settings.style,
                             child: Switch(
@@ -1312,7 +1314,7 @@ IconData _settingIcon(String label) => switch (label) {
       'Swipe Up to Hold' => Icons.swipe_up_alt_rounded,
       'Continue Saved Game' => Icons.save_outlined,
       'On-Screen Controls' => Icons.touch_app_outlined,
-      'Large Board' => Icons.fullscreen_rounded,
+      'Full-screen Layout' => Icons.fullscreen_rounded,
       'Starting Speed' => Icons.speed_rounded,
       'Speed per Level' => Icons.trending_up_rounded,
       'Maximum Level' => Icons.vertical_align_top_rounded,

@@ -45,7 +45,7 @@ void main() {
     expect(find.text('Music'), findsOneWidget);
     expect(find.text('Sound Effects'), findsNothing);
     expect(find.text('Ghost Tile'), findsNothing);
-    expect(find.text('Large Board'), findsNothing);
+    expect(find.text('Full-screen Layout'), findsNothing);
     expect(find.text('Show Opponent Board'), findsNothing);
   });
 
@@ -96,7 +96,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Large Board'), findsOneWidget);
+    expect(find.text('Full-screen Layout'), findsOneWidget);
     expect(find.text('Music'), findsNothing);
     expect(find.text('Ghost Tile'), findsNothing);
     expect(find.text('Show Opponent Board'), findsNothing);
