@@ -1061,40 +1061,100 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
             ),
           ),
           Positioned(
-            right: boardLeft + 4,
-            top: boardTop + 4,
+            right: boardLeft + 8,
+            top: boardTop + 8,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: cs.surface.withValues(alpha: 0.82),
-                borderRadius: panelBorderRadius(widget.settings.style),
+              width: (constraints.maxWidth * 0.62).clamp(0.0, 240.0),
+              padding: const EdgeInsets.only(left: 12, right: 4, bottom: 12),
+              decoration: panelDecoration(
+                widget.settings.style,
+                cs,
+                color: cs.surface.withValues(alpha: 0.94),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    gameLogic.practiceMode
-                        ? context.l10n.text('PRACTICE')
-                        : context.l10n.text('Score {score}', {
-                            'score': formatter.format(gameLogic.score),
-                          }),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            gameLogic.practiceMode
+                                ? context.l10n.text('PRACTICE')
+                                : context.l10n.text('Score {score}', {
+                                    'score': formatter.format(gameLogic.score),
+                                  }),
+                            style: TextStyle(
+                              color: cs.primary,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: context.l10n.text('Settings'),
+                        icon: const Icon(Icons.settings),
+                        iconSize: 20,
+                        style: IconButton.styleFrom(
+                          foregroundColor: cs.onSurfaceVariant,
+                          minimumSize: const Size(48, 48),
+                        ),
+                        onPressed: _openSettings,
+                      ),
+                    ],
                   ),
-                  Text(
-                    context.l10n.text('Level {level}', {
-                      'level': gameLogic.level,
-                    }),
-                  ),
-                  Text(
-                    context.l10n.text('Lines {lines}', {
-                      'lines': gameLogic.linesCleared,
-                    }),
-                  ),
-                  IconButton(
-                    tooltip: context.l10n.text('Settings'),
-                    icon: const Icon(Icons.settings),
-                    iconSize: 20,
-                    visualDensity: VisualDensity.compact,
-                    onPressed: _openSettings,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            cs.surfaceContainerHighest.withValues(alpha: 0.6),
+                        borderRadius: panelBorderRadius(widget.settings.style),
+                      ),
+                      child: DefaultTextStyle(
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: AlignmentDirectional.centerStart,
+                                child: Text(
+                                  context.l10n.text('Level {level}', {
+                                    'level': gameLogic.level,
+                                  }),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: Text(
+                                  context.l10n.text('Lines {lines}', {
+                                    'lines': gameLogic.linesCleared,
+                                  }),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
