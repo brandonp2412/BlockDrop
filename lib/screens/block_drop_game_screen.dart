@@ -16,6 +16,7 @@ import '../game/gameplay_settings.dart';
 import '../l10n/app_localizations.dart';
 import '../settings/settings_provider.dart';
 import '../update_notice.dart';
+import '../update_notice_snackbar.dart';
 import '../settings/controller_bindings.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_decorations.dart';
@@ -128,14 +129,11 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
       await prefs.setInt(noticeKey, now);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Text('New version ${info.version}'),
-          action: SnackBarAction(
-            label: context.l10n.text("What's new"),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const WhatsNewScreen()),
-            ),
+        newVersionSnackBar(
+          context,
+          info.version,
+          () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const WhatsNewScreen()),
           ),
         ),
       );
