@@ -46,6 +46,37 @@ void main() {
       expect(find.text('Sound Effects'), findsOneWidget);
     });
 
+    testWidgets('Space drops pieces without activating the fullscreen cog', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(960, 1080);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      SharedPreferences.setMockInitialValues({});
+      addTearDown(() => SharedPreferences.setMockInitialValues({}));
+
+      await tester.pumpWidget(const BlockDropApp());
+      await tester.pump(const Duration(milliseconds: 250));
+      final gameLogic =
+          tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+      gameLogic.gameTimer?.cancel();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+
+      expect(gameLogic.board.expand((row) => row).any((cell) => cell != null),
+          isTrue);
+      expect(find.text('Settings'), findsNothing);
+      expect(gameLogic.isPaused, isFalse);
+
+      await tester.tap(find.byIcon(Icons.settings));
+      await tester.pumpAndSettle();
+      expect(find.text('Settings'), findsOneWidget);
+    }, variant: TargetPlatformVariant({TargetPlatform.linux}));
+
     testWidgets('main game uses the fullscreen layout by default', (
       WidgetTester tester,
     ) async {

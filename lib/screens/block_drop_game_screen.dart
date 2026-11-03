@@ -1096,15 +1096,17 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
                           ),
                         ),
                       ),
-                      IconButton(
-                        tooltip: context.l10n.text('Settings'),
-                        icon: const Icon(Icons.settings),
-                        iconSize: 20,
-                        style: IconButton.styleFrom(
-                          foregroundColor: cs.onSurfaceVariant,
-                          minimumSize: const Size(48, 48),
+                      ExcludeFocus(
+                        child: IconButton(
+                          tooltip: context.l10n.text('Settings'),
+                          icon: const Icon(Icons.settings),
+                          iconSize: 20,
+                          style: IconButton.styleFrom(
+                            foregroundColor: cs.onSurfaceVariant,
+                            minimumSize: const Size(48, 48),
+                          ),
+                          onPressed: _openSettings,
                         ),
-                        onPressed: _openSettings,
                       ),
                     ],
                   ),
