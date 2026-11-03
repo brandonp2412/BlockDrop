@@ -98,6 +98,16 @@ void main() {
         find.byKey(const ValueKey('fullscreen-game-board')),
         findsOneWidget,
       );
+      final boardRect = tester.getRect(
+        find.byKey(const ValueKey('fullscreen-game-board')),
+      );
+      final hudRect = tester.getRect(
+        find.byKey(const ValueKey('fullscreen-game-hud')),
+      );
+      expect(hudRect.width, lessThan(boardRect.width * 0.25));
+      expect(hudRect.height, greaterThan(hudRect.width));
+      expect(hudRect.left,
+          greaterThan(boardRect.center.dx + boardRect.width * 0.2));
       expect(find.text('HOLD'), findsOneWidget);
       expect(find.text('NEXT'), findsOneWidget);
       expect(
