@@ -17,11 +17,11 @@ void main() {
       await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
-      expect(find.textContaining('Score:'), findsOneWidget);
-      expect(find.textContaining('Level:'), findsOneWidget);
-      expect(find.textContaining('Lines:'), findsOneWidget);
-      expect(find.text('Hold:'), findsOneWidget);
-      expect(find.text('Next:'), findsOneWidget);
+      expect(find.textContaining('Score'), findsOneWidget);
+      expect(find.textContaining('Level'), findsOneWidget);
+      expect(find.textContaining('Lines'), findsOneWidget);
+      expect(find.text('HOLD'), findsOneWidget);
+      expect(find.text('NEXT'), findsOneWidget);
     });
 
     testWidgets('settings screen opens with expected options', (
@@ -46,12 +46,12 @@ void main() {
       expect(find.text('Sound Effects'), findsOneWidget);
     });
 
-    testWidgets('large board setting uses the fullscreen game layout', (
+    testWidgets('main game uses the fullscreen layout by default', (
       WidgetTester tester,
     ) async {
       SharedPreferences.setMockInitialValues({});
       final settings = SettingsProvider();
-      await settings.setFullscreenBoard(true);
+      await settings.load();
       tester.view.physicalSize = const Size(400, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -119,9 +119,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Back on the game screen — HUD labels must be visible again
-      expect(find.textContaining('Score:'), findsOneWidget);
-      expect(find.text('Hold:'), findsOneWidget);
-      expect(find.text('Next:'), findsOneWidget);
+      expect(find.textContaining('Score'), findsOneWidget);
+      expect(find.text('HOLD'), findsOneWidget);
+      expect(find.text('NEXT'), findsOneWidget);
     });
 
     testWidgets('tapping the Hold label holds the current piece', (
@@ -130,14 +130,14 @@ void main() {
       await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
-      // "Hold:" is inside a GestureDetector — tapping it triggers holdPiece()
-      await tester.tap(find.text('Hold:'));
+      // "HOLD" is inside a GestureDetector — tapping it triggers holdPiece()
+      await tester.tap(find.text('HOLD'));
       await tester.pump();
 
       // Game is still running and HUD is intact
-      expect(find.textContaining('Score:'), findsOneWidget);
-      expect(find.text('Hold:'), findsOneWidget);
-      expect(find.text('Next:'), findsOneWidget);
+      expect(find.textContaining('Score'), findsOneWidget);
+      expect(find.text('HOLD'), findsOneWidget);
+      expect(find.text('NEXT'), findsOneWidget);
     });
 
     testWidgets('optional upward swipe holds the active piece', (
@@ -265,7 +265,7 @@ void main() {
       await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
-      await tester.tap(find.text('Hold:'));
+      await tester.tap(find.text('HOLD'));
       await tester.pump();
 
       HoldPieceDisplay holdPreview = tester.widget(

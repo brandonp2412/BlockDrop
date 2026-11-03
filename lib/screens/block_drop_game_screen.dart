@@ -1039,6 +1039,7 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
                   piece: gameLogic.heldPiece,
                   style: widget.settings.style,
                   boxSize: previewBoxSize.width,
+                  isAvailable: gameLogic.canHold,
                 ),
               ),
             ),
@@ -1099,6 +1100,21 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
               ),
             ),
           ),
+          if (widget.settings.showOnScreenControls)
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 8,
+              child: OnScreenGameControls(
+                onMoveLeft: gameLogic.movePieceLeft,
+                onMoveRight: gameLogic.movePieceRight,
+                onSoftDrop: gameLogic.softDrop,
+                onRotateLeft: gameLogic.rotatePieceLeft,
+                onRotateRight: gameLogic.rotatePieceRight,
+                onHardDrop: gameLogic.dropPiece,
+                onHold: widget.settings.enableHold ? gameLogic.holdPiece : null,
+              ),
+            ),
           AnimatedBuilder(
             animation: _popupController,
             builder: (context, _) {
