@@ -382,6 +382,7 @@ void main() {
       await tester.pump();
       expect(find.text('Controller'), findsOneWidget, reason: query);
       expect(find.text('Multiplayer'), findsNothing);
+      expect(find.text('Play on LAN'), findsNothing);
     }
     for (final query in ['Wi-Fi multiplayer', 'local match']) {
       await tester.enterText(search, query);
@@ -389,6 +390,24 @@ void main() {
       expect(find.text('Play on LAN'), findsOneWidget, reason: query);
       expect(find.text('Controller'), findsNothing);
     }
+  });
+
+  testWidgets('multiplayer sits directly below game settings', (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SettingsScreen(settings: settings, onRestart: () {}),
+      ),
+    );
+
+    final gameY = tester.getTopLeft(find.text('Game')).dy;
+    final multiplayerY = tester.getTopLeft(find.text('Multiplayer')).dy;
+    final playOnLanY = tester.getTopLeft(find.text('Play on LAN')).dy;
+    final soundY = tester.getTopLeft(find.text('Sound')).dy;
+
+    expect(gameY, lessThan(multiplayerY));
+    expect(multiplayerY, lessThan(playOnLanY));
+    expect(playOnLanY, lessThan(soundY));
   });
 
   testWidgets('settings labels wrap and stay aligned on narrow screens',

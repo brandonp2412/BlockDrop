@@ -9,11 +9,11 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../l10n/app_localizations.dart';
 import '../audio/audio_service.dart';
-import '../settings/settings_provider.dart';
 import '../game/gameplay_settings.dart';
+import '../l10n/app_localizations.dart';
 import '../settings/controller_bindings.dart';
+import '../settings/settings_provider.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/game_decorations.dart';
 import 'multiplayer_discovery_screen.dart';
@@ -482,6 +482,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ],
+                        if (showMultiplayer)
+                          _SectionHeader(
+                            label: 'Multiplayer',
+                            colorScheme: colorScheme,
+                          ),
+                        if (_matchesSearch('Play on LAN',
+                            section: 'Multiplayer'))
+                          Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            decoration: panelDecoration(
+                              widget.settings.style,
+                              colorScheme,
+                            ),
+                            child: InkWell(
+                              borderRadius: panelBorderRadius(
+                                widget.settings.style,
+                              ),
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MultiplayerDiscoveryScreen(
+                                    settings: widget.settings,
+                                  ),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.wifi,
+                                      color: colorScheme.primary,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        context.l10n.text('Play on LAN'),
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.chevron_right,
+                                      color: colorScheme.onSurfaceVariant,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (_matchesSearch(
+                          'Show Opponent Board',
+                          section: 'Multiplayer',
+                        ))
+                          _SettingTile(
+                            label: 'Show Opponent Board',
+                            colorScheme: colorScheme,
+                            style: widget.settings.style,
+                            child: Switch(
+                              value: widget.settings.showOpponentBoard,
+                              onChanged: (value) =>
+                                  widget.settings.setShowOpponentBoard(value),
+                            ),
+                          ),
                         if (showSound)
                           _SectionHeader(
                               label: 'Sound', colorScheme: colorScheme),
@@ -934,80 +1008,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   const Icon(Icons.arrow_drop_down, size: 20),
                                 ],
-                              ),
-                            ),
-                          ),
-                        if (showMultiplayer)
-                          _SectionHeader(
-                            label: 'Multiplayer',
-                            colorScheme: colorScheme,
-                          ),
-                        if (_matchesSearch(
-                          'Show Opponent Board',
-                          section: 'Multiplayer',
-                        ))
-                          _SettingTile(
-                            label: 'Show Opponent Board',
-                            colorScheme: colorScheme,
-                            style: widget.settings.style,
-                            child: Switch(
-                              value: widget.settings.showOpponentBoard,
-                              onChanged: (value) =>
-                                  widget.settings.setShowOpponentBoard(value),
-                            ),
-                          ),
-                        if (_matchesSearch('Play on LAN',
-                            section: 'Multiplayer'))
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            decoration: panelDecoration(
-                              widget.settings.style,
-                              colorScheme,
-                            ),
-                            child: InkWell(
-                              borderRadius: panelBorderRadius(
-                                widget.settings.style,
-                              ),
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => MultiplayerDiscoveryScreen(
-                                    settings: widget.settings,
-                                  ),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.wifi,
-                                      color: colorScheme.primary,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        context.l10n.text('Play on LAN'),
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      color: colorScheme.onSurfaceVariant,
-                                      size: 20,
-                                    ),
-                                  ],
-                                ),
                               ),
                             ),
                           ),
