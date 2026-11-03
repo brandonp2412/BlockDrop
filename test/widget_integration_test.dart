@@ -20,8 +20,8 @@ void main() {
       expect(find.textContaining('Score'), findsOneWidget);
       expect(find.textContaining('Level'), findsOneWidget);
       expect(find.textContaining('Lines'), findsOneWidget);
-      expect(find.text('HOLD'), findsOneWidget);
-      expect(find.text('NEXT'), findsOneWidget);
+      expect(find.text('Hold:'), findsOneWidget);
+      expect(find.text('Next:'), findsOneWidget);
     });
 
     testWidgets('settings screen opens with expected options', (
@@ -30,7 +30,7 @@ void main() {
       await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.tap(find.byIcon(Icons.settings));
       await tester.pumpAndSettle();
 
       // AppBar title
@@ -53,7 +53,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({'fullscreen_board': true});
       addTearDown(() => SharedPreferences.setMockInitialValues({}));
 
       await tester.pumpWidget(const BlockDropApp());
@@ -77,12 +77,39 @@ void main() {
       expect(find.text('Settings'), findsOneWidget);
     }, variant: TargetPlatformVariant({TargetPlatform.linux}));
 
-    testWidgets('main game uses the fullscreen layout by default', (
+    testWidgets('main game uses the classic layout by default', (
       WidgetTester tester,
     ) async {
       SharedPreferences.setMockInitialValues({});
       final settings = SettingsProvider();
       await settings.load();
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(() => SharedPreferences.setMockInitialValues({}));
+
+      await tester.pumpWidget(
+        MaterialApp(home: BlockDropGameScreen(settings: settings)),
+      );
+      await tester.pump();
+
+      expect(settings.fullscreenBoard, isFalse);
+      expect(find.text('Score: 0'), findsOneWidget);
+      expect(find.text('Hold:'), findsOneWidget);
+      expect(find.text('Next:'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('fullscreen-game-board')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('fullscreen game layout can be enabled', (
+      WidgetTester tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = SettingsProvider();
+      await settings.setFullscreenBoard(true);
       tester.view.physicalSize = const Size(400, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -152,7 +179,7 @@ void main() {
       await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.tap(find.byIcon(Icons.settings));
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsOneWidget);
 
@@ -161,8 +188,8 @@ void main() {
 
       // Back on the game screen — HUD labels must be visible again
       expect(find.textContaining('Score'), findsOneWidget);
-      expect(find.text('HOLD'), findsOneWidget);
-      expect(find.text('NEXT'), findsOneWidget);
+      expect(find.text('Hold:'), findsOneWidget);
+      expect(find.text('Next:'), findsOneWidget);
     });
 
     testWidgets('tapping the Hold label holds the current piece', (
@@ -172,13 +199,13 @@ void main() {
       await tester.pump();
 
       // "HOLD" is inside a GestureDetector — tapping it triggers holdPiece()
-      await tester.tap(find.text('HOLD'));
+      await tester.tap(find.text('Hold:'));
       await tester.pump();
 
       // Game is still running and HUD is intact
       expect(find.textContaining('Score'), findsOneWidget);
-      expect(find.text('HOLD'), findsOneWidget);
-      expect(find.text('NEXT'), findsOneWidget);
+      expect(find.text('Hold:'), findsOneWidget);
+      expect(find.text('Next:'), findsOneWidget);
     });
 
     testWidgets('optional upward swipe holds the active piece', (
@@ -306,7 +333,7 @@ void main() {
       await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
-      await tester.tap(find.text('HOLD'));
+      await tester.tap(find.text('Hold:'));
       await tester.pump();
 
       HoldPieceDisplay holdPreview = tester.widget(

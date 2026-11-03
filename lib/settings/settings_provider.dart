@@ -56,7 +56,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _showOpponentBoard = true;
   bool _enableHold = true;
   bool _showOnScreenControls = false;
-  bool _fullscreenBoard = true;
+  bool _fullscreenBoard = false;
   bool _continueGameEnabled = true;
   String? _savedGameJson;
   GameplaySettings _gameplay = GameplaySettings.defaults;
@@ -187,7 +187,7 @@ class SettingsProvider extends ChangeNotifier {
     _enableHold = prefs.getBool(_enableHoldKey) ?? true;
     final savedOnScreenControls = prefs.getBool(_showOnScreenControlsKey);
     _showOnScreenControls = savedOnScreenControls ?? await _isTelevision();
-    _fullscreenBoard = prefs.getBool(_fullscreenBoardKey) ?? true;
+    _fullscreenBoard = prefs.getBool(_fullscreenBoardKey) ?? false;
     _continueGameEnabled = prefs.getBool(_continueGameKey) ?? true;
     _savedGameJson =
         _continueGameEnabled ? prefs.getString(_savedGameKey) : null;

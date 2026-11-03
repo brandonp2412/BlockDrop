@@ -170,6 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const _searchAliases = <String, String>{
     'Controller': 'keybinds remap controls remap keys',
     'Play on LAN': 'wifi wi-fi multiplayer local match',
+    'Large Board': 'fullscreen full-screen full screen immersive layout',
   };
 
   bool _searchTextMatches(String label) =>
@@ -717,6 +718,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             colorScheme: colorScheme,
                             style: widget.settings.style,
                             child: Switch(
+                              key: const Key('settingsFullscreenLayoutSwitch'),
                               value: widget.settings.fullscreenBoard,
                               onChanged: (value) =>
                                   widget.settings.setFullscreenBoard(value),

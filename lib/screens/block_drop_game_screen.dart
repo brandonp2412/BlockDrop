@@ -682,45 +682,62 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
                         child: Row(
                           children: [
                             const SizedBox(width: 8),
-                            Text(
-                              gameLogic.practiceMode
-                                  ? context.l10n.text('PRACTICE')
-                                  : context.l10n.text('Score: {score}', {
-                                      'score': formatter.format(
-                                        gameLogic.score,
-                                      ),
-                                    }),
-                              style: TextStyle(
-                                color: gameLogic.practiceMode
-                                    ? cs.tertiary
-                                    : cs.onSurface,
-                                fontSize: 18,
-                                fontWeight: gameLogic.practiceMode
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+                            Expanded(
+                              flex: 2,
+                              child: FittedBox(
+                                alignment: Alignment.centerLeft,
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  gameLogic.practiceMode
+                                      ? context.l10n.text('PRACTICE')
+                                      : context.l10n.text('Score: {score}', {
+                                          'score': formatter.format(
+                                            gameLogic.score,
+                                          ),
+                                        }),
+                                  style: TextStyle(
+                                    color: gameLogic.practiceMode
+                                        ? cs.tertiary
+                                        : cs.onSurface,
+                                    fontSize: 18,
+                                    fontWeight: gameLogic.practiceMode
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
                               ),
                             ),
-                            const Spacer(),
-                            Text(
-                              context.l10n.text('Level: {level}', {
-                                'level': gameLogic.level,
-                              }),
-                              style: TextStyle(
-                                color: cs.onSurface,
-                                fontSize: 18,
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  context.l10n.text('Level: {level}', {
+                                    'level': gameLogic.level,
+                                  }),
+                                  style: TextStyle(
+                                    color: cs.onSurface,
+                                    fontSize: 18,
+                                  ),
+                                ),
                               ),
                             ),
-                            const Spacer(),
-                            Text(
-                              context.l10n.text('Lines: {lines}', {
-                                'lines': gameLogic.linesCleared,
-                              }),
-                              style: TextStyle(
-                                color: cs.onSurface,
-                                fontSize: 18,
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  context.l10n.text('Lines: {lines}', {
+                                    'lines': gameLogic.linesCleared,
+                                  }),
+                                  style: TextStyle(
+                                    color: cs.onSurface,
+                                    fontSize: 18,
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 8),
                             ExcludeFocus(
                               child: IconButton(
                                 icon: Icon(

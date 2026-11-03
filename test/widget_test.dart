@@ -13,11 +13,11 @@ void main() {
     testWidgets('shows initial HUD stats at zero', (WidgetTester tester) async {
       await tester.pumpWidget(const BlockDropApp());
 
-      expect(find.text('Score\n0'), findsOneWidget);
-      expect(find.text('Level\n1'), findsOneWidget);
-      expect(find.text('Lines\n0'), findsOneWidget);
-      expect(find.text('HOLD'), findsOneWidget);
-      expect(find.text('NEXT'), findsOneWidget);
+      expect(find.text('Score: 0'), findsOneWidget);
+      expect(find.text('Level: 1'), findsOneWidget);
+      expect(find.text('Lines: 0'), findsOneWidget);
+      expect(find.text('Hold:'), findsOneWidget);
+      expect(find.text('Next:'), findsOneWidget);
     });
 
     testWidgets('does not show game-over UI on startup', (
@@ -39,8 +39,8 @@ void main() {
       }
 
       expect(find.textContaining('Score'), findsOneWidget);
-      expect(find.text('HOLD'), findsOneWidget);
-      expect(find.text('NEXT'), findsOneWidget);
+      expect(find.text('Hold:'), findsOneWidget);
+      expect(find.text('Next:'), findsOneWidget);
     });
 
     testWidgets('startup does not display a debug banner', (
@@ -57,13 +57,13 @@ void main() {
       final settings = SettingsProvider();
       await tester.pumpWidget(BlockDropApp(settings: settings));
 
-      expect(find.text('Score\n0'), findsOneWidget);
+      expect(find.text('Score: 0'), findsOneWidget);
 
       await settings.setLocaleCode('de');
       await tester.pump();
 
-      expect(find.text('Punkte\n0'), findsOneWidget);
-      expect(find.text('Score\n0'), findsNothing);
+      expect(find.text('Punkte: 0'), findsOneWidget);
+      expect(find.text('Score: 0'), findsNothing);
     });
   });
 }

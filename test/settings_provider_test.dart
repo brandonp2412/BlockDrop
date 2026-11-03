@@ -24,7 +24,7 @@ void main() {
       expect(settings.highScore, 0);
       expect(settings.enableHold, true);
       expect(settings.showOnScreenControls, false);
-      expect(settings.fullscreenBoard, true);
+      expect(settings.fullscreenBoard, false);
       expect(settings.continueGameEnabled, true);
       expect(settings.gameplay.swipeUpHoldEnabled, false);
     });
@@ -384,15 +384,17 @@ void main() {
       expect(reloadedSettings.showOnScreenControls, true);
     });
 
-    test('compact board setting persists across providers', () async {
+    test('fullscreen layout is opt-in and persists across providers', () async {
       final settings = SettingsProvider();
-
-      await settings.setFullscreenBoard(false);
+      await settings.load();
       expect(settings.fullscreenBoard, false);
+
+      await settings.setFullscreenBoard(true);
+      expect(settings.fullscreenBoard, true);
 
       final reloadedSettings = SettingsProvider();
       await reloadedSettings.load();
-      expect(reloadedSettings.fullscreenBoard, false);
+      expect(reloadedSettings.fullscreenBoard, true);
     });
 
     test('persists and clears a resumable game snapshot', () async {

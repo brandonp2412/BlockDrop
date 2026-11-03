@@ -92,7 +92,7 @@ void main() {
 
     await tester.enterText(
       find.byKey(const ValueKey('settings-search')),
-      'large board',
+      'fullscreen',
     );
     await tester.pump();
 
@@ -100,6 +100,27 @@ void main() {
     expect(find.text('Music'), findsNothing);
     expect(find.text('Ghost Tile'), findsNothing);
     expect(find.text('Show Opponent Board'), findsNothing);
+  });
+
+  testWidgets('full-screen layout toggle starts off', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = SettingsProvider();
+    await settings.load();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    final search = find.byKey(const ValueKey('settings-search'));
+    await tester.enterText(search, 'fullscreen');
+    await tester.pump();
+
+    final toggle = find.byKey(const Key('settingsFullscreenLayoutSwitch'));
+    expect(toggle, findsOneWidget);
+    expect(tester.widget<Switch>(toggle).value, isFalse);
+
+    await tester.tap(toggle);
+    await tester.pump();
+    expect(settings.fullscreenBoard, isTrue);
   });
 
   testWidgets('retro style reaches controller controls and preserves gaps', (
