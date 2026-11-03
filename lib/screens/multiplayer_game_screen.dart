@@ -322,7 +322,12 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         body: SafeArea(
           child: Stack(
             children: [
-              _buildGameLayout(),
+              SwipeDetector(
+                gameLogic: _gameLogic,
+                moveThreshold: _moveThreshold,
+                fastSwipeVelocity: _fastSwipeVelocity,
+                child: _buildGameLayout(),
+              ),
               if (!_gameActive) _buildCountdownOverlay(),
               if (_showResult) _buildResultOverlay(),
             ],
@@ -348,7 +353,6 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
 
   Widget _buildWideLayout(BoxConstraints constraints) {
     final cs = Theme.of(context).colorScheme;
-    final mq = MediaQuery.of(context);
     final totalW = constraints.maxWidth - 16;
 
     final shortSide = constraints.maxWidth < constraints.maxHeight
@@ -356,22 +360,26 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
         : constraints.maxHeight;
     final uiScale = (shortSide / 400.0).clamp(1.0, 2.0);
     final double kOverhead = 110.0 * uiScale;
-    final screenH = mq.size.height - mq.padding.top - mq.padding.bottom;
-    final availableH = (screenH - kOverhead).clamp(100.0, double.infinity);
+    final availableH =
+        (constraints.maxHeight - kOverhead).clamp(100.0, double.infinity);
 
     // Reserve space for hold/next sidebar
     final double sidebarW = 72.0 * uiScale;
     const double sidebarGap = 8.0;
-    final boardsW = totalW - sidebarW - sidebarGap;
+    final opponentGap = widget.settings.showOpponentBoard ? totalW * 0.03 : 0.0;
+    final boardsW = totalW - sidebarW - sidebarGap - opponentGap;
+    const opponentRatio = 0.40 / 0.57;
 
-    final yourBoardWByWidth = boardsW * 0.59;
+    final yourBoardWByWidth = widget.settings.showOpponentBoard
+        ? boardsW / (1 + opponentRatio)
+        : boardsW;
     final yourBoardWByHeight = availableH / 2;
     final yourBoardW = yourBoardWByWidth < yourBoardWByHeight
         ? yourBoardWByWidth
         : yourBoardWByHeight;
     final yourBoardH = yourBoardW * 2;
 
-    final oppBoardW = yourBoardW * (0.40 / 0.57);
+    final oppBoardW = yourBoardW * opponentRatio;
     final oppBoardH = oppBoardW * 2;
 
     return SingleChildScrollView(
@@ -438,39 +446,34 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                     colorScheme: cs,
                   ),
                   const SizedBox(height: 4),
-                  SwipeDetector(
-                    gameLogic: _gameLogic,
-                    moveThreshold: _moveThreshold,
-                    fastSwipeVelocity: _fastSwipeVelocity,
-                    child: Container(
-                      width: yourBoardW,
-                      height: yourBoardH,
-                      decoration: boardDecoration(widget.settings.style, cs),
-                      padding: boardContentPadding(widget.settings.style),
-                      child: GameBoard(
-                        board: _gameLogic.getBoardWithCurrentPiece(
-                          showGhost: widget.settings.showGhostTile,
-                        ),
-                        previewRows: GameConstants.previewRows,
-                        gameLogic: _gameLogic,
-                        style: widget.settings.style,
-                        onLeftTap: () {
-                          if (_gameActive &&
-                              _gameLogic.isGameRunning &&
-                              !_gameLogic.isGameOver &&
-                              !_gameLogic.isPaused) {
-                            _gameLogic.rotatePieceLeft();
-                          }
-                        },
-                        onRightTap: () {
-                          if (_gameActive &&
-                              _gameLogic.isGameRunning &&
-                              !_gameLogic.isGameOver &&
-                              !_gameLogic.isPaused) {
-                            _gameLogic.rotatePieceRight();
-                          }
-                        },
+                  Container(
+                    width: yourBoardW,
+                    height: yourBoardH,
+                    decoration: boardDecoration(widget.settings.style, cs),
+                    padding: boardContentPadding(widget.settings.style),
+                    child: GameBoard(
+                      board: _gameLogic.getBoardWithCurrentPiece(
+                        showGhost: widget.settings.showGhostTile,
                       ),
+                      previewRows: GameConstants.previewRows,
+                      gameLogic: _gameLogic,
+                      style: widget.settings.style,
+                      onLeftTap: () {
+                        if (_gameActive &&
+                            _gameLogic.isGameRunning &&
+                            !_gameLogic.isGameOver &&
+                            !_gameLogic.isPaused) {
+                          _gameLogic.rotatePieceLeft();
+                        }
+                      },
+                      onRightTap: () {
+                        if (_gameActive &&
+                            _gameLogic.isGameRunning &&
+                            !_gameLogic.isGameOver &&
+                            !_gameLogic.isPaused) {
+                          _gameLogic.rotatePieceRight();
+                        }
+                      },
                     ),
                   ),
                   AnimatedOpacity(
@@ -504,7 +507,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             ),
 
             if (widget.settings.showOpponentBoard) ...[
-              SizedBox(width: totalW * 0.03),
+              SizedBox(width: opponentGap),
 
               // ── Opponent side ──────────────────────────────────────────
               SizedBox(
@@ -620,37 +623,32 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           Positioned(
             left: boardLeft,
             top: boardTop,
-            child: SwipeDetector(
-              gameLogic: _gameLogic,
-              moveThreshold: _moveThreshold,
-              fastSwipeVelocity: _fastSwipeVelocity,
-              child: Container(
-                width: boardW,
-                height: boardH,
-                decoration: boardDecoration(widget.settings.style, cs),
-                padding: boardContentPadding(widget.settings.style),
-                child: GameBoard(
-                  board: _gameLogic.getBoardWithCurrentPiece(),
-                  previewRows: GameConstants.previewRows,
-                  gameLogic: _gameLogic,
-                  style: widget.settings.style,
-                  onLeftTap: () {
-                    if (_gameActive &&
-                        _gameLogic.isGameRunning &&
-                        !_gameLogic.isGameOver &&
-                        !_gameLogic.isPaused) {
-                      _gameLogic.rotatePieceLeft();
-                    }
-                  },
-                  onRightTap: () {
-                    if (_gameActive &&
-                        _gameLogic.isGameRunning &&
-                        !_gameLogic.isGameOver &&
-                        !_gameLogic.isPaused) {
-                      _gameLogic.rotatePieceRight();
-                    }
-                  },
-                ),
+            child: Container(
+              width: boardW,
+              height: boardH,
+              decoration: boardDecoration(widget.settings.style, cs),
+              padding: boardContentPadding(widget.settings.style),
+              child: GameBoard(
+                board: _gameLogic.getBoardWithCurrentPiece(),
+                previewRows: GameConstants.previewRows,
+                gameLogic: _gameLogic,
+                style: widget.settings.style,
+                onLeftTap: () {
+                  if (_gameActive &&
+                      _gameLogic.isGameRunning &&
+                      !_gameLogic.isGameOver &&
+                      !_gameLogic.isPaused) {
+                    _gameLogic.rotatePieceLeft();
+                  }
+                },
+                onRightTap: () {
+                  if (_gameActive &&
+                      _gameLogic.isGameRunning &&
+                      !_gameLogic.isGameOver &&
+                      !_gameLogic.isPaused) {
+                    _gameLogic.rotatePieceRight();
+                  }
+                },
               ),
             ),
           ),
