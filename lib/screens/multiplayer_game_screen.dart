@@ -119,6 +119,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       if (garbage > 0) widget.manager.sendGarbage(garbage);
     };
 
+    _onManagerChanged();
+    if (_showResult) return;
+
     // Send board snapshots every 500 ms
     _snapshotTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
       if (!mounted) return;
@@ -157,28 +160,17 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       ),
     );
     // If the opponent disconnects during play, treat as opponent quit
-    if (_gameActive && !_showResult) {
-      _audioService.stopMusic();
-      setState(() {
-        _showResult = true;
-        _iWon = true;
-      });
-    }
+    if (_gameActive && !_showResult) _finishGame(won: true);
   }
 
   void _onManagerChanged() {
     if (!mounted) return;
-    // Opponent topped out
+    setState(() {});
     if (widget.manager.opponentIsGameOver && _gameActive && !_showResult) {
-      // If we're still alive we win; if we're also over it's simultaneous
-      if (!_gameLogic.isGameOver) {
-        _audioService.stopMusic();
-        setState(() {
-          _showResult = true;
-          _iWon = true;
-        });
-        _gameLogic.pauseGame();
-      }
+      _finishGame(
+        won: !_gameLogic.isGameOver ||
+            _gameLogic.score >= widget.manager.opponentScore,
+      );
     }
   }
 
@@ -186,22 +178,27 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     if (!mounted) return;
     setState(() {});
     if (_gameLogic.isGameOver && _gameActive && !_showResult) {
-      _audioService.stopMusic();
-      widget.manager.sendGameOver(_gameLogic.score);
-      // Only show "you lose" if opponent hasn't lost yet
-      if (!widget.manager.opponentIsGameOver) {
-        setState(() {
-          _showResult = true;
-          _iWon = false;
-        });
-      } else {
-        // Both topped out at the same time – higher score wins
-        setState(() {
-          _showResult = true;
-          _iWon = _gameLogic.score >= widget.manager.opponentScore;
-        });
-      }
+      _finishGame(
+        won: widget.manager.opponentIsGameOver &&
+            _gameLogic.score >= widget.manager.opponentScore,
+      );
     }
+  }
+
+  void _finishGame({required bool won}) {
+    setState(() {
+      _showResult = true;
+      _iWon = won;
+    });
+    _snapshotTimer?.cancel();
+    _gameLogic.pauseGame();
+    _audioService.stopMusic();
+    widget.manager.sendBoardSnapshot(
+      _gameLogic.exportBoardSnapshot(),
+      _gameLogic.score,
+      _gameLogic.linesCleared,
+    );
+    widget.manager.sendGameOver(_gameLogic.score);
   }
 
   bool _handleKeyEvent(KeyEvent event) {

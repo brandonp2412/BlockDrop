@@ -869,7 +869,8 @@ class MultiplayerManager extends ChangeNotifier {
           ?.call('${prevOpponentName ?? _opponentFallbackName} disconnected');
     }
 
-    if (prevState == MultiplayerState.gameOver) {
+    if (prevState == MultiplayerState.gameOver ||
+        state == MultiplayerState.gameOver) {
       if (authenticated && _tcpServer != null) _rotatePairingToken();
       notifyListeners();
       return;

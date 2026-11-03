@@ -108,9 +108,14 @@ void main() {
     expect(host.opponentLines, 7);
     expect(guest.opponentLines, 2);
 
-    host.sendGameOver(123);
-    guest.sendGameOver(456);
-    await waitUntil(() => host.opponentIsGameOver && guest.opponentIsGameOver);
+    host.sendGameOver(150);
+    await waitUntil(() => guest.opponentIsGameOver);
+    expect(guest.opponentScore, 150);
+    guest.sendBoardSnapshot(guestBoard, 2400, 8);
+    guest.sendGameOver(2400);
+    await waitUntil(() => host.opponentIsGameOver);
+    expect(host.opponentScore, 2400);
+    expect(host.opponentLines, 8);
     expect(host.state, MultiplayerState.gameOver);
     expect(guest.state, MultiplayerState.gameOver);
     host.backToDiscovery();
@@ -365,6 +370,28 @@ void main() {
 
     host.backToDiscovery();
     expect(host.state, MultiplayerState.discovering);
+  });
+
+  test('disconnect result preserves the last opponent score', () async {
+    final host = MultiplayerManager(playerName: 'Host');
+    final guest = MultiplayerManager(playerName: 'Guest');
+    addTearDown(host.dispose);
+    addTearDown(guest.dispose);
+    await host.startHosting(port: 0);
+    await guest.joinHost(host.hostingInvite('127.0.0.1'));
+    await waitUntil(() => host.state == MultiplayerState.invited);
+    host.acceptInvite();
+    await waitUntil(() => guest.state == MultiplayerState.inLobby);
+    host.startGame();
+    await waitUntil(() => guest.state == MultiplayerState.inGame);
+    guest.sendBoardSnapshot(List<int>.filled(200, 0), 2400, 8);
+    await waitUntil(() => host.opponentScore == 2400);
+    host.onError = (_) => host.sendGameOver(1200);
+
+    guest.backToDiscovery();
+    await waitUntil(() => host.state == MultiplayerState.gameOver);
+    expect(host.opponentScore, 2400);
+    expect(host.opponentLines, 8);
   });
 
   test('occupied preferred port falls back to a free port', () async {
