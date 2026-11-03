@@ -369,6 +369,28 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('settings search finds controller and local multiplayer aliases',
+      (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+    final search = find.byKey(const ValueKey('settings-search'));
+
+    for (final query in ['keybinds', 'remap controls']) {
+      await tester.enterText(search, query);
+      await tester.pump();
+      expect(find.text('Controller'), findsOneWidget, reason: query);
+      expect(find.text('Multiplayer'), findsNothing);
+    }
+    for (final query in ['Wi-Fi multiplayer', 'local match']) {
+      await tester.enterText(search, query);
+      await tester.pump();
+      expect(find.text('Play on LAN'), findsOneWidget, reason: query);
+      expect(find.text('Controller'), findsNothing);
+    }
+  });
+
   testWidgets('settings labels wrap and stay aligned on narrow screens',
       (tester) async {
     tester.view.physicalSize = const Size(320, 640);

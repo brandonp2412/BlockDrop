@@ -167,24 +167,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _onSettingsChanged() => setState(() {});
 
-  bool _matchesSearch(String label, {String? section}) {
-    if (_searchQuery.isEmpty) return true;
-    final localizedLabel = context.l10n.text(label).toLowerCase();
-    final localizedSection =
-        section == null ? null : context.l10n.text(section).toLowerCase();
-    return localizedLabel.contains(_searchQuery) ||
-        (localizedSection?.contains(_searchQuery) ?? false);
-  }
+  static const _searchAliases = <String, String>{
+    'Controller': 'keybinds remap controls remap keys',
+    'Play on LAN': 'wifi wi-fi multiplayer local match',
+  };
 
-  bool _sectionMatches(String section, Iterable<String> labels) {
-    if (_searchQuery.isEmpty ||
-        context.l10n.text(section).toLowerCase().contains(_searchQuery)) {
-      return true;
-    }
-    return labels.any(
-      (label) => context.l10n.text(label).toLowerCase().contains(_searchQuery),
-    );
-  }
+  bool _searchTextMatches(String label) =>
+      '${context.l10n.text(label)} ${_searchAliases[label] ?? ''}'
+          .toLowerCase()
+          .contains(_searchQuery);
+
+  bool _matchesSearch(String label, {String? section}) =>
+      _searchQuery.isEmpty ||
+      _searchTextMatches(label) ||
+      (section != null && _searchTextMatches(section));
+
+  bool _sectionMatches(String section, Iterable<String> labels) =>
+      _searchQuery.isEmpty ||
+      _searchTextMatches(section) ||
+      labels.any(_searchTextMatches);
 
   static String _styleLabel(AppStyle style) => switch (style) {
         AppStyle.classic => 'Classic',
