@@ -951,6 +951,41 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
       (constraints.maxWidth * 0.16).clamp(48.0, 72.0),
     );
 
+    Widget hudStat(String label, String value) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerEnd,
+          child: Text.rich(
+            TextSpan(
+              text: '$label\n',
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.4,
+                height: 1.5,
+              ),
+              children: [
+                TextSpan(
+                  text: value,
+                  style: TextStyle(
+                    color: cs.onSurface,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0,
+                    height: 1.2,
+                  ),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.end,
+          ),
+        ),
+      );
+    }
+
     Widget pieceOverlay({
       required String label,
       required Widget child,
@@ -1061,60 +1096,49 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
             ),
           ),
           Positioned(
-            right: boardLeft + 6,
-            top: boardTop + 6,
-            child: Container(
+            right: boardLeft + 12,
+            top: boardTop + 12,
+            child: SizedBox(
               key: const ValueKey('fullscreen-game-hud'),
-              width: (boardWidth * 0.2).clamp(56.0, 88.0),
-              padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
-              decoration: panelDecoration(
-                widget.settings.style,
-                cs,
-                color: cs.surface.withValues(alpha: 0.8),
-              ),
-              child: DefaultTextStyle(
-                style: TextStyle(
-                  color: cs.onSurfaceVariant,
-                  fontSize: 11,
-                  height: 1.6,
-                  fontWeight: FontWeight.w500,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final stat in [
-                      gameLogic.practiceMode
-                          ? context.l10n.text('PRACTICE')
-                          : context.l10n.text('Score {score}', {
-                              'score': formatter.format(gameLogic.score),
-                            }),
-                      context.l10n.text('Level {level}', {
-                        'level': gameLogic.level,
-                      }),
-                      context.l10n.text('Lines {lines}', {
-                        'lines': gameLogic.linesCleared,
-                      }),
-                    ])
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: Text(stat),
+              width: (boardWidth * 0.16).clamp(48.0, 72.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  hudStat(
+                    gameLogic.practiceMode
+                        ? context.l10n.text('PRACTICE')
+                        : context.l10n
+                            .text('Score {score}', {'score': ''}).trim(),
+                    formatter.format(gameLogic.score),
+                  ),
+                  hudStat(
+                    context.l10n.text('Level {level}', {'level': ''}).trim(),
+                    '${gameLogic.level}',
+                  ),
+                  hudStat(
+                    context.l10n.text('Lines {lines}', {'lines': ''}).trim(),
+                    '${gameLogic.linesCleared}',
+                  ),
+                  SizedBox(
+                    width: 20,
+                    child: Divider(height: 8, color: cs.outlineVariant),
+                  ),
+                  ExcludeFocus(
+                    child: IconButton(
+                      tooltip: context.l10n.text('Settings'),
+                      icon: const Icon(Icons.settings_outlined),
+                      iconSize: 18,
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.zero,
+                      style: IconButton.styleFrom(
+                        foregroundColor: cs.onSurfaceVariant,
+                        minimumSize: const Size(48, 48),
                       ),
-                    ExcludeFocus(
-                      child: IconButton(
-                        tooltip: context.l10n.text('Settings'),
-                        icon: const Icon(Icons.settings),
-                        iconSize: 16,
-                        style: IconButton.styleFrom(
-                          foregroundColor: cs.onSurfaceVariant,
-                          minimumSize: const Size(48, 48),
-                        ),
-                        onPressed: _openSettings,
-                      ),
+                      onPressed: _openSettings,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

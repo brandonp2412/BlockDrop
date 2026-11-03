@@ -30,7 +30,7 @@ void main() {
       await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.settings));
+      await tester.tap(find.byIcon(Icons.settings_outlined));
       await tester.pumpAndSettle();
 
       // AppBar title
@@ -72,7 +72,7 @@ void main() {
       expect(find.text('Settings'), findsNothing);
       expect(gameLogic.isPaused, isFalse);
 
-      await tester.tap(find.byIcon(Icons.settings));
+      await tester.tap(find.byIcon(Icons.settings_outlined));
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsOneWidget);
     }, variant: TargetPlatformVariant({TargetPlatform.linux}));
@@ -152,7 +152,7 @@ void main() {
       await tester.pumpWidget(const BlockDropApp());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.settings));
+      await tester.tap(find.byIcon(Icons.settings_outlined));
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsOneWidget);
 
