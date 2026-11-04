@@ -82,6 +82,30 @@ void main() {
     expect(searchFocus.hasFocus, isTrue);
   });
 
+  testWidgets('empty search keeps the search bar at a stable height', (
+    tester,
+  ) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+
+    final search = find.byKey(const ValueKey('settings-search'));
+    final initialTop = tester.getTopLeft(search).dy;
+
+    await tester.enterText(search, 'zzzz-not-a-setting');
+    await tester.pumpAndSettle();
+
+    expect(find.text('No settings found'), findsOneWidget);
+    expect(tester.getTopLeft(search).dy, moreOrLessEquals(initialTop));
+
+    await tester.enterText(search, 'music');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Music'), findsOneWidget);
+    expect(tester.getTopLeft(search).dy, moreOrLessEquals(initialTop));
+  });
+
   testWidgets('search finds settings outside the sound section', (
     tester,
   ) async {

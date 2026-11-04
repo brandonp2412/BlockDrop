@@ -364,56 +364,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Theme(
         data: controlTheme,
         child: SafeArea(
-          child: noSearchResults
-              ? Column(
-                  children: [
-                    _SettingsSearchBar(
-                      key: _searchBarKey,
-                      controller: _searchController,
-                      query: _searchQuery,
-                      colorScheme: colorScheme,
-                      onChanged: (value) => setState(
-                        () => _searchQuery = value.trim().toLowerCase(),
-                      ),
-                      onClear: () {
+          child: FocusTraversalGroup(
+            policy: _SettingsVerticalTraversalPolicy(),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 4, bottom: 24),
+              child: Column(
+                children: [
+                _SettingsSearchBar(
+                  key: _searchBarKey,
+                  controller: _searchController,
+                  query: _searchQuery,
+                  colorScheme: colorScheme,
+                  onChanged: (value) => setState(
+                    () => _searchQuery = value.trim().toLowerCase(),
+                  ),
+                  onClear: () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
+                  },
+                ),
+                if (noSearchResults)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    child: AppEmptyState(
+                      icon: Icons.search_off_rounded,
+                      title: 'No settings found',
+                      message: 'Try another search term.',
+                      actionLabel: 'Clear search',
+                      actionIcon: Icons.close_rounded,
+                      onAction: () {
                         _searchController.clear();
                         setState(() => _searchQuery = '');
                       },
                     ),
-                    Expanded(
-                      child: AppEmptyState(
-                        icon: Icons.search_off_rounded,
-                        title: 'No settings found',
-                        message: 'Try another search term.',
-                        actionLabel: 'Clear search',
-                        actionIcon: Icons.close_rounded,
-                        onAction: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              : FocusTraversalGroup(
-                  policy: _SettingsVerticalTraversalPolicy(),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(top: 4, bottom: 24),
-                    child: Column(
-                      children: [
-                        _SettingsSearchBar(
-                          key: _searchBarKey,
-                          controller: _searchController,
-                          query: _searchQuery,
-                          colorScheme: colorScheme,
-                          onChanged: (value) => setState(
-                            () => _searchQuery = value.trim().toLowerCase(),
-                          ),
-                          onClear: () {
-                            _searchController.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        ),
+                  ),
                         if ((widget.onRestart != null ||
                                 widget.onQuit != null) &&
                             showGame) ...[
