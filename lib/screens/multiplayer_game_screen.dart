@@ -455,22 +455,6 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
                       previewRows: GameConstants.previewRows,
                       gameLogic: _gameLogic,
                       style: widget.settings.style,
-                      onLeftTap: () {
-                        if (_gameActive &&
-                            _gameLogic.isGameRunning &&
-                            !_gameLogic.isGameOver &&
-                            !_gameLogic.isPaused) {
-                          _gameLogic.rotatePieceLeft();
-                        }
-                      },
-                      onRightTap: () {
-                        if (_gameActive &&
-                            _gameLogic.isGameRunning &&
-                            !_gameLogic.isGameOver &&
-                            !_gameLogic.isPaused) {
-                          _gameLogic.rotatePieceRight();
-                        }
-                      },
                     ),
                   ),
                   AnimatedOpacity(
@@ -626,26 +610,12 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
               decoration: boardDecoration(widget.settings.style, cs),
               padding: boardContentPadding(widget.settings.style),
               child: GameBoard(
-                board: _gameLogic.getBoardWithCurrentPiece(),
+                board: _gameLogic.getBoardWithCurrentPiece(
+                  showGhost: widget.settings.showGhostTile,
+                ),
                 previewRows: GameConstants.previewRows,
                 gameLogic: _gameLogic,
                 style: widget.settings.style,
-                onLeftTap: () {
-                  if (_gameActive &&
-                      _gameLogic.isGameRunning &&
-                      !_gameLogic.isGameOver &&
-                      !_gameLogic.isPaused) {
-                    _gameLogic.rotatePieceLeft();
-                  }
-                },
-                onRightTap: () {
-                  if (_gameActive &&
-                      _gameLogic.isGameRunning &&
-                      !_gameLogic.isGameOver &&
-                      !_gameLogic.isPaused) {
-                    _gameLogic.rotatePieceRight();
-                  }
-                },
               ),
             ),
           ),

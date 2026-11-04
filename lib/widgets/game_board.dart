@@ -7,6 +7,7 @@ import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 import '../settings/settings_provider.dart';
 import 'game_decorations.dart';
+import 'score_bonus_popup.dart';
 
 // Modern Flutter color alpha helper
 Color _colorWithAlpha(Color color, double alpha) {
@@ -525,9 +526,21 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                 final isLeftHalf =
                     details.localPosition.dx < constraints.maxWidth / 2;
                 if (isLeftHalf) {
-                  widget.onLeftTap?.call();
+                  if (widget.onLeftTap != null) {
+                    widget.onLeftTap!();
+                  } else if (widget.gameLogic.isGameRunning &&
+                      !widget.gameLogic.isGameOver &&
+                      !widget.gameLogic.isPaused) {
+                    widget.gameLogic.rotatePieceLeft();
+                  }
                 } else {
-                  widget.onRightTap?.call();
+                  if (widget.onRightTap != null) {
+                    widget.onRightTap!();
+                  } else if (widget.gameLogic.isGameRunning &&
+                      !widget.gameLogic.isGameOver &&
+                      !widget.gameLogic.isPaused) {
+                    widget.gameLogic.rotatePieceRight();
+                  }
                 }
               },
               child: Stack(
@@ -552,6 +565,7 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
+                  ScoreBonusPopup(gameLogic: widget.gameLogic),
                 ],
               ),
             );

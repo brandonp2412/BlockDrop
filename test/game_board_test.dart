@@ -97,6 +97,50 @@ void main() {
     gameLogic.dispose();
   });
 
+  testWidgets('shared board animates and consumes line-clear score bonuses', (
+    tester,
+  ) async {
+    final gameLogic = GameLogic();
+    gameLogic.startGame();
+    gameLogic.gameTimer?.cancel();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(
+          child: SizedBox(
+            width: 240,
+            height: 480,
+            child: GameBoard(
+              board: gameLogic.board,
+              previewRows: GameConstants.previewRows,
+              gameLogic: gameLogic,
+              style: AppStyle.modern,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    gameLogic.board[GameConstants.previewRows][0] = Colors.blue;
+    final bottom = GameConstants.boardHeight + GameConstants.previewRows - 1;
+    for (var col = 0; col < GameConstants.boardWidth; col++) {
+      gameLogic.board[bottom][col] = Colors.red;
+    }
+    gameLogic.clearLines();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 370));
+
+    expect(find.byKey(const ValueKey('score-bonus-label')), findsOneWidget);
+    expect(find.text('SINGLE'), findsOneWidget);
+    expect(find.text('+100'), findsOneWidget);
+    expect(gameLogic.clearBonusLabel, isEmpty);
+
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byKey(const ValueKey('score-bonus-label')), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    gameLogic.dispose();
+  });
+
   testWidgets('left-half tap calls left rotation only', (tester) async {
     final gameLogic = GameLogic();
     gameLogic.startGame();

@@ -1,3 +1,4 @@
+import 'package:block_drop/constants/game_constants.dart';
 import 'package:block_drop/multiplayer/multiplayer_manager.dart';
 import 'package:block_drop/screens/multiplayer_game_screen.dart';
 import 'package:block_drop/settings/settings_provider.dart';
@@ -49,6 +50,57 @@ void main() {
       expect(game.exportBoardSnapshot(), board);
       expect(game.score, 2400);
       expect(manager.gameOverMessages, 1);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 1));
+    });
+  }
+
+  for (final size in [const Size(393, 852), const Size(960, 540)]) {
+    testWidgets('multiplayer shares clear and score effects at $size', (
+      tester,
+    ) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final manager = MultiplayerManager(playerName: 'Player');
+      addTearDown(manager.dispose);
+      final settings = SettingsProvider();
+      await settings.load();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MultiplayerGameScreen(manager: manager, settings: settings),
+        ),
+      );
+      for (var i = 0; i < 3; i++) {
+        await tester.pump(const Duration(seconds: 1));
+      }
+
+      final game = tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
+      game.gameTimer?.cancel();
+      game.board[GameConstants.previewRows][0] = Colors.blue;
+      final bottom = GameConstants.boardHeight + GameConstants.previewRows - 1;
+      for (var col = 0; col < GameConstants.boardWidth; col++) {
+        game.board[bottom][col] = Colors.red;
+      }
+      game.clearLines();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 370));
+
+      expect(find.byKey(const ValueKey('score-bonus-label')), findsOneWidget);
+      expect(find.text('SINGLE'), findsOneWidget);
+      expect(find.text('+100'), findsOneWidget);
+      expect(game.clearBonusLabel, isEmpty);
+
+      await tester.pump(const Duration(seconds: 1));
+      for (var col = 0; col < GameConstants.boardWidth; col++) {
+        game.board[bottom][col] = Colors.red;
+      }
+      game.clearLines();
+      await tester.pump();
+      expect(find.byKey(const ValueKey('combo-clear-effects')), findsOneWidget);
+
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump(const Duration(seconds: 1));
     });

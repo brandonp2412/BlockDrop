@@ -37,16 +37,10 @@ class BlockDropGameScreen extends StatefulWidget {
 }
 
 class _BlockDropGameScreenState extends State<BlockDropGameScreen>
-    with WidgetsBindingObserver, TickerProviderStateMixin {
+    with WidgetsBindingObserver {
   late GameLogic gameLogic;
   late AudioService _audioService;
 
-  // Score popup animation
-  late AnimationController _popupController;
-  late Animation<double> _popupOpacity;
-  late Animation<double> _popupOffset;
-  String _popupLabel = '';
-  int _popupDelta = 0;
   bool _gameOverModal = false;
   bool _isSettingsOpen = false;
   bool _pendingPractice = false;
@@ -66,20 +60,6 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
   @override
   void initState() {
     super.initState();
-    _popupController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-    _popupOpacity = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 15),
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 45),
-    ]).animate(_popupController);
-    _popupOffset = Tween<double>(
-      begin: 0.0,
-      end: -60.0,
-    ).animate(CurvedAnimation(parent: _popupController, curve: Curves.easeOut));
-
     _audioService = AudioService(
       musicEnabled: widget.settings.musicEnabled,
       sfxEnabled: widget.settings.sfxEnabled,
@@ -356,14 +336,6 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
 
   void _onGameStateChanged() {
     _scheduleGameSave();
-    // Consume score popup event before setState
-    if (gameLogic.clearBonusLabel.isNotEmpty) {
-      _popupLabel = gameLogic.clearBonusLabel;
-      _popupDelta = gameLogic.lastScoreDelta;
-      gameLogic.consumeClearBonus();
-      _popupController.forward(from: 0.0);
-    }
-
     setState(() {});
 
     // Show game over modal when game ends
@@ -538,7 +510,6 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
       widget.settings.saveGameSnapshot(gameLogic.createSnapshot());
     }
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-    _popupController.dispose();
     widget.settings.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
     gameLogic.removeListener(_onGameStateChanged);
@@ -844,83 +815,7 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
                                 previewRows: GameConstants.previewRows,
                                 gameLogic: gameLogic,
                                 style: widget.settings.style,
-                                onLeftTap: () {
-                                  if (gameLogic.isGameRunning &&
-                                      !gameLogic.isGameOver &&
-                                      !gameLogic.isPaused) {
-                                    gameLogic.rotatePieceLeft();
-                                  }
-                                },
-                                onRightTap: () {
-                                  if (gameLogic.isGameRunning &&
-                                      !gameLogic.isGameOver &&
-                                      !gameLogic.isPaused) {
-                                    gameLogic.rotatePieceRight();
-                                  }
-                                },
                               ),
-                            ),
-                            // Score popup
-                            AnimatedBuilder(
-                              animation: _popupController,
-                              builder: (context, _) {
-                                if (_popupController.isDismissed) {
-                                  return const SizedBox.shrink();
-                                }
-                                return Positioned(
-                                  left: 0,
-                                  right: 0,
-                                  top: gameboardHeight / 2 + _popupOffset.value,
-                                  child: IgnorePointer(
-                                    child: Opacity(
-                                      opacity: _popupOpacity.value,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            context.l10n.text(_popupLabel),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: _popupLabel.startsWith(
-                                                'T-SPIN',
-                                              )
-                                                  ? Colors.purple[200]
-                                                  : (_popupLabel == 'QUAD!'
-                                                      ? Colors.amber
-                                                      : Colors.white),
-                                              fontSize: _popupLabel == 'QUAD!'
-                                                  ? 26
-                                                  : 20,
-                                              fontWeight: FontWeight.bold,
-                                              shadows: const [
-                                                Shadow(
-                                                  blurRadius: 8,
-                                                  color: Colors.black,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Text(
-                                            '+$_popupDelta',
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              shadows: [
-                                                Shadow(
-                                                  blurRadius: 6,
-                                                  color: Colors.black,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
                             ),
                           ],
                         ),
@@ -1054,20 +949,6 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
                 previewRows: GameConstants.previewRows,
                 gameLogic: gameLogic,
                 style: widget.settings.style,
-                onLeftTap: () {
-                  if (gameLogic.isGameRunning &&
-                      !gameLogic.isGameOver &&
-                      !gameLogic.isPaused) {
-                    gameLogic.rotatePieceLeft();
-                  }
-                },
-                onRightTap: () {
-                  if (gameLogic.isGameRunning &&
-                      !gameLogic.isGameOver &&
-                      !gameLogic.isPaused) {
-                    gameLogic.rotatePieceRight();
-                  }
-                },
               ),
             ),
           ),
@@ -1172,32 +1053,6 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
                 onHold: widget.settings.enableHold ? gameLogic.holdPiece : null,
               ),
             ),
-          AnimatedBuilder(
-            animation: _popupController,
-            builder: (context, _) {
-              if (_popupController.isDismissed) return const SizedBox.shrink();
-              return Positioned(
-                left: boardLeft,
-                width: boardWidth,
-                top: boardTop + actualBoardHeight / 2 + _popupOffset.value,
-                child: IgnorePointer(
-                  child: Opacity(
-                    opacity: _popupOpacity.value,
-                    child: Text(
-                      '${context.l10n.text(_popupLabel)}\n+$_popupDelta',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        shadows: [Shadow(blurRadius: 8, color: Colors.black)],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
         ],
       ),
     );
@@ -1302,71 +1157,7 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
               previewRows: GameConstants.previewRows,
               gameLogic: gameLogic,
               style: widget.settings.style,
-              onLeftTap: () {
-                if (gameLogic.isGameRunning &&
-                    !gameLogic.isGameOver &&
-                    !gameLogic.isPaused) {
-                  gameLogic.rotatePieceLeft();
-                }
-              },
-              onRightTap: () {
-                if (gameLogic.isGameRunning &&
-                    !gameLogic.isGameOver &&
-                    !gameLogic.isPaused) {
-                  gameLogic.rotatePieceRight();
-                }
-              },
             ),
-          ),
-          // Score popup
-          AnimatedBuilder(
-            animation: _popupController,
-            builder: (context, _) {
-              if (_popupController.isDismissed) return const SizedBox.shrink();
-              return Positioned(
-                left: 0,
-                right: 0,
-                top: bh / 2 + _popupOffset.value,
-                child: IgnorePointer(
-                  child: Opacity(
-                    opacity: _popupOpacity.value,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          context.l10n.text(_popupLabel),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: _popupLabel.startsWith('T-SPIN')
-                                ? Colors.purple[200]
-                                : (_popupLabel == 'QUAD!'
-                                    ? Colors.amber
-                                    : Colors.white),
-                            fontSize: _popupLabel == 'QUAD!' ? 26 : 20,
-                            fontWeight: FontWeight.bold,
-                            shadows: const [
-                              Shadow(blurRadius: 8, color: Colors.black),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          '+$_popupDelta',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            shadows: [
-                              Shadow(blurRadius: 6, color: Colors.black),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
           ),
         ],
       ),
