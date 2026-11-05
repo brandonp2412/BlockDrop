@@ -15,9 +15,27 @@ class ReleaseContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.gradle = (REPO / "android/app/build.gradle.kts").read_text()
         self.workflow = (REPO / ".github/workflows/release.yml").read_text()
+        self.quality = (REPO / ".github/workflows/quality.yml").read_text()
 
     def test_current_source_contract(self) -> None:
         contract.validate_source_text(self.gradle, self.workflow)
+        contract.validate_quality_ci_text(self.quality)
+
+    def test_pr_and_main_quality_gates_cannot_drop_release_checks(self) -> None:
+        expected = (
+            "python3 -m unittest discover -s scripts -p 'test_release_contract.py' -v",
+            "python3 scripts/release_contract.py source",
+            "python3 scripts/release_contract.py version",
+        )
+        for check in expected:
+            with self.subTest(command=check):
+                changed = self.quality.replace(check, "echo skipped", 1)
+                with self.assertRaisesRegex(contract.ContractError, "PR quality guard"):
+                    contract.validate_quality_ci_text(changed)
+        with self.assertRaisesRegex(contract.ContractError, "PRs and main"):
+            contract.validate_quality_ci_text(
+                self.quality.replace("  pull_request:", "  workflow_dispatch:", 1)
+            )
 
     def test_original_package_id_cannot_be_replaced(self) -> None:
         changed = self.gradle.replace(

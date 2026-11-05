@@ -35,6 +35,12 @@ jobs:
       - name: Install dependencies
         run: flutter/bin/flutter pub get --enforce-lockfile
 
+      - name: Verify Android package, signing and upgrade contracts
+        run: |
+          python3 -m unittest discover -s scripts -p 'test_release_contract.py' -v
+          python3 scripts/release_contract.py source
+          python3 scripts/release_contract.py version
+
       - name: Check changed Dart formatting
         if: github.event_name == 'pull_request'
         shell: bash

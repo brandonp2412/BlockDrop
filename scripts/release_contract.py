@@ -85,6 +85,17 @@ def validate_source_text(gradle: str, workflow: str) -> None:
         require(check in workflow, f"Required release CI guard missing: {check}")
 
 
+def validate_quality_ci_text(quality: str) -> None:
+    require("pull_request:" in quality and "branches: [main]" in quality,
+            "Release contract quality checks must run on PRs and main")
+    for command in (
+        "python3 -m unittest discover -s scripts -p 'test_release_contract.py' -v",
+        "python3 scripts/release_contract.py source",
+        "python3 scripts/release_contract.py version",
+    ):
+        require(command in quality, f"Required PR quality guard missing: {command}")
+
+
 def find_android_tool(tool: str) -> str:
     locations: list[Path] = []
     for env in ("ANDROID_HOME", "ANDROID_SDK_ROOT"):
@@ -205,6 +216,9 @@ def main() -> None:
         validate_source_text(
             (arguments.repo / "android/app/build.gradle.kts").read_text(),
             (arguments.repo / ".github/workflows/release.yml").read_text()
+        )
+        validate_quality_ci_text(
+            (arguments.repo / ".github/workflows/quality.yml").read_text()
         )
         print("PASS source package identity and release workflow scope")
     elif arguments.check == "version":
