@@ -222,9 +222,38 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           script: patrol test -t patrol_test/app_smoke_test.dart
 
+  signing-preflight:
+    needs: release-gate
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && needs.release-gate.outputs.should_release == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify historical GitHub and Google Play signer secrets
+        env:
+          GITHUB_APK_KEYSTORE_BASE64: ${{ secrets.GITHUB_APK_KEYSTORE_BASE64 }}
+          GITHUB_APK_STORE_PASSWORD: ${{ secrets.GITHUB_APK_STORE_PASSWORD }}
+          GITHUB_APK_KEY_PASSWORD: ${{ secrets.GITHUB_APK_KEY_PASSWORD }}
+          GITHUB_APK_KEY_ALIAS: ${{ secrets.GITHUB_APK_KEY_ALIAS }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -f "$RUNNER_TEMP/github-preflight.jks" "$RUNNER_TEMP/play-preflight.jks"' EXIT
+          for variable in GITHUB_APK_KEYSTORE_BASE64 GITHUB_APK_STORE_PASSWORD GITHUB_APK_KEY_PASSWORD GITHUB_APK_KEY_ALIAS ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
+            test -n "${!variable}" || { echo "Missing release signing secret: $variable" >&2; exit 1; }
+          done
+          printf '%s' "$GITHUB_APK_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/github-preflight.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/play-preflight.jks"
+          github_fingerprint="$(keytool -list -v -keystore "$RUNNER_TEMP/github-preflight.jks" -alias "$GITHUB_APK_KEY_ALIAS" -storepass:env GITHUB_APK_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
+          play_fingerprint="$(keytool -list -v -keystore "$RUNNER_TEMP/play-preflight.jks" -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
+          test "$github_fingerprint" = "011EE1A6E4E5ECD675F67FBF3D78AD82614A7A7A3F24ED71CC9C417154A0F0FD" || { echo 'Wrong GitHub APK signing certificate' >&2; exit 1; }
+          test "$play_fingerprint" = "C5AFE55B3B7C50F43AAA1F14F8E38E922C0FFC814324B3A5009BC1C070E4284B" || { echo 'Wrong Play upload signing certificate' >&2; exit 1; }
+
   version-bump:
     if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.release-gate.outputs.should_release == 'true' }}
-    needs: [release-gate, quality-checks, generate-screenshots]
+    needs: [release-gate, quality-checks, generate-screenshots, signing-preflight]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -345,42 +374,58 @@ jobs:
       - name: Get dependencies
         run: flutter pub get --enforce-lockfile
 
-      - name: Decode Android keystore
+      - name: Decode distinct Android signing keystores
         env:
+          GITHUB_APK_KEYSTORE_BASE64: ${{ secrets.GITHUB_APK_KEYSTORE_BASE64 }}
+          GITHUB_APK_STORE_PASSWORD: ${{ secrets.GITHUB_APK_STORE_PASSWORD }}
+          GITHUB_APK_KEY_PASSWORD: ${{ secrets.GITHUB_APK_KEY_PASSWORD }}
+          GITHUB_APK_KEY_ALIAS: ${{ secrets.GITHUB_APK_KEY_ALIAS }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/keystore.jks
+          set -euo pipefail
+          umask 077
+          for variable in GITHUB_APK_KEYSTORE_BASE64 GITHUB_APK_STORE_PASSWORD GITHUB_APK_KEY_PASSWORD GITHUB_APK_KEY_ALIAS ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
+            test -n "${!variable}" || { echo "Missing release signing secret: $variable" >&2; exit 1; }
+          done
+          printf '%s' "$GITHUB_APK_KEYSTORE_BASE64" | base64 --decode > android/app/github-apk-keystore.jks
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/play-upload-keystore.jks
+          {
+            printf 'storePassword=%s\n' "$GITHUB_APK_STORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$GITHUB_APK_KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$GITHUB_APK_KEY_ALIAS"
+            echo 'storeFile=github-apk-keystore.jks'
+          } > android/github-apk-signing.properties
           {
             printf 'storePassword=%s\n' "$ANDROID_STORE_PASSWORD"
             printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD"
             printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS"
-            echo "storeFile=keystore.jks"
-          } > android/key.properties
-          fingerprint="$(keytool -list -v -keystore android/app/keystore.jks \
-            -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_STORE_PASSWORD \
-            | sed -n 's/.*SHA256: //p' | tr -d ':')"
-          test "$fingerprint" = "C5AFE55B3B7C50F43AAA1F14F8E38E922C0FFC814324B3A5009BC1C070E4284B" || {
-            echo 'Android signing key does not match the registered Play upload certificate.' >&2
-            exit 1
-          }
+            echo 'storeFile=play-upload-keystore.jks'
+          } > android/play-signing.properties
+          github_fingerprint="$(keytool -list -v -keystore android/app/github-apk-keystore.jks -alias "$GITHUB_APK_KEY_ALIAS" -storepass:env GITHUB_APK_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
+          play_fingerprint="$(keytool -list -v -keystore android/app/play-upload-keystore.jks -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
+          test "$github_fingerprint" = "011EE1A6E4E5ECD675F67FBF3D78AD82614A7A7A3F24ED71CC9C417154A0F0FD" || { echo 'Wrong GitHub APK signing certificate' >&2; exit 1; }
+          test "$play_fingerprint" = "C5AFE55B3B7C50F43AAA1F14F8E38E922C0FFC814324B3A5009BC1C070E4284B" || { echo 'Wrong Play upload signing certificate' >&2; exit 1; }
 
       - name: Build APK for x86_64
         env:
+          ORG_GRADLE_PROJECT_androidSigningProperties: github-apk-signing.properties
           VERSION: ${{ needs.version-bump.outputs.version }}
           BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
         run: flutter build apk --release --build-name="$VERSION" --build-number="$BUILD_NUMBER" --target-platform android-x64 --split-per-abi
 
       - name: Build APK for armeabi-v7a
         env:
+          ORG_GRADLE_PROJECT_androidSigningProperties: github-apk-signing.properties
           VERSION: ${{ needs.version-bump.outputs.version }}
           BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
         run: flutter build apk --release --build-name="$VERSION" --build-number="$BUILD_NUMBER" --target-platform android-arm --split-per-abi
 
       - name: Build APK for arm64
         env:
+          ORG_GRADLE_PROJECT_androidSigningProperties: github-apk-signing.properties
           VERSION: ${{ needs.version-bump.outputs.version }}
           BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
         run: flutter build apk --release --build-name="$VERSION" --build-number="$BUILD_NUMBER" --target-platform android-arm64 --split-per-abi
@@ -396,6 +441,7 @@ jobs:
 
       - name: Build App Bundle
         env:
+          ORG_GRADLE_PROJECT_androidSigningProperties: play-signing.properties
           ORG_GRADLE_PROJECT_playStoreBuild: "true"
           VERSION: ${{ needs.version-bump.outputs.version }}
           BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
@@ -432,6 +478,12 @@ jobs:
           retention-days: 7
           name: android-aab
           path: build/app/outputs/bundle/release/app-release.aab
+
+      - name: Remove ephemeral signing files
+        if: always()
+        run: |
+          rm -f android/app/github-apk-keystore.jks android/app/play-upload-keystore.jks
+          rm -f android/github-apk-signing.properties android/play-signing.properties
 
   build-windows:
     needs: version-bump

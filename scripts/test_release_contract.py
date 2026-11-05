@@ -100,15 +100,42 @@ class ReleaseContractTests(unittest.TestCase):
         with self.assertRaises(contract.ContractError):
             contract.parse_apk_badging("package: name='com.presley.blockdrop'")
 
-    def test_signing_key_is_pinned(self) -> None:
-        expected = contract.SIGNING_SHA256
-        contract.verify_signing_digest(
-            f"Signer #1 certificate SHA-256 digest: {expected}", "fixture.apk"
+    def test_release_cannot_use_play_signer_for_github_apks(self) -> None:
+        changed = self.workflow.replace(
+            'ORG_GRADLE_PROJECT_androidSigningProperties: github-apk-signing.properties',
+            'ORG_GRADLE_PROJECT_androidSigningProperties: play-signing.properties', 1
         )
-        with self.assertRaisesRegex(contract.ContractError, "signing certificates"):
+        with self.assertRaisesRegex(contract.ContractError, "GitHub APK"):
+            contract.validate_source_text(self.gradle, changed)
+        changed = self.workflow.replace(
+            contract.GITHUB_SIGNING_SHA256.upper(),
+            contract.PLAY_SIGNING_SHA256.upper(), 1
+        )
+        with self.assertRaisesRegex(contract.ContractError, "GitHub signer"):
+            contract.validate_source_text(self.gradle, changed)
+        changed = self.workflow.replace(
+            'needs: [release-gate, quality-checks, generate-screenshots, signing-preflight]',
+            'needs: [release-gate, quality-checks, generate-screenshots]', 1
+        )
+        with self.assertRaisesRegex(contract.ContractError, "preflight"):
+            contract.validate_source_text(self.gradle, changed)
+        changed = self.gradle.replace(
+            'signingConfig = signingConfigs.findByName("release")',
+            'signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")', 1
+        )
+        with self.assertRaisesRegex(contract.ContractError, "debug signing"):
+            contract.validate_source_text(changed, self.workflow)
+
+    def test_signing_key_is_pinned(self) -> None:
+        for expected, wrong in ((contract.GITHUB_SIGNING_SHA256, contract.PLAY_SIGNING_SHA256),
+                                (contract.PLAY_SIGNING_SHA256, contract.GITHUB_SIGNING_SHA256)):
             contract.verify_signing_digest(
-                "Signer #1 certificate SHA-256 digest: " + "0" * 64, "fixture.apk"
+                f"Signer #1 certificate SHA-256 digest: {expected}", "fixture.apk", expected
             )
+            with self.assertRaisesRegex(contract.ContractError, "signing certificates"):
+                contract.verify_signing_digest(
+                    f"Signer #1 certificate SHA-256 digest: {wrong}", "fixture.apk", expected
+                )
 
     def test_wrong_binary_package_fails_even_when_source_is_correct(self) -> None:
         with tempfile.TemporaryDirectory() as dirname:
@@ -119,7 +146,7 @@ class ReleaseContractTests(unittest.TestCase):
                 if args[1:3] == ["dump", "badging"]:
                     return ("package: name='com.presley.blockdrop' "
                             "versionName='1.0.74' versionCode='712'")
-                return "Signer #1 certificate SHA-256 digest: " + contract.SIGNING_SHA256
+                return "Signer #1 certificate SHA-256 digest: " + contract.GITHUB_SIGNING_SHA256
             with patch.object(contract, "find_android_tool", return_value="/tool"), \
                  patch.object(contract, "run_checked", side_effect=fake_run), \
                  self.assertRaisesRegex(contract.ContractError, "PACKAGE ID REGRESSION"):
@@ -136,7 +163,7 @@ class ReleaseContractTests(unittest.TestCase):
                     code = 710 + contract.ABI_SUFFIXES[abi]
                     return (f"package: name='com.blockdrop.game' "
                             f"versionName='1.0.74' versionCode='{code}'")
-                return "Signer #1 certificate SHA-256 digest: " + contract.SIGNING_SHA256
+                return "Signer #1 certificate SHA-256 digest: " + contract.GITHUB_SIGNING_SHA256
             with patch.object(contract, "find_android_tool", return_value="/tool"), \
                  patch.object(contract, "run_checked", side_effect=fake_run):
                 contract.verify_apks(directory, "1.0.74", 71)

@@ -12,7 +12,8 @@ import sys
 
 GITHUB_PACKAGE = "com.blockdrop.game"
 PLAY_PACKAGE = "com.presley.blockdrop"
-SIGNING_SHA256 = "c5afe55b3b7c50f43aaa1f14f8e38e922c0ffc814324b3a5009bc1c070e4284b"
+GITHUB_SIGNING_SHA256 = "011ee1a6e4e5ecd675f67fbf3d78ad82614a7a7a3f24ed71cc9c417154a0f0fd"
+PLAY_SIGNING_SHA256 = "c5afe55b3b7c50f43aaa1f14f8e38e922c0ffc814324b3a5009bc1c070e4284b"
 ABI_SUFFIXES = {"armeabi-v7a": 1, "arm64-v8a": 2, "x86_64": 3}
 BUNDLETOOL_SHA256 = "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29"
 
@@ -68,6 +69,8 @@ def validate_source_text(gradle: str, workflow: str) -> None:
     require('if (providers.gradleProperty("playStoreBuild").orNull == "true")' in gradle,
             "Play package override must require the explicit playStoreBuild=true property")
     require('namespace = "com.blockdrop.game"' in gradle, "Android namespace changed")
+    require('signingConfigs.getByName("debug")' not in gradle,
+            "Release build must never fall back to debug signing")
     marker = 'ORG_GRADLE_PROJECT_playStoreBuild: "true"'
     require(workflow.count(marker) == 1,
             "Only the Google Play App Bundle step may set the Play package override")
@@ -80,7 +83,21 @@ def validate_source_text(gradle: str, workflow: str) -> None:
     require(len(apk_steps) == 3 and all("flutter build apk" in chunk and marker not in chunk
                                        for chunk in apk_steps),
             "Three GitHub APK ABI steps must not receive a Play package override")
+    require('needs: [release-gate, quality-checks, generate-screenshots, signing-preflight]' in workflow,
+            "Signing preflight must block tag/version creation")
+    require(workflow.count(GITHUB_SIGNING_SHA256.upper()) == 2,
+            "GitHub signer must be pinned at preflight and at artifact build")
+    require(workflow.count(PLAY_SIGNING_SHA256.upper()) == 3,
+            "Play upload signer must be pinned at preflight, build and publishing")
+    require(workflow.count('ORG_GRADLE_PROJECT_androidSigningProperties: github-apk-signing.properties') == 3,
+            "Each GitHub APK must use the historical APK signing properties")
+    require(workflow.count('ORG_GRADLE_PROJECT_androidSigningProperties: play-signing.properties') == 1,
+            "Only the Play bundle may use the Play signing properties")
     for check in ("scripts/release_contract.py apk", "scripts/release_contract.py aab",
+                  "GITHUB_APK_KEYSTORE_BASE64", "ANDROID_KEYSTORE_BASE64",
+                  "ORG_GRADLE_PROJECT_androidSigningProperties: github-apk-signing.properties",
+                  "ORG_GRADLE_PROJECT_androidSigningProperties: play-signing.properties",
+                  "signing-preflight", "011EE1A6E4E5ECD675F67FBF3D78AD82614A7A7A3F24ED71CC9C417154A0F0FD",
                   "scripts/release_contract.py version", "test_release_contract.py"):
         require(check in workflow, f"Required release CI guard missing: {check}")
 
@@ -125,11 +142,11 @@ def normalize_digest(value: str) -> str:
     return re.sub(r"[^0-9a-f]", "", value.lower())
 
 
-def verify_signing_digest(output: str, label: str) -> None:
+def verify_signing_digest(output: str, label: str, expected_sha256: str) -> None:
     hashes = re.findall(r"certificate SHA-256 digest:\s*([0-9a-f:]+)", output, re.I)
     if not hashes:
         hashes = re.findall(r"SHA256:\s*([0-9a-f:]+)", output, re.I)
-    require(len(hashes) == 1 and normalize_digest(hashes[0]) == SIGNING_SHA256,
+    require(len(hashes) == 1 and normalize_digest(hashes[0]) == expected_sha256,
             f"{label} has unexpected or multiple signing certificates")
 
 
@@ -152,7 +169,8 @@ def verify_apks(directory: Path, version: str, build: int) -> None:
         require(code == build * 10 + ABI_SUFFIXES[abi],
                 f"{path.name} versionCode {code} != {build * 10 + ABI_SUFFIXES[abi]}")
         verify_signing_digest(
-            run_checked([apksigner, "verify", "--print-certs", str(path)]), path.name
+            run_checked([apksigner, "verify", "--print-certs", str(path)]),
+            path.name, GITHUB_SIGNING_SHA256
         )
         print(f"PASS {path.name}: {package} {actual_version} code={code} signed")
 
@@ -176,7 +194,8 @@ def verify_aab(bundle: Path, bundletool: Path, version: str, build: int) -> None
     require(actual_name == version, f"Play AAB versionName {actual_name} != {version}")
     require(actual_code == str(build), f"Play AAB versionCode {actual_code} != {build}")
     verify_signing_digest(
-        run_checked(["keytool", "-printcert", "-jarfile", str(bundle)]), bundle.name
+        run_checked(["keytool", "-printcert", "-jarfile", str(bundle)]),
+        bundle.name, PLAY_SIGNING_SHA256
     )
     print(f"PASS {bundle.name}: {package} {actual_name} code={actual_code} signed")
 
