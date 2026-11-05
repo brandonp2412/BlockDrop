@@ -105,6 +105,12 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Verify immutable release contracts
+        run: |
+          python3 -m unittest discover -s scripts -p 'test_release_contract.py' -v
+          python3 scripts/release_contract.py source
+          python3 scripts/release_contract.py version
+
   generate-screenshots:
     needs: release-gate
     if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.release-gate.outputs.should_release == 'true') }}
@@ -284,6 +290,9 @@ jobs:
           sed -i "s/^version: .*/version: $NEW_VERSION+$NEW_BUILD_NUMBER/" pubspec.yaml
           sed -i "s/^  msix_version: .*/  msix_version: $NEW_VERSION.0/" pubspec.yaml
 
+      - name: Verify new release version and build number
+        run: python3 scripts/release_contract.py version --strict
+
       - name: Commit and push version bump
         id: commit
         env:
@@ -376,12 +385,37 @@ jobs:
           BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
         run: flutter build apk --release --build-name="$VERSION" --build-number="$BUILD_NUMBER" --target-platform android-arm64 --split-per-abi
 
+      - name: Verify GitHub/F-Droid APK identity, codes and signing
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: |
+          python3 scripts/release_contract.py apk \
+            --dir build/app/outputs/flutter-apk \
+            --version "$VERSION" --build "$BUILD_NUMBER"
+
       - name: Build App Bundle
         env:
           ORG_GRADLE_PROJECT_playStoreBuild: "true"
           VERSION: ${{ needs.version-bump.outputs.version }}
           BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
         run: flutter build appbundle --release --build-name="$VERSION" --build-number="$BUILD_NUMBER"
+
+      - name: Verify Play App Bundle identity, code and signing
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: |
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/bundletool-all-1.18.3.jar" \
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
+          printf '%s  %s\n' \
+            'a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29' \
+            "$RUNNER_TEMP/bundletool-all-1.18.3.jar" | sha256sum --check -
+          python3 scripts/release_contract.py aab \
+            --file build/app/outputs/bundle/release/app-release.aab \
+            --bundletool "$RUNNER_TEMP/bundletool-all-1.18.3.jar" \
+            --version "$VERSION" --build "$BUILD_NUMBER"
 
       - name: Upload APK artifact
         if: github.actor != 'nektos/act'
@@ -507,6 +541,22 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: artifacts
+
+      - name: Verify exact Android artifacts before public release
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: |
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/bundletool-all-1.18.3.jar" \
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
+          python3 scripts/release_contract.py apk \
+            --dir artifacts/android-apk \
+            --version "$VERSION" --build "$BUILD_NUMBER"
+          python3 scripts/release_contract.py aab \
+            --file artifacts/android-aab/app-release.aab \
+            --bundletool "$RUNNER_TEMP/bundletool-all-1.18.3.jar" \
+            --version "$VERSION" --build "$BUILD_NUMBER"
 
       - name: Create Release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3

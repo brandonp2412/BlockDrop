@@ -35,6 +35,26 @@ only a manual release on `main` submits to Google Play. A Play upload failure
 fails the workflow; an already-used version code is not treated as success.
 Push checks use a separate concurrency group so they cannot cancel a release.
 
+## Non-negotiable release checks
+
+The GitHub/F-Droid APK ID `com.blockdrop.game` and Google Play AAB ID
+`com.presley.blockdrop` are **existing, distinct app identities**. Never change
+or swap them: Android cannot update an installed application across package IDs.
+
+The release workflow runs `scripts/test_release_contract.py` and
+`scripts/release_contract.py` to reject:
+
+- changes to either established Android ID or to the Play-only build override;
+- version names or build numbers that do not strictly increase for a new release;
+- any ABI APK with the wrong package, version name/code, missing ABI, or signer;
+- a Play AAB with the wrong ID, version name/code, or signer;
+- downloaded artifacts whose identity differs from the verified build outputs.
+
+The pinned signing SHA-256 is the established Android release certificate.
+The checks run before publishing any GitHub release or submitting to Google
+Play. Do not bypass or weaken these gates to get a release out. For the
+v1.0.72 incident, see [issue #79](https://github.com/brandonp2412/BlockDrop/issues/79).
+
 ## Signing and credentials
 
 The repository's Actions secrets contain `ANDROID_KEYSTORE_BASE64`,
