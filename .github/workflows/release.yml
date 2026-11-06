@@ -229,10 +229,10 @@ jobs:
     steps:
       - name: Verify historical GitHub and Google Play signer secrets
         env:
-          GITHUB_APK_KEYSTORE_BASE64: ${{ secrets.GITHUB_APK_KEYSTORE_BASE64 }}
-          GITHUB_APK_STORE_PASSWORD: ${{ secrets.GITHUB_APK_STORE_PASSWORD }}
-          GITHUB_APK_KEY_PASSWORD: ${{ secrets.GITHUB_APK_KEY_PASSWORD }}
-          GITHUB_APK_KEY_ALIAS: ${{ secrets.GITHUB_APK_KEY_ALIAS }}
+          BLOCKDROP_APK_KEYSTORE_BASE64: ${{ secrets.BLOCKDROP_APK_KEYSTORE_BASE64 }}
+          BLOCKDROP_APK_STORE_PASSWORD: ${{ secrets.BLOCKDROP_APK_STORE_PASSWORD }}
+          BLOCKDROP_APK_KEY_PASSWORD: ${{ secrets.BLOCKDROP_APK_KEY_PASSWORD }}
+          BLOCKDROP_APK_KEY_ALIAS: ${{ secrets.BLOCKDROP_APK_KEY_ALIAS }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -241,12 +241,12 @@ jobs:
           set -euo pipefail
           umask 077
           trap 'rm -f "$RUNNER_TEMP/github-preflight.jks" "$RUNNER_TEMP/play-preflight.jks"' EXIT
-          for variable in GITHUB_APK_KEYSTORE_BASE64 GITHUB_APK_STORE_PASSWORD GITHUB_APK_KEY_PASSWORD GITHUB_APK_KEY_ALIAS ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
+          for variable in BLOCKDROP_APK_KEYSTORE_BASE64 BLOCKDROP_APK_STORE_PASSWORD BLOCKDROP_APK_KEY_PASSWORD BLOCKDROP_APK_KEY_ALIAS ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
             test -n "${!variable}" || { echo "Missing release signing secret: $variable" >&2; exit 1; }
           done
-          printf '%s' "$GITHUB_APK_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/github-preflight.jks"
+          printf '%s' "$BLOCKDROP_APK_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/github-preflight.jks"
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/play-preflight.jks"
-          github_fingerprint="$(keytool -list -v -keystore "$RUNNER_TEMP/github-preflight.jks" -alias "$GITHUB_APK_KEY_ALIAS" -storepass:env GITHUB_APK_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
+          github_fingerprint="$(keytool -list -v -keystore "$RUNNER_TEMP/github-preflight.jks" -alias "$BLOCKDROP_APK_KEY_ALIAS" -storepass:env BLOCKDROP_APK_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
           play_fingerprint="$(keytool -list -v -keystore "$RUNNER_TEMP/play-preflight.jks" -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
           test "$github_fingerprint" = "011EE1A6E4E5ECD675F67FBF3D78AD82614A7A7A3F24ED71CC9C417154A0F0FD" || { echo 'Wrong GitHub APK signing certificate' >&2; exit 1; }
           test "$play_fingerprint" = "C5AFE55B3B7C50F43AAA1F14F8E38E922C0FFC814324B3A5009BC1C070E4284B" || { echo 'Wrong Play upload signing certificate' >&2; exit 1; }
@@ -376,10 +376,10 @@ jobs:
 
       - name: Decode distinct Android signing keystores
         env:
-          GITHUB_APK_KEYSTORE_BASE64: ${{ secrets.GITHUB_APK_KEYSTORE_BASE64 }}
-          GITHUB_APK_STORE_PASSWORD: ${{ secrets.GITHUB_APK_STORE_PASSWORD }}
-          GITHUB_APK_KEY_PASSWORD: ${{ secrets.GITHUB_APK_KEY_PASSWORD }}
-          GITHUB_APK_KEY_ALIAS: ${{ secrets.GITHUB_APK_KEY_ALIAS }}
+          BLOCKDROP_APK_KEYSTORE_BASE64: ${{ secrets.BLOCKDROP_APK_KEYSTORE_BASE64 }}
+          BLOCKDROP_APK_STORE_PASSWORD: ${{ secrets.BLOCKDROP_APK_STORE_PASSWORD }}
+          BLOCKDROP_APK_KEY_PASSWORD: ${{ secrets.BLOCKDROP_APK_KEY_PASSWORD }}
+          BLOCKDROP_APK_KEY_ALIAS: ${{ secrets.BLOCKDROP_APK_KEY_ALIAS }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -387,15 +387,15 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
-          for variable in GITHUB_APK_KEYSTORE_BASE64 GITHUB_APK_STORE_PASSWORD GITHUB_APK_KEY_PASSWORD GITHUB_APK_KEY_ALIAS ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
+          for variable in BLOCKDROP_APK_KEYSTORE_BASE64 BLOCKDROP_APK_STORE_PASSWORD BLOCKDROP_APK_KEY_PASSWORD BLOCKDROP_APK_KEY_ALIAS ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
             test -n "${!variable}" || { echo "Missing release signing secret: $variable" >&2; exit 1; }
           done
-          printf '%s' "$GITHUB_APK_KEYSTORE_BASE64" | base64 --decode > android/app/github-apk-keystore.jks
+          printf '%s' "$BLOCKDROP_APK_KEYSTORE_BASE64" | base64 --decode > android/app/github-apk-keystore.jks
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/play-upload-keystore.jks
           {
-            printf 'storePassword=%s\n' "$GITHUB_APK_STORE_PASSWORD"
-            printf 'keyPassword=%s\n' "$GITHUB_APK_KEY_PASSWORD"
-            printf 'keyAlias=%s\n' "$GITHUB_APK_KEY_ALIAS"
+            printf 'storePassword=%s\n' "$BLOCKDROP_APK_STORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$BLOCKDROP_APK_KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$BLOCKDROP_APK_KEY_ALIAS"
             echo 'storeFile=github-apk-keystore.jks'
           } > android/github-apk-signing.properties
           {
@@ -404,7 +404,7 @@ jobs:
             printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS"
             echo 'storeFile=play-upload-keystore.jks'
           } > android/play-signing.properties
-          github_fingerprint="$(keytool -list -v -keystore android/app/github-apk-keystore.jks -alias "$GITHUB_APK_KEY_ALIAS" -storepass:env GITHUB_APK_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
+          github_fingerprint="$(keytool -list -v -keystore android/app/github-apk-keystore.jks -alias "$BLOCKDROP_APK_KEY_ALIAS" -storepass:env BLOCKDROP_APK_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
           play_fingerprint="$(keytool -list -v -keystore android/app/play-upload-keystore.jks -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_STORE_PASSWORD | sed -n 's/.*SHA256: //p' | tr -d ':')"
           test "$github_fingerprint" = "011EE1A6E4E5ECD675F67FBF3D78AD82614A7A7A3F24ED71CC9C417154A0F0FD" || { echo 'Wrong GitHub APK signing certificate' >&2; exit 1; }
           test "$play_fingerprint" = "C5AFE55B3B7C50F43AAA1F14F8E38E922C0FFC814324B3A5009BC1C070E4284B" || { echo 'Wrong Play upload signing certificate' >&2; exit 1; }

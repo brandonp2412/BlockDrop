@@ -126,6 +126,21 @@ class ReleaseContractTests(unittest.TestCase):
         with self.assertRaisesRegex(contract.ContractError, "debug signing"):
             contract.validate_source_text(changed, self.workflow)
 
+    def test_github_apk_secret_names_are_valid_and_required(self) -> None:
+        for suffix in ("KEYSTORE_BASE64", "STORE_PASSWORD", "KEY_PASSWORD", "KEY_ALIAS"):
+            name = f"BLOCKDROP_APK_{suffix}"
+            with self.subTest(secret=name):
+                reserved = self.workflow.replace(
+                    f"secrets.{name}", f"secrets.GITHUB_APK_{suffix}", 1
+                )
+                with self.assertRaisesRegex(contract.ContractError, "reserves"):
+                    contract.validate_source_text(self.gradle, reserved)
+                missing = self.workflow.replace(
+                    f"secrets.{name}", f"secrets.BLOCKDROP_MISSING_{suffix}", 1
+                )
+                with self.assertRaisesRegex(contract.ContractError, "secret mapping"):
+                    contract.validate_source_text(self.gradle, missing)
+
     def test_signing_key_is_pinned(self) -> None:
         for expected, wrong in ((contract.GITHUB_SIGNING_SHA256, contract.PLAY_SIGNING_SHA256),
                                 (contract.PLAY_SIGNING_SHA256, contract.GITHUB_SIGNING_SHA256)):

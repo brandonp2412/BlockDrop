@@ -93,8 +93,14 @@ def validate_source_text(gradle: str, workflow: str) -> None:
             "Each GitHub APK must use the historical APK signing properties")
     require(workflow.count('ORG_GRADLE_PROJECT_androidSigningProperties: play-signing.properties') == 1,
             "Only the Play bundle may use the Play signing properties")
+    require("secrets.GITHUB_APK_" not in workflow,
+            "GitHub Actions reserves the GITHUB_ secret prefix")
+    for suffix in ("KEYSTORE_BASE64", "STORE_PASSWORD", "KEY_PASSWORD", "KEY_ALIAS"):
+        name = f"BLOCKDROP_APK_{suffix}"
+        require(workflow.count(f"secrets.{name}") == 2,
+                f"Missing GitHub APK secret mapping: {name}")
     for check in ("scripts/release_contract.py apk", "scripts/release_contract.py aab",
-                  "GITHUB_APK_KEYSTORE_BASE64", "ANDROID_KEYSTORE_BASE64",
+                  "BLOCKDROP_APK_KEYSTORE_BASE64", "ANDROID_KEYSTORE_BASE64",
                   "ORG_GRADLE_PROJECT_androidSigningProperties: github-apk-signing.properties",
                   "ORG_GRADLE_PROJECT_androidSigningProperties: play-signing.properties",
                   "signing-preflight", "011EE1A6E4E5ECD675F67FBF3D78AD82614A7A7A3F24ED71CC9C417154A0F0FD",
