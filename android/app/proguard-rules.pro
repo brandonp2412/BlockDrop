@@ -1,3 +1,5 @@
+-dontobfuscate
+
 # Preserve Kotlin types looked up by name by shared_preferences' JNI bridge.
 # https://github.com/flutter/packages/blob/main/packages/pigeon/native_interop_guide.md#step-5-android-release-build-configuration-jni
 -keep class kotlin.Unit { *; }
