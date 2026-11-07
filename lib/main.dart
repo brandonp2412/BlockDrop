@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'l10n/app_localizations.dart';
 import 'logging.dart';
 import 'screens/block_drop_game_screen.dart';
@@ -10,6 +12,9 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      }
       installTalkerErrorHandlers();
       talker.info('Starting Block Drop');
       final settings = SettingsProvider();
