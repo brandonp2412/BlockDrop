@@ -344,15 +344,17 @@ class SettingsProvider extends ChangeNotifier {
     await prefs.setBool(_sfxEnabledKey, value);
   }
 
-  /// Selects a persistent custom music file, or restores the bundled track.
+  /// Selects and enables custom music, or restores the bundled track.
   Future<void> setCustomMusicPath(String? value) async {
     _customMusicPath = value;
+    if (value != null) _musicEnabled = true;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     if (value == null) {
       await prefs.remove(_customMusicPathKey);
     } else {
       await prefs.setString(_customMusicPathKey, value);
+      await prefs.setBool(_musicEnabledKey, true);
     }
   }
 

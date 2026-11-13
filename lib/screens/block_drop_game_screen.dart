@@ -247,26 +247,24 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
     }
   }
 
-  void _onSettingsChanged() {
+  Future<void> _syncAudioSettings() async {
     _audioService.musicEnabled = widget.settings.musicEnabled;
     _audioService.sfxEnabled = widget.settings.sfxEnabled;
-    unawaited(
-      _audioService.setCustomSources(
-        musicPath: widget.settings.customMusicPath,
-        sfxPaths: widget.settings.customSfxPaths,
-      ),
+    await _audioService.setCustomSources(
+      musicPath: widget.settings.customMusicPath,
+      sfxPaths: widget.settings.customSfxPaths,
     );
+    await _audioService.setMusicEnabled(widget.settings.musicEnabled);
+  }
+
+  void _onSettingsChanged() {
+    unawaited(_syncAudioSettings());
     gameLogic.enableHold = widget.settings.enableHold;
     gameLogic.gameplaySettings = widget.settings.gameplay;
     if (widget.settings.continueGameEnabled) {
       _scheduleGameSave();
     } else {
       widget.settings.clearSavedGame();
-    }
-    if (widget.settings.musicEnabled) {
-      _audioService.resumeMusic();
-    } else {
-      _audioService.pauseMusic();
     }
     setState(() {});
   }

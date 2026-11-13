@@ -416,6 +416,37 @@ void main() {
     await stateController.close();
   });
 
+  test('selecting a track while disabled plays it when enabled', () async {
+    final (mockMusic, stateController) = makeMusicPlayer();
+    final service = AudioService(
+      musicEnabled: false,
+      musicPlayer: mockMusic,
+      sfxPlayerFactory: makeSfxPlayer,
+    );
+    await service.init();
+    await service.startMusic();
+    await service.pauseMusic();
+    when(() => mockMusic.state).thenReturn(PlayerState.paused);
+    when(() => mockMusic.stop()).thenAnswer((_) async {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      when(() => mockMusic.state).thenReturn(PlayerState.stopped);
+      stateController.add(PlayerState.stopped);
+    });
+
+    service.musicEnabled = true;
+    await service.setCustomSources(
+      musicPath: '/tmp/selected-track.mp3',
+      sfxPaths: const {},
+    );
+    await service.setMusicEnabled(true);
+
+    final source = verify(() => mockMusic.play(captureAny())).captured.single;
+    expect(source, isA<DeviceFileSource>());
+    expect((source as DeviceFileSource).path, '/tmp/selected-track.mp3');
+    verifyNever(() => mockMusic.resume());
+    await stateController.close();
+  });
+
   test('stopMusic prevents a stopped player from being restarted', () async {
     final (mockMusic, stateController) = makeMusicPlayer();
     final service = AudioService(

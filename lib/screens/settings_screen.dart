@@ -79,7 +79,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         '${(await getApplicationSupportDirectory()).path}/custom_audio',
       );
       await directory.create(recursive: true);
-      final targetName = extension == null ? slot : '$slot.$extension';
+      final importName = '${slot}_${DateTime.now().microsecondsSinceEpoch}';
+      final targetName =
+          extension == null ? importName : '$importName.$extension';
       final target = File(directory.path + Platform.pathSeparator + targetName);
       await target.writeAsBytes(await picked.readAsBytes(), flush: true);
       return target.path;

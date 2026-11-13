@@ -111,6 +111,28 @@ void main() {
       expect(settings.musicEnabled, false);
     });
 
+    test('selecting custom music enables playback and persists it', () async {
+      final settings = SettingsProvider();
+      var notifications = 0;
+      settings.addListener(() {
+        notifications++;
+        expect(settings.musicEnabled, isTrue);
+        expect(settings.customMusicPath, '/audio/theme.mp3');
+      });
+
+      await settings.setCustomMusicPath('/audio/theme.mp3');
+      expect(notifications, 1);
+
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.musicEnabled, isTrue);
+      expect(reloaded.customMusicPath, '/audio/theme.mp3');
+
+      await reloaded.setMusicEnabled(false);
+      await reloaded.setCustomMusicPath(null);
+      expect(reloaded.musicEnabled, isFalse);
+    });
+
     test('persists custom music and sound-effect paths', () async {
       final settings = SettingsProvider();
       await settings.setCustomMusicPath('/audio/theme.flac');
