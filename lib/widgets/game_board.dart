@@ -7,6 +7,7 @@ import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
 import '../settings/settings_provider.dart';
 import 'game_decorations.dart';
+import 'neon_block.dart';
 import 'score_bonus_popup.dart';
 
 // Modern Flutter color alpha helper
@@ -249,35 +250,12 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
 
       case AppStyle.neon:
         if (isGhostPiece) {
-          return Container(
-            margin: const EdgeInsets.all(1.5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(3),
-              border: Border.all(
-                color: _colorWithAlpha(ghostBorder, 0.4),
-                width: 1,
-              ),
-            ),
-          );
+          return NeonBlock(color: ghostBorder, isGhost: true);
         }
         if (displayColor == null) {
           return Container(color: emptyCellColor);
         }
-        return Container(
-          margin: const EdgeInsets.all(1.5),
-          decoration: BoxDecoration(
-            color: _colorWithAlpha(displayColor, 0.3),
-            borderRadius: BorderRadius.circular(3),
-            border: Border.all(color: displayColor, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: _colorWithAlpha(displayColor, 0.18),
-                blurRadius: 2,
-                spreadRadius: 0,
-              ),
-            ],
-          ),
-        );
+        return NeonBlock(color: displayColor);
 
       case AppStyle.retro:
         if (isGhostPiece) {

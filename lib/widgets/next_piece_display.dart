@@ -3,6 +3,7 @@ import '../models/tetromino.dart';
 import '../constants/game_constants.dart';
 import '../settings/settings_provider.dart';
 import 'game_decorations.dart';
+import 'neon_block.dart';
 
 class NextPieceDisplay extends StatelessWidget {
   final Tetromino piece;
@@ -152,20 +153,7 @@ class NextPieceDisplay extends StatelessWidget {
 
       case AppStyle.neon:
         if (displayColor == null) return const SizedBox.shrink();
-        return Container(
-          margin: const EdgeInsets.all(1.5),
-          decoration: BoxDecoration(
-            color: displayColor.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(3),
-            border: Border.all(color: displayColor, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: displayColor.withValues(alpha: 0.18),
-                blurRadius: 2,
-              ),
-            ],
-          ),
-        );
+        return NeonBlock(color: displayColor);
 
       case AppStyle.retro:
         if (displayColor == null) return const SizedBox.shrink();
