@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Draws a neon tile with a clipped frame and a muted, recessed core.
+/// Draws a dark tile edged with a thin neon tube and a restrained halo.
 class NeonBlock extends StatelessWidget {
   /// The piece color, or the landing indicator color for a ghost tile.
   final Color color;
@@ -25,58 +25,47 @@ class _NeonBlockPainter extends CustomPainter {
 
   const _NeonBlockPainter(this.color, this.isGhost);
 
-  Path _frame(Rect rect) {
-    final cut = rect.shortestSide * 0.18;
-    return Path()
-      ..moveTo(rect.left + cut, rect.top)
-      ..lineTo(rect.right - cut, rect.top)
-      ..lineTo(rect.right, rect.top + cut)
-      ..lineTo(rect.right, rect.bottom - cut)
-      ..lineTo(rect.right - cut, rect.bottom)
-      ..lineTo(rect.left + cut, rect.bottom)
-      ..lineTo(rect.left, rect.bottom - cut)
-      ..lineTo(rect.left, rect.top + cut)
-      ..close();
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
     if (size.shortestSide <= 0) return;
-    final bounds = Offset.zero & size;
     final unit = size.shortestSide;
-    final frame = _frame(bounds.deflate(unit * 0.045));
+    final frame = RRect.fromRectAndRadius(
+      (Offset.zero & size).deflate(unit * 0.065),
+      Radius.circular(unit * 0.1),
+    );
+    final tubeWidth = (unit * 0.055).clamp(0.8, 1.8).toDouble();
     if (isGhost) {
-      canvas.drawPath(
+      canvas.drawRRect(
         frame,
         Paint()
-          ..color = color.withValues(alpha: 0.5)
+          ..color = color.withValues(alpha: 0.45)
           ..style = PaintingStyle.stroke
-          ..strokeWidth = unit * 0.045,
+          ..strokeWidth = tubeWidth,
       );
       return;
     }
 
-    canvas.drawPath(frame, Paint()..color = const Color(0xFF050A14));
-    canvas.drawPath(
+    canvas.drawRRect(frame, Paint()..color = const Color(0xFF050A14));
+    canvas.drawRRect(
       frame,
       Paint()
-        ..color = Color.lerp(color, const Color(0xFF050A14), 0.25)!
+        ..color = color.withValues(alpha: 0.12)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = unit * 0.04,
+        ..strokeWidth = tubeWidth * 3,
     );
-
-    final coreBounds = bounds.deflate(unit * 0.19);
-    canvas.drawPath(
-      _frame(coreBounds),
+    canvas.drawRRect(
+      frame,
       Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color.lerp(color, const Color(0xFF050A14), 0.25)!,
-            Color.lerp(color, const Color(0xFF050A14), 0.55)!,
-          ],
-        ).createShader(coreBounds),
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = tubeWidth,
+    );
+    canvas.drawRRect(
+      frame,
+      Paint()
+        ..color = Color.lerp(color, Colors.white, 0.65)!
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = tubeWidth * 0.4,
     );
   }
 
