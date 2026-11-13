@@ -178,21 +178,25 @@ class HoldPieceDisplay extends StatelessWidget {
           margin: EdgeInsets.all(marginAmount),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(innerSize / 2),
+            border: Border.all(
+              color: Color.lerp(displayColor, Colors.black, 0.5)!,
+              width: 1.5,
+            ),
             gradient: RadialGradient(
               center: const Alignment(-0.35, -0.4),
               radius: 0.9,
               colors: [
-                Color.lerp(displayColor, Colors.white, 0.65)!,
+                Color.lerp(displayColor, Colors.white, 0.45)!,
                 displayColor,
-                Color.lerp(displayColor, Colors.black, 0.25)!,
+                Color.lerp(displayColor, Colors.black, 0.4)!,
               ],
               stops: const [0.0, 0.55, 1.0],
             ),
             boxShadow: [
               BoxShadow(
-                color: displayColor.withValues(alpha: 0.55),
-                blurRadius: 5,
-                spreadRadius: 0.5,
+                color: displayColor.withValues(alpha: 0.2),
+                blurRadius: 2,
+                spreadRadius: 0,
               ),
             ],
           ),
@@ -201,15 +205,15 @@ class HoldPieceDisplay extends StatelessWidget {
       case AppStyle.neon:
         if (displayColor == null) return const SizedBox.shrink();
         return Container(
-          margin: const EdgeInsets.all(1),
+          margin: const EdgeInsets.all(1.5),
           decoration: BoxDecoration(
-            color: displayColor.withValues(alpha: 0.12),
+            color: displayColor.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(3),
-            border: Border.all(color: displayColor, width: 1.5),
+            border: Border.all(color: displayColor, width: 2),
             boxShadow: [
               BoxShadow(
-                color: displayColor.withValues(alpha: 0.25),
-                blurRadius: 3,
+                color: displayColor.withValues(alpha: 0.18),
+                blurRadius: 2,
               ),
             ],
           ),
@@ -221,6 +225,7 @@ class HoldPieceDisplay extends StatelessWidget {
         final shadow = Color.lerp(displayColor, Colors.black, 0.5)!;
         const bevel = 3.0;
         return Container(
+          margin: const EdgeInsets.all(1),
           color: displayColor,
           child: Stack(
             children: [
