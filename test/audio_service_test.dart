@@ -447,6 +447,29 @@ void main() {
     await stateController.close();
   });
 
+  test('missing music codec is contained and another track can play', () async {
+    final (player, states) = makeMusicPlayer();
+    final service = AudioService(
+      musicPlayer: player,
+      sfxPlayerFactory: makeSfxPlayer,
+    );
+    when(() => player.play(any())).thenThrow(Exception('missing codec'));
+    await service.startMusic();
+    clearInteractions(player);
+    states.add(PlayerState.stopped);
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    verifyNever(() => player.play(any()));
+
+    when(() => player.play(any())).thenAnswer((_) async {});
+    await service.setCustomSources(
+      musicPath: '/tmp/playable.ogg',
+      sfxPaths: const {},
+    );
+    await service.setMusicEnabled(true);
+    verify(() => player.play(any())).called(1);
+    await states.close();
+  });
+
   test('stopMusic prevents a stopped player from being restarted', () async {
     final (mockMusic, stateController) = makeMusicPlayer();
     final service = AudioService(

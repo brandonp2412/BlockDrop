@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 
 /// Returns the audio file extension supported by the current platform.
 /// Windows Media Foundation doesn't support Ogg Vorbis, so we use MP3 there.
@@ -94,7 +95,11 @@ class AudioService {
       }
 
       if (state == PlayerState.paused) {
-        await _musicPlayer.resume();
+        try {
+          await _musicPlayer.resume();
+        } on Exception catch (error) {
+          _handleMusicError(error);
+        }
       } else if (state == PlayerState.stopped) {
         // Unexpectedly stopped — restart from beginning.
         await startMusic();
@@ -139,12 +144,14 @@ class AudioService {
   }
 
   Future<void> _startMusic() async {
-    await _ensureMusicInitialized();
-    if (!musicEnabled || _musicIntentionallyPaused) return;
-    if (_musicPlayer.state == PlayerState.playing) return;
-    _isIntentionallyStarting = true;
     try {
+      await _ensureMusicInitialized();
+      if (!musicEnabled || _musicIntentionallyPaused) return;
+      if (_musicPlayer.state == PlayerState.playing) return;
+      _isIntentionallyStarting = true;
       await _musicPlayer.play(_musicSource());
+    } on Exception catch (error) {
+      _handleMusicError(error);
     } finally {
       if (_musicPlayer.state != PlayerState.playing) {
         _isIntentionallyStarting = false;
@@ -169,10 +176,19 @@ class AudioService {
     if (!musicEnabled || _musicIntentionallyPaused) return;
     final state = _musicPlayer.state;
     if (state == PlayerState.paused) {
-      await _musicPlayer.resume();
+      try {
+        await _musicPlayer.resume();
+      } on Exception catch (error) {
+        _handleMusicError(error);
+      }
     } else if (state != PlayerState.playing) {
       await startMusic();
     }
+  }
+
+  void _handleMusicError(Exception error) {
+    _musicIntentionallyPaused = true;
+    debugPrint('Unable to play music: $error');
   }
 
   Future<void> setMusicEnabled(bool enabled) async {
