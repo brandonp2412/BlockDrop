@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../settings/settings_provider.dart';
 
-/// Refined Classic keeps the original square block language while adding a
-/// restrained top-edge highlight and crisp separation between occupied cells.
+/// Gives classic blocks a subtle highlight and a solid outline so adjacent
+/// cells remain distinct even when they share the same color.
 BoxDecoration classicPieceDecoration(Color color) {
   final highlight = Color.lerp(color, Colors.white, 0.14)!;
-  final edge = Color.lerp(color, Colors.black, 0.38)!;
+  final edge = Color.lerp(color, Colors.black, 0.65)!;
   return BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
@@ -14,15 +14,7 @@ BoxDecoration classicPieceDecoration(Color color) {
       colors: [highlight, color],
       stops: const [0, 0.34],
     ),
-    border: Border(
-      top: BorderSide(
-        color: highlight.withValues(alpha: 0.82),
-        width: 0.7,
-      ),
-      left: BorderSide(color: edge.withValues(alpha: 0.62), width: 0.55),
-      right: BorderSide(color: edge.withValues(alpha: 0.62), width: 0.55),
-      bottom: BorderSide(color: edge.withValues(alpha: 0.72), width: 0.55),
-    ),
+    border: Border.all(color: edge),
   );
 }
 
