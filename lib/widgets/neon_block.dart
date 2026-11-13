@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Draws a neon tile with a clipped frame and a recessed, illuminated core.
+/// Draws a neon tile with a clipped frame and a muted, recessed core.
 class NeonBlock extends StatelessWidget {
   /// The piece color, or the landing indicator color for a ghost tile.
   final Color color;
@@ -60,9 +60,9 @@ class _NeonBlockPainter extends CustomPainter {
     canvas.drawPath(
       frame,
       Paint()
-        ..color = color
+        ..color = Color.lerp(color, const Color(0xFF050A14), 0.25)!
         ..style = PaintingStyle.stroke
-        ..strokeWidth = unit * 0.065,
+        ..strokeWidth = unit * 0.04,
     );
 
     final coreBounds = bounds.deflate(unit * 0.19);
@@ -73,25 +73,10 @@ class _NeonBlockPainter extends CustomPainter {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color.lerp(color, Colors.white, 0.2)!,
+            Color.lerp(color, const Color(0xFF050A14), 0.25)!,
             Color.lerp(color, const Color(0xFF050A14), 0.55)!,
           ],
         ).createShader(coreBounds),
-    );
-
-    final accent = Paint()
-      ..color = Color.lerp(color, Colors.white, 0.75)!
-      ..strokeWidth = unit * 0.055
-      ..strokeCap = StrokeCap.square;
-    canvas.drawLine(
-      Offset(unit * 0.23, unit * 0.07),
-      Offset(size.width - unit * 0.23, unit * 0.07),
-      accent,
-    );
-    canvas.drawLine(
-      Offset(size.width - unit * 0.07, size.height - unit * 0.34),
-      Offset(size.width - unit * 0.07, size.height - unit * 0.23),
-      accent,
     );
   }
 
