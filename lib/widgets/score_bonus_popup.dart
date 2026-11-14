@@ -92,11 +92,12 @@ class _ScoreBonusPopupState extends State<ScoreBonusPopup>
                           key: const ValueKey('score-bonus-label'),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: _label.startsWith('T-SPIN')
-                                ? Colors.purple[200]
-                                : (_label == 'QUAD!'
-                                    ? Colors.amber
-                                    : Colors.white),
+                            color: switch (_label.startsWith('T-SPIN')) {
+                              true => Colors.purple[200],
+                              false => (_label == 'QUAD!'
+                                  ? Colors.amber
+                                  : Colors.white),
+                            },
                             fontSize: _label == 'QUAD!' ? 26 : 20,
                             fontWeight: FontWeight.bold,
                             shadows: const [

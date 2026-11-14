@@ -411,12 +411,14 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                         glow * 0.7,
                       )!;
 
-                      final borderRadius = widget.style == AppStyle.bubbles
-                          ? BorderRadius.circular(cellW * 0.4)
-                          : (widget.style == AppStyle.modern ||
-                                  widget.style == AppStyle.neon)
-                              ? BorderRadius.circular(4)
-                              : BorderRadius.zero;
+                      final borderRadius =
+                          switch (widget.style == AppStyle.bubbles) {
+                        true => BorderRadius.circular(cellW * 0.4),
+                        false => (widget.style == AppStyle.modern ||
+                                widget.style == AppStyle.neon)
+                            ? BorderRadius.circular(4)
+                            : BorderRadius.zero,
+                      };
 
                       return Transform.scale(
                         scale: scale,
@@ -461,12 +463,14 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
                           1.0 - _trailOpacityAnimation.value;
                       double finalOpacity = intensity * animationProgress * 0.4;
 
-                      final borderRadius = widget.style == AppStyle.bubbles
-                          ? BorderRadius.circular(cellW * 0.4)
-                          : (widget.style == AppStyle.modern ||
-                                  widget.style == AppStyle.neon)
-                              ? BorderRadius.circular(4)
-                              : BorderRadius.zero;
+                      final borderRadius =
+                          switch (widget.style == AppStyle.bubbles) {
+                        true => BorderRadius.circular(cellW * 0.4),
+                        false => (widget.style == AppStyle.modern ||
+                                widget.style == AppStyle.neon)
+                            ? BorderRadius.circular(4)
+                            : BorderRadius.zero,
+                      };
 
                       return Container(
                         decoration: BoxDecoration(

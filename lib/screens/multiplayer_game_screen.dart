@@ -820,16 +820,17 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
           Container(
             width: size,
             height: size,
-            decoration: decorateBox
-                ? BoxDecoration(
-                    color: cs.surfaceContainerHighest.withAlpha(200),
-                    border: Border.all(
-                      color: cs.outline.withAlpha(80),
-                      width: style == AppStyle.retro ? 2 : 1,
-                    ),
-                    borderRadius: panelBorderRadius(style),
-                  )
-                : null,
+            decoration: switch (decorateBox) {
+              true => BoxDecoration(
+                  color: cs.surfaceContainerHighest.withAlpha(200),
+                  border: Border.all(
+                    color: cs.outline.withAlpha(80),
+                    width: style == AppStyle.retro ? 2 : 1,
+                  ),
+                  borderRadius: panelBorderRadius(style),
+                ),
+              false => null,
+            },
             child: Center(child: child),
           ),
         ],

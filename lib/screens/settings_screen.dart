@@ -249,11 +249,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) {
           final current = selected.round();
-          final label = current == 0 && zeroLabel != null
-              ? context.l10n.text(zeroLabel)
-              : suffix == ' lines'
-                  ? context.l10n.text('{lines} lines', {'lines': current})
-                  : '$current$suffix';
+          final label = switch (current == 0 && zeroLabel != null) {
+            true => context.l10n.text(zeroLabel!),
+            false => suffix == ' lines'
+                ? context.l10n.text('{lines} lines', {'lines': current})
+                : '$current$suffix',
+          };
           return AlertDialog(
             shape: styledDialogShape(
               widget.settings.style,
@@ -875,14 +876,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                             selected: {
-                              widget.settings.themeMode == AppThemeMode.black
-                                  ? AppThemeMode.dark
-                                  : widget.settings.themeMode ==
-                                              AppThemeMode.system ||
-                                          widget.settings.themeMode ==
-                                              AppThemeMode.light
-                                      ? widget.settings.themeMode
-                                      : AppThemeMode.dark,
+                              switch (widget.settings.themeMode ==
+                                  AppThemeMode.black) {
+                                true => AppThemeMode.dark,
+                                false => widget.settings.themeMode ==
+                                            AppThemeMode.system ||
+                                        widget.settings.themeMode ==
+                                            AppThemeMode.light
+                                    ? widget.settings.themeMode
+                                    : AppThemeMode.dark,
+                              },
                             },
                             onSelectionChanged: (selection) =>
                                 widget.settings.setThemeMode(selection.first),

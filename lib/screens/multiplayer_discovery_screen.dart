@@ -473,25 +473,26 @@ class _MultiplayerDiscoveryScreenState
         ),
         const SizedBox(height: 4),
         Expanded(
-          child: _manager.peers.isEmpty
-              ? AppEmptyState(
-                  icon: Icons.wifi_find_rounded,
-                  title: _manager.nearbyStatus == NearbyDiscoveryStatus.off
-                      ? 'Nearby search off'
-                      : 'No players found yet',
-                  message: _manager.nearbyStatus == NearbyDiscoveryStatus.off
-                      ? 'Tap Find Nearby to discover LAN hosts, or join directly by QR or IP.'
-                      : 'Nearby hosts appear here if UDP broadcasts can reach this device.',
-                )
-              : ListView.builder(
-                  itemCount: _manager.peers.length,
-                  itemBuilder: (ctx, i) => _PeerTile(
-                    peer: _manager.peers[i],
-                    colorScheme: cs,
-                    style: widget.settings.style,
-                    onInvite: () => _manager.invitePeer(_manager.peers[i]),
-                  ),
+          child: switch (_manager.peers.isEmpty) {
+            true => AppEmptyState(
+                icon: Icons.wifi_find_rounded,
+                title: _manager.nearbyStatus == NearbyDiscoveryStatus.off
+                    ? 'Nearby search off'
+                    : 'No players found yet',
+                message: _manager.nearbyStatus == NearbyDiscoveryStatus.off
+                    ? 'Tap Find Nearby to discover LAN hosts, or join directly by QR or IP.'
+                    : 'Nearby hosts appear here if UDP broadcasts can reach this device.',
+              ),
+            false => ListView.builder(
+                itemCount: _manager.peers.length,
+                itemBuilder: (ctx, i) => _PeerTile(
+                  peer: _manager.peers[i],
+                  colorScheme: cs,
+                  style: widget.settings.style,
+                  onInvite: () => _manager.invitePeer(_manager.peers[i]),
                 ),
+              ),
+          },
         ),
       ],
     );

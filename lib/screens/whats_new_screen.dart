@@ -118,27 +118,27 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
             ),
           ],
         ),
-        bottomNavigationBar: _changelogPaths.length > _pageSize
-            ? SafeArea(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: _page > 0 ? () => _setPage(_page - 1) : null,
-                      icon: const Icon(Icons.chevron_left),
-                    ),
-                    Text(
-                        '${_page + 1} / ${(_changelogPaths.length / _pageSize).ceil()}'),
-                    IconButton(
-                      onPressed:
-                          (_page + 1) * _pageSize < _changelogPaths.length
-                              ? () => _setPage(_page + 1)
-                              : null,
-                      icon: const Icon(Icons.chevron_right),
-                    ),
-                  ],
-                ),
-              )
-            : null,
+        bottomNavigationBar: switch (_changelogPaths.length > _pageSize) {
+          true => SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: _page > 0 ? () => _setPage(_page - 1) : null,
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Text(
+                      '${_page + 1} / ${(_changelogPaths.length / _pageSize).ceil()}'),
+                  IconButton(
+                    onPressed: (_page + 1) * _pageSize < _changelogPaths.length
+                        ? () => _setPage(_page + 1)
+                        : null,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
+              ),
+            ),
+          false => null,
+        },
       );
 }

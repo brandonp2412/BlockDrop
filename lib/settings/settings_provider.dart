@@ -170,11 +170,10 @@ class SettingsProvider extends ChangeNotifier {
       'ms',
       'vi',
     };
-    _localeCode = storedLocale == 'zh'
-        ? 'zh-Hans'
-        : supportedLocales.contains(storedLocale)
-            ? storedLocale
-            : null;
+    _localeCode = switch (storedLocale == 'zh') {
+      true => 'zh-Hans',
+      false => supportedLocales.contains(storedLocale) ? storedLocale : null,
+    };
     _musicEnabled = prefs.getBool(_musicEnabledKey) ?? false;
     _sfxEnabled = prefs.getBool(_sfxEnabledKey) ?? false;
     _customMusicPath = prefs.getString(_customMusicPathKey);

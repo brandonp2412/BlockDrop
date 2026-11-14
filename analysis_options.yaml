@@ -1,6 +1,10 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  errors:
+    analysis_options_deprecated_plugins: ignore
+  plugins:
+    - custom_lint
   exclude:
     - flutter/**        # Flutter SDK git submodule — not part of this package
     - build/**
@@ -15,3 +19,7 @@ linter:
   rules:
     curly_braces_in_flow_control_structures: false
     avoid_print: false
+
+custom_lint:
+  rules:
+    - no_nested_ternaries
