@@ -8,6 +8,7 @@ cd "$(dirname "$0")/.."
 
 # The existing iOS Xcode project integrates CocoaPods. Do not mix Flutter's
 # automatic SPM migration with the CocoaPods-generated manifest/lockfile.
+flutter --version
 flutter config --no-enable-swift-package-manager
 flutter precache --ios
 flutter pub get --enforce-lockfile
