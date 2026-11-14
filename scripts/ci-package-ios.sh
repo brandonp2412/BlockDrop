@@ -24,7 +24,7 @@ test -s "$app/Runner"
 test "$(plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist")" = "com.blockdrop.game"
 test "$(plutil -extract CFBundleShortVersionString raw -o - "$app/Info.plist")" = "$VERSION"
 test "$(plutil -extract CFBundleVersion raw -o - "$app/Info.plist")" = "$BUILD_NUMBER"
-lipo -verify_arch arm64 "$app/Runner"
+lipo "$app/Runner" -verify_arch arm64
 
 mkdir -p build/ios/ipa/Payload
 cp -R "$app" build/ios/ipa/Payload/Runner.app
