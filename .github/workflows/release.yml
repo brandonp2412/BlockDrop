@@ -496,48 +496,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Flutter from submodule
-        run: |
-          echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
-          flutter/bin/flutter --version
-          flutter/bin/flutter config --no-analytics
-          flutter/bin/flutter precache --ios
+      - name: Setup Flutter from submodule
+        run: echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
 
-      - name: Get dependencies
-        run: flutter pub get --enforce-lockfile
-
-      # Without an Apple signing identity, this is an unsigned *device* IPA.
-      # It is not directly installable until signed for a specific device/team.
-      - name: Build unsigned iPhone app
+      - name: Build and verify unsigned iOS IPA
         env:
           VERSION: ${{ needs.version-bump.outputs.version }}
           BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
-        run: |
-          flutter build ios --release --no-codesign --build-name="$VERSION" --build-number="$BUILD_NUMBER"
-
-      - name: Package and verify unsigned IPA
-        env:
-          VERSION: ${{ needs.version-bump.outputs.version }}
-          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          app="build/ios/iphoneos/Runner.app"
-          test -d "$app"
-          test -f "$app/Runner"
-          test "$(plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist")" = "com.blockdrop.game"
-          test "$(plutil -extract CFBundleShortVersionString raw -o - "$app/Info.plist")" = "$VERSION"
-          test "$(plutil -extract CFBundleVersion raw -o - "$app/Info.plist")" = "$BUILD_NUMBER"
-          lipo -verify_arch arm64 "$app/Runner"
-          mkdir -p build/ios/ipa/Payload
-          cp -R "$app" build/ios/ipa/Payload/Runner.app
-          (
-            cd build/ios/ipa
-            /usr/bin/zip -qry "block_drop_ios_${VERSION}_unsigned.ipa" Payload
-            unzip -tqq "block_drop_ios_${VERSION}_unsigned.ipa"
-            unzip -Z1 "block_drop_ios_${VERSION}_unsigned.ipa" | grep -q '^Payload/Runner.app/Info.plist$'
-          )
-          cp "build/ios/ipa/block_drop_ios_${VERSION}_unsigned.ipa" .
+        run: bash scripts/ci-package-ios.sh
 
       - name: Upload unsigned iOS IPA
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

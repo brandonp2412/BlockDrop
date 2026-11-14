@@ -1,0 +1,36 @@
+name: iOS Build Smoke Test (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ios-smoke:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Setup Flutter from submodule
+        run: echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
+
+      - name: Build and verify unsigned iPhone IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          app_version="$(sed -n 's/^version: //p' pubspec.yaml)"
+          export VERSION="${app_version%%+*}"
+          export BUILD_NUMBER="${app_version##*+}"
+          bash scripts/ci-package-ios.sh
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          retention-days: 7
+          if-no-files-found: error
+          name: ios-smoke-unsigned-ipa
+          path: block_drop_ios_*_unsigned.ipa
