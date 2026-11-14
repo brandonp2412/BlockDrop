@@ -485,6 +485,68 @@ jobs:
           rm -f android/app/github-apk-keystore.jks android/app/play-upload-keystore.jks
           rm -f android/github-apk-signing.properties android/play-signing.properties
 
+  build-ios:
+    needs: version-bump
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.version-bump.outputs.commit_sha }}
+          submodules: recursive
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Flutter from submodule
+        run: |
+          echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
+          flutter/bin/flutter --version
+          flutter/bin/flutter config --no-analytics
+          flutter/bin/flutter precache --ios
+
+      - name: Get dependencies
+        run: flutter pub get --enforce-lockfile
+
+      # Without an Apple signing identity, this is an unsigned *device* IPA.
+      # It is not directly installable until signed for a specific device/team.
+      - name: Build unsigned iPhone app
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        run: |
+          flutter build ios --release --no-codesign --build-name="$VERSION" --build-number="$BUILD_NUMBER"
+
+      - name: Package and verify unsigned IPA
+        env:
+          VERSION: ${{ needs.version-bump.outputs.version }}
+          BUILD_NUMBER: ${{ needs.version-bump.outputs.build_number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="build/ios/iphoneos/Runner.app"
+          test -d "$app"
+          test -f "$app/Runner"
+          test "$(plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist")" = "com.blockdrop.game"
+          test "$(plutil -extract CFBundleShortVersionString raw -o - "$app/Info.plist")" = "$VERSION"
+          test "$(plutil -extract CFBundleVersion raw -o - "$app/Info.plist")" = "$BUILD_NUMBER"
+          lipo -verify_arch arm64 "$app/Runner"
+          mkdir -p build/ios/ipa/Payload
+          cp -R "$app" build/ios/ipa/Payload/Runner.app
+          (
+            cd build/ios/ipa
+            /usr/bin/zip -qry "block_drop_ios_${VERSION}_unsigned.ipa" Payload
+            unzip -tqq "block_drop_ios_${VERSION}_unsigned.ipa"
+            unzip -Z1 "block_drop_ios_${VERSION}_unsigned.ipa" | grep -q '^Payload/Runner.app/Info.plist$'
+          )
+          cp "build/ios/ipa/block_drop_ios_${VERSION}_unsigned.ipa" .
+
+      - name: Upload unsigned iOS IPA
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          retention-days: 7
+          if-no-files-found: error
+          name: ios-unsigned-ipa
+          path: block_drop_ios_*_unsigned.ipa
+
   build-windows:
     needs: version-bump
     runs-on: windows-latest
@@ -577,7 +639,7 @@ jobs:
           path: block_drop_linux_*.tar.gz
 
   create-release:
-    needs: [version-bump, build-android, build-windows, build-linux]
+    needs: [version-bump, build-android, build-ios, build-windows, build-linux]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     permissions:
@@ -623,6 +685,7 @@ jobs:
             artifacts/android-aab/app-release.aab
             artifacts/windows-app/block_drop_windows_*.zip
             artifacts/linux-app/block_drop_linux_*.tar.gz
+            artifacts/ios-unsigned-ipa/block_drop_ios_*_unsigned.ipa
 
   publish-google-play:
     needs: [version-bump, create-release]

@@ -24,6 +24,16 @@ A modern falling-block puzzle game built with Flutter. Drop, rotate, and clear l
 - Responsive controls for mobile and desktop
 - Cross-platform support (iOS, Android, Web, Windows, macOS, Linux)
 
+## iPhone release builds
+
+Every GitHub release includes an **unsigned iPhone device IPA**
+(\`block_drop_ios_<version>_unsigned.ipa\`), built on a macOS runner for arm64.
+It **cannot be installed directly**: sign the IPA with your own Apple
+development/distribution credentials and an appropriate provisioning profile,
+or use a sideloading service that performs signing. No Apple account or
+certificate is stored by this project. This is not an App Store/TestFlight build.
+
+
 # Screenshots
 
 <p align="center">
