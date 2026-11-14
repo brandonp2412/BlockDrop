@@ -335,15 +335,6 @@ jobs:
           git push origin main
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Create and push tag
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          git tag -a "v$VERSION" -m "Release version $VERSION"
-          gh auth setup-git
-          git push origin "v$VERSION"
-
   build-android:
     needs: version-bump
     runs-on: ubuntu-latest
@@ -513,6 +504,88 @@ jobs:
           name: ios-unsigned-ipa
           path: block_drop_ios_*_unsigned.ipa
 
+  verify-fdroid-repro:
+    # Block a release until an independent, unsigned F-Droid-style rebuild
+    # matches each of our developer-signed APKs byte-for-byte (modulo signing).
+    needs: [version-bump, build-android]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - abi: armeabi-v7a
+            target: android-arm
+          - abi: arm64-v8a
+            target: android-arm64
+          - abi: x86_64
+            target: android-x64
+    env:
+      PUB_CACHE: ${{ github.workspace }}/.pub-cache
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.version-bump.outputs.commit_sha }}
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Setup Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: zulu
+          java-version: "17"
+
+      - name: Setup Flutter SDK and APK verifier
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
+          flutter/bin/flutter --version
+          flutter/bin/flutter config --no-analytics
+          flutter/bin/flutter precache --android
+          python3 -m venv "$RUNNER_TEMP/repro-venv"
+          "$RUNNER_TEMP/repro-venv/bin/pip" install --disable-pip-version-check apksigcopier==1.1.1
+          echo "$RUNNER_TEMP/repro-venv/bin" >> "$GITHUB_PATH"
+          tools="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          test -x "$tools/apksigner"
+          echo "$tools" >> "$GITHUB_PATH"
+
+      - name: Independently rebuild unsigned APK with F-Droid flags
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          flutter pub get --enforce-lockfile
+          test ! -e android/key.properties
+          flutter build apk --release --split-per-abi --target-platform="$TARGET"
+
+      - name: Download signed GitHub APK artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: android-apk
+          path: reference
+
+      - name: Verify exact F-Droid reproducibility and historical signer
+        shell: bash
+        env:
+          ABI: ${{ matrix.abi }}
+        run: |
+          set -euo pipefail
+          asset="app-${ABI}-release.apk"
+          unsigned="build/app/outputs/flutter-apk/${asset}"
+          signed="reference/${asset}"
+          test -s "$signed"
+          test -s "$unsigned"
+          apksigner verify --print-certs "$signed" | grep -F '011ee1a6e4e5ecd675f67fbf3d78ad82614a7a7a3f24ed71cc9c417154a0f0fd'
+          if apksigner verify "$unsigned" >/dev/null 2>&1; then
+            echo 'Expected independent F-Droid-style APK to be unsigned' >&2
+            exit 1
+          fi
+          apksigcopier compare --unsigned "$signed" "$unsigned"
+          echo "PASS: developer-signed APK reproduced independently for $ABI"
+
   build-windows:
     needs: version-bump
     runs-on: windows-latest
@@ -605,7 +678,7 @@ jobs:
           path: block_drop_linux_*.tar.gz
 
   create-release:
-    needs: [version-bump, build-android, build-ios, build-windows, build-linux]
+    needs: [version-bump, build-android, verify-fdroid-repro, build-ios, build-windows, build-linux]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     permissions:
@@ -642,6 +715,7 @@ jobs:
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: v${{ needs.version-bump.outputs.version }}
+          target_commitish: ${{ needs.version-bump.outputs.commit_sha }}
           name: Block Drop v${{ needs.version-bump.outputs.version }}
           generate_release_notes: true
           draft: false

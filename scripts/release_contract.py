@@ -85,6 +85,21 @@ def validate_source_text(gradle: str, workflow: str) -> None:
             "Three GitHub APK ABI steps must not receive a Play package override")
     require('needs: [release-gate, quality-checks, generate-screenshots, signing-preflight]' in workflow,
             "Signing preflight must block tag/version creation")
+    # F-Droid checks tags. Never expose a tag until all platform builds and
+    # independent APK comparisons have passed, or the updater can ingest a
+    # failed release (as happened with v1.0.76).
+    require("  verify-fdroid-repro:\n" in workflow
+            and "needs: [version-bump, build-android]" in workflow
+            and workflow.count("apksigcopier compare --unsigned") == 1
+            and "--target-platform=\"$TARGET\"" in workflow,
+            "F-Droid independent APK reproducibility guard missing")
+    require("needs: [version-bump, build-android, verify-fdroid-repro, build-ios, build-windows, build-linux]"
+            in workflow,
+            "F-Droid reproducibility must block public release")
+    require("target_commitish: ${{ needs.version-bump.outputs.commit_sha }}" in workflow
+            and "git tag -a" not in workflow
+            and 'git push origin "v$VERSION"' not in workflow,
+            "Release tags must be created only after all build guards pass")
     require(workflow.count(GITHUB_SIGNING_SHA256.upper()) == 2,
             "GitHub signer must be pinned at preflight and at artifact build")
     require(workflow.count(PLAY_SIGNING_SHA256.upper()) == 3,

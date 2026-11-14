@@ -126,6 +126,30 @@ class ReleaseContractTests(unittest.TestCase):
         with self.assertRaisesRegex(contract.ContractError, "debug signing"):
             contract.validate_source_text(changed, self.workflow)
 
+    def test_fdroid_reproducibility_must_gate_public_release(self) -> None:
+        guard = "apksigcopier compare --unsigned"
+        changed = self.workflow.replace(guard, "echo skipped", 1)
+        with self.assertRaisesRegex(contract.ContractError, "reproducibility guard"):
+            contract.validate_source_text(self.gradle, changed)
+
+        needs = ("needs: [version-bump, build-android, verify-fdroid-repro, "
+                 "build-ios, build-windows, build-linux]")
+        changed = self.workflow.replace(needs, "needs: [version-bump, build-android]", 1)
+        with self.assertRaisesRegex(contract.ContractError, "block public release"):
+            contract.validate_source_text(self.gradle, changed)
+
+    def test_failed_build_must_never_publish_release_tag(self) -> None:
+        changed = self.workflow.replace(
+            "target_commitish: ${{ needs.version-bump.outputs.commit_sha }}",
+            "target_commitish: main", 1,
+        )
+        with self.assertRaisesRegex(contract.ContractError, "only after"):
+            contract.validate_source_text(self.gradle, changed)
+
+        changed = self.workflow + '\n      - name: Early tag\n        run: git tag -a "v$VERSION"\n'
+        with self.assertRaisesRegex(contract.ContractError, "only after"):
+            contract.validate_source_text(self.gradle, changed)
+
     def test_github_apk_secret_names_are_valid_and_required(self) -> None:
         for suffix in ("KEYSTORE_BASE64", "STORE_PASSWORD", "KEY_PASSWORD", "KEY_ALIAS"):
             name = f"BLOCKDROP_APK_{suffix}"

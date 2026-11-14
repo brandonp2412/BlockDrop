@@ -33,6 +33,13 @@ development/distribution credentials and an appropriate provisioning profile,
 or use a sideloading service that performs signing. No Apple account or
 certificate is stored by this project. This is not an App Store/TestFlight build.
 
+The release pipeline also independently rebuilds unsigned Android APKs for all
+three ABIs using F-Droid-style build flags. It checks them against the
+developer-signed APKs with \`apksigcopier\` before creating a Git tag or
+publishing a release. A failed platform build or reproducibility check leaves
+no new release tag for F-Droid's tag-based update checker to ingest.
+
+
 
 # Screenshots
 
