@@ -1,7 +1,7 @@
 import 'package:block_drop/constants/game_constants.dart';
 import 'package:block_drop/game/game_logic.dart';
 import 'package:block_drop/game/gameplay_settings.dart';
-import 'package:block_drop/game/nintendo_rotation.dart';
+import 'package:block_drop/game/classic_rotation.dart';
 import 'package:block_drop/models/tetromino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,13 +17,38 @@ void main() {
 
   void setPiece(int index, {int rotation = 0, int x = 3, int y = 5}) {
     logic.currentPiece =
-        NintendoRotation.pieceAt(Tetromino.pieces[index], rotation);
+        ClassicRotation.pieceAt(Tetromino.pieces[index], rotation);
     logic.currentRotation = rotation;
     logic.currentX = x;
     logic.currentY = y;
   }
 
-  test('Classic spawns NES orientations and centers the I on its NES origin',
+  test('restored Classic pieces can rotate, spawn and swap hold', () {
+    logic.isGameRunning = true;
+    for (var index = 0; index < Tetromino.pieces.length; index++) {
+      setPiece(index);
+      logic.nextPiece = Tetromino.pieces[index];
+      logic.heldPiece = Tetromino.pieces[index];
+      logic.canHold = true;
+      final snapshot = logic.createSnapshot();
+      expect(logic.restoreSnapshot(snapshot), isTrue);
+      logic.isPaused = false;
+      for (var turn = 1; turn <= 4; turn++) {
+        logic.rotatePieceRight();
+        expect(logic.currentPiece!.shape,
+            ClassicRotation.pieceAt(Tetromino.pieces[index], turn).shape);
+      }
+      logic.holdPiece();
+      expect(logic.currentPiece!.shape,
+          ClassicRotation.pieceAt(Tetromino.pieces[index], 0).shape);
+      logic.spawnNewPiece();
+      expect(logic.currentPiece!.shape,
+          ClassicRotation.pieceAt(Tetromino.pieces[index], 0).shape);
+    }
+  });
+
+  test(
+      'Classic spawns Classic orientations and centers the I on its Classic origin',
       () {
     final expected = [
       [
@@ -63,7 +88,7 @@ void main() {
     }
   });
 
-  test('NES T rotates around its fixed origin in both directions', () {
+  test('Classic T rotates around its fixed origin in both directions', () {
     for (final clockwise in [true, false]) {
       setPiece(2);
       final shapes = clockwise
@@ -117,7 +142,7 @@ void main() {
     }
   });
 
-  test('NES J and L use their asymmetric clockwise orientations', () {
+  test('Classic J and L use their asymmetric clockwise orientations', () {
     final expected = {
       5: [
         [
@@ -197,7 +222,7 @@ void main() {
       expect((logic.currentX, logic.currentY), rightPosition);
       logic.rotatePieceLeft();
       expect(logic.currentPiece!.shape,
-          NintendoRotation.pieceAt(Tetromino.pieces[index], 0).shape);
+          ClassicRotation.pieceAt(Tetromino.pieces[index], 0).shape);
       expect((logic.currentX, logic.currentY), (3, 5));
     }
   });
@@ -228,7 +253,7 @@ void main() {
     expect((logic.currentX, logic.currentY, logic.currentRotation), (3, 5, 0));
   });
 
-  test('held Classic pieces return in their NES spawn orientation', () {
+  test('held Classic pieces return in their Classic spawn orientation', () {
     setPiece(2, rotation: 1);
     logic.holdPiece();
     logic.canHold = true;

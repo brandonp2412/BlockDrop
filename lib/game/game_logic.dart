@@ -7,7 +7,7 @@ import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
 import '../models/tetromino.dart';
 import 'gameplay_settings.dart';
-import 'nintendo_rotation.dart';
+import 'classic_rotation.dart';
 
 class GameLogic extends ChangeNotifier {
   /// Source of upcoming tetrominoes for this game.
@@ -355,7 +355,7 @@ class GameLogic extends ChangeNotifier {
     nextPiece = _spawnOrientation(pieceBag.next());
     currentX = gameplaySettings.rotationMode == RotationMode.classic
         ? GameConstants.boardWidth ~/ 2 +
-            NintendoRotation.trimOffset(currentPiece!, 0).$1
+            ClassicRotation.trimOffset(currentPiece!, 0).$1
         : GameConstants.boardWidth ~/ 2 - 1;
     currentY = GameConstants.previewRows;
     currentRotation = 0;
@@ -718,9 +718,9 @@ class GameLogic extends ChangeNotifier {
 
   void _rotateClassic(Tetromino piece, {required bool clockwise}) {
     final nextRotation = (currentRotation + (clockwise ? 1 : 3)) % 4;
-    final rotatedPiece = NintendoRotation.pieceAt(piece, nextRotation);
-    final oldOffset = NintendoRotation.trimOffset(piece, currentRotation);
-    final newOffset = NintendoRotation.trimOffset(piece, nextRotation);
+    final rotatedPiece = ClassicRotation.pieceAt(piece, nextRotation);
+    final oldOffset = ClassicRotation.trimOffset(piece, currentRotation);
+    final newOffset = ClassicRotation.trimOffset(piece, nextRotation);
     final testX = currentX + newOffset.$1 - oldOffset.$1;
     final testY = currentY + newOffset.$2 - oldOffset.$2;
     if (!canPlacePiece(testX, testY, rotatedPiece)) return;
@@ -736,12 +736,14 @@ class GameLogic extends ChangeNotifier {
 
   Tetromino _spawnOrientation(Tetromino piece) =>
       gameplaySettings.rotationMode == RotationMode.classic
-          ? NintendoRotation.pieceAt(piece, 0)
+          ? ClassicRotation.pieceAt(piece, 0)
           : piece;
 
-  bool _isOPiece(Tetromino piece) => piece.color == Colors.yellow;
+  bool _isOPiece(Tetromino piece) =>
+      piece.color.toARGB32() == Colors.yellow.toARGB32();
 
-  bool _isIPiece(Tetromino piece) => piece.color == Colors.cyan;
+  bool _isIPiece(Tetromino piece) =>
+      piece.color.toARGB32() == Colors.cyan.toARGB32();
 
   (int, int) _srsTrimOffset(Tetromino piece, int rotation) {
     if (_isIPiece(piece)) {
@@ -974,7 +976,7 @@ class GameLogic extends ChangeNotifier {
       // Reset position for the swapped piece
       currentX = gameplaySettings.rotationMode == RotationMode.classic
           ? GameConstants.boardWidth ~/ 2 +
-              NintendoRotation.trimOffset(currentPiece!, 0).$1
+              ClassicRotation.trimOffset(currentPiece!, 0).$1
           : GameConstants.boardWidth ~/ 2 - 1;
       currentY = GameConstants.previewRows;
       currentRotation = 0;

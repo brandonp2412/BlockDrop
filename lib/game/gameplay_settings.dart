@@ -1,11 +1,11 @@
 import '../constants/game_constants.dart';
 
-/// Selects modern SRS or NES Nintendo rotation geometry.
+/// Selects modern SRS or Classic rotation geometry.
 enum RotationMode {
   /// Uses SRS wall kicks and rotates toward the tapped half of the board.
   modern,
 
-  /// Uses NES Nintendo rotation without kicks and clockwise board taps.
+  /// Uses Classic rotation without kicks and clockwise board taps.
   classic;
 
   /// Parses preferences and match rules, defaulting older clients to modern.

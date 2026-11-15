@@ -2,53 +2,53 @@ import 'package:flutter/material.dart';
 
 import '../models/tetromino.dart';
 
-/// NES Nintendo orientations, with occupied bounds trimmed for the board renderer.
-abstract final class NintendoRotation {
-  // NES orientationTable and rotationTable, ordered from spawn clockwise.
+/// Classic orientations, with occupied bounds trimmed for the board renderer.
+abstract final class ClassicRotation {
+  // Classic orientationTable and rotationTable, ordered from spawn clockwise.
   // I, S and Z toggle the same two states in either direction; no kicks apply.
   // https://github.com/CelestialAmber/TetrisNESDisasm/blob/master/main.asm
-  static final _states = <Color, List<List<(int, int)>>>{
-    Colors.purple: [
+  static final _states = <int, List<List<(int, int)>>>{
+    Colors.purple.toARGB32(): [
       [(-1, 0), (0, 0), (1, 0), (0, 1)],
       [(0, -1), (-1, 0), (0, 0), (0, 1)],
       [(-1, 0), (0, 0), (1, 0), (0, -1)],
       [(0, -1), (0, 0), (1, 0), (0, 1)],
     ],
-    Colors.blue: [
+    Colors.blue.toARGB32(): [
       [(-1, 0), (0, 0), (1, 0), (1, 1)],
       [(0, -1), (0, 0), (-1, 1), (0, 1)],
       [(-1, -1), (-1, 0), (0, 0), (1, 0)],
       [(0, -1), (1, -1), (0, 0), (0, 1)],
     ],
-    Colors.orange: [
+    Colors.orange.toARGB32(): [
       [(-1, 0), (0, 0), (1, 0), (-1, 1)],
       [(-1, -1), (0, -1), (0, 0), (0, 1)],
       [(1, -1), (-1, 0), (0, 0), (1, 0)],
       [(0, -1), (0, 0), (0, 1), (1, 1)],
     ],
-    Colors.red: [
+    Colors.red.toARGB32(): [
       [(-1, 0), (0, 0), (0, 1), (1, 1)],
       [(1, -1), (0, 0), (1, 0), (0, 1)],
     ],
-    Colors.green: [
+    Colors.green.toARGB32(): [
       [(0, 0), (1, 0), (-1, 1), (0, 1)],
       [(0, -1), (0, 0), (1, 0), (1, 1)],
     ],
-    Colors.cyan: [
+    Colors.cyan.toARGB32(): [
       [(-2, 0), (-1, 0), (0, 0), (1, 0)],
       [(0, -2), (0, -1), (0, 0), (0, 1)],
     ],
-    Colors.yellow: [
+    Colors.yellow.toARGB32(): [
       [(-1, 0), (0, 0), (-1, 1), (0, 1)],
     ],
   };
 
   static List<(int, int)> _cells(Tetromino piece, int rotation) {
-    final states = _states[piece.color]!;
+    final states = _states[piece.color.toARGB32()]!;
     return states[rotation % states.length];
   }
 
-  /// Occupied top-left corner relative to the NES piece origin.
+  /// Occupied top-left corner relative to the Classic piece origin.
   static (int, int) trimOffset(Tetromino piece, int rotation) {
     final cells = _cells(piece, rotation);
     return (
@@ -57,7 +57,7 @@ abstract final class NintendoRotation {
     );
   }
 
-  /// Returns NES geometry without changing the piece's identifying color.
+  /// Returns Classic geometry without changing the piece's identifying color.
   static Tetromino pieceAt(Tetromino piece, int rotation) {
     final cells = _cells(piece, rotation);
     final (left, top) = trimOffset(piece, rotation);
