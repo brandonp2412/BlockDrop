@@ -7,6 +7,7 @@ import '../audio/audio_service.dart';
 import '../constants/game_constants.dart';
 import '../models/tetromino.dart';
 import 'gameplay_settings.dart';
+import 'nintendo_rotation.dart';
 
 class GameLogic extends ChangeNotifier {
   /// Source of upcoming tetrominoes for this game.
@@ -350,9 +351,12 @@ class GameLogic extends ChangeNotifier {
     _lockDelayResetCount = 0;
     nextPiece ??= pieceBag.next();
 
-    currentPiece = nextPiece;
-    nextPiece = pieceBag.next();
-    currentX = GameConstants.boardWidth ~/ 2 - 1;
+    currentPiece = _spawnOrientation(nextPiece!);
+    nextPiece = _spawnOrientation(pieceBag.next());
+    currentX = gameplaySettings.rotationMode == RotationMode.classic
+        ? GameConstants.boardWidth ~/ 2 +
+            NintendoRotation.trimOffset(currentPiece!, 0).$1
+        : GameConstants.boardWidth ~/ 2 - 1;
     currentY = GameConstants.previewRows;
     currentRotation = 0;
 
@@ -713,33 +717,27 @@ class GameLogic extends ChangeNotifier {
   }
 
   void _rotateClassic(Tetromino piece, {required bool clockwise}) {
-    final rotatedPiece = clockwise ? piece.rotateRight() : piece.rotateLeft();
-    // Preserve the pre-SRS kick order: https://github.com/brandonp2412/BlockDrop/issues/78
-    const kicks = [
-      (0, 0),
-      (-1, 0),
-      (1, 0),
-      (-2, 0),
-      (2, 0),
-      (0, -1),
-      (-1, -1),
-      (1, -1),
-    ];
-    for (final (dx, dy) in kicks) {
-      final testX = currentX + dx;
-      final testY = currentY + dy;
-      if (!canPlacePiece(testX, testY, rotatedPiece)) continue;
-      currentPiece = rotatedPiece;
-      currentX = testX;
-      currentY = testY;
-      currentRotation = (currentRotation + (clockwise ? 1 : 3)) % 4;
-      _lastMoveWasRotation = true;
-      _updateLockDelayAfterAction(resetWhenGrounded: true);
-      audioService?.playRotate();
-      notifyListeners();
-      return;
-    }
+    final nextRotation = (currentRotation + (clockwise ? 1 : 3)) % 4;
+    final rotatedPiece = NintendoRotation.pieceAt(piece, nextRotation);
+    final oldOffset = NintendoRotation.trimOffset(piece, currentRotation);
+    final newOffset = NintendoRotation.trimOffset(piece, nextRotation);
+    final testX = currentX + newOffset.$1 - oldOffset.$1;
+    final testY = currentY + newOffset.$2 - oldOffset.$2;
+    if (!canPlacePiece(testX, testY, rotatedPiece)) return;
+    currentPiece = rotatedPiece;
+    currentX = testX;
+    currentY = testY;
+    currentRotation = nextRotation;
+    _lastMoveWasRotation = true;
+    _updateLockDelayAfterAction(resetWhenGrounded: true);
+    audioService?.playRotate();
+    notifyListeners();
   }
+
+  Tetromino _spawnOrientation(Tetromino piece) =>
+      gameplaySettings.rotationMode == RotationMode.classic
+          ? NintendoRotation.pieceAt(piece, 0)
+          : piece;
 
   bool _isOPiece(Tetromino piece) => piece.color == Colors.yellow;
 
@@ -970,11 +968,14 @@ class GameLogic extends ChangeNotifier {
     } else {
       // Swap current piece with held piece
       Tetromino temp = currentPiece!;
-      currentPiece = heldPiece;
+      currentPiece = _spawnOrientation(heldPiece!);
       heldPiece = temp;
 
       // Reset position for the swapped piece
-      currentX = GameConstants.boardWidth ~/ 2 - 1;
+      currentX = gameplaySettings.rotationMode == RotationMode.classic
+          ? GameConstants.boardWidth ~/ 2 +
+              NintendoRotation.trimOffset(currentPiece!, 0).$1
+          : GameConstants.boardWidth ~/ 2 - 1;
       currentY = GameConstants.previewRows;
       currentRotation = 0;
 
