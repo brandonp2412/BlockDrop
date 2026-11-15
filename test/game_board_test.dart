@@ -1,3 +1,4 @@
+import 'package:block_drop/game/gameplay_settings.dart';
 import 'package:block_drop/constants/game_constants.dart';
 import 'package:block_drop/game/game_logic.dart';
 import 'package:block_drop/settings/settings_provider.dart';
@@ -139,6 +140,39 @@ void main() {
     expect(find.byKey(const ValueKey('score-bonus-label')), findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
     gameLogic.dispose();
+  });
+
+  testWidgets('Classic taps on either half rotate clockwise', (tester) async {
+    final logic = GameLogic(
+      gameplaySettings:
+          const GameplaySettings(rotationMode: RotationMode.classic),
+    )..startGame();
+    var leftTaps = 0;
+    var rightTaps = 0;
+    await tester.pumpWidget(MaterialApp(
+      home: Center(
+          child: SizedBox(
+        width: 240,
+        height: 480,
+        child: GameBoard(
+            board: logic.board,
+            previewRows: GameConstants.previewRows,
+            gameLogic: logic,
+            style: AppStyle.modern,
+            onLeftTap: () => leftTaps++,
+            onRightTap: () => rightTaps++),
+      )),
+    ));
+    final rect = tester.getRect(find.byType(GameBoard));
+    for (final fraction in [0.25, 0.75]) {
+      await tester
+          .tapAt(Offset(rect.left + rect.width * fraction, rect.center.dy));
+      await tester.pump();
+    }
+    expect(leftTaps, 0);
+    expect(rightTaps, 2);
+    await tester.pumpWidget(const SizedBox.shrink());
+    logic.dispose();
   });
 
   testWidgets('left-half tap calls left rotation only', (tester) async {

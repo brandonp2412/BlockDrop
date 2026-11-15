@@ -683,6 +683,10 @@ class GameLogic extends ChangeNotifier {
     if (currentPiece == null || isAnimatingClear) return;
     final piece = currentPiece!;
     if (_isOPiece(piece)) return;
+    if (gameplaySettings.rotationMode == RotationMode.classic) {
+      _rotateClassic(piece, clockwise: clockwise);
+      return;
+    }
     final nextRotation = (currentRotation + (clockwise ? 1 : 3)) % 4;
     final rotatedPiece = clockwise ? piece.rotateRight() : piece.rotateLeft();
     final oldTrim = _srsTrimOffset(piece, currentRotation);
@@ -705,6 +709,35 @@ class GameLogic extends ChangeNotifier {
         notifyListeners();
         return;
       }
+    }
+  }
+
+  void _rotateClassic(Tetromino piece, {required bool clockwise}) {
+    final rotatedPiece = clockwise ? piece.rotateRight() : piece.rotateLeft();
+    // Preserve the pre-SRS kick order: https://github.com/brandonp2412/BlockDrop/issues/78
+    const kicks = [
+      (0, 0),
+      (-1, 0),
+      (1, 0),
+      (-2, 0),
+      (2, 0),
+      (0, -1),
+      (-1, -1),
+      (1, -1),
+    ];
+    for (final (dx, dy) in kicks) {
+      final testX = currentX + dx;
+      final testY = currentY + dy;
+      if (!canPlacePiece(testX, testY, rotatedPiece)) continue;
+      currentPiece = rotatedPiece;
+      currentX = testX;
+      currentY = testY;
+      currentRotation = (currentRotation + (clockwise ? 1 : 3)) % 4;
+      _lastMoveWasRotation = true;
+      _updateLockDelayAfterAction(resetWhenGrounded: true);
+      audioService?.playRotate();
+      notifyListeners();
+      return;
     }
   }
 

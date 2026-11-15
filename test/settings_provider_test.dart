@@ -27,6 +27,7 @@ void main() {
       expect(settings.fullscreenBoard, false);
       expect(settings.continueGameEnabled, true);
       expect(settings.gameplay.swipeUpHoldEnabled, false);
+      expect(settings.gameplay.rotationMode, RotationMode.modern);
     });
 
     test('updateHighScore only updates when the new score is higher', () async {
@@ -441,6 +442,7 @@ void main() {
     test('persists and loads all gameplay settings', () async {
       final settings = SettingsProvider();
       const rules = GameplaySettings(
+        rotationMode: RotationMode.classic,
         initialDropSpeed: 1400,
         speedIncrement: 30,
         maximumLevel: 0,
@@ -455,6 +457,7 @@ void main() {
       final reloaded = SettingsProvider();
       await reloaded.load();
 
+      expect(reloaded.gameplay.rotationMode, RotationMode.classic);
       expect(reloaded.gameplay.initialDropSpeed, 1400);
       expect(reloaded.gameplay.speedIncrement, 30);
       expect(reloaded.gameplay.maximumLevel, 0);

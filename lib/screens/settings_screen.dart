@@ -319,6 +319,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       'Continue Saved Game',
       'On-Screen Controls',
       'Full-screen Layout',
+      'Rotation Mode',
       'Starting Speed',
       'Speed per Level',
       'Maximum Level',
@@ -700,6 +701,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         value: widget.settings.fullscreenBoard,
                         onChanged: (value) =>
                             widget.settings.setFullscreenBoard(value),
+                      ),
+                    ),
+                  if (_matchesSearch('Rotation Mode', section: 'Gameplay'))
+                    _SettingTile(
+                      label: 'Rotation Mode',
+                      colorScheme: colorScheme,
+                      style: widget.settings.style,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<RotationMode>(
+                          key: const Key('settingsRotationModeDropdown'),
+                          isExpanded: true,
+                          value: widget.settings.gameplay.rotationMode,
+                          items: [
+                            for (final mode in RotationMode.values)
+                              DropdownMenuItem(
+                                value: mode,
+                                child: Text(context.l10n.text(
+                                  mode == RotationMode.modern
+                                      ? 'Modern'
+                                      : 'Classic',
+                                )),
+                              ),
+                          ],
+                          onChanged: (mode) {
+                            if (mode == null) return;
+                            widget.settings.setGameplaySettings(
+                              widget.settings.gameplay
+                                  .copyWith(rotationMode: mode),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   if (_matchesSearch('Starting Speed', section: 'Gameplay'))
@@ -1268,6 +1300,7 @@ IconData _settingIcon(String label) => switch (label) {
       'Ghost Tile' => Icons.layers_outlined,
       'Enable Hold Piece' => Icons.inventory_2_outlined,
       'Swipe Up to Hold' => Icons.swipe_up_alt_rounded,
+      'Rotation Mode' => Icons.rotate_right_rounded,
       'Continue Saved Game' => Icons.save_outlined,
       'On-Screen Controls' => Icons.touch_app_outlined,
       'Full-screen Layout' => Icons.fullscreen_rounded,

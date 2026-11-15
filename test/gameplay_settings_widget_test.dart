@@ -1,4 +1,5 @@
 import 'package:block_drop/screens/settings_screen.dart';
+import 'package:block_drop/game/gameplay_settings.dart';
 import 'package:block_drop/settings/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +16,7 @@ void main() {
     );
 
     for (final label in [
+      'Rotation Mode',
       'Starting Speed',
       'Speed per Level',
       'Maximum Level',
@@ -31,6 +33,29 @@ void main() {
       await tester.pump();
       expect(find.text(label), findsNWidgets(2));
     }
+  });
+
+  testWidgets('rotation picker defaults to Modern and persists Classic',
+      (tester) async {
+    final settings = SettingsProvider();
+    await tester.pumpWidget(
+      MaterialApp(home: SettingsScreen(settings: settings)),
+    );
+    await tester.enterText(
+        find.byKey(const ValueKey('settings-search')), 'Rotation Mode');
+    await tester.pump();
+    final picker = find.byKey(const Key('settingsRotationModeDropdown'));
+    expect(tester.widget<DropdownButton<RotationMode>>(picker).value,
+        RotationMode.modern);
+    await tester.tap(picker);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Classic').last);
+    await tester.pumpAndSettle();
+    final reloaded = SettingsProvider();
+    await reloaded.load();
+    expect(reloaded.gameplay.rotationMode, RotationMode.classic);
+    expect(tester.widget<DropdownButton<RotationMode>>(picker).value,
+        RotationMode.classic);
   });
 
   testWidgets('language picker exposes and persists explicit locale override',

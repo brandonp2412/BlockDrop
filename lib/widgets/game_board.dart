@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../constants/game_constants.dart';
 import '../game/game_logic.dart';
+import '../game/gameplay_settings.dart';
 import '../settings/settings_provider.dart';
 import 'game_decorations.dart';
 import 'neon_block.dart';
@@ -512,7 +513,9 @@ class _GameBoardState extends State<GameBoard> with TickerProviderStateMixin {
               behavior: HitTestBehavior.opaque,
               onTapUp: (details) {
                 final isLeftHalf =
-                    details.localPosition.dx < constraints.maxWidth / 2;
+                    widget.gameLogic.gameplaySettings.rotationMode ==
+                            RotationMode.modern &&
+                        details.localPosition.dx < constraints.maxWidth / 2;
                 if (isLeftHalf) {
                   if (widget.onLeftTap != null) {
                     widget.onLeftTap!();

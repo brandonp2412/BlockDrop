@@ -4,6 +4,7 @@
 /// AppLocalizations, so newly introduced copy always remains readable.
 const appTranslations = <String, Map<String, String>>{
   'it': {
+    'Rotation Mode': 'Modalità di rotazione',
     'Block Drop': 'Block Drop',
     'Settings': 'Impostazioni',
     'Search settings': 'Cerca nelle impostazioni',
@@ -217,6 +218,7 @@ const appTranslations = <String, Map<String, String>>{
         'Impossibile connettersi a {name}. Assicurati che Block Drop sia aperto sul suo dispositivo.',
   },
   'bn': {
+    'Rotation Mode': 'ঘূর্ণন মোড',
     'Block Drop': 'Block Drop',
     'Settings': 'সেটিংস',
     'Search settings': 'সেটিংস খুঁজুন',
@@ -428,6 +430,7 @@ const appTranslations = <String, Map<String, String>>{
         '{name}-এর সঙ্গে সংযোগ করা যায়নি। তাদের ডিভাইসে Block Drop খোলা আছে কি না নিশ্চিত করুন।',
   },
   'fa': {
+    'Rotation Mode': 'حالت چرخش',
     'Block Drop': 'Block Drop',
     'Settings': 'تنظیمات',
     'Search settings': 'جستجوی تنظیمات',
@@ -638,6 +641,7 @@ const appTranslations = <String, Map<String, String>>{
         'اتصال به {name} ممکن نشد. مطمئن شوید Block Drop روی دستگاه او باز است.',
   },
   'ur': {
+    'Rotation Mode': 'گردش کا موڈ',
     'Block Drop': 'Block Drop',
     'Settings': 'ترتیبات',
     'Search settings': 'ترتیبات تلاش کریں',
@@ -850,6 +854,7 @@ const appTranslations = <String, Map<String, String>>{
         '{name} سے رابطہ نہیں ہو سکا۔ یقینی بنائیں کہ ان کے آلے پر Block Drop کھلا ہے۔',
   },
   'nl': {
+    'Rotation Mode': 'Rotatiemodus',
     'Block Drop': 'Block Drop',
     'Settings': 'Instellingen',
     'Search settings': 'Instellingen zoeken',
@@ -1063,6 +1068,7 @@ const appTranslations = <String, Map<String, String>>{
         'Kan geen verbinding maken met {name}. Controleer of Block Drop daar geopend is.',
   },
   'pl': {
+    'Rotation Mode': 'Tryb obrotu',
     'Block Drop': 'Block Drop',
     'Settings': 'Ustawienia',
     'Search settings': 'Wyszukaj ustawienia',
@@ -1275,6 +1281,7 @@ const appTranslations = <String, Map<String, String>>{
         'Nie udało się połączyć z {name}. Upewnij się, że aplikacja Block Drop jest tam otwarta.',
   },
   'th': {
+    'Rotation Mode': 'โหมดการหมุน',
     'Block Drop': 'Block Drop',
     'Settings': 'การตั้งค่า',
     'Search settings': 'ค้นหาการตั้งค่า',
@@ -1486,6 +1493,7 @@ const appTranslations = <String, Map<String, String>>{
         'ไม่สามารถเชื่อมต่อกับ {name} ได้ ตรวจสอบว่าอีกฝ่ายเปิด Block Drop อยู่',
   },
   'tr': {
+    'Rotation Mode': 'Döndürme Modu',
     'Block Drop': 'Block Drop',
     'Settings': 'Ayarlar',
     'Search settings': 'Ayarlarda ara',
@@ -1698,6 +1706,7 @@ const appTranslations = <String, Map<String, String>>{
         '{name} adlı oyuncuya bağlanılamadı. Block Drop uygulamasının açık olduğundan emin olun.',
   },
   'vi': {
+    'Rotation Mode': 'Chế độ xoay',
     'Block Drop': 'Block Drop',
     'Settings': 'Cài đặt',
     'Search settings': 'Tìm kiếm cài đặt',
@@ -1909,6 +1918,7 @@ const appTranslations = <String, Map<String, String>>{
         'Không thể kết nối với {name}. Hãy đảm bảo họ đang mở Block Drop.',
   },
   'id': {
+    'Rotation Mode': 'Mode Rotasi',
     'Block Drop': "Block Drop",
     'Settings': "Pengaturan",
     'Search settings': "Cari pengaturan",
@@ -2119,6 +2129,7 @@ const appTranslations = <String, Map<String, String>>{
         "Tidak dapat terhubung ke {name}. Pastikan Block Drop terbuka di perangkat mereka.",
   },
   'ms': {
+    'Rotation Mode': 'Mod Putaran',
     'Block Drop': 'Block Drop',
     'Settings': 'Tetapan',
     'Search settings': 'Cari tetapan',
@@ -2331,6 +2342,7 @@ const appTranslations = <String, Map<String, String>>{
         'Tidak dapat menyambung kepada {name}. Pastikan Block Drop dibuka pada peranti mereka.',
   },
   'uk': {
+    'Rotation Mode': 'Режим обертання',
     'Block Drop': 'Block Drop',
     'Settings': 'Налаштування',
     'Search settings': 'Пошук у налаштуваннях',
@@ -2542,6 +2554,7 @@ const appTranslations = <String, Map<String, String>>{
         'Не вдалося підключитися до {name}. Переконайтеся, що на їхньому пристрої відкрито Block Drop.',
   },
   'de': {
+    'Rotation Mode': 'Rotationsmodus',
     'Block Drop': 'Block Drop',
     'Settings': 'Einstellungen',
     'Search settings': 'Einstellungen durchsuchen',
@@ -2754,6 +2767,7 @@ const appTranslations = <String, Map<String, String>>{
         'Verbindung zu {name} konnte nicht hergestellt werden. Stelle sicher, dass Block Drop geöffnet ist.',
   },
   'es': {
+    'Rotation Mode': 'Modo de rotación',
     'Block Drop': 'Block Drop',
     'Settings': 'Ajustes',
     'Search settings': 'Buscar ajustes',
@@ -2964,6 +2978,7 @@ const appTranslations = <String, Map<String, String>>{
         'No se pudo conectar con {name}. Asegúrate de que tenga Block Drop abierto.',
   },
   'fr': {
+    'Rotation Mode': 'Mode de rotation',
     'Settings': 'Paramètres',
     'Search settings': 'Rechercher dans les paramètres',
     'No settings found': 'Aucun paramètre trouvé',
@@ -3175,6 +3190,7 @@ const appTranslations = <String, Map<String, String>>{
         'Impossible de se connecter à {name}. Vérifiez que Block Drop est ouvert sur son appareil.',
   },
   'pt': {
+    'Rotation Mode': 'Modo de rotação',
     'Settings': 'Configurações',
     'Search settings': 'Pesquisar configurações',
     'No settings found': 'Nenhuma configuração encontrada',
@@ -3385,6 +3401,7 @@ const appTranslations = <String, Map<String, String>>{
         'Não foi possível conectar a {name}. Verifique se o Block Drop está aberto no dispositivo.',
   },
   'pt-PT': {
+    'Rotation Mode': 'Modo de rotação',
     'Settings': 'Definições',
     'Search settings': 'Pesquisar definições',
     'No settings found': 'Não foram encontradas definições',
@@ -3597,6 +3614,7 @@ const appTranslations = <String, Map<String, String>>{
         'Não foi possível ligar a {name}. Verifica se o Block Drop está aberto no dispositivo.',
   },
   'ja': {
+    'Rotation Mode': '回転モード',
     'Settings': '設定',
     'Search settings': '設定を検索',
     'No settings found': '設定が見つかりません',
@@ -3805,6 +3823,7 @@ const appTranslations = <String, Map<String, String>>{
         '{name} に接続できませんでした。相手がBlock Dropを開いていることを確認してください。',
   },
   'ko': {
+    'Rotation Mode': '회전 모드',
     'Settings': '설정',
     'Search settings': '설정 검색',
     'No settings found': '설정을 찾을 수 없음',
@@ -4014,6 +4033,7 @@ const appTranslations = <String, Map<String, String>>{
         '{name}에 연결할 수 없습니다. 상대가 Block Drop을 열어 두었는지 확인하세요.',
   },
   'zh': {
+    'Rotation Mode': '旋转模式',
     'Settings': '设置',
     'Search settings': '搜索设置',
     'No settings found': '未找到设置',
@@ -4218,6 +4238,7 @@ const appTranslations = <String, Map<String, String>>{
         '无法连接到 {name}。请确保对方已打开 Block Drop。',
   },
   'zh-Hant': {
+    'Rotation Mode': '旋轉模式',
     'Settings': '設置',
     'Search settings': '搜索設置',
     'No settings found': '未找到設置',
@@ -4422,6 +4443,7 @@ const appTranslations = <String, Map<String, String>>{
         '無法連接到 {name}。請確保對方已打開 Block Drop。',
   },
   'ru': {
+    'Rotation Mode': 'Режим вращения',
     'Block Drop': 'Block Drop',
     'Settings': 'Настройки',
     'Search settings': 'Поиск по настройкам',
@@ -4634,6 +4656,7 @@ const appTranslations = <String, Map<String, String>>{
         'Не удалось подключиться к {name}. Убедитесь, что у него открыт Block Drop.',
   },
   'hi': {
+    'Rotation Mode': 'घुमाव मोड',
     "Block Drop": "Block Drop",
     "Settings": "सेटिंग्स",
     "Search settings": "सेटिंग्स खोजें",
@@ -4846,6 +4869,7 @@ const appTranslations = <String, Map<String, String>>{
         "{name} से कनेक्ट नहीं हो सका। सुनिश्चित करें कि उनके डिवाइस पर Block Drop खुला है।",
   },
   'ar': {
+    'Rotation Mode': 'وضع الدوران',
     "Block Drop": "Block Drop",
     "Settings": "الإعدادات",
     "Search settings": "البحث في الإعدادات",

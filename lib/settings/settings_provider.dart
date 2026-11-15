@@ -34,6 +34,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _continueGameKey = 'continue_game';
   static const _savedGameKey = 'saved_game';
   static const _gameplayKeys = <String>{
+    'rotation_mode',
     'initial_drop_speed',
     'speed_increment',
     'maximum_level',
@@ -440,6 +441,7 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await Future.wait([
+      prefs.setString('rotation_mode', value.rotationMode.name),
       prefs.setInt('initial_drop_speed', value.initialDropSpeed),
       prefs.setInt('speed_increment', value.speedIncrement),
       prefs.setInt('maximum_level', value.maximumLevel),

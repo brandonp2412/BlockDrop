@@ -16,6 +16,7 @@ void main() {
         'piece_seed': 123456,
         'enable_hold': false,
         'gameplay_settings': {
+          'rotation_mode': 'modern',
           'initial_drop_speed': 800,
           'speed_increment': 50,
           'maximum_level': 20,
@@ -30,6 +31,7 @@ void main() {
 
     test('round trips all host gameplay rules', () {
       const rules = GameplaySettings(
+        rotationMode: RotationMode.classic,
         initialDropSpeed: 1200,
         speedIncrement: 20,
         maximumLevel: GameplaySettings.unlimitedLevels,
@@ -47,6 +49,7 @@ void main() {
         sent.toGameStartMessage(),
       );
 
+      expect(received.gameplaySettings.rotationMode, RotationMode.classic);
       expect(received.gameplaySettings.initialDropSpeed, 1200);
       expect(received.gameplaySettings.speedIncrement, 20);
       expect(received.gameplaySettings.maximumLevel, 0);
@@ -84,6 +87,7 @@ void main() {
       expect(config.mode, MultiplayerGameMode.independent);
       expect(config.pieceSeed, isNull);
       expect(config.enableHold, true);
+      expect(config.gameplaySettings.rotationMode, RotationMode.modern);
     });
 
     test('decodes enable-hold from a game start payload', () {

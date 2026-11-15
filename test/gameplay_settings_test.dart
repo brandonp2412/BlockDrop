@@ -4,6 +4,20 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('GameplaySettings', () {
+    test('rotation mode defaults safely and round trips through match rules',
+        () {
+      expect(GameplaySettings.defaults.rotationMode, RotationMode.modern);
+      for (final value in [null, 'unknown', 1, false]) {
+        expect(GameplaySettings.fromMap({'rotation_mode': value}).rotationMode,
+            RotationMode.modern);
+      }
+      for (final mode in RotationMode.values) {
+        final rules = GameplaySettings.defaults.copyWith(rotationMode: mode);
+        expect(GameplaySettings.fromMap(rules.toMap()).rotationMode, mode);
+        expect(rules.copyWith(linesPerLevel: 5).rotationMode, mode);
+      }
+    });
+
     test('calculates progression and clamps the configured maximum level', () {
       const rules = GameplaySettings(
         initialDropSpeed: 1000,

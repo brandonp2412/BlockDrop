@@ -1,5 +1,18 @@
 import '../constants/game_constants.dart';
 
+/// Selects SRS rotation or the original fixed-offset rotation rules.
+enum RotationMode {
+  /// Uses SRS wall kicks and rotates toward the tapped half of the board.
+  modern,
+
+  /// Uses the original fixed wall kicks and clockwise board taps.
+  classic;
+
+  /// Parses preferences and match rules, defaulting older clients to modern.
+  static RotationMode fromWireName(Object? value) =>
+      value == 'classic' ? classic : modern;
+}
+
 /// Controls whether hold is available only from its panel or also via back.
 enum HoldInteractionMode {
   panelOnly,
@@ -50,7 +63,11 @@ class GameplaySettings {
   /// Surfaces that invoke hold when [holdEnabled] is true.
   final HoldInteractionMode holdInteractionMode;
 
+  /// Rotation geometry and wall kicks used by the match.
+  final RotationMode rotationMode;
+
   const GameplaySettings({
+    this.rotationMode = RotationMode.modern,
     this.initialDropSpeed = GameConstants.initialDropSpeed,
     this.speedIncrement = GameConstants.speedIncrement,
     this.maximumLevel = 20,
@@ -93,6 +110,7 @@ class GameplaySettings {
         : boolean('enable_hold', true);
 
     return GameplaySettings(
+      rotationMode: RotationMode.fromWireName(values['rotation_mode']),
       initialDropSpeed: integer('initial_drop_speed', 800, 200, 2000),
       speedIncrement: integer('speed_increment', 50, 0, 200),
       maximumLevel: integer('maximum_level', 20, 0, 100),
@@ -108,6 +126,7 @@ class GameplaySettings {
 
   /// Encodes the rules for preferences or a multiplayer payload.
   Map<String, Object> toMap() => {
+        'rotation_mode': rotationMode.name,
         'initial_drop_speed': initialDropSpeed,
         'speed_increment': speedIncrement,
         'maximum_level': maximumLevel,
@@ -120,6 +139,7 @@ class GameplaySettings {
 
   /// Returns a copy with selected values replaced.
   GameplaySettings copyWith({
+    RotationMode? rotationMode,
     int? initialDropSpeed,
     int? speedIncrement,
     int? maximumLevel,
@@ -130,6 +150,7 @@ class GameplaySettings {
     HoldInteractionMode? holdInteractionMode,
   }) =>
       GameplaySettings(
+        rotationMode: rotationMode ?? this.rotationMode,
         initialDropSpeed: initialDropSpeed ?? this.initialDropSpeed,
         speedIncrement: speedIncrement ?? this.speedIncrement,
         maximumLevel: maximumLevel ?? this.maximumLevel,
