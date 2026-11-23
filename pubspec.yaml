@@ -32,24 +32,24 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  talker_flutter: 5.1.20
+  talker_flutter: 5.2.0
 
   shared_preferences: ^2.3.0
   package_info_plus: ^10.2.0
   audioplayers: ^6.0.0
-  file_picker: ^13.1.0
+  file_picker: ^13.4.1
   intl: ^0.20.2
   path_provider: ^2.1.6
   url_launcher: ^6.3.2
   qr_flutter: ^4.1.0
-  flutter_zxing: ^3.1.0
+  flutter_zxing: ^3.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
-  patrol: ^4.10.0
+  patrol: ^4.11.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
