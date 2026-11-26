@@ -27,6 +27,9 @@ jobs:
     outputs:
       should_release: ${{ steps.cadence.outputs.should_release }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Check release cadence and changes
         id: cadence
         env:
@@ -34,6 +37,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          version=$(sed -n 's/^version: \([^+]*\).*/\1/p' pubspec.yaml)
+          IFS='.' read -ra parts <<< "$version"
+          next="${parts[0]}.${parts[1]}.$((parts[2] + 1))"
+          if ! python3 scripts/release_notes.py "release-notes/$next.txt"; then
+            if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then exit 1; fi
+            echo "::notice::Waiting for handwritten notes for $next."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             echo "should_release=true" >> "$GITHUB_OUTPUT"
@@ -323,6 +336,13 @@ jobs:
           sed -i "s/^version: .*/version: $NEW_VERSION+$NEW_BUILD_NUMBER/" pubspec.yaml
           sed -i "s/^  msix_version: .*/  msix_version: $NEW_VERSION.0/" pubspec.yaml
 
+      - name: Prepare handwritten release notes
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
+        run: |
+          python3 scripts/release_notes.py "release-notes/$RELEASE_VERSION.txt" release-notes/current.txt "assets/changelogs/$RELEASE_VERSION.txt" "fastlane/metadata/android/en-US/changelogs/$BUILD_NUMBER.txt"
+
       - name: Verify new release version and build number
         run: python3 scripts/release_contract.py version --strict
 
@@ -333,7 +353,7 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
           BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
         run: |
-          git add pubspec.yaml fastlane/metadata/android/en-US/images
+          git add release-notes/current.txt pubspec.yaml assets/changelogs fastlane/metadata/android/en-US
           git commit -m "Bump version to ${VERSION}+${BUILD_NUMBER} [skip ci]"
           gh auth setup-git
           git push origin main
@@ -690,6 +710,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ needs.version-bump.outputs.commit_sha }}
           submodules: recursive
           fetch-depth: 0
           persist-credentials: false
@@ -721,7 +742,7 @@ jobs:
           tag_name: v${{ needs.version-bump.outputs.version }}
           target_commitish: ${{ needs.version-bump.outputs.commit_sha }}
           name: Block Drop v${{ needs.version-bump.outputs.version }}
-          generate_release_notes: true
+          body_path: release-notes/current.txt
           draft: false
           prerelease: false
           files: |
@@ -771,7 +792,9 @@ jobs:
 
       - name: Publish Android App Bundle to Google Play
         run: |
+          python3 scripts/release_notes.py release-notes/current.txt "$RUNNER_TEMP/release-notes/en-US/changelogs/default.txt"
           bundle exec fastlane supply \
+            --metadata_path "$RUNNER_TEMP/release-notes" \
             --aab android-aab/app-release.aab \
             --track production \
             --package_name com.presley.blockdrop \
@@ -780,7 +803,7 @@ jobs:
             --skip_upload_metadata true \
             --skip_upload_images true \
             --skip_upload_screenshots true \
-            --skip_upload_changelogs true
+            --skip_upload_changelogs false
 
       - name: Remove Google Play credentials
         if: always()

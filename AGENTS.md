@@ -44,3 +44,10 @@
 - **Docstrings**: Public API members (classes, mixins, extensions, and top-level functions) should have triple-slash `///` docstrings. These must provide value to the editor's hover-state/IntelliSense, not just repeat the function name.
 - **Reference Links**: If a piece of logic is a workaround for a known framework bug or follows a specific StackOverflow/GitHub Issue solution, include the URL in a comment.
 - **No Dead Code**: Never leave commented-out code blocks. If code is not used, delete it; Git history is the record, not the source file.
+
+# Release notes
+- Before publishing, inspect changes since the last published release, including the diff, not just commit titles. Write concise plain-English notes about actual user-visible changes.
+- Commit the notes as release-notes/<version>.txt (without a v prefix), using at most 500 characters. Never use raw commit subjects, unverified claims, or generic placeholder text. Prepare notes before triggering the release workflow.
+- The release workflow uses the same notes for supported release destinations. Do not publish an extra release solely because release automation changed. Do not rewrite historical releases.
+- Scheduled releases wait for handwritten notes for the next version; the existing release cadence still applies.
+- Update the next version’s notes whenever you commit user-visible changes so scheduled releases have an accurate summary.
