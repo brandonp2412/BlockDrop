@@ -1,16 +1,3 @@
-// integration_test/screenshot_test.dart
-//
-// Generates screenshots for every theme × style combination.
-// Run via flutter drive (see test_driver/integration_test.dart):
-//
-//   flutter drive \
-//     --driver=test_driver/integration_test.dart \
-//     --target=integration_test/screenshot_test.dart \
-//     -d emulator-5554
-//
-// The driver on the host machine receives the PNG bytes and writes them into
-// the fastlane directory structure.
-
 import 'package:block_drop/main.dart' as app;
 import 'package:block_drop/settings/settings_provider.dart';
 import 'package:flutter_test/flutter_test.dart';

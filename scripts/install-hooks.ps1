@@ -54,4 +54,4 @@ if ($linked) {
 }
 
 Write-Host "`nPre-push hook installed successfully." -ForegroundColor Cyan
-Write-Host "It will run on every 'git push'. Set SKIP_SCREENSHOTS=1 to skip screenshot generation."
+Write-Host "It will run lint and format checks on every git push. Screenshots are generated in CI."

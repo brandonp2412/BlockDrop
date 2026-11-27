@@ -24,4 +24,4 @@ echo "Symlink created:"
 echo "  $HOOK_DST -> ../../scripts/pre-push"
 echo
 echo "Pre-push hook installed successfully."
-echo "It will run on every 'git push'. Set SKIP_SCREENSHOTS=1 to skip screenshot generation."
+echo "It will run lint and format checks on every git push. Screenshots are generated in CI."
