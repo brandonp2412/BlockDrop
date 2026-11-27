@@ -12,7 +12,6 @@
 // the fastlane directory structure.
 
 import 'package:block_drop/main.dart' as app;
-import 'package:block_drop/screens/block_drop_game_screen.dart';
 import 'package:block_drop/settings/settings_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -34,17 +33,10 @@ void main() {
   testWidgets(
     'Generate screenshots for all theme × style combinations',
     (tester) async {
-      // Boot the real app.
-      app.main();
-
-      // Give the app time to initialise audio, load SharedPreferences, and
-      // render the first frame.
+      final settings = SettingsProvider(isTelevision: () async => false);
+      await settings.load();
+      await tester.pumpWidget(app.BlockDropApp(settings: settings));
       await tester.pump(const Duration(seconds: 3));
-
-      // Grab the SettingsProvider from the live widget tree.
-      final settings = tester
-          .widget<BlockDropGameScreen>(find.byType(BlockDropGameScreen))
-          .settings;
 
       // Required on Android before any call to takeScreenshot().
       // Converts the OpenGL/Vulkan surface to a raster image that can be read.

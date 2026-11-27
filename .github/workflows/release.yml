@@ -132,17 +132,7 @@ jobs:
     needs: release-gate
     if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.release-gate.outputs.should_release == 'true') }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - device_type: phoneScreenshots
-            profile: pixel_6
-          - device_type: sevenInchScreenshots
-            profile: pixel_6
-            screen_size: 1920x1080
-          - device_type: tenInchScreenshots
-            profile: Nexus 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -150,48 +140,62 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Setup Java
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
-        with:
-          distribution: "zulu"
-          java-version: "17"
-
       - name: Setup Flutter from submodule
         run: |
           echo "$PWD/flutter/bin" >> "$GITHUB_PATH"
           flutter/bin/flutter --version
           flutter/bin/flutter config --no-analytics
 
-      - name: Get dependencies
-        run: flutter pub get --enforce-lockfile
-
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Generate ${{ matrix.device_type }}
-        timeout-minutes: 25
-        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
-        env:
-          BLOCKDROP_DEVICE_TYPE: ${{ matrix.device_type }}
-          SCREENSHOT_SCREEN_SIZE: ${{ matrix.screen_size }}
+      - uses: actions/setup-python@v5
         with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
-          profile: ${{ matrix.profile }}
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          script: ./scripts/ci-screenshots.sh
+          python-version: "3.12"
 
-      - name: Upload ${{ matrix.device_type }}
+      - name: Build screenshot fixtures
+        run: |
+          flutter pub get --enforce-lockfile
+          flutter build web --release --no-wasm-dry-run --no-web-resources-cdn --target=integration_test/screenshot_test.dart
+
+      - name: Install Chromium
+        run: |
+          python -m pip install patchright==1.64.4
+          python -m patchright install --with-deps chromium
+
+      - name: Capture all screenshot profiles
+        run: |
+          python scripts/capture-screenshots.py --web build/web --output "$RUNNER_TEMP/flex-screenshots"
+
+      - name: Upload phoneScreenshots
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: screenshots-${{ matrix.device_type }}
-          path: fastlane/metadata/android/en-US/images/${{ matrix.device_type }}
+          name: screenshots-phoneScreenshots
+          path: ${{ runner.temp }}/flex-screenshots/phoneScreenshots
           if-no-files-found: error
           retention-days: 7
+
+      - name: Upload sevenInchScreenshots
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: screenshots-sevenInchScreenshots
+          path: ${{ runner.temp }}/flex-screenshots/sevenInchScreenshots
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload tenInchScreenshots
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: screenshots-tenInchScreenshots
+          path: ${{ runner.temp }}/flex-screenshots/tenInchScreenshots
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: screenshot-failure
+          path: ${{ runner.temp }}/flex-screenshots/**/*-debug.png
+          if-no-files-found: ignore
+          retention-days: 3
 
   patrol-tests:
     if: github.event_name == 'workflow_dispatch'

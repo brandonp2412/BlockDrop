@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 /// Returns the audio file extension supported by the current platform.
 /// Windows Media Foundation doesn't support Ogg Vorbis, so we use MP3 there.
-String get _audioExt => Platform.isWindows ? 'mp3' : 'ogg';
+String get _audioExt => (!kIsWeb && Platform.isWindows) ? 'mp3' : 'ogg';
 
 class AudioService {
   final AudioPlayer _musicPlayer;
@@ -68,8 +68,8 @@ class AudioService {
   Future<void> _initializeMusic() async {
     await _musicPlayer.setPlayerMode(PlayerMode.mediaPlayer);
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
-    await _musicPlayer.setVolume(Platform.isLinux ? 0.60 : 0.25);
-    if (Platform.isAndroid) {
+    await _musicPlayer.setVolume((!kIsWeb && Platform.isLinux) ? 0.60 : 0.25);
+    if ((!kIsWeb && Platform.isAndroid)) {
       await _musicPlayer.setAudioContext(
         AudioContext(
           android: AudioContextAndroid(
@@ -110,7 +110,7 @@ class AudioService {
   Future<void> _initializeSfx() async {
     for (final name in sfxNames) {
       final player = _sfxPlayerFactory?.call() ?? AudioPlayer();
-      if (Platform.isAndroid) {
+      if ((!kIsWeb && Platform.isAndroid)) {
         await player.setAudioContext(
           AudioContext(
             android: AudioContextAndroid(
@@ -124,7 +124,7 @@ class AudioService {
         );
       }
       final baseVolume = _sfxVolumes[name]!;
-      final volume = Platform.isLinux
+      final volume = (!kIsWeb && Platform.isLinux)
           ? (baseVolume * 2.5).clamp(0.0, 1.0).toDouble()
           : baseVolume;
       await player.setVolume(volume);
