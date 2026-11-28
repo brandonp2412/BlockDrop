@@ -210,6 +210,7 @@ Future<void> _captureCatalogue(
       for (final row in stack)
         for (final cell in row.split('').reversed) 'IOTSZJL'.indexOf(cell) + 1,
     ];
+  await settings.setShowOpponentBoard(true);
   manager.state = MultiplayerState.inGame;
   await openPage(MultiplayerGameScreen(manager: manager, settings: settings));
   await capture('multiplayer-countdown');

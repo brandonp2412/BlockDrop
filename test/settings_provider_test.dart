@@ -23,6 +23,7 @@ void main() {
       expect(settings.sfxEnabled, false);
       expect(settings.highScore, 0);
       expect(settings.enableHold, true);
+      expect(settings.showOpponentBoard, false);
       expect(settings.showOnScreenControls, false);
       expect(settings.fullscreenBoard, false);
       expect(settings.continueGameEnabled, true);
@@ -405,6 +406,21 @@ void main() {
       final reloadedSettings = SettingsProvider();
       await reloadedSettings.load();
       expect(reloadedSettings.showOnScreenControls, true);
+    });
+
+    test('opponent board is opt-in and preserves saved choices', () async {
+      final settings = SettingsProvider();
+      await settings.load();
+      expect(settings.showOpponentBoard, isFalse);
+
+      await settings.setShowOpponentBoard(true);
+      final reloaded = SettingsProvider();
+      await reloaded.load();
+      expect(reloaded.showOpponentBoard, isTrue);
+
+      await reloaded.setShowOpponentBoard(false);
+      await settings.load();
+      expect(settings.showOpponentBoard, isFalse);
     });
 
     test('fullscreen layout is opt-in and persists across providers', () async {

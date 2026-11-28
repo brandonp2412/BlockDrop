@@ -73,6 +73,9 @@ def run(browser, url, artifacts):
             locale="en-US",
         )
         context.add_init_script(OBSERVE_NETWORK)
+        context.add_init_script(
+            "localStorage.setItem('flutter.show_opponent_board', 'true');"
+        )
         return context.new_page()
 
     host, guest = player(), player()

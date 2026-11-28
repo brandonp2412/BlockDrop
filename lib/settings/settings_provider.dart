@@ -55,7 +55,7 @@ class SettingsProvider extends ChangeNotifier {
   Map<String, String> _customSfxPaths = {};
   int _highScore = 0;
   bool _showGhostTile = true;
-  bool _showOpponentBoard = true;
+  bool _showOpponentBoard = false;
   bool _enableHold = true;
   bool _showOnScreenControls = false;
   bool _fullscreenBoard = false;
@@ -184,7 +184,7 @@ class SettingsProvider extends ChangeNotifier {
     );
     _highScore = prefs.getInt(_highScoreKey) ?? 0;
     _showGhostTile = prefs.getBool(_showGhostTileKey) ?? true;
-    _showOpponentBoard = prefs.getBool(_showOpponentBoardKey) ?? true;
+    _showOpponentBoard = prefs.getBool(_showOpponentBoardKey) ?? false;
     _enableHold = prefs.getBool(_enableHoldKey) ?? true;
     final savedOnScreenControls = prefs.getBool(_showOnScreenControlsKey);
     _showOnScreenControls = savedOnScreenControls ?? await _isTelevision();

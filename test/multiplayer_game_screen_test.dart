@@ -77,6 +77,7 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
       }
 
+      expect(find.byType(OpponentBoard), findsNothing);
       final game = tester.widget<GameBoard>(find.byType(GameBoard)).gameLogic;
       game.gameTimer?.cancel();
       game.board[GameConstants.previewRows][0] = Colors.blue;
@@ -122,6 +123,7 @@ void main() {
       addTearDown(manager.dispose);
       final settings = SettingsProvider();
       await settings.load();
+      await settings.setShowOpponentBoard(true);
       await tester.pumpWidget(MaterialApp(
         home: MultiplayerGameScreen(manager: manager, settings: settings),
       ));
