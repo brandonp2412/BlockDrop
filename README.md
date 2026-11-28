@@ -100,3 +100,36 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Inspired by the classic falling-block puzzle game
 - Built with Flutter framework
 - Icons and assets created specifically for Block Drop
+
+## Multiplayer
+
+In the browser, open **Settings → Play online → Host online game** and share
+the invitation link. The host accepts the guest and starts the match. The
+Cloudflare Worker only exchanges WebRTC connection details. Boards, scores,
+and game events travel over the encrypted peer data channel.
+
+In installed apps, **Settings → Play on LAN** supports direct IP, QR invites,
+and nearby discovery. Android also has a Wi-Fi Direct fallback. LAN play
+works without the signalling Worker.
+
+### Browser multiplayer smoke test
+
+Run the signalling Worker locally and serve a Flutter web build:
+
+```sh
+npx wrangler dev --port 8787
+flutter build web --dart-define=BLOCKDROP_SIGNAL_URL=ws://127.0.0.1:8787
+python -m http.server 8080 --bind 127.0.0.1 --directory build/web
+```
+
+With Google Chrome and Python Playwright installed, run:
+
+```sh
+python tool/chrome_multiplayer_smoke.py http://127.0.0.1:8080/ --artifacts /tmp/blockdrop-proof
+```
+
+The default web build targets the BlockDrop Cloudflare Worker. Set
+`BLOCKDROP_SIGNAL_URL` to use another deployment. A TURN credential broker
+can be supplied with `BLOCKDROP_TURN_URL`. It must provide short-lived
+credentials in an `iceServers` array. Without a broker, WebRTC uses direct
+ICE candidates and STUN.

@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import '../logging.dart';
 import '../game/gameplay_settings.dart';
 import 'multiplayer_game_config.dart';
+import 'online_connection.dart';
 import 'peer.dart';
 import 'direct_join_invite.dart';
 import 'lan_network.dart';
@@ -109,6 +110,16 @@ class MultiplayerManager extends ChangeNotifier {
   StreamSubscription? _udpSub; // keep alive – unsub'd GC would drop packets
   ServerSocket? _tcpServer;
   Socket? _peerSocket;
+  OnlineConnection? _onlineConnection;
+
+  /// The room key becomes shareable once the signalling service is ready.
+  String? get onlineRoom => _onlineRoom;
+  String? _onlineRoom;
+
+  /// Whether the browser is opening the room or negotiating with a peer.
+  bool get onlineConnecting => _onlineConnecting;
+  bool _onlineConnecting = false;
+
   StreamSubscription? _socketSub;
   Timer? _announceTimer;
   Timer? _peerExpiryTimer;
@@ -148,6 +159,77 @@ class MultiplayerManager extends ChangeNotifier {
 
   static int _generatePieceSeed() {
     return Random.secure().nextInt(_maxPieceSeed);
+  }
+
+  /// Opens a browser room, or joins an existing room as a guest.
+  void connectOnline({String? room}) {
+    if (!kIsWeb ||
+        _disposed ||
+        _onlineConnection != null ||
+        (state != MultiplayerState.idle &&
+            state != MultiplayerState.discovering)) {
+      return;
+    }
+    final host = room == null;
+    final key = room ?? '${_generateId()}${_generateId()}';
+    _isHost = host;
+    _onlineConnecting = true;
+    state = host ? MultiplayerState.discovering : MultiplayerState.inviting;
+    if (!host) opponentName = _opponentFallbackName;
+    try {
+      late final OnlineConnection connection;
+      connection = OnlineConnection(key, host, (event, data) {
+        if (_onlineConnection != connection) return;
+        switch (event) {
+          case 'ready':
+            if (host) {
+              _onlineConnecting = false;
+              _onlineRoom = key;
+              notifyListeners();
+            }
+          case 'negotiating':
+            _onlineRoom = null;
+            _onlineConnecting = true;
+            notifyListeners();
+          case 'open':
+            _onlineConnecting = false;
+            if (host) {
+              _pairingToken = key;
+              _pairingExpiresAt = _now().add(_tokenLifetime);
+              _awaitingAuth = true;
+            } else {
+              _send({
+                'type': 'join',
+                'version': DirectJoinInvite.protocolVersion,
+                'token': key,
+                'id': playerId,
+                'name': playerName,
+              });
+            }
+            _handshakeTimer = Timer(const Duration(seconds: 30), () {
+              _handleDisconnect(connection,
+                  reason: 'The invitation timed out.');
+            });
+          case 'message':
+            try {
+              if (utf8.encode(data).length > _maxFrameBytes) {
+                throw const FormatException('Oversized message');
+              }
+              _handleMessage(connection, data);
+            } catch (_) {
+              unawaited(_rejectSocket(connection, 'malformed'));
+            }
+          case 'closed':
+            _handleDisconnect(connection, reason: data.isEmpty ? null : data);
+        }
+      });
+      _onlineConnection = connection;
+    } catch (_) {
+      _resetAfterConnection();
+      onError?.call('Online matchmaking is unavailable.');
+      return;
+    }
+    notifyListeners();
   }
 
   /// Opens a host TCP listener without binding UDP or requiring discovery.
@@ -513,6 +595,15 @@ class MultiplayerManager extends ChangeNotifier {
     );
   }
 
+  /// Closes a room that is still waiting for an opponent.
+  void closeOnlineRoom() {
+    if (_onlineConnection == null || state != MultiplayerState.discovering) {
+      return;
+    }
+    _closeConnection();
+    _resetAfterConnection();
+  }
+
   void cancelInvite() {
     if (state != MultiplayerState.inviting) return;
     _closeConnection();
@@ -531,7 +622,7 @@ class MultiplayerManager extends ChangeNotifier {
 
   void rejectInvite() {
     if (state != MultiplayerState.invited) return;
-    final socket = _peerSocket;
+    final socket = _peerSocket ?? _onlineConnection;
     if (socket != null) unawaited(_rejectSocket(socket, 'declined'));
     talker.info('Rejected multiplayer invite');
   }
@@ -689,7 +780,14 @@ class MultiplayerManager extends ChangeNotifier {
     }
   }
 
-  Future<void> _rejectSocket(Socket socket, String reason) async {
+  Future<void> _rejectSocket(Object socket, String reason) async {
+    if (socket is OnlineConnection) {
+      _send({'type': 'join_reject', 'reason': reason});
+      _closeConnection();
+      _resetAfterConnection();
+      return;
+    }
+    socket as Socket;
     if (_peerSocket == socket) {
       final authenticated = !_awaitingAuth;
       _closeConnection(destroySocket: false);
@@ -708,7 +806,7 @@ class MultiplayerManager extends ChangeNotifier {
     }
   }
 
-  void _handleMessage(Socket socket, String line) {
+  void _handleMessage(Object socket, String line) {
     final msg = jsonDecode(line);
     if (msg is! Map<String, dynamic>) {
       throw const FormatException('Expected an object');
@@ -735,6 +833,13 @@ class MultiplayerManager extends ChangeNotifier {
         return;
       }
       _handshakeTimer?.cancel();
+      if (socket is OnlineConnection) {
+        _handshakeTimer = Timer(const Duration(seconds: 30), () {
+          if (state == MultiplayerState.invited) {
+            unawaited(_rejectSocket(socket, 'timeout'));
+          }
+        });
+      }
       _awaitingAuth = false;
       _isHost = true;
       state = MultiplayerState.invited;
@@ -850,16 +955,13 @@ class MultiplayerManager extends ChangeNotifier {
     }
   }
 
-  void _handleDisconnect(Socket socket, {String? reason}) {
-    if (_peerSocket != socket) return;
-    final wasConnected = _peerSocket != null;
+  void _handleDisconnect(Object socket, {String? reason}) {
+    if (_peerSocket != socket && _onlineConnection != socket) return;
     final authenticated = !_awaitingAuth;
     final prevState = state;
     final prevOpponentName = opponentName;
 
     _closeConnection();
-
-    if (!wasConnected) return;
 
     if (reason != null) onError?.call(reason);
     if (prevState == MultiplayerState.inGame ||
@@ -881,7 +983,9 @@ class MultiplayerManager extends ChangeNotifier {
 
   void _send(Map<String, dynamic> msg) {
     try {
-      _peerSocket?.add(utf8.encode('${jsonEncode(msg)}\n'));
+      final encoded = jsonEncode(msg);
+      _onlineConnection?.send(encoded);
+      _peerSocket?.add(utf8.encode('$encoded\n'));
     } catch (_) {}
   }
 
@@ -899,6 +1003,14 @@ class MultiplayerManager extends ChangeNotifier {
       if (destroySocket) _peerSocket?.destroy();
     } catch (_) {}
     _peerSocket = null;
+    if (_onlineConnection != null) {
+      _onlineConnection?.close();
+      _onlineConnection = null;
+      _pairingToken = null;
+      _pairingExpiresAt = null;
+    }
+    _onlineRoom = null;
+    _onlineConnecting = false;
   }
 
   void _resetGameConfig() {

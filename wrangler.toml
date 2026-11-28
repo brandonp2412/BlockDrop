@@ -1,0 +1,11 @@
+name = "blockdrop-signal"
+main = "tool/signalling/worker.mjs"
+account_id = "37b4fa08410b228c07c97c02e84074a8"
+compatibility_date = "2026-11-01"
+
+[durable_objects]
+bindings = [{ name = "ROOMS", class_name = "SignalRoom" }]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SignalRoom"]

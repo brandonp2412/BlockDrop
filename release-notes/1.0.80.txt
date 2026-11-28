@@ -1,0 +1,1 @@
+Play a two-player match in the browser. Open Settings → Play online, host a game, and send the invitation link to your opponent. Installed apps still support LAN multiplayer.

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -171,6 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   static const _searchAliases = <String, String>{
     'Controller': 'keybinds remap controls remap keys',
+    'Play online': 'multiplayer host room',
     'Play on LAN': 'wifi wi-fi multiplayer local match',
     'Full-screen Layout':
         'fullscreen full screen large board big board immersive layout',
@@ -342,9 +344,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       'System default',
       ..._languageNames.values,
     ]);
+    const multiplayerLabel = kIsWeb ? 'Play online' : 'Play on LAN';
     final showMultiplayer = _sectionMatches('Multiplayer', [
       'Show Opponent Board',
-      'Play on LAN',
+      multiplayerLabel,
     ]);
     final showStats = _sectionMatches('Stats', ['High Score']);
     final showInstructions = _sectionMatches('Instructions', ['Controls']);
@@ -474,7 +477,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       label: 'Multiplayer',
                       colorScheme: colorScheme,
                     ),
-                  if (_matchesSearch('Play on LAN', section: 'Multiplayer'))
+                  if (_matchesSearch(multiplayerLabel, section: 'Multiplayer'))
                     Container(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -511,7 +514,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  context.l10n.text('Play on LAN'),
+                                  context.l10n.text(multiplayerLabel),
                                   style: TextStyle(
                                     fontSize: 15,
                                     color: colorScheme.onSurface,

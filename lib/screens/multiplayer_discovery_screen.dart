@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
 import '../multiplayer/multiplayer_game_config.dart';
@@ -19,7 +21,13 @@ import 'multiplayer_wifi_direct_screen.dart';
 class MultiplayerDiscoveryScreen extends StatefulWidget {
   final SettingsProvider settings;
 
-  const MultiplayerDiscoveryScreen({super.key, required this.settings});
+  final String? onlineInvite;
+
+  const MultiplayerDiscoveryScreen({
+    super.key,
+    required this.settings,
+    this.onlineInvite,
+  });
 
   @override
   State<MultiplayerDiscoveryScreen> createState() =>
@@ -63,10 +71,20 @@ class _MultiplayerDiscoveryScreenState
     _manager.onInviteReceived = _showInviteDialog;
     _manager.addListener(_onManagerChanged);
     _managerInitialized = true;
-    unawaited(_startTcpHost());
+    if (kIsWeb) {
+      final room = widget.onlineInvite;
+      if (room != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _manager.connectOnline(room: room);
+        });
+      }
+    } else {
+      unawaited(_startTcpHost());
+    }
   }
 
   String _defaultPlayerName(AppLocalizations l10n) {
+    if (kIsWeb) return l10n.text('Player');
     try {
       final h = Platform.localHostname.split('.').first;
       if (h.isEmpty || h.toLowerCase() == 'localhost') {
@@ -285,6 +303,7 @@ class _MultiplayerDiscoveryScreenState
   Widget _buildBody(ColorScheme cs) {
     switch (_manager.state) {
       case MultiplayerState.idle:
+        if (kIsWeb) return _buildOnline();
         if (_tcpStartupError == null) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -306,14 +325,14 @@ class _MultiplayerDiscoveryScreenState
         );
 
       case MultiplayerState.discovering:
-        return _buildDiscovering(cs);
+        return kIsWeb ? _buildOnline() : _buildDiscovering(cs);
 
       case MultiplayerState.inviting:
         return _buildInviting(cs);
 
       case MultiplayerState.invited:
         // The dialog handles this state; show the peer list underneath
-        return _buildDiscovering(cs);
+        return kIsWeb ? _buildOnline() : _buildDiscovering(cs);
 
       case MultiplayerState.inLobby:
         return _buildLobby(cs);
@@ -323,6 +342,55 @@ class _MultiplayerDiscoveryScreenState
         // Navigation to game screen is handled in _onManagerChanged
         return const Center(child: CircularProgressIndicator());
     }
+  }
+
+  Widget _buildOnline() {
+    final room = _manager.onlineRoom;
+    final invite =
+        room == null ? null : Uri.base.replace(fragment: 'room=$room');
+    final busy =
+        _manager.onlineConnecting || _manager.state == MultiplayerState.invited;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (invite != null) ...[
+              const Text('Send this invitation to the other player.'),
+              const SizedBox(height: 12),
+              SelectableText(invite.toString()),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: () async {
+                  await Clipboard.setData(
+                      ClipboardData(text: invite.toString()));
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Invitation copied')),
+                  );
+                },
+                child: const Text('Copy invitation'),
+              ),
+            ] else if (busy) ...[
+              const CircularProgressIndicator(),
+              const SizedBox(height: 12),
+              const Text('Connecting…'),
+            ] else
+              FilledButton(
+                onPressed: () => _manager.connectOnline(),
+                child: const Text('Host online game'),
+              ),
+            if (invite != null ||
+                (busy && _manager.state != MultiplayerState.invited))
+              TextButton(
+                onPressed: _manager.closeOnlineRoom,
+                child: Text(context.l10n.text('Cancel')),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildDiscovering(ColorScheme cs) {

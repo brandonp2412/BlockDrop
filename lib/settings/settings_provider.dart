@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -202,7 +203,7 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   static Future<bool> _detectTelevision() async {
-    if (!Platform.isAndroid) return false;
+    if (kIsWeb || !Platform.isAndroid) return false;
     try {
       return await _deviceChannel.invokeMethod<bool>('isTelevision') ?? false;
     } on PlatformException {

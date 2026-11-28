@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'l10n/app_localizations.dart';
 import 'logging.dart';
+import 'multiplayer/online_connection.dart';
 import 'screens/block_drop_game_screen.dart';
+import 'screens/multiplayer_discovery_screen.dart';
 import 'settings/settings_provider.dart';
 
 Future<void> main() async {
@@ -92,7 +94,22 @@ class _BlockDropAppState extends State<BlockDropApp> {
 
   @override
   Widget build(BuildContext context) {
+    final invite = initialOnlineInvite;
     return MaterialApp(
+      onGenerateInitialRoutes: invite == null
+          ? null
+          : (_) => [
+                MaterialPageRoute<void>(
+                  settings: const RouteSettings(name: '/'),
+                  builder: (_) => BlockDropGameScreen(settings: _settings),
+                ),
+                MaterialPageRoute<void>(
+                  builder: (_) => MultiplayerDiscoveryScreen(
+                    settings: _settings,
+                    onlineInvite: invite,
+                  ),
+                ),
+              ],
       onGenerateTitle: (context) => context.l10n.text('Block Drop'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -105,7 +122,7 @@ class _BlockDropAppState extends State<BlockDropApp> {
           : _settings.flutterThemeMode,
       theme: _lightTheme,
       darkTheme: _settings.isBlackMode ? _blackTheme : _darkTheme,
-      home: BlockDropGameScreen(settings: _settings),
+      routes: {'/': (_) => BlockDropGameScreen(settings: _settings)},
       debugShowCheckedModeBanner: false,
     );
   }

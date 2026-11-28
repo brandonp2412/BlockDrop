@@ -49,3 +49,6 @@ app.*.map.json
 
 # Local Serena agent state
 .serena/
+
+# Local Cloudflare Worker state
+/.wrangler/
