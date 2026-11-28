@@ -43,6 +43,8 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
 
   bool _gameOverModal = false;
   bool _isSettingsOpen = false;
+  Route<void>? _settingsRoute;
+  bool _pausedWhileCovered = false;
   bool _pendingPractice = false;
   int _practiceLevel = 1;
   Timer? _saveGameTimer;
@@ -122,8 +124,41 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ModalRoute.isCurrentOf(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _isSettingsOpen) return;
+      if (ModalRoute.of(context)?.isCurrent == false) {
+        if (gameLogic.isGameRunning && !gameLogic.isPaused) {
+          _pausedWhileCovered = true;
+          gameLogic.pauseGame();
+          _audioService.pauseMusic();
+        }
+        return;
+      }
+      if (_pausedWhileCovered) {
+        _pausedWhileCovered = false;
+        gameLogic.resumeGame();
+        if (widget.settings.musicEnabled) _audioService.resumeMusic();
+      }
+      if (gameLogic.isGameOver) _showGameOverModal();
+    });
+  }
+
   bool _handleKeyEvent(KeyEvent event) {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
+
+    if (ModalRoute.of(context)?.isCurrent == false) {
+      if (_settingsRoute?.isCurrent == true &&
+          event is KeyDownEvent &&
+          event.logicalKey == LogicalKeyboardKey.escape) {
+        Navigator.of(context).pop();
+        return true;
+      }
+      return false;
+    }
 
     if (event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.escape) {
@@ -131,10 +166,7 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
         _openSettings();
         return true;
       }
-      if (!_gameOverModal && _isSettingsOpen) {
-        Navigator.of(context).pop();
-      }
-      return false; // let Navigator handle closing the open screen
+      return false;
     }
 
     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.keyQ) {
@@ -277,27 +309,26 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
         gameLogic.isGameRunning && !gameLogic.isGameOver && !gameLogic.isPaused;
     if (wasRunning) gameLogic.pauseGame();
 
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => SettingsScreen(
-          settings: widget.settings,
-          onRestart: () {
-            gameLogic.startGame();
-          },
-          onQuit: () {
-            if (defaultTargetPlatform == TargetPlatform.android)
-              SystemNavigator.pop();
-            else
-              exit(0);
-          },
-          onPractice: () {
-            _pendingPractice = true;
-          },
-        ),
+    final settingsRoute = MaterialPageRoute<void>(
+      builder: (_) => SettingsScreen(
+        settings: widget.settings,
+        onRestart: () {
+          gameLogic.startGame();
+        },
+        onQuit: () {
+          if (defaultTargetPlatform == TargetPlatform.android)
+            SystemNavigator.pop();
+          else
+            exit(0);
+        },
+        onPractice: () {
+          _pendingPractice = true;
+        },
       ),
     );
-
+    _settingsRoute = settingsRoute;
+    await Navigator.of(context).push(settingsRoute);
+    _settingsRoute = null;
     _isSettingsOpen = false;
 
     if (_pendingPractice) {
@@ -423,7 +454,12 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
   }
 
   void _showGameOverModal() async {
-    if (_gameOverModal) return;
+    if (!mounted ||
+        _gameOverModal ||
+        !gameLogic.isGameOver ||
+        ModalRoute.of(context)?.isCurrent == false) {
+      return;
+    }
     setState(() {
       _gameOverModal = true;
     });
@@ -496,9 +532,7 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
         );
       },
     );
-    setState(() {
-      _gameOverModal = false;
-    });
+    if (mounted) setState(() => _gameOverModal = false);
   }
 
   @override
@@ -537,6 +571,7 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
         break;
       case AppLifecycleState.resumed:
         // App is coming back to foreground - resume the game
+        if (ModalRoute.of(context)?.isCurrent == false) break;
         if (widget.settings.musicEnabled) _audioService.resumeMusic();
         if (!_isSettingsOpen &&
             gameLogic.isGameRunning &&
@@ -850,11 +885,15 @@ class _BlockDropGameScreenState extends State<BlockDropGameScreen>
   }
 
   Widget _buildFullscreenLayout(BoxConstraints constraints, ColorScheme cs) {
-    final boardHeight = constraints.maxHeight;
+    final controlsHeight = widget.settings.showOnScreenControls
+        ? OnScreenGameControls.heightForWidth(constraints.maxWidth - 24) + 16
+        : 0.0;
+    final boardHeight = (constraints.maxHeight - controlsHeight)
+        .clamp(0.0, constraints.maxHeight);
     final boardWidth = (boardHeight / 2).clamp(0.0, constraints.maxWidth);
     final actualBoardHeight = boardWidth * 2;
     final boardLeft = (constraints.maxWidth - boardWidth) / 2;
-    final boardTop = (constraints.maxHeight - actualBoardHeight) / 2;
+    final boardTop = (boardHeight - actualBoardHeight) / 2;
     final previewBoxSize = Size.square(
       (constraints.maxWidth * 0.16).clamp(48.0, 72.0),
     );

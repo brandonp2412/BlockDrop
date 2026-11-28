@@ -128,15 +128,18 @@ def run(browser, url, artifacts):
         guest.screenshot(path=artifacts / "guest-playing.png")
 
     for _ in range(28):
-        if exact(host, "Play Again").is_visible():
+        if exact(guest, "Play Again").is_visible():
             break
-        host.keyboard.press("Space", delay=50)
-        host.wait_for_timeout(275)
-    exact(host, "Game Over").wait_for()
-    exact(guest, "🎉 You Win!").wait_for()
-    guest.wait_for_function(
+        guest.keyboard.press("Space", delay=50)
+        guest.wait_for_timeout(275)
+    exact(guest, "Game Over").wait_for()
+    exact(host, "You Win!").wait_for()
+    host.wait_for_function(
         "window.multiplayerProof.incoming.some(message => message.type === 'game_over')"
     )
+    for page in (host, guest):
+        assert exact(page, "Play Again").count() == 1
+        assert not exact(page, "Game Over!").is_visible()
     if artifacts:
         host.screenshot(path=artifacts / "host-result.png")
         guest.screenshot(path=artifacts / "guest-result.png")
@@ -169,7 +172,7 @@ def run(browser, url, artifacts):
             "shared pieces and start",
             "signalling closed before gameplay",
             "bidirectional board snapshots and displayed scores",
-            "host game over, guest victory, and return to multiplayer",
+            "one match result per player after invite guest tops out",
             "one-use invite is rejected after the match",
             "host decline reaches the guest and frees the lobby",
         ],

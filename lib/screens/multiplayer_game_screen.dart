@@ -384,6 +384,7 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Hold / Next sidebar ──────────────────────────────────────
@@ -493,32 +494,37 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
               // ── Opponent side ──────────────────────────────────────────
               SizedBox(
                 width: oppBoardW,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _OpponentScoreHeader(
-                      manager: widget.manager,
-                      formatter: _fmt,
-                      colorScheme: cs,
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: cs.outline.withAlpha(120),
-                          width:
-                              widget.settings.style == AppStyle.retro ? 2 : 1,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onLongPress: _hideOpponentBoard,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _OpponentScoreHeader(
+                        manager: widget.manager,
+                        formatter: _fmt,
+                        colorScheme: cs,
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: cs.outline.withAlpha(120),
+                            width:
+                                widget.settings.style == AppStyle.retro ? 2 : 1,
+                          ),
+                          borderRadius:
+                              panelBorderRadius(widget.settings.style),
                         ),
-                        borderRadius: panelBorderRadius(widget.settings.style),
+                        child: OpponentBoard(
+                          cells: widget.manager.opponentBoard,
+                          width: oppBoardW,
+                          height: oppBoardH,
+                          isGameOver: widget.manager.opponentIsGameOver,
+                        ),
                       ),
-                      child: OpponentBoard(
-                        cells: widget.manager.opponentBoard,
-                        width: oppBoardW,
-                        height: oppBoardH,
-                        isGameOver: widget.manager.opponentIsGameOver,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -671,52 +677,58 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
             Positioned(
               right: boardRight + 4,
               top: boardTop + 4,
-              child: Opacity(
-                opacity: 0.80,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest.withAlpha(200),
-                        borderRadius: panelBorderRadius(widget.settings.style),
-                      ),
-                      child: Text(
-                        (widget.manager.opponentName ??
-                                context.l10n.text('OPP'))
-                            .toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.0,
-                          color: cs.secondary,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onLongPress: _hideOpponentBoard,
+                child: Opacity(
+                  opacity: 0.80,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest.withAlpha(200),
+                          borderRadius:
+                              panelBorderRadius(widget.settings.style),
+                        ),
+                        child: Text(
+                          (widget.manager.opponentName ??
+                                  context.l10n.text('OPP'))
+                              .toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.0,
+                            color: cs.secondary,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: cs.outline.withAlpha(100),
-                          width:
-                              widget.settings.style == AppStyle.retro ? 2 : 1,
+                      const SizedBox(height: 2),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: cs.outline.withAlpha(100),
+                            width:
+                                widget.settings.style == AppStyle.retro ? 2 : 1,
+                          ),
+                          borderRadius:
+                              panelBorderRadius(widget.settings.style),
+                          color: cs.surface.withAlpha(66),
                         ),
-                        borderRadius: panelBorderRadius(widget.settings.style),
-                        color: cs.surface.withAlpha(66),
+                        child: OpponentBoard(
+                          cells: widget.manager.opponentBoard,
+                          width: oppW,
+                          height: oppH,
+                          isGameOver: widget.manager.opponentIsGameOver,
+                        ),
                       ),
-                      child: OpponentBoard(
-                        cells: widget.manager.opponentBoard,
-                        width: oppW,
-                        height: oppH,
-                        isGameOver: widget.manager.opponentIsGameOver,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -869,70 +881,80 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen>
     );
   }
 
+  void _hideOpponentBoard() {
+    unawaited(widget.settings.setShowOpponentBoard(false));
+    setState(() {});
+  }
+
   Widget _buildResultOverlay() {
     final cs = Theme.of(context).colorScheme;
     final style = widget.settings.style;
     return Container(
       color: cs.surface.withAlpha(220),
       alignment: Alignment.center,
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _iWon
-                  ? context.l10n.text('🎉 You Win!')
-                  : context.l10n.text('Game Over'),
-              style: TextStyle(
-                color: _iWon ? cs.tertiary : cs.error,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 380),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_iWon)
+                Icon(Icons.celebration_outlined, color: cs.tertiary, size: 32),
+              Text(
+                _iWon
+                    ? context.l10n.text('🎉 You Win!').replaceFirst('🎉 ', '')
+                    : context.l10n.text('Game Over'),
+                style: TextStyle(
+                  color: _iWon ? cs.tertiary : cs.error,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            _ResultRow(
-              label: context.l10n.text('Your score'),
-              value: _fmt.format(_gameLogic.score),
-              highlight: _iWon,
-              colorScheme: cs,
-            ),
-            const SizedBox(height: 6),
-            _ResultRow(
-              label: context.l10n.text("{name}'s score", {
-                'name': widget.manager.opponentName ??
-                    context.l10n.text('Opponent'),
-              }),
-              value: _fmt.format(widget.manager.opponentScore),
-              highlight: !_iWon,
-              colorScheme: cs,
-            ),
-            const SizedBox(height: 32),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    autofocus: true,
-                    onPressed: () => Navigator.of(context).pop(false),
-                    style: OutlinedButton.styleFrom(
-                      shape: buttonBorderShape(style),
+              const SizedBox(height: 20),
+              _ResultRow(
+                label: context.l10n.text('Your score'),
+                value: _fmt.format(_gameLogic.score),
+                highlight: _iWon,
+                colorScheme: cs,
+              ),
+              const SizedBox(height: 6),
+              _ResultRow(
+                label: context.l10n.text("{name}'s score", {
+                  'name': widget.manager.opponentName ??
+                      context.l10n.text('Opponent'),
+                }),
+                value: _fmt.format(widget.manager.opponentScore),
+                highlight: !_iWon,
+                colorScheme: cs,
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      autofocus: true,
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        shape: buttonBorderShape(style),
+                      ),
+                      child: Text(context.l10n.text('Play Again')),
                     ),
-                    child: Text(context.l10n.text('Play Again')),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: FilledButton.styleFrom(
-                      shape: buttonBorderShape(style),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: FilledButton.styleFrom(
+                        shape: buttonBorderShape(style),
+                      ),
+                      child: Text(context.l10n.text('Leave')),
                     ),
-                    child: Text(context.l10n.text('Leave')),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

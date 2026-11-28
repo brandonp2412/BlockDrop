@@ -145,6 +145,60 @@ void main() {
       );
     });
 
+    testWidgets('fullscreen touch controls stay below the board', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      SharedPreferences.setMockInitialValues({
+        'fullscreen_board': true,
+        'show_on_screen_controls': true,
+      });
+      addTearDown(() => SharedPreferences.setMockInitialValues({}));
+
+      await tester.pumpWidget(const BlockDropApp());
+      await tester.pumpAndSettle();
+
+      final board = tester.getRect(
+        find.byKey(const ValueKey('fullscreen-game-board')),
+      );
+      final controls = tester.getRect(
+        find.byKey(const Key('hard-drop-control')),
+      );
+      expect(controls.top, greaterThan(board.bottom));
+    });
+
+    testWidgets('solo game yields input and gravity while covered', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const BlockDropApp());
+      await tester.pumpAndSettle();
+      final board = find.byType(GameBoard);
+      final game = tester.widget<GameBoard>(board).gameLogic;
+      final navigator = Navigator.of(tester.element(board));
+      final route = MaterialPageRoute<void>(
+        builder: (_) => const Scaffold(body: Text('Multiplayer')),
+      );
+      navigator.push(route);
+      await tester.pumpAndSettle();
+
+      expect(game.isPaused, isTrue);
+      expect(game.gameTimer, isNull);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(game.board.expand((row) => row).every((cell) => cell == null),
+          isTrue);
+      expect(find.text('Multiplayer'), findsOneWidget);
+
+      navigator.pop();
+      await tester.pumpAndSettle();
+      expect(game.isPaused, isFalse);
+      expect(find.byType(GameBoard), findsOneWidget);
+    });
+
     testWidgets('on-screen soft drop respects the disabled gameplay rule', (
       WidgetTester tester,
     ) async {
