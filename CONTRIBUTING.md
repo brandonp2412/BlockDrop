@@ -6,7 +6,7 @@ I did 99% of the coding for this project using AI slop because I have never done
 ## Screenshot catalogue
 
 The catalogue uses a separate Flutter web capture entry point. Run these commands
-from the repository root to refresh the PNGs and gallery in `docs/screenshots`.
+from the repository root to build a local copy of the GitHub Pages gallery.
 
 ```sh
 python -m pip install patchright==1.64.4
@@ -14,8 +14,13 @@ python -m patchright install chromium
 flutter build web --release --no-wasm-dry-run --no-web-resources-cdn \
   --target=integration_test/screenshot_catalogue_test.dart \
   --output=build/screenshot-catalogue
-python scripts/capture-screenshots.py --catalogue \
-  --web build/screenshot-catalogue --output docs/screenshots
+python scripts/capture-screenshots.py --full \
+  --web build/screenshot-catalogue --output build/screenshot-captures --gallery build/screenshot-gallery
 ```
 
-Open `docs/screenshots/index.html` in a browser to review the captures.
+Open `build/screenshot-gallery/index.html` in a browser to review the captures.
+
+The main-branch build uploads the gallery and Flutter web app as separate
+artifacts. The Pages workflow publishes the gallery at `/BlockDrop/screenshots/`
+and the privacy policy at `/BlockDrop/privacy-policy.html`. GitHub Pages must
+use GitHub Actions as its publishing source.

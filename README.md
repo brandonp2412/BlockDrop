@@ -43,7 +43,7 @@ no new release tag for F-Droid's tag-based update checker to ingest.
 
 # Screenshots
 
-Browse the [full screenshot catalogue](docs/screenshots/README.md) for phone, tablet, and desktop views of gameplay, styles, multiplayer, and settings.
+See the [full screenshot gallery](https://brandonp2412.github.io/BlockDrop/screenshots/) for phone, 7-inch tablet, 10-inch tablet, and desktop captures.
 
 <p align="center">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" width="360" alt="Light Classic" />

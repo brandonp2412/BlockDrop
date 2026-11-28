@@ -197,6 +197,50 @@ jobs:
           if-no-files-found: ignore
           retention-days: 3
 
+  generate-screenshot-gallery:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build screenshot fixtures
+        run: |
+          export PATH="$PWD/flutter/bin:$PATH"
+          flutter config --no-analytics
+          flutter pub get --enforce-lockfile
+          flutter build web --release --no-wasm-dry-run --no-web-resources-cdn --target=integration_test/screenshot_catalogue_test.dart --output="$RUNNER_TEMP/gallery-fixture"
+
+      - name: Capture full screenshot gallery
+        run: |
+          python -m pip install patchright==1.64.4
+          python -m patchright install --with-deps chromium
+          python scripts/capture-screenshots.py --full --web "$RUNNER_TEMP/gallery-fixture" --output "$RUNNER_TEMP/blockdrop-full-screenshots" --gallery "$RUNNER_TEMP/blockdrop-gallery"
+
+      - name: Upload full screenshot gallery
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: blockdrop-screenshot-gallery
+          path: ${{ runner.temp }}/blockdrop-gallery/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gallery-screenshot-failure
+          path: ${{ runner.temp }}/blockdrop-full-screenshots/**/*-debug.png
+          if-no-files-found: ignore
+          retention-days: 3
+
   patrol-tests:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -704,6 +748,47 @@ jobs:
           retention-days: 7
           name: linux-app
           path: block_drop_linux_*.tar.gz
+
+  build-web:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Build Flutter web application
+        env:
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          export PATH="$PWD/flutter/bin:$PATH"
+          flutter config --no-analytics
+          flutter pub get --enforce-lockfile
+          flutter build web --release --no-wasm-dry-run --no-web-resources-cdn --base-href "/${REPO_NAME}/"
+          cp docs/index.html build/web/privacy-policy.html
+
+      - name: Upload web application
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: blockdrop-web
+          path: build/web/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-pages:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [generate-screenshot-gallery, build-web]
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml
+    with:
+      web_run_id: ${{ github.run_id }}
+      gallery_run_id: ${{ github.run_id }}
 
   create-release:
     needs: [version-bump, build-android, verify-fdroid-repro, build-ios, build-windows, build-linux]

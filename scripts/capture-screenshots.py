@@ -41,7 +41,7 @@ async def capture(browser, url, out, name, debug_dir, profile, expected_names):
     w,h,scale = profile
     status_bar = name != "desktop"
     options = dict(viewport={"width":w,"height":h - STATUS_BAR_HEIGHT if status_bar else h}, device_scale_factor=scale, reduced_motion="reduce", locale="en-US", timezone_id="UTC")
-    if name in {"phoneScreenshots", "phone"}:
+    if name == "phoneScreenshots":
         options.update(is_mobile=True, has_touch=True, user_agent="Mozilla/5.0 (Linux; Android 15; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36")
     context=await browser.new_context(**options)
     dest=out/name
@@ -96,12 +96,12 @@ async def capture(browser, url, out, name, debug_dir, profile, expected_names):
             await compositor_context.close()
 
 async def main(args):
-    profiles = screenshot_catalogue.PROFILES if args.catalogue else PROFILES
+    profiles = screenshot_catalogue.PROFILES if args.full else PROFILES
     selected = args.profiles or list(profiles)
     expected = {
         name: (
             {f"{scene}.png" for group in screenshot_catalogue.scenes(name).values() for scene in group}
-            if args.catalogue else EXPECTED_NAMES
+            if args.full else EXPECTED_NAMES
         )
         for name in selected
     }
@@ -129,9 +129,8 @@ async def main(args):
                 destination.mkdir(parents=True, exist_ok=True)
                 for filename in sorted(expected[name]):
                     shutil.copyfile(staged / name / filename, destination / filename)
-            if args.catalogue:
-                screenshot_catalogue.write_index(args.output, selected)
-                screenshot_catalogue.write_readme(args.output, selected)
+            if args.gallery:
+                screenshot_catalogue.build_gallery(staged, args.gallery, selected)
     finally:
         server.shutdown()
         server.server_close()
@@ -139,10 +138,13 @@ if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("--web",type=Path,required=True)
     parser.add_argument("--output",type=Path,required=True)
-    parser.add_argument("--catalogue", action="store_true", help="Capture the documentation gallery")
+    parser.add_argument("--full", action="store_true", help="Capture the full screenshot suite")
+    parser.add_argument("--gallery", type=Path, help="Build a browsable gallery from the full suite")
     parser.add_argument("profiles", nargs="*")
     args = parser.parse_args()
-    profiles = screenshot_catalogue.PROFILES if args.catalogue else PROFILES
+    if args.gallery and not args.full:
+        parser.error("--gallery requires --full")
+    profiles = screenshot_catalogue.PROFILES if args.full else PROFILES
     if any(name not in profiles for name in args.profiles):
         parser.error("Unknown screenshot profile")
     asyncio.run(main(args))
