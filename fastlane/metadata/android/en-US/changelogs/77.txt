@@ -1,0 +1,5 @@
+Play a two-player match in your browser. Open Settings, choose Play online, and send your opponent an invitation link. Installed apps still support LAN play.
+
+Multiplayer shows one result per match. Boards and results are centered on wide screens. The opponent preview is off by default. Turn it on in Settings and long-press it to hide it again. Full-screen touch controls sit below the board.
+
+The website now has a screenshot gallery for phones, tablets, and desktop.
