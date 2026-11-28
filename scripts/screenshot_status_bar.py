@@ -24,7 +24,8 @@ async def capture_with_status_bar(page, compositor, path, width, height, scale, 
         const sample = document.createElement('canvas');
         sample.width = sample.height = 1;
         const sampleCtx = sample.getContext('2d');
-        sampleCtx.drawImage(img, 0, existingInset ? barHeight - 1 : 0, img.naturalWidth, 1, 0, 0, 1, 1);
+        // Sample the app edge so a board or border cannot tint the status bar.
+        sampleCtx.drawImage(img, 0, existingInset ? barHeight - 1 : 0, 1, 1, 0, 0, 1, 1);
         const [r, g, b] = sampleCtx.getImageData(0, 0, 1, 1).data;
         ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
         ctx.drawImage(img, 0, existingInset ? 0 : barHeight);
