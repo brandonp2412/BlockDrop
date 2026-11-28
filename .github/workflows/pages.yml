@@ -57,8 +57,9 @@ jobs:
       - name: Validate website and gallery
         run: |
           test -s site/index.html
-          test -s site/flutter_bootstrap.js
-          test -s site/privacy-policy.html
+          cmp site/index.html site/privacy-policy.html
+          test -s site/play/index.html
+          test -s site/play/flutter_bootstrap.js
           test -s site/screenshots/index.html
           for profile in phoneScreenshots sevenInchScreenshots tenInchScreenshots desktop; do
             dark_count=23

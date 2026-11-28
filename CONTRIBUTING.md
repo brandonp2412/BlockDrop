@@ -21,6 +21,6 @@ python scripts/capture-screenshots.py --full \
 Open `build/screenshot-gallery/index.html` in a browser to review the captures.
 
 The main-branch build uploads the gallery and Flutter web app as separate
-artifacts. The Pages workflow publishes the gallery at `/BlockDrop/screenshots/`
-and the privacy policy at `/BlockDrop/privacy-policy.html`. GitHub Pages must
-use GitHub Actions as its publishing source.
+artifacts. The Pages workflow keeps the privacy policy at `/BlockDrop/`.
+The game is at `/BlockDrop/play/` and the gallery is at `/BlockDrop/screenshots/`.
+GitHub Pages uses GitHub Actions as its publishing source.

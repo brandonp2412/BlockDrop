@@ -766,14 +766,15 @@ jobs:
           export PATH="$PWD/flutter/bin:$PATH"
           flutter config --no-analytics
           flutter pub get --enforce-lockfile
-          flutter build web --release --no-wasm-dry-run --no-web-resources-cdn --base-href "/${REPO_NAME}/"
-          cp docs/index.html build/web/privacy-policy.html
+          flutter build web --release --no-wasm-dry-run --no-web-resources-cdn --base-href "/${REPO_NAME}/play/" --output=build/pages/play
+          cp docs/index.html build/pages/index.html
+          cp docs/index.html build/pages/privacy-policy.html
 
       - name: Upload web application
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: blockdrop-web
-          path: build/web/
+          path: build/pages/
           if-no-files-found: error
           retention-days: 7
 
