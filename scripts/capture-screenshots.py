@@ -2,6 +2,7 @@
 import argparse, asyncio, functools, http.server, json, threading, shutil, struct, tempfile
 from pathlib import Path
 from patchright.async_api import async_playwright
+import screenshot_catalogue
 from screenshot_status_bar import STATUS_BAR_HEIGHT, capture_with_status_bar
 
 EXPECTED_NAMES = {f"{n}_en-US.png" for n in range(1, 9)}
@@ -36,11 +37,11 @@ async def request(page, message=None):
         raise RuntimeError(response)
     return json.loads(response["response"]["message"])
 
-async def capture(browser, url, out, name, debug_dir):
-    w,h,scale = PROFILES[name]
+async def capture(browser, url, out, name, debug_dir, profile, expected_names):
+    w,h,scale = profile
     status_bar = name != "desktop"
     options = dict(viewport={"width":w,"height":h - STATUS_BAR_HEIGHT if status_bar else h}, device_scale_factor=scale, reduced_motion="reduce", locale="en-US", timezone_id="UTC")
-    if name == "phoneScreenshots":
+    if name in {"phoneScreenshots", "phone"}:
         options.update(is_mobile=True, has_touch=True, user_agent="Mozilla/5.0 (Linux; Android 15; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36")
     context=await browser.new_context(**options)
     dest=out/name
@@ -62,7 +63,7 @@ async def capture(browser, url, out, name, debug_dir):
             command=data.get("web_driver_command")
             if command=="WebDriverCommandType.screenshot":
                 filename=data["screenshot_name"]+".png"
-                if filename not in EXPECTED_NAMES or filename in captured:
+                if filename not in expected_names or filename in captured:
                     raise RuntimeError(f"Unexpected screenshot: {filename}")
                 await page.wait_for_timeout(500)
                 if compositor:
@@ -77,8 +78,11 @@ async def capture(browser, url, out, name, debug_dir):
                 response=await request(page,"pending")
             elif command=="WebDriverCommandType.noop":
                 result=await request(page)
-                print(name,"RESULT",json.dumps(result)[:5000],flush=True)
-                if captured != EXPECTED_NAMES or result.get("result") != "true" or errors:
+                print(name, "RESULT", result.get("result"), flush=True)
+                fixture_error = (result.get("data") or {}).get("catalogueError")
+                if fixture_error:
+                    raise RuntimeError(f"{name}: {fixture_error}")
+                if captured != expected_names or result.get("result") != "true" or errors:
                     raise RuntimeError(f"{name}: captured={captured}, result={result}, page errors={errors}")
                 return
             else:
@@ -92,27 +96,42 @@ async def capture(browser, url, out, name, debug_dir):
             await compositor_context.close()
 
 async def main(args):
+    profiles = screenshot_catalogue.PROFILES if args.catalogue else PROFILES
+    selected = args.profiles or list(profiles)
+    expected = {
+        name: (
+            {f"{scene}.png" for group in screenshot_catalogue.scenes(name).values() for scene in group}
+            if args.catalogue else EXPECTED_NAMES
+        )
+        for name in selected
+    }
     args.output.mkdir(parents=True, exist_ok=True)
     handler=functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(args.web))
     server=http.server.ThreadingHTTPServer(("127.0.0.1",0),handler)
     threading.Thread(target=server.serve_forever,daemon=True).start()
     try:
-        with tempfile.TemporaryDirectory(prefix="flex-screenshots-") as directory:
+        with tempfile.TemporaryDirectory(prefix="blockdrop-screenshots-") as directory:
             staged = Path(directory)
             async with async_playwright() as p:
                 browser = await p.chromium.launch(
                     headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"]
                 )
                 try:
-                    for name in args.profiles:
-                        await capture(browser, f"http://127.0.0.1:{server.server_port}/", staged, name, args.output)
+                    for name in selected:
+                        await capture(
+                            browser, f"http://127.0.0.1:{server.server_port}/",
+                            staged, name, args.output, profiles[name], expected[name],
+                        )
                 finally:
                     await browser.close()
-            for name in args.profiles:
+            for name in selected:
                 destination = args.output / name
                 destination.mkdir(parents=True, exist_ok=True)
-                for filename in sorted(EXPECTED_NAMES):
+                for filename in sorted(expected[name]):
                     shutil.copyfile(staged / name / filename, destination / filename)
+            if args.catalogue:
+                screenshot_catalogue.write_index(args.output, selected)
+                screenshot_catalogue.write_readme(args.output, selected)
     finally:
         server.shutdown()
         server.server_close()
@@ -120,8 +139,10 @@ if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("--web",type=Path,required=True)
     parser.add_argument("--output",type=Path,required=True)
-    parser.add_argument("profiles",nargs="*",default=list(PROFILES))
+    parser.add_argument("--catalogue", action="store_true", help="Capture the documentation gallery")
+    parser.add_argument("profiles", nargs="*")
     args = parser.parse_args()
-    if any(name not in PROFILES for name in args.profiles):
+    profiles = screenshot_catalogue.PROFILES if args.catalogue else PROFILES
+    if any(name not in profiles for name in args.profiles):
         parser.error("Unknown screenshot profile")
     asyncio.run(main(args))
